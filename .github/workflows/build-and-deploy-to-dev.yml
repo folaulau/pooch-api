@@ -1,0 +1,53 @@
+name: Build and deploy docker image to (dev) ECR and update ECS task def
+
+on:
+  push:
+    branches: [development]
+
+env:
+  POSTGRESQL_VERSION: 14
+  POSTGRESQL_DB: pooch_api_db
+  POSTGRESQL_USER: postgres
+  POSTGRESQL_PASSWORD: postgres
+  spring.profiles.active: github
+  JAVA_VERSION: 1.17
+  
+jobs:
+  build-push-image-to-ecr:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_DB: ${{ env.POSTGRESQL_DB }}
+          POSTGRES_USER: ${{ env.POSTGRESQL_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRESQL_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    if: "!contains(github.event.head_commit.message, '--skip-ci')"
+    outputs:
+      ecr_image: ${{ steps.build-image.outputs.image }}
+
+    steps:
+      # set up for java maven build
+      - uses: actions/checkout@v2
+      - name: Set up Java 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt' # See 'Supported distributions' for available options
+          java-version: '17'
+
+
+      - name: Build with maven
+        run: |
+          mvn -Dstripe.secret.key=${{ secrets.STRIPE_SECRET_KEY }} -Dstripe.publishable.key=${{ secrets.STRIPE_PUBLISHABLE_KEY }} -Dspring.profiles.active=github clean package
+        env:
+          database.url: postgres://${{ env.POSTGRESQL_USER }}:${{ env.POSTGRESQL_PASSWORD }}@host.docker.internal:5432/${{ env.POSTGRESQL_DB }}
+          database.username: ${{ env.POSTGRESQL_USER }}
+          database.password: ${{ env.POSTGRESQL_PASSWORD }}
+          database.name: ${{ env.POSTGRESQL_DB }}
+          aws.access.key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          stripe.secret.key: ${{ secrets.STRIPE_SECRET_KEY }}
+          stripe.publishable.key: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
