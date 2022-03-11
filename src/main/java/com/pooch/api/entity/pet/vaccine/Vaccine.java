@@ -1,27 +1,30 @@
-package com.pooch.api.entity.petsitter;
+package com.pooch.api.entity.pet.vaccine;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotEmpty;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
-
+import com.pooch.api.entity.pet.Pet;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,10 +35,10 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 @DynamicUpdate
 @Entity
-@SQLDelete(sql = "UPDATE " + DatabaseTableNames.PetSitter + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
+@SQLDelete(sql = "UPDATE " + DatabaseTableNames.PetVaccine + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
 @Where(clause = "deleted = 'F'")
-@Table(name = DatabaseTableNames.PetSitter, indexes = {@Index(columnList = "uuid"), @Index(columnList = "email"), @Index(columnList = "deleted")})
-public class PetSitter implements Serializable {
+@Table(name = DatabaseTableNames.PetVaccine, indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
+public class Vaccine implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -47,30 +50,15 @@ public class PetSitter implements Serializable {
     @Column(name = "uuid", unique = true, nullable = false, updatable = false)
     private String            uuid;
 
-    @Column(name = "first_name")
-    private String            firstName;
+    @Column(name = "expire_date")
+    private LocalDateTime     expireDate;
 
-    @Column(name = "last_name")
-    private String            lastName;
+    @Column(name = "name")
+    private String            name;
 
-    @NotEmpty
-    @Column(name = "email", unique = true)
-    private String            email;
-
-    @Column(name = "email_verified")
-    private Boolean           emailVerified;
-
-    @Column(name = "phone_number")
-    private String            phoneNumber;
-
-    @Column(name = "phone_verified")
-    private Boolean           phoneVerified;
-
-    /**
-     * 5 star rating
-     */
-    @Column(name = "rating")
-    private Integer           rating;
+    @ManyToOne(cascade = CascadeType.DETACH)
+    @JoinColumn(name = "pet_id")
+    private Pet               pet;
 
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;
@@ -82,5 +70,4 @@ public class PetSitter implements Serializable {
     @UpdateTimestamp
     @Column(name = "last_updated_at", nullable = false)
     private LocalDateTime     lastUpdatedAt;
-
 }

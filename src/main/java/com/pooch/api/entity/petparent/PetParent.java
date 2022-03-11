@@ -1,7 +1,8 @@
-package com.pooch.api.entity.petsitter;
+package com.pooch.api.entity.petparent;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,6 +19,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
@@ -32,10 +34,10 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 @DynamicUpdate
 @Entity
-@SQLDelete(sql = "UPDATE " + DatabaseTableNames.PetSitter + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
+@SQLDelete(sql = "UPDATE " + DatabaseTableNames.PetParent + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
 @Where(clause = "deleted = 'F'")
-@Table(name = DatabaseTableNames.PetSitter, indexes = {@Index(columnList = "uuid"), @Index(columnList = "email"), @Index(columnList = "deleted")})
-public class PetSitter implements Serializable {
+@Table(name = DatabaseTableNames.PetParent, indexes = {@Index(columnList = "uuid"), @Index(columnList = "email"), @Index(columnList = "phone_number"), @Index(columnList = "deleted")})
+public class PetParent implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -65,12 +67,6 @@ public class PetSitter implements Serializable {
 
     @Column(name = "phone_verified")
     private Boolean           phoneVerified;
-
-    /**
-     * 5 star rating
-     */
-    @Column(name = "rating")
-    private Integer           rating;
 
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;
