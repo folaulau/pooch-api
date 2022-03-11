@@ -89,6 +89,8 @@ jobs:
       CONTAINER_NAME: pooch-api
       TASK_DEFINITION: pooch-api-dev
 
+    # https://github.com/aws-actions/amazon-ecs-deploy-task-definition
+    # https://aws.amazon.com/blogs/containers/create-a-ci-cd-pipeline-for-amazon-ecs-with-github-actions-and-aws-codebuild-tests/
     steps:
       - uses: actions/checkout@v2
       - name: Use Java 17
