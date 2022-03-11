@@ -44,7 +44,7 @@ public class PingController {
 
         log.info("welcome, ip: {}", HttpUtils.getRequestIP(request));
 
-        return new ResponseEntity<>("Welcome to Assemble API", HttpStatus.OK);
+        return new ResponseEntity<>("Welcome to Pooch API", HttpStatus.OK);
     }
 
 }

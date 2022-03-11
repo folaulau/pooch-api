@@ -38,7 +38,7 @@ public class LocalAwsConfig {
 
     @Bean
     public AWSCredentialsProvider amazonAWSCredentialsProvider() {
-        return new ProfileCredentialsProvider("folauk110");
+        return new ProfileCredentialsProvider("pooch");
     }
 
     @Bean
