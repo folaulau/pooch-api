@@ -2,12 +2,17 @@ package com.pooch.api.entity.petsitter;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
@@ -15,7 +20,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -82,5 +86,17 @@ public class PetSitter implements Serializable {
     @UpdateTimestamp
     @Column(name = "last_updated_at", nullable = false)
     private LocalDateTime     lastUpdatedAt;
+
+    @PrePersist
+    private void preCreate() {
+        if (this.uuid == null || this.uuid.isEmpty()) {
+            this.uuid = "petsitter-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
+        }
+
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+    }
 
 }
