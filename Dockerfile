@@ -1,5 +1,5 @@
 ########### Run #########
-FROM adoptopenjdk/openjdk17
+FROM openjdk:17-alpine
 
 ADD target/pooch-api.jar pooch-api.jar
 EXPOSE 8085
