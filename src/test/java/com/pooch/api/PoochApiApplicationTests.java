@@ -45,7 +45,7 @@ class PoochApiApplicationTests {
 
     @Test
     void test_retrieveUser() throws FirebaseAuthException {
-
+        // @formatter:off
         CreateRequest request = new CreateRequest().setEmail(RandomGeneratorUtils.getRandomEmail())
                 .setEmailVerified(false)
                 .setPassword("Test1234!")
