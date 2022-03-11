@@ -34,7 +34,7 @@ public final class RandomGeneratorUtils {
         return RandomUtils.nextFloat();
     }
 
-    public static Float getIntegerWithin(float start, float end) {
+    public static Float getFloatWithin(float start, float end) {
         return RandomUtils.nextFloat(start, end);
     }
 
@@ -125,6 +125,18 @@ public final class RandomGeneratorUtils {
 
     public static String getRandomFullName() {
         return getRandomFirstname() + " " + getRandomLastname();
+    }
+    
+
+    public static String getRandomPhone() {
+        return getRandomPhone(0);
+    }
+    
+    public static String getRandomPhone(int areaCode) {
+        if(areaCode<100) {
+            areaCode = getIntegerWithin(100, 999);
+        }
+        return areaCode + "" + getIntegerWithin(100, 999)+""+getIntegerWithin(1000, 9999);
     }
 
     // ******** TOO BIG, LEAVE THESE HERE ************
@@ -294,5 +306,6 @@ public final class RandomGeneratorUtils {
             "Travis", "Mcneil", "Hinton", "Zhang", "Hays", "Mayo", "Fritz", "Branch", "Mooney", "Ewing", "Ritter", "Esparza", "Frey", "Braun", "Gay", "Riddle", "Haney", "Kaiser", "Holder", "Chaney",
             "Mcknight", "Gamble", "Vang", "Cooley", "Carney", "Cowan", "Forbes", "Ferrell", "Davies", "Barajas", "Shea", "Osborn", "Bright", "Cuevas", "Bolton", "Murillo", "Lutz", "Duarte", "Kidd",
             "Key", "Cooke");
+
 
 }

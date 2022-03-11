@@ -4,6 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.google.firebase.auth.ActionCodeSettings;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.UserRecord;
+import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.pooch.api.entity.petsitter.PetSitter;
 import com.pooch.api.entity.petsitter.PetSitterRepository;
 import com.pooch.api.utils.ObjectUtils;
@@ -16,17 +21,47 @@ import lombok.extern.slf4j.Slf4j;
 class PoochApiApplicationTests {
 
     @Autowired
-    private PetSitterRepository petSitterRepository;
+    private FirebaseAuth firebaseAuth;
 
     @Test
-    void test_saveSitter() {
+    void test_createUser() throws FirebaseAuthException {
+        // @formatter:off
 
-        PetSitter sitter = new PetSitter();
-        sitter.setEmail(RandomGeneratorUtils.getRandomEmail());
+        CreateRequest request = new CreateRequest()
+                .setEmail(RandomGeneratorUtils.getRandomEmail())
+                .setEmailVerified(false)
+                .setPassword("Test1234!")
+                .setPhoneNumber("+1"+RandomGeneratorUtils.getRandomPhone())
+                .setDisplayName(RandomGeneratorUtils.getRandomFullName())
+                .setPhotoUrl("http://www.example.com/12345678/photo.png")
+                .setDisabled(false);
+        // @formatter:on
 
-        sitter = petSitterRepository.saveAndFlush(sitter);
+        UserRecord userRecord = firebaseAuth.createUser(request);
+        System.out.println("Successfully created new user: " + userRecord.getUid());
+        log.info("userRecord={}", ObjectUtils.toJson(userRecord));
 
-        log.info("sitter={}", ObjectUtils.toJson(sitter));
+    }
+
+    @Test
+    void test_retrieveUser() throws FirebaseAuthException {
+
+        CreateRequest request = new CreateRequest().setEmail(RandomGeneratorUtils.getRandomEmail())
+                .setEmailVerified(false)
+                .setPassword("Test1234!")
+                .setPhoneNumber("+1" + RandomGeneratorUtils.getRandomPhone())
+                .setDisplayName(RandomGeneratorUtils.getRandomFullName())
+                .setPhotoUrl("http://www.example.com/12345678/photo.png")
+                .setDisabled(false);
+        // @formatter:on
+
+        UserRecord userRecord = firebaseAuth.createUser(request);
+
+        String uid = userRecord.getUid();
+        userRecord = firebaseAuth.getUser(uid);
+        System.out.println("Successfully created new user: " + userRecord.getUid());
+        log.info("userRecord={}", ObjectUtils.toJson(userRecord));
+
     }
 
 }
