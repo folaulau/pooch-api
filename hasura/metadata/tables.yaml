@@ -1,0 +1,36 @@
+- table:
+    schema: public
+    name: pet
+  object_relationships:
+  - name: pet_parent
+    using:
+      foreign_key_constraint_on: pet_parent_id
+  array_relationships:
+  - name: pet_vaccines
+    using:
+      foreign_key_constraint_on:
+        column: pet_id
+        table:
+          schema: public
+          name: pet_vaccine
+- table:
+    schema: public
+    name: pet_parent
+  array_relationships:
+  - name: pets
+    using:
+      foreign_key_constraint_on:
+        column: pet_parent_id
+        table:
+          schema: public
+          name: pet
+- table:
+    schema: public
+    name: pet_sitter
+- table:
+    schema: public
+    name: pet_vaccine
+  object_relationships:
+  - name: pet
+    using:
+      foreign_key_constraint_on: pet_id
