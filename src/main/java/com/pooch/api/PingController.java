@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pooch.api.utils.HttpUtils;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -20,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * 
  * @author folaukaveinga
  */
+@Hidden
 @Tag(name = "Ping", description = "Ping Operation")
 @RestController
 public class PingController {
