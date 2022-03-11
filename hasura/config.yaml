@@ -1,0 +1,4 @@
+version: 2
+# change endpoint to apply metadata to other envs
+#endpoint: http://localhost:7002
+metadata_directory: metadata
