@@ -49,11 +49,8 @@ public class PetParent implements Serializable {
     @Column(name = "uuid", unique = true, nullable = false, updatable = false)
     private String            uuid;
 
-    @Column(name = "first_name")
-    private String            firstName;
-
-    @Column(name = "last_name")
-    private String            lastName;
+    @Column(name = "full_name")
+    private String            fullName;
 
     @NotEmpty
     @Column(name = "email", unique = true)
