@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
+import com.pooch.api.dto.PetCareBookingDTO;
 import com.pooch.api.firebase.FirebaseAuthService;
 import com.pooch.api.security.AuthenticationService;
 
@@ -63,6 +64,12 @@ public class PetParentServiceImp implements PetParentService {
         }
 
         return authenticationService.authenticate(petParent);
+    }
+
+    @Override
+    public void bookPetCare(PetCareBookingDTO petCareBookingDTO) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

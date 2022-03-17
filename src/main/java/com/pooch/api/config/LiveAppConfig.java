@@ -14,6 +14,7 @@ import org.springframework.context.annotation.PropertySource;
 import com.pooch.api.aws.secretsmanager.AwsSecretsManagerService;
 import com.pooch.api.aws.secretsmanager.DatabaseSecrets;
 import com.pooch.api.aws.secretsmanager.StripeSecrets;
+import com.pooch.api.aws.secretsmanager.TwilioSecrets;
 import com.pooch.api.utils.ObjectUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -110,6 +111,11 @@ public class LiveAppConfig {
     @Bean(name = "stripeSecret")
     public StripeSecrets stripeSecret() {
         return awsSecretsManagerService.getStripeSecrets();
+    }
+    
+    @Bean(name = "twilioSecrets")
+    public TwilioSecrets twilioSecrets() {
+        return awsSecretsManagerService.getTwilioSecrets();
     }
 
     @DependsOn("stripeSecret")

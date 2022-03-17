@@ -62,8 +62,8 @@ public class PetParent implements Serializable {
     @Column(name = "phone_number")
     private String            phoneNumber;
 
-    @Column(name = "phone_verified")
-    private Boolean           phoneVerified;
+    @Column(name = "phone_number_verified")
+    private Boolean           phoneNumberVerified;
 
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;

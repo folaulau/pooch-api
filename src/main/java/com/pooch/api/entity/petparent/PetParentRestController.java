@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
+import com.pooch.api.dto.PetCareBookingDTO;
+import com.pooch.api.utils.ObjectUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,5 +36,15 @@ public class PetParentRestController {
         AuthenticationResponseDTO authenticationResponseDTO = petParentService.authenticate(authenticatorDTO);
 
         return new ResponseEntity<>(authenticationResponseDTO, OK);
+    }
+    
+    @Operation(summary = "Booking Pet Care", description = "booking a pet care")
+    @PostMapping(value = "/booking/petcare")
+    public ResponseEntity<Boolean> bookPetCare(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @RequestBody PetCareBookingDTO petCareBookingDTO) {
+        log.info("bookPetCare, booking={}", ObjectUtils.toJson(petCareBookingDTO));
+
+        petParentService.bookPetCare(petCareBookingDTO);
+
+        return new ResponseEntity<>(true, OK);
     }
 }

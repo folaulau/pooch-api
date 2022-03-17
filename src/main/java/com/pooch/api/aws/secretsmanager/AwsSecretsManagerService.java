@@ -5,4 +5,6 @@ public interface AwsSecretsManagerService {
     public DatabaseSecrets getDbSecret();
 
     public StripeSecrets getStripeSecrets();
+
+    public TwilioSecrets getTwilioSecrets();
 }

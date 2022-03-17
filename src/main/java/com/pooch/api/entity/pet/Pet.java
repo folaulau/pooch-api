@@ -2,10 +2,14 @@ package com.pooch.api.entity.pet;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -18,6 +22,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
@@ -82,12 +87,22 @@ public class Pet implements Serializable {
     @Column(name = "age")
     private Integer           age;
 
+    @Column(name = "weight")
+    private Double            weight;
+
+    /**
+     * spayed or neutered
+     */
+    @Column(name = "spayed")
+    private Boolean           spayed;
+
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     @Column(name = "notes")
     private String            notes;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "pet", cascade = CascadeType.ALL)
+    @ElementCollection
+    @CollectionTable(name = "pet_vaccines", joinColumns = @JoinColumn(name = "pet_id"))
     private Set<Vaccine>      vaccines;
 
     @ManyToOne(cascade = CascadeType.DETACH)
@@ -104,5 +119,13 @@ public class Pet implements Serializable {
     @UpdateTimestamp
     @Column(name = "last_updated_at", nullable = false)
     private LocalDateTime     lastUpdatedAt;
+
+    @PrePersist
+    private void preCreate() {
+        if (this.uuid == null || this.uuid.isEmpty()) {
+            this.uuid = "pet-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
+        }
+
+    }
 
 }

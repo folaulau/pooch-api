@@ -10,6 +10,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
+import com.pooch.api.aws.secretsmanager.TwilioSecrets;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -40,7 +41,7 @@ public class LocalAppConfig {
     public String stripeApiSecretKey(@Value("${stripe.secret.key}") String stripeApiSecretKey) {
         return stripeApiSecretKey;
     }
-    
+
     @Bean(name = "stripeProductId")
     public String stripeProductId(@Value("${stripe.product}") String stripeProductId) {
         return stripeProductId;
@@ -49,6 +50,16 @@ public class LocalAppConfig {
     @Bean(name = "queue")
     public String queue(@Value("${queue}") String queue) {
         return queue;
+    }
+
+    @Bean(name = "twilioSecrets")
+    public TwilioSecrets getTwilioSecrets(@Value("${twilio.account.sid}") String twilioAccountId, @Value("${twilio.auth.token}") String twilioAuthToken,
+            @Value("${twilio.sms.sender}") String twilioSMSSender) {
+        TwilioSecrets twilioSecrets = new TwilioSecrets();
+        twilioSecrets.setAccountSid(twilioAccountId);
+        twilioSecrets.setAuthToken(twilioAuthToken);
+        twilioSecrets.setSmsSender(twilioSMSSender);
+        return twilioSecrets;
     }
 
     /* ================== datasource =============== */
