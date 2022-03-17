@@ -20,7 +20,7 @@ public class SmsServiceImp implements SmsService {
     public boolean sendSMS(long phoneNumber, String message) {
         try {
             Twilio.init(twilioSecrets.getAccountSid(), twilioSecrets.getAuthToken());
-            Message message = Message.creator(new com.twilio.type.PhoneNumber("+1" + phoneNumber), new com.twilio.type.PhoneNumber("+1" + twilioSecrets.getSmsSender()), message).create();
+            Message msg = Message.creator(new com.twilio.type.PhoneNumber("+1" + phoneNumber), new com.twilio.type.PhoneNumber("+1" + twilioSecrets.getSmsSender()), message).create();
             return true;
         } catch (Exception e) {
             log.warn("Twilio exception, msg={}", e.getLocalizedMessage());
