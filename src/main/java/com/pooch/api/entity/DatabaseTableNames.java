@@ -6,4 +6,5 @@ public interface DatabaseTableNames {
     String PetSitter = "pet_sitter";
     String PetParent = "pet_parent";
     String PetVaccine = "pet_vaccine";
+    String PhoneNumberVerification = "phone_number_verification";
 }

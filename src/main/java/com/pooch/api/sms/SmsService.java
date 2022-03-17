@@ -2,5 +2,5 @@ package com.pooch.api.sms;
 
 public interface SmsService {
 
-    boolean sendSMS(long phoneNumber, String message);
+    boolean sendSMS(int countryCode, int phoneNumber, String message);
 }

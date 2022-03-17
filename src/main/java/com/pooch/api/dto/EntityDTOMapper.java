@@ -8,6 +8,7 @@ import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import com.pooch.api.entity.pet.Pet;
+import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
 
 @Mapper(componentModel = "spring", nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EntityDTOMapper {
@@ -20,5 +21,7 @@ public interface EntityDTOMapper {
         @Mapping(target = "uuid", ignore = true),
             @Mapping(target = "deleted", ignore = true)})
     void patchPet(PetCreateDTO petCreateDTO, @MappingTarget Pet pet);
+
+    PhoneNumberVerificationDTO mapPhoneNumberVerificationToPhoneNumberVerificationDTO(PhoneNumberVerification phoneNumberVerification);
 
 }

@@ -17,11 +17,25 @@ public class SmsServiceImp implements SmsService {
     private TwilioSecrets twilioSecrets;
 
     @Override
-    public boolean sendSMS(long phoneNumber, String message) {
+    public boolean sendSMS(int countryCode, int phoneNumber, String message) {
         try {
+            
+            if(countryCode<=0) {
+                countryCode = 1;
+            }
+            
             Twilio.init(twilioSecrets.getAccountSid(), twilioSecrets.getAuthToken());
-            Message msg = Message.creator(new com.twilio.type.PhoneNumber("+1" + phoneNumber), new com.twilio.type.PhoneNumber("+1" + twilioSecrets.getSmsSender()), message).create();
+            
+            // @formatter:off
+            Message msg = Message.creator(
+                    new com.twilio.type.PhoneNumber("+" + countryCode + phoneNumber), 
+                    new com.twilio.type.PhoneNumber("+1" + twilioSecrets.getSmsSender()), 
+                    message).create();
+            
+            // @formatter:on
+            
             return true;
+        
         } catch (Exception e) {
             log.warn("Twilio exception, msg={}", e.getLocalizedMessage());
         }
