@@ -20,7 +20,7 @@ public class PhoneNumberValidatorServiceImp implements PhoneNumberValidatorServi
 
     @Override
     public PhoneNumberVerification validateVerificationNumberWithCode(PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO) {
-        Long countryCode = phoneNumberVerificationDTO.getCountryCode();
+        Integer countryCode = phoneNumberVerificationDTO.getCountryCode();
         if (null == countryCode || countryCode <= 0) {
             throw new ApiException("Invalid country code");
         }

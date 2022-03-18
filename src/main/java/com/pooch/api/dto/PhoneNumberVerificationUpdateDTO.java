@@ -22,7 +22,7 @@ public class PhoneNumberVerificationUpdateDTO implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
-    private Long              countryCode;
+    private Integer           countryCode;
     private Long              phoneNumber;
     private String            code;
 

@@ -14,7 +14,7 @@ import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Profile(value = {"dev", "qa", "prod"})
+@Profile(value = {"github", "dev", "qa", "prod"})
 @Component
 public class AwsSecretsManagerServiceImp implements AwsSecretsManagerService {
 
@@ -23,7 +23,7 @@ public class AwsSecretsManagerServiceImp implements AwsSecretsManagerService {
 
     @Value("${stripe.secret.name}")
     private String            stripeSecretName;
-    
+
     @Value("${twilio.secret.name}")
     private String            twilioSecretName;
 
