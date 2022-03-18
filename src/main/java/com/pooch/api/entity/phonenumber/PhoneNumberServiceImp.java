@@ -3,6 +3,7 @@ package com.pooch.api.entity.phonenumber;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.ApiDefaultResponseDTO;
@@ -32,6 +33,9 @@ public class PhoneNumberServiceImp implements PhoneNumberService {
     @Autowired
     private EntityDTOMapper             entityDTOMapper;
 
+    @Value("${phonenumber.verification.code.timer}")
+    private int                         verificationCodeTimer;
+
     @Override
     public ApiDefaultResponseDTO requestVerification(PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO) {
 
@@ -39,8 +43,8 @@ public class PhoneNumberServiceImp implements PhoneNumberService {
 
         PhoneNumberVerification phoneNumberVerification = new PhoneNumberVerification();
         phoneNumberVerification.setPhoneNumber(phoneNumberRequestVerificationDTO.getPhoneNumber());
-        phoneNumberVerification.setExpiredAt(LocalDateTime.now().plusMinutes(10));
-        phoneNumberVerification.setVerificationCode(code+"");
+        phoneNumberVerification.setExpiredAt(LocalDateTime.now().plusMinutes(verificationCodeTimer));
+        phoneNumberVerification.setVerificationCode(code + "");
         phoneNumberVerification.setCountryCode(phoneNumberRequestVerificationDTO.getCountryCode());
         phoneNumberVerification.setPhoneVerified(false);
 
