@@ -28,6 +28,8 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.pooch.api.aws.secretsmanager.AwsSecretsManagerService;
+import com.pooch.api.aws.secretsmanager.TwilioSecrets;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -40,25 +42,28 @@ import lombok.extern.slf4j.Slf4j;
 public class GithubAppConfig {
 
     @Value("${aws.deploy.region:us-west-2}")
-    private String targetRegion;
+    private String                   targetRegion;
 
     @Value("${database.username}")
-    private String databaseUsername;
+    private String                   databaseUsername;
 
     @Value("${database.password}")
-    private String databasePassword;
+    private String                   databasePassword;
 
     @Value("${database.url}")
-    private String databaseUrl;
+    private String                   databaseUrl;
 
     @Value("${spring.datasource.name}")
-    private String databaseName;
+    private String                   databaseName;
 
     @Value("${aws.access.key}")
-    private String awsAccessKey;
+    private String                   awsAccessKey;
 
     @Value("${aws.secret.access.key}")
-    private String awsSecretAccessKey;
+    private String                   awsSecretAccessKey;
+
+    @Autowired
+    private AwsSecretsManagerService awsSecretsManagerService;
 
     private Regions getTargetRegion() {
         return Regions.fromName(targetRegion);
@@ -148,6 +153,11 @@ public class GithubAppConfig {
         configuration.schemas(databaseName);
         configuration.baselineOnMigrate(true);
         return configuration.load();
+    }
+
+    @Bean(name = "twilioSecrets")
+    public TwilioSecrets twilioSecrets() {
+        return awsSecretsManagerService.getTwilioSecrets();
     }
 
     @Bean(name = "stripeApiSecretKey")
