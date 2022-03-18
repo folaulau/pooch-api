@@ -67,22 +67,7 @@ public class GithubAwsConfig {
 
     @Bean
     public AWSCredentialsProvider amazonAWSCredentialsProvider() {
-        AWSStaticCredentialsProvider credProvider = new AWSStaticCredentialsProvider(new AWSCredentials() {
-
-            @Override
-            public String getAWSSecretKey() {
-                // TODO Auto-generated method stub
-                return awsSecretkey;
-            }
-
-            @Override
-            public String getAWSAccessKeyId() {
-                // TODO Auto-generated method stub
-                return awsAccessKey;
-            }
-        });
-
-        return credProvider;
+        return new AWSStaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretkey));
 
         // return DefaultAWSCredentialsProviderChain.getInstance();
     }
