@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AutoConfigureMockMvc
-public class FirebaseTests extends IntegrationTestConfiguration {
+public class DatabaseTests extends IntegrationTestConfiguration {
 
     @Autowired
     private PetSitterRepository petSitterRepository;

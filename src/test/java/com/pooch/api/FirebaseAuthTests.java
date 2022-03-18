@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AutoConfigureMockMvc
-class PoochApiApplicationTests extends IntegrationTestConfiguration {
+class FirebaseAuthTests extends IntegrationTestConfiguration {
 
     @Autowired
     private FirebaseAuth firebaseAuth;
