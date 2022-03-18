@@ -1,8 +1,11 @@
 package com.pooch.api;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.firebase.auth.ActionCodeSettings;
@@ -17,10 +20,9 @@ import com.pooch.api.utils.RandomGeneratorUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Disabled
 @Slf4j
-@SpringBootTest
-class PoochApiApplicationTests {
+@AutoConfigureMockMvc
+class PoochApiApplicationTests extends IntegrationTestConfiguration {
 
     @Autowired
     private FirebaseAuth firebaseAuth;
@@ -40,8 +42,9 @@ class PoochApiApplicationTests {
         // @formatter:on
 
         UserRecord userRecord = firebaseAuth.createUser(request);
-        System.out.println("Successfully created new user: " + userRecord.getUid());
         log.info("userRecord={}", ObjectUtils.toJson(userRecord));
+        assertThat(userRecord).isNotNull();
+        assertThat(userRecord.getUid()).isNotNull();
 
     }
 
@@ -59,10 +62,14 @@ class PoochApiApplicationTests {
 
         UserRecord userRecord = firebaseAuth.createUser(request);
 
+        assertThat(userRecord).isNotNull();
+        assertThat(userRecord.getUid()).isNotNull();
+
         String uid = userRecord.getUid();
         userRecord = firebaseAuth.getUser(uid);
-        System.out.println("Successfully created new user: " + userRecord.getUid());
         log.info("userRecord={}", ObjectUtils.toJson(userRecord));
+        assertThat(userRecord).isNotNull();
+        assertThat(userRecord.getUid()).isNotNull();
 
     }
 

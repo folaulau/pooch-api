@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pooch.api.aws.secretsmanager.TwilioSecrets;
+import com.pooch.api.exception.ApiException;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 
@@ -17,29 +18,28 @@ public class SmsServiceImp implements SmsService {
     private TwilioSecrets twilioSecrets;
 
     @Override
-    public boolean sendSMS(int countryCode, int phoneNumber, String message) {
+    public boolean sendSMS(int countryCode, long phoneNumber, String message) {
         try {
-            
-            if(countryCode<=0) {
+
+            if (countryCode <= 0) {
                 countryCode = 1;
             }
-            
+
             Twilio.init(twilioSecrets.getAccountSid(), twilioSecrets.getAuthToken());
-            
+
             // @formatter:off
             Message msg = Message.creator(
                     new com.twilio.type.PhoneNumber("+" + countryCode + phoneNumber), 
                     new com.twilio.type.PhoneNumber("+1" + twilioSecrets.getSmsSender()), 
                     message).create();
-            
             // @formatter:on
-            
+
             return true;
-        
+
         } catch (Exception e) {
-            log.warn("Twilio exception, msg={}", e.getLocalizedMessage());
+            log.warn("Twilio exception, msg={}, localMsg={}", e.getMessage(), e.getLocalizedMessage());
+            throw new ApiException("Invalid phone number", e.getMessage());
         }
-        return false;
     }
 
 }
