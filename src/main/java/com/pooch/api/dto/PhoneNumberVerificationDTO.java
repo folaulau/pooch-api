@@ -40,7 +40,7 @@ public class PhoneNumberVerificationDTO implements Serializable {
 
     private String            uuid;
 
-    private String            phoneNumber;
+    private Long              phoneNumber;
 
     private String            verificationCode;
 

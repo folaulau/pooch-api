@@ -57,6 +57,9 @@ public class PhoneNumberVerification implements Serializable {
     @Column(name = "phone_number")
     private String            phoneNumber;
 
+    @Column(name = "sent_status")
+    private String            sentStatus;
+
     @Column(name = "verification_code")
     private String            verificationCode;
 

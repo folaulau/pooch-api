@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.PhoneNumberVerificationUpdateDTO;
 import com.pooch.api.exception.ApiException;
+import com.pooch.api.utils.ObjectUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +21,9 @@ public class PhoneNumberValidatorServiceImp implements PhoneNumberValidatorServi
 
     @Override
     public PhoneNumberVerification validateVerificationNumberWithCode(PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO) {
+
+        log.info("phoneNumberVerificationDTO={}", ObjectUtils.toJson(phoneNumberVerificationDTO));
+
         Integer countryCode = phoneNumberVerificationDTO.getCountryCode();
         if (null == countryCode || countryCode <= 0) {
             throw new ApiException("Invalid country code");
@@ -45,8 +49,10 @@ public class PhoneNumberValidatorServiceImp implements PhoneNumberValidatorServi
         PhoneNumberVerification phoneNumberVerification = optNumberVerification.get();
 
         LocalDateTime expiredAt = phoneNumberVerification.getExpiredAt();
+        LocalDateTime now = LocalDateTime.now();
+        log.info("expiredAt={}, now={}", expiredAt.toString(), now.toString());
 
-        if (expiredAt.isAfter(LocalDateTime.now())) {
+        if (now.isAfter(expiredAt)) {
             throw new ApiException("Expired code", "code expires in 10 mins from when it's sent");
         }
 

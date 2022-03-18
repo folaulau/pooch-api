@@ -24,6 +24,6 @@ public class PhoneNumberVerificationDAOImp implements PhoneNumberVerificationDAO
 
     @Override
     public Optional<PhoneNumberVerification> getByNumberAndCode(Long phoneNumber, String code) {
-        return phoneNumberVerificationRepository.findByVerificationCodeAndPhoneNumber(code, phoneNumber + "");
+        return phoneNumberVerificationRepository.findByVerificationCodeAndPhoneNumber(code.trim(), phoneNumber + "");
     }
 }

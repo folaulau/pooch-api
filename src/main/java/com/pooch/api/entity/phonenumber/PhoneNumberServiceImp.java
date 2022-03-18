@@ -11,6 +11,7 @@ import com.pooch.api.dto.PhoneNumberVerificationCreateDTO;
 import com.pooch.api.dto.PhoneNumberVerificationDTO;
 import com.pooch.api.dto.PhoneNumberVerificationUpdateDTO;
 import com.pooch.api.sms.SmsService;
+import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -43,9 +44,12 @@ public class PhoneNumberServiceImp implements PhoneNumberService {
         phoneNumberVerification.setCountryCode(phoneNumberRequestVerificationDTO.getCountryCode() + "");
         phoneNumberVerification.setPhoneVerified(false);
 
-        smsServive.sendSMS(phoneNumberRequestVerificationDTO.getCountryCode(), phoneNumberRequestVerificationDTO.getPhoneNumber(), "Your PoochApp verification code is: " + code);
+        String sentStatus = smsServive.sendSMS(phoneNumberRequestVerificationDTO.getCountryCode(), phoneNumberRequestVerificationDTO.getPhoneNumber(), "Your PoochApp verification code is: " + code);
 
+        phoneNumberVerification.setSentStatus(sentStatus);
         phoneNumberVerification = phoneNumberVerificationDAO.save(phoneNumberVerification);
+
+        log.info("phoneNumberVerification={}", ObjectUtils.toJson(phoneNumberVerification));
 
         return new ApiDefaultResponseDTO("Verification code has been sent to your phone");
     }

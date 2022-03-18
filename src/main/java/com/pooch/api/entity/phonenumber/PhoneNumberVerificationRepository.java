@@ -10,6 +10,8 @@ public interface PhoneNumberVerificationRepository extends JpaRepository<PhoneNu
 
     Optional<PhoneNumberVerification> findByUuid(String uuid);
 
+    Optional<PhoneNumberVerification> findFirstByOrderByIdDesc();
+
     Optional<PhoneNumberVerification> findByVerificationCodeAndPhoneNumber(String code, String phoneNumber);
 
 }

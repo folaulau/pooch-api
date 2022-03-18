@@ -18,7 +18,9 @@ public class SmsServiceImp implements SmsService {
     private TwilioSecrets twilioSecrets;
 
     @Override
-    public boolean sendSMS(int countryCode, long phoneNumber, String message) {
+    public String sendSMS(int countryCode, long phoneNumber, String message) {
+
+        String status = null;
         try {
 
             if (countryCode <= 0) {
@@ -33,8 +35,8 @@ public class SmsServiceImp implements SmsService {
                     new com.twilio.type.PhoneNumber("+1" + twilioSecrets.getSmsSender()), 
                     message).create();
             // @formatter:on
-
-            return true;
+            status = msg.getSid() + "-" + msg.getStatus();
+            return status;
 
         } catch (Exception e) {
             log.warn("Twilio exception, msg={}, localMsg={}", e.getMessage(), e.getLocalizedMessage());
