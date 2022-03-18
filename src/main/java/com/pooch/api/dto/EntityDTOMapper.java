@@ -17,10 +17,8 @@ public interface EntityDTOMapper {
 
     PetDTO mapPetToPetDTO(Pet pet);
 
-    @Mappings({@Mapping(target = "id", ignore = true), 
-        @Mapping(target = "uuid", ignore = true),
-            @Mapping(target = "deleted", ignore = true)})
-    void patchPet(PetCreateDTO petCreateDTO, @MappingTarget Pet pet);
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    Pet patchPet(PetCreateDTO petCreateDTO, @MappingTarget Pet pet);
 
     PhoneNumberVerificationDTO mapPhoneNumberVerificationToPhoneNumberVerificationDTO(PhoneNumberVerification phoneNumberVerification);
 
