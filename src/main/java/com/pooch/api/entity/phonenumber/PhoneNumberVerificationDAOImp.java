@@ -23,7 +23,7 @@ public class PhoneNumberVerificationDAOImp implements PhoneNumberVerificationDAO
     }
 
     @Override
-    public Optional<PhoneNumberVerification> getByNumberAndCode(Long phoneNumber, String code) {
-        return phoneNumberVerificationRepository.findByVerificationCodeAndPhoneNumber(code.trim(), phoneNumber + "");
+    public Optional<PhoneNumberVerification> getByNumberAndCountryCodeAndCode(int countryCode, long phoneNumber, String code) {
+        return phoneNumberVerificationRepository.findByVerificationCodeAndPhoneNumberAndCountryCode(code.trim(), phoneNumber, countryCode);
     }
 }

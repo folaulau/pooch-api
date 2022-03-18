@@ -52,10 +52,10 @@ public class PhoneNumberVerification implements Serializable {
     private String            uuid;
 
     @Column(name = "country_code")
-    private String            countryCode;
+    private Integer           countryCode;
 
     @Column(name = "phone_number")
-    private String            phoneNumber;
+    private Long              phoneNumber;
 
     @Column(name = "sent_status")
     private String            sentStatus;

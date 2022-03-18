@@ -38,10 +38,10 @@ public class PhoneNumberServiceImp implements PhoneNumberService {
         Integer code = RandomGeneratorUtils.getIntegerWithin(1000000, 9999999);
 
         PhoneNumberVerification phoneNumberVerification = new PhoneNumberVerification();
-        phoneNumberVerification.setPhoneNumber(phoneNumberRequestVerificationDTO.getPhoneNumber() + "");
+        phoneNumberVerification.setPhoneNumber(phoneNumberRequestVerificationDTO.getPhoneNumber());
         phoneNumberVerification.setExpiredAt(LocalDateTime.now().plusMinutes(10));
-        phoneNumberVerification.setVerificationCode(code + "");
-        phoneNumberVerification.setCountryCode(phoneNumberRequestVerificationDTO.getCountryCode() + "");
+        phoneNumberVerification.setVerificationCode(code+"");
+        phoneNumberVerification.setCountryCode(phoneNumberRequestVerificationDTO.getCountryCode());
         phoneNumberVerification.setPhoneVerified(false);
 
         String sentStatus = smsServive.sendSMS(phoneNumberRequestVerificationDTO.getCountryCode(), phoneNumberRequestVerificationDTO.getPhoneNumber(), "Your PoochApp verification code is: " + code);

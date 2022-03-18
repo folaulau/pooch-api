@@ -40,7 +40,7 @@ public class PhoneNumberValidatorServiceImp implements PhoneNumberValidatorServi
             throw new ApiException("Invalid code", "code=" + code);
         }
 
-        Optional<PhoneNumberVerification> optNumberVerification = phoneNumberVerificationDAO.getByNumberAndCode(phoneNumber, code);
+        Optional<PhoneNumberVerification> optNumberVerification = phoneNumberVerificationDAO.getByNumberAndCountryCodeAndCode(countryCode, phoneNumber, code);
 
         if (!optNumberVerification.isPresent()) {
             throw new ApiException("Invalid code", "verification not found for code=" + code + " and phoneNumber=" + phoneNumber);

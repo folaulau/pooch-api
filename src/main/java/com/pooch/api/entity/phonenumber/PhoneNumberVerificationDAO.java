@@ -8,5 +8,5 @@ public interface PhoneNumberVerificationDAO {
 
     Optional<PhoneNumberVerification> getByUuid(String uuid);
 
-    Optional<PhoneNumberVerification> getByNumberAndCode(Long phoneNumber, String code);
+    Optional<PhoneNumberVerification> getByNumberAndCountryCodeAndCode(int countryCode, long phoneNumber, String code);
 }
