@@ -34,11 +34,8 @@ public class PetParentServiceImp implements PetParentService {
      */
     @Override
     public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
-        FirebaseToken firebaseToken = firebaseAuthService.verifyToken(authenticatorDTO.getToken());
 
-        Optional<UserRecord> optUserRecord = firebaseAuthService.getFirebaseUser(firebaseToken.getUid());
-
-        UserRecord userRecord = optUserRecord.get();
+        UserRecord userRecord = firebaseAuthService.verifyAndGetUser(authenticatorDTO.getToken());
 
         Optional<PetParent> optPetParent = petParentDAO.getByUuid(userRecord.getUid());
 
@@ -69,7 +66,7 @@ public class PetParentServiceImp implements PetParentService {
     @Override
     public void bookPetCare(PetCareBookingDTO petCareBookingDTO) {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

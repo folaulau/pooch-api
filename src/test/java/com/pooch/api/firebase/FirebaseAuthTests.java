@@ -1,4 +1,4 @@
-package com.pooch.api;
+package com.pooch.api.firebase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
+import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.entity.petsitter.PetSitter;
 import com.pooch.api.entity.petsitter.PetSitterRepository;
 import com.pooch.api.utils.ObjectUtils;

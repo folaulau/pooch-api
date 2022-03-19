@@ -44,4 +44,10 @@ public class FirebaseAuthServiceImp implements FirebaseAuthService {
         return Optional.ofNullable(userRecord);
     }
 
+    @Override
+    public UserRecord verifyAndGetUser(String firebaseToken) {
+        FirebaseToken fbToken = verifyToken(firebaseToken);
+        return getFirebaseUser(fbToken.getUid()).get();
+    }
+
 }

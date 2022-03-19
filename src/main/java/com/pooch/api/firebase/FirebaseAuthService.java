@@ -10,4 +10,6 @@ public interface FirebaseAuthService {
     FirebaseToken verifyToken(String firebaseToken);
 
     Optional<UserRecord> getFirebaseUser(String uuid);
+
+    UserRecord verifyAndGetUser(String firebaseToken);
 }

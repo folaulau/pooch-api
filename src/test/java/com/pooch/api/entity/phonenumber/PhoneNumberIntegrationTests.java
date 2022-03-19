@@ -96,7 +96,7 @@ public class PhoneNumberIntegrationTests extends IntegrationTestConfiguration {
 
     }
 
-    // @Transactional
+    @Transactional
     @Test
     void itShouldRequestPhoneNumberVerification_and_verifyWithCode() throws Exception {
         // Given
