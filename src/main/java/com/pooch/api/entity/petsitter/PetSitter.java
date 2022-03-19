@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.Lob;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -20,6 +21,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -65,16 +67,33 @@ public class PetSitter implements Serializable {
     private Boolean           emailVerified;
 
     @Column(name = "phone_number")
-    private String            phoneNumber;
+    private Long              phoneNumber;
 
-    @Column(name = "phone_verified")
-    private Boolean           phoneVerified;
+    @Column(name = "phone_number_verified")
+    private Boolean           phoneNumberVerified;
 
     /**
      * 5 star rating
      */
     @Column(name = "rating")
     private Integer           rating;
+
+    @Column(name = "offered_pickup_off")
+    private Boolean           offeredPickUp;
+
+    @Column(name = "offered_drop_off")
+    private Boolean           offeredDropOff;
+
+    @Column(name = "charge_per_mile")
+    private Double            chargePerMile;
+
+    @Column(name = "number_of_ocupancy")
+    private Long              numberOfOcupancy;
+
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
+    @Column(name = "description")
+    private String            description;
 
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;

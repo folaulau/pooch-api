@@ -1,10 +1,8 @@
-package com.pooch.api.entity.pet;
+package com.pooch.api.entity.petcare;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -14,32 +12,33 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
 import javax.persistence.Table;
-import javax.validation.constraints.NotEmpty;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
+import com.pooch.api.entity.pet.FoodSchedule;
+import com.pooch.api.entity.pet.Pet;
 import com.pooch.api.entity.pet.vaccine.Vaccine;
+import com.pooch.api.entity.petcare.careservice.PetCareService;
 import com.pooch.api.entity.petparent.PetParent;
+import com.pooch.api.entity.petsitter.PetSitter;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -51,10 +50,10 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 @DynamicUpdate
 @Entity
-@SQLDelete(sql = "UPDATE " + DatabaseTableNames.Pet + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
+@SQLDelete(sql = "UPDATE " + DatabaseTableNames.PetCare + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
 @Where(clause = "deleted = 'F'")
-@Table(name = DatabaseTableNames.Pet, indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
-public class Pet implements Serializable {
+@Table(name = DatabaseTableNames.PetCare, indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
+public class PetCare implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -66,49 +65,30 @@ public class Pet implements Serializable {
     @Column(name = "uuid", unique = true, nullable = false, updatable = false)
     private String            uuid;
 
-    @Column(name = "full_name")
-    private String            fullName;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "breed")
-    private Breed             breed;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "gender")
-    private Gender            gender;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "training")
-    private Training          training;
-
-    @ElementCollection
-    @CollectionTable(name = "pet_food_schedule", joinColumns = {@JoinColumn(name = "pet_id")})
-    private Set<FoodSchedule> foodSchedules;
-
-    @Column(name = "age")
-    private Integer           age;
-
-    @Column(name = "weight")
-    private Double            weight;
-
-    /**
-     * spayed or neutered
-     */
-    @Column(name = "spayed")
-    private Boolean           spayed;
-
-    @Lob
-    @Type(type = "org.hibernate.type.TextType")
-    @Column(name = "notes")
-    private String            notes;
-
-    @ElementCollection
-    @CollectionTable(name = "pet_vaccines", joinColumns = @JoinColumn(name = "pet_id"))
-    private Set<Vaccine>      vaccines;
-
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "pet_parent_id")
-    private PetParent         petParent;
+    private PetSitter         petParent;
+
+    // @JsonIgnoreProperties(value = {"expenses", "scrubbedData"})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH})
+    @JoinTable(name = "petcare_pets", joinColumns = @JoinColumn(name = "petcare_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "pet_id", referencedColumnName = "id"))
+    private Set<Pet>          pets;
+
+    @ManyToOne(cascade = CascadeType.DETACH)
+    @JoinColumn(name = "pet_sitter_id")
+    private PetSitter         petSitter;
+
+    // @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH})
+    // @JoinTable(name = "petcare_pets", joinColumns = @JoinColumn(name = "petcare_id", referencedColumnName = "id"),
+    // inverseJoinColumns = @JoinColumn(name = "pet_id", referencedColumnName = "id"))
+    // private Set<PetCareService> petCareServices;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private PetCareStatus     status;
+
+    @Column(name = "pick_up_date_time", nullable = false)
+    private LocalDateTime     pickUpDateTime;
 
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;
@@ -120,13 +100,5 @@ public class Pet implements Serializable {
     @UpdateTimestamp
     @Column(name = "last_updated_at", nullable = false)
     private LocalDateTime     lastUpdatedAt;
-
-    @PrePersist
-    private void preCreate() {
-        if (this.uuid == null || this.uuid.isEmpty()) {
-            this.uuid = "pet-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
-        }
-
-    }
 
 }

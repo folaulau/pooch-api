@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.pooch.api.dto.ApiDefaultResponseDTO;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -47,7 +48,7 @@ public class ApiException extends RuntimeException {
         super(ApiError.DEFAULT_MSG);
         this.error = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, subErrors);
     }
-    
+
     public ApiException(String message, List<String> subErrors) {
         super(message);
         this.error = new ApiError(HttpStatus.BAD_REQUEST, message, subErrors);

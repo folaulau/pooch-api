@@ -8,6 +8,8 @@ import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import com.pooch.api.entity.pet.Pet;
+import com.pooch.api.entity.petparent.PetParent;
+import com.pooch.api.entity.petsitter.PetSitter;
 import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
 
 @Mapper(componentModel = "spring", nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, unmappedTargetPolicy = ReportingPolicy.IGNORE)
@@ -21,5 +23,9 @@ public interface EntityDTOMapper {
     Pet patchPet(PetCreateDTO petCreateDTO, @MappingTarget Pet pet);
 
     PhoneNumberVerificationDTO mapPhoneNumberVerificationToPhoneNumberVerificationDTO(PhoneNumberVerification phoneNumberVerification);
+
+    PetParentUpdateDTO mapPetParentToPetParentUpdateDTO(PetParent petParent);
+
+    PetSitterUuidDTO mapPetSitterToPetSitterUuidDTO(PetSitter petSitter);
 
 }

@@ -9,7 +9,6 @@ import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
-import com.pooch.api.dto.PetCareBookingDTO;
 import com.pooch.api.firebase.FirebaseAuthService;
 import com.pooch.api.security.AuthenticationService;
 
@@ -53,20 +52,22 @@ public class PetParentServiceImp implements PetParentService {
 
             petParent = new PetParent();
             petParent.setUuid(userRecord.getUid());
-            petParent.setFullName(userRecord.getDisplayName());
             petParent.setEmail(userRecord.getEmail());
-            petParent.setPhoneNumber(userRecord.getPhoneNumber());
+
+            Long phoneNumber = null;
+
+            try {
+                phoneNumber = Long.parseLong(userRecord.getPhoneNumber());
+            } catch (Exception e) {
+                log.warn("Exception, msg={}", e.getLocalizedMessage());
+            }
+
+            petParent.setPhoneNumber(phoneNumber);
 
             petParentDAO.save(petParent);
         }
 
         return authenticationService.authenticate(petParent);
-    }
-
-    @Override
-    public void bookPetCare(PetCareBookingDTO petCareBookingDTO) {
-        // TODO Auto-generated method stub
-
     }
 
 }

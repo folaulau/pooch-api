@@ -21,7 +21,9 @@ public class PetParentCreateDTO implements Serializable {
 
     private String            email;
 
-    private String            phoneNumber;
+    private Integer           countryCode;
+
+    private Long              phoneNumber;
 
     // https://www.twilio.com/blog/best-practices-phone-number-validation-user-enrollment
     private String            phoneNumberVerificationUuid;

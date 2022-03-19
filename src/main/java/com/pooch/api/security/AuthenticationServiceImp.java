@@ -23,7 +23,6 @@ public class AuthenticationServiceImp implements AuthenticationService {
         AuthenticationResponseDTO auth = new AuthenticationResponseDTO();
         auth.setToken(jwt);
         auth.setEmail(petParent.getEmail());
-        auth.setFullName(petParent.getFullName());
         auth.setUuid(petParent.getUuid());
 
         return auth;

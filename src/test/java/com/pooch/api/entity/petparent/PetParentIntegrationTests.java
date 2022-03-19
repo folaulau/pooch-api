@@ -1,11 +1,6 @@
 package com.pooch.api.entity.petparent;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.transaction.Transactional;
 
 import org.junit.jupiter.api.Test;
@@ -26,14 +21,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.pooch.api.IntegrationTestConfiguration;
-import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
-import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
 import com.pooch.api.firebase.FirebaseAuthService;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;

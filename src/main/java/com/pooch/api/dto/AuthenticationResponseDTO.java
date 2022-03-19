@@ -38,7 +38,9 @@ public class AuthenticationResponseDTO implements Serializable {
      */
     private String            uuid;
 
-    private String            fullName;
+    private String            firstName;
+
+    private String            lastName;
 
     private String            email;
 

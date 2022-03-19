@@ -1,28 +1,30 @@
-package com.pooch.api.entity.petparent;
+package com.pooch.api.entity.petcare.careservice;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotEmpty;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
+import com.pooch.api.entity.petsitter.PetSitter;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,10 +36,10 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 @DynamicUpdate
 @Entity
-@SQLDelete(sql = "UPDATE " + DatabaseTableNames.PetParent + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
+@SQLDelete(sql = "UPDATE " + DatabaseTableNames.PetCareService + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
 @Where(clause = "deleted = 'F'")
-@Table(name = DatabaseTableNames.PetParent, indexes = {@Index(columnList = "uuid"), @Index(columnList = "email"), @Index(columnList = "phone_number"), @Index(columnList = "deleted")})
-public class PetParent implements Serializable {
+@Table(name = DatabaseTableNames.PetCareService, indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
+public class PetCareService implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -49,33 +51,30 @@ public class PetParent implements Serializable {
     @Column(name = "uuid", unique = true, nullable = false, updatable = false)
     private String            uuid;
 
-    @Column(name = "first_name")
-    private String            firstName;
-
-    @Column(name = "last_name")
-    private String            lastName;
+    @Column(name = "name")
+    private String            name;
 
     /**
-     * 5 star rating
+     * 1-20LB
      */
-    @Column(name = "rating")
-    private Integer           rating;
-
-    @NotEmpty
-    @Column(name = "email", unique = true)
-    private String            email;
-
-    @Column(name = "email_verified")
-    private Boolean           emailVerified;
+    @Column(name = "small_price")
+    private Double            smallPrice;
 
     /**
-     * assume all phone numbers are US numbers for now.
+     * 21-40LB
      */
-    @Column(name = "phone_number")
-    private Long              phoneNumber;
+    @Column(name = "medium_price")
+    private Double            mediumPrice;
 
-    @Column(name = "phone_number_verified")
-    private Boolean           phoneNumberVerified;
+    /**
+     * 41LB +
+     */
+    @Column(name = "large_price")
+    private Double            largePrice;
+
+    @ManyToOne(cascade = CascadeType.DETACH)
+    @JoinColumn(name = "pet_sitter_id")
+    private PetSitter         petSitter;
 
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;
