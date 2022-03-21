@@ -1,8 +1,10 @@
 package com.pooch.api.entity.pet;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -83,10 +85,10 @@ public class Pet implements Serializable {
 
     @ElementCollection
     @CollectionTable(name = "pet_food_schedule", joinColumns = {@JoinColumn(name = "pet_id")})
-    private Set<FoodSchedule> foodSchedules;
+    private Set<FoodSchedule> foodSchedule;
 
-    @Column(name = "age")
-    private Integer           age;
+    @Column(name = "dob")
+    private LocalDate         dob;
 
     @Column(name = "weight")
     private Double            weight;
@@ -120,6 +122,20 @@ public class Pet implements Serializable {
     @UpdateTimestamp
     @Column(name = "last_updated_at", nullable = false)
     private LocalDateTime     lastUpdatedAt;
+
+    public void addFoodSchedule(FoodSchedule fSchedule) {
+        if (this.foodSchedule == null) {
+            this.foodSchedule = new HashSet<>();
+        }
+        this.foodSchedule.add(fSchedule);
+    }
+
+    public void addVaccine(Vaccine vaccine) {
+        if (this.vaccines == null) {
+            this.vaccines = new HashSet<>();
+        }
+        this.vaccines.add(vaccine);
+    }
 
     @PrePersist
     private void preCreate() {

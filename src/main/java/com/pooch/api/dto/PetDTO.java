@@ -1,6 +1,7 @@
 package com.pooch.api.dto;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -31,27 +32,29 @@ public class PetDTO implements Serializable {
     /**
      * 
      */
-    private static final long serialVersionUID = 1L;
+    private static final long  serialVersionUID = 1L;
 
-    private String            uuid;
+    private Long               id;
 
-    private String            fullName;
+    private String             uuid;
 
-    private Breed             breed;
+    private String             fullName;
 
-    private Gender            gender;
+    private Breed              breed;
 
-    private Training          training;
+    private Gender             gender;
 
-    private FoodSchedule      foodSchedule;
+    private Training           training;
 
-    private Integer           age;
+    private List<FoodSchedule> foodSchedule;
 
-    private Double            weight;
+    private Integer            age;
 
-    private Boolean           spayed;
+    private Double             weight;
 
-    private String            notes;
+    private Boolean            spayed;
 
-    private Set<VaccineDTO>   vaccines;
+    private String             notes;
+
+    private Set<VaccineDTO>    vaccines;
 }

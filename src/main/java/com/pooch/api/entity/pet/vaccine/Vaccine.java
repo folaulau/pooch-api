@@ -55,4 +55,9 @@ public class Vaccine implements Serializable {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime     createdAt;
+
+    public Vaccine(String name, LocalDateTime expireDate) {
+        this.name = name;
+        this.expireDate = expireDate;
+    }
 }

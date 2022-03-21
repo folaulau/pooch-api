@@ -28,4 +28,14 @@ public interface EntityDTOMapper {
 
     PetSitterUuidDTO mapPetSitterToPetSitterUuidDTO(PetSitter petSitter);
 
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    PetParent mapPetParentUpdateDTOToPetParent(PetParentUpdateDTO petParentUpdateDTO);
+
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    void patchPetParentWithPetParentUpdateDTO(PetParentUpdateDTO petParentUpdateDTO, @MappingTarget PetParent petParent);
+
+    PetParentDTO mapPetParentToPetParentDTO(PetParent petParent);
+
+    PetSitterDTO mapPetSitterToPetSitterDTO(PetSitter petSitter);
+
 }

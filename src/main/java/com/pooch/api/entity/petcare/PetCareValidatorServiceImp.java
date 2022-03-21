@@ -1,14 +1,19 @@
 package com.pooch.api.entity.petcare;
 
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.PetCareCreateDTO;
+import com.pooch.api.dto.PetCreateDTO;
+import com.pooch.api.dto.PetDTO;
 import com.pooch.api.dto.PetParentUpdateDTO;
 import com.pooch.api.dto.PetSitterUuidDTO;
+import com.pooch.api.entity.pet.Pet;
+import com.pooch.api.entity.pet.PetDAO;
 import com.pooch.api.entity.petparent.PetParent;
 import com.pooch.api.entity.petparent.PetParentDAO;
 import com.pooch.api.entity.petsitter.PetSitter;
@@ -28,6 +33,9 @@ public class PetCareValidatorServiceImp implements PetCareValidatorService {
     @Autowired
     private PetParentDAO petParentDAO;
 
+    @Autowired
+    private PetDAO       petDAO;
+
     @Override
     public void validateBook(PetCareCreateDTO petCareCreateDTO) {
         PetParentUpdateDTO petParentUpdateDTO = petCareCreateDTO.getPetParent();
@@ -46,19 +54,41 @@ public class PetCareValidatorServiceImp implements PetCareValidatorService {
 
         PetParent petParent = optPetParent.get();
 
-        String petSitterUuid = petCareCreateDTO.getPetSitterUuid();
+        // String petSitterUuid = petCareCreateDTO.getPetSitterUuid();
+        //
+        // if (null == petSitterUuid || petSitterUuid.isEmpty()) {
+        // throw new ApiException(ApiError.DEFAULT_MSG, "petSitter not found for uuid=" + petSitterUuid);
+        // }
+        //
+        // Optional<PetSitter> optPetSitter = petSitterDAO.getByUuid(petSitterUuid);
+        //
+        // if (!optPetSitter.isPresent()) {
+        // throw new ApiException(ApiError.DEFAULT_MSG, "petSitter not found for uuid=" + petSitterUuid);
+        // }
+        //
+        // PetSitter petSitter = optPetSitter.get();
 
-        if (null == petSitterUuid || petSitterUuid.isEmpty()) {
-            throw new ApiException(ApiError.DEFAULT_MSG, "petSitter not found for uuid=" + petSitterUuid);
+        /**
+         * Pets
+         */
+        Set<PetCreateDTO> petCreateDTOs = petCareCreateDTO.getPets();
+        for (PetCreateDTO petCreateDTO : petCreateDTOs) {
+            String uuid = petCreateDTO.getUuid();
+
+            if (uuid != null && !uuid.isEmpty()) {
+                Optional<Pet> optPet = petDAO.getByUuid(uuid);
+
+                if (!optPet.isPresent()) {
+                    throw new ApiException(ApiError.DEFAULT_MSG, "Pet not found for uuid=" + uuid);
+                } else {
+                    Pet pet = optPet.get();
+
+                    if (!petParent.getId().equals(pet.getPetParent().getId())) {
+                        throw new ApiException(ApiError.DEFAULT_MSG, "Pet does not belong to petParent");
+                    }
+                }
+            }
         }
-
-        Optional<PetSitter> optPetSitter = petSitterDAO.getByUuid(petSitterUuid);
-
-        if (!optPetSitter.isPresent()) {
-            throw new ApiException(ApiError.DEFAULT_MSG, "petSitter not found for uuid=" + petSitterUuid);
-        }
-
-        PetSitter petSitter = optPetSitter.get();
 
     }
 

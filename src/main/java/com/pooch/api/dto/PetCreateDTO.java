@@ -1,6 +1,8 @@
 package com.pooch.api.dto;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import com.pooch.api.entity.pet.Breed;
@@ -32,9 +34,9 @@ public class PetCreateDTO implements Serializable {
 
     private Training              training;
 
-    private FoodSchedule          foodSchedule;
+    private Set<FoodSchedule>     foodSchedule;
 
-    private Integer               age;
+    private LocalDate             dob;
 
     private Double                weight;
 

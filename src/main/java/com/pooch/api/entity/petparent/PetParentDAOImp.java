@@ -25,7 +25,7 @@ public class PetParentDAOImp implements PetParentDAO {
 
     @Override
     public Optional<PetParent> getByUuid(String uuid) {
-        return petParentRepository.findByUuid(uuid);
+        return petParentRepository.findByUuid(uuid.trim());
     }
 
 }

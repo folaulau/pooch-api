@@ -1,6 +1,13 @@
 package com.pooch.api.entity.petcare;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.DynamicTest.stream;
+
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 import javax.transaction.Transactional;
 
@@ -22,15 +29,20 @@ import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.TestEntityGeneratorService;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.PetCareCreateDTO;
+import com.pooch.api.dto.PetCreateDTO;
 import com.pooch.api.dto.PetParentCreateDTO;
 import com.pooch.api.dto.PetParentUpdateDTO;
 import com.pooch.api.dto.PetSitterUuidDTO;
+import com.pooch.api.entity.pet.Breed;
+import com.pooch.api.entity.pet.Gender;
+import com.pooch.api.entity.pet.Training;
 import com.pooch.api.entity.petparent.PetParent;
 import com.pooch.api.entity.petparent.PetParentDAO;
 import com.pooch.api.entity.petparent.PetParentIntegrationTests;
 import com.pooch.api.entity.petsitter.PetSitter;
 import com.pooch.api.entity.petsitter.PetSitterDAO;
 import com.pooch.api.utils.ObjectUtils;
+import com.pooch.api.utils.RandomGeneratorUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -66,15 +78,40 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
         // Given
         PetCareCreateDTO petCareCreateDTO = new PetCareCreateDTO();
 
+        /**
+         * Pet Parent
+         */
         PetParent petParent = testEntityGeneratorService.getDBPetParent();
 
         PetParentUpdateDTO petParentDTO = entityDTOMapper.mapPetParentToPetParentUpdateDTO(petParent);
 
         petCareCreateDTO.setPetParent(petParentDTO);
 
+        /**
+         * Pet Sitter
+         */
         PetSitter petSitter = testEntityGeneratorService.getDBPetSitter();
 
         petCareCreateDTO.setPetSitterUuid(petSitter.getUuid());
+
+        /**
+         * Pets
+         */
+        Set<PetCreateDTO> petCreateDTOs = new HashSet<>();
+        for (int i = 0; i < 3; i++) {
+            PetCreateDTO petCreateDTO = new PetCreateDTO();
+            petCreateDTO.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 36)));
+            petCreateDTO.setBreed(Breed.Bulldog);
+            petCreateDTO.setFullName(RandomGeneratorUtils.getRandomFullName());
+            petCreateDTO.setGender(Gender.Female);
+            petCreateDTO.setSpayed(true);
+            petCreateDTO.setTraining(Training.Medium);
+            petCreateDTO.setWeight(15D);
+
+            petCreateDTOs.add(petCreateDTO);
+        }
+
+        petCareCreateDTO.setPets(petCreateDTOs);
 
         // When
 
