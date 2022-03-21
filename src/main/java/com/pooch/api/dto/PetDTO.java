@@ -1,6 +1,7 @@
 package com.pooch.api.dto;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.pooch.api.entity.pet.Breed;
 import com.pooch.api.entity.pet.FoodSchedule;
@@ -57,4 +59,8 @@ public class PetDTO implements Serializable {
     private String             notes;
 
     private Set<VaccineDTO>    vaccines;
+
+    private LocalDateTime      createdAt;
+
+    private LocalDateTime      updatedAt;
 }

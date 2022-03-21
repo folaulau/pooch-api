@@ -104,8 +104,8 @@ public class Pet implements Serializable {
     @Column(name = "notes")
     private String            notes;
 
-    @ElementCollection
-    @CollectionTable(name = "pet_vaccines", joinColumns = @JoinColumn(name = "pet_id"))
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "pet_id")
     private Set<Vaccine>      vaccines;
 
     @ManyToOne(cascade = CascadeType.DETACH)
@@ -120,8 +120,8 @@ public class Pet implements Serializable {
     private LocalDateTime     createdAt;
 
     @UpdateTimestamp
-    @Column(name = "last_updated_at", nullable = false)
-    private LocalDateTime     lastUpdatedAt;
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime     updatedAt;
 
     public void addFoodSchedule(FoodSchedule fSchedule) {
         if (this.foodSchedule == null) {

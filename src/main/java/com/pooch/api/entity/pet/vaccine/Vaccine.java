@@ -37,6 +37,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
 @Entity
+@Table(name = "pet_vaccine")
 public class Vaccine implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -55,6 +56,10 @@ public class Vaccine implements Serializable {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime     createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime     updatedAt;
 
     public Vaccine(String name, LocalDateTime expireDate) {
         this.name = name;

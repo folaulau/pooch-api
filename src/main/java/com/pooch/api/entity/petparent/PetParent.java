@@ -85,7 +85,7 @@ public class PetParent implements Serializable {
     private LocalDateTime     createdAt;
 
     @UpdateTimestamp
-    @Column(name = "last_updated_at", nullable = false)
-    private LocalDateTime     lastUpdatedAt;
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime     updatedAt;
 
 }

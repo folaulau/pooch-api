@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.DynamicTest.stream;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +34,9 @@ import com.pooch.api.dto.PetCreateDTO;
 import com.pooch.api.dto.PetParentCreateDTO;
 import com.pooch.api.dto.PetParentUpdateDTO;
 import com.pooch.api.dto.PetSitterUuidDTO;
+import com.pooch.api.dto.VaccineCreateDTO;
 import com.pooch.api.entity.pet.Breed;
+import com.pooch.api.entity.pet.FoodSchedule;
 import com.pooch.api.entity.pet.Gender;
 import com.pooch.api.entity.pet.Training;
 import com.pooch.api.entity.petparent.PetParent;
@@ -107,7 +110,10 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
             petCreateDTO.setSpayed(true);
             petCreateDTO.setTraining(Training.Medium);
             petCreateDTO.setWeight(15D);
-
+            petCreateDTO.addFoodSchedule(FoodSchedule.Morning);
+            petCreateDTO.addFoodSchedule(FoodSchedule.Night);
+            petCreateDTO.addVaccine(new VaccineCreateDTO(LocalDateTime.now().plusMonths(2), "vac1"));
+            petCreateDTO.addVaccine(new VaccineCreateDTO(LocalDateTime.now().plusMonths(6), "vac2"));
             petCreateDTOs.add(petCreateDTO);
         }
 
