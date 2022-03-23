@@ -9,6 +9,8 @@ import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
+import com.pooch.api.entity.role.Authority;
+import com.pooch.api.entity.role.Role;
 import com.pooch.api.firebase.FirebaseAuthService;
 import com.pooch.api.security.AuthenticationService;
 
@@ -40,6 +42,8 @@ public class PetParentServiceImp implements PetParentService {
 
         PetParent petParent = null;
 
+        boolean signUp = false;
+
         if (optPetParent.isPresent()) {
             /**
              * sign in
@@ -53,6 +57,7 @@ public class PetParentServiceImp implements PetParentService {
             petParent = new PetParent();
             petParent.setUuid(userRecord.getUid());
             petParent.setEmail(userRecord.getEmail());
+            petParent.addRole(new Role(Authority.pet_parent));
 
             Long phoneNumber = null;
 
@@ -64,10 +69,16 @@ public class PetParentServiceImp implements PetParentService {
 
             petParent.setPhoneNumber(phoneNumber);
 
-            petParentDAO.save(petParent);
+            petParent = petParentDAO.save(petParent);
+
+            signUp = true;
         }
 
-        return authenticationService.authenticate(petParent);
+        AuthenticationResponseDTO authenticationResponseDTO = authenticationService.authenticate(petParent);
+        authenticationResponseDTO.setSignUp(signUp);
+        authenticationResponseDTO.setSignIn(!signUp);
+        
+        return authenticationResponseDTO;
     }
 
 }

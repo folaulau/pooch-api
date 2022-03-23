@@ -72,9 +72,8 @@ public class TestEntityGeneratorService {
         PetParent petParent = new PetParent();
         petParent.setUuid("pet-parent-" + UUID.randomUUID().toString());
         String firstName = RandomGeneratorUtils.getRandomFirstname();
-        petParent.setFirstName(firstName);
         String lastName = RandomGeneratorUtils.getRandomLastname();
-        petParent.setLastName(lastName);
+        petParent.setFullName(firstName + " " + lastName);
         petParent.setEmail((firstName + "" + lastName).toLowerCase() + "@gmail.com");
         petParent.setEmailVerified(false);
         petParent.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));

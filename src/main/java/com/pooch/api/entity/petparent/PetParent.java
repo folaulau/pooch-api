@@ -2,13 +2,20 @@ package com.pooch.api.entity.petparent;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
@@ -20,9 +27,11 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
+import com.pooch.api.entity.role.Role;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -49,11 +58,8 @@ public class PetParent implements Serializable {
     @Column(name = "uuid", unique = true, nullable = false, updatable = false)
     private String            uuid;
 
-    @Column(name = "first_name")
-    private String            firstName;
-
-    @Column(name = "last_name")
-    private String            lastName;
+    @Column(name = "full_name")
+    private String            fullName;
 
     /**
      * 5 star rating
@@ -77,6 +83,11 @@ public class PetParent implements Serializable {
     @Column(name = "phone_number_verified")
     private Boolean           phoneNumberVerified;
 
+    @JsonIgnoreProperties(value = {"petParents"})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "pet_parent_roles", joinColumns = {@JoinColumn(name = "pet_parent_id")}, inverseJoinColumns = {@JoinColumn(name = "role_id")})
+    private Set<Role>         roles;
+
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;
 
@@ -87,5 +98,19 @@ public class PetParent implements Serializable {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime     updatedAt;
+
+    public void addRole(Role role) {
+        if (this.roles == null) {
+            this.roles = new HashSet<>();
+        }
+        this.roles.add(role);
+    }
+
+    public String getRoleAsString() {
+        if (this.roles == null) {
+            return null;
+        }
+        return this.roles.stream().findFirst().get().getAuthority().name();
+    }
 
 }

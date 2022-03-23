@@ -26,7 +26,9 @@ import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
+import com.pooch.api.firebase.FirebaseAuthResponse;
 import com.pooch.api.firebase.FirebaseAuthService;
+import com.pooch.api.firebase.FirebaseRestClient;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 
@@ -42,36 +44,27 @@ public class PetParentIntegrationTests extends IntegrationTestConfiguration {
     @Autowired
     private ObjectMapper           objectMapper;
 
-    @MockBean
-    private FirebaseAuthService    firebaseAuthService;
-
-    @Autowired
-    private FirebaseAuth           firebaseAuth;
-
     @Captor
     private ArgumentCaptor<String> tokenCaptor;
 
+    @Autowired
+    private FirebaseRestClient     firebaseRestClient;
+
     @Transactional
     @Test
-    void itShouldAuthenticatePetParent_valid() throws Exception {
+    void itShouldSignUp_valid() throws Exception {
         // Given
+
+        String email = RandomGeneratorUtils.getRandomEmail();
+        String password = "Test1234!";
+
+        FirebaseAuthResponse authResponse = firebaseRestClient.signUp(email, password);
+
         AuthenticatorDTO authenticatorDTO = new AuthenticatorDTO();
-        authenticatorDTO.setToken("token");
+        authenticatorDTO.setToken(authResponse.getIdToken());
 
-        CreateRequest request = new CreateRequest().setEmail(RandomGeneratorUtils.getRandomEmail())
-                .setEmailVerified(false)
-                .setPassword("Test1234!")
-                .setPhoneNumber("+1" + RandomGeneratorUtils.getRandomPhone())
-                .setDisplayName(RandomGeneratorUtils.getRandomFullName())
-                .setPhotoUrl("http://www.example.com/12345678/photo.png")
-                .setDisabled(false);
         // @formatter:on
-
-        UserRecord userRecord = firebaseAuth.createUser(request);
-
         // When
-        Mockito.when(firebaseAuthService.verifyAndGetUser(Mockito.anyString())).thenReturn(userRecord);
-
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/petparents/authenticate")
                 .header("x-api-key", "test-token")
                 .accept(MediaType.APPLICATION_JSON)
@@ -87,13 +80,70 @@ public class PetParentIntegrationTests extends IntegrationTestConfiguration {
         assertThat(dtoResponse).isNotNull();
         assertThat(dtoResponse.getToken()).isNotNull();
         assertThat(dtoResponse.getUuid()).isNotNull();
+        assertThat(dtoResponse.isSignUp()).isTrue();
+        assertThat(dtoResponse.isSignIn()).isFalse();
 
-        Mockito.verify(firebaseAuthService).verifyAndGetUser(tokenCaptor.capture());
+    }
 
-        String token = tokenCaptor.getValue();
+    @Transactional
+    @Test
+    void itShouldSignIn_valid() throws Exception {
+        /**
+         * Sign up
+         */
+        String email = RandomGeneratorUtils.getRandomEmail();
+        String password = "Test1234!";
 
-        assertThat(token).isNotNull().isEqualTo("token");
+        FirebaseAuthResponse authResponse = firebaseRestClient.signUp(email, password);
 
+        AuthenticatorDTO authenticatorDTO = new AuthenticatorDTO();
+        authenticatorDTO.setToken(authResponse.getIdToken());
+
+        // @formatter:on
+        // When
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/petparents/authenticate")
+                .header("x-api-key", "test-token")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectUtils.toJson(authenticatorDTO));
+
+        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        String contentAsString = result.getResponse().getContentAsString();
+
+        AuthenticationResponseDTO dtoResponse = objectMapper.readValue(contentAsString, new TypeReference<AuthenticationResponseDTO>() {});
+
+        assertThat(dtoResponse).isNotNull();
+        assertThat(dtoResponse.getToken()).isNotNull();
+        assertThat(dtoResponse.getUuid()).isNotNull();
+        assertThat(dtoResponse.isSignUp()).isTrue();
+        assertThat(dtoResponse.isSignIn()).isFalse();
+
+        /**
+         * Sign in
+         */
+        authResponse = firebaseRestClient.signIn(email, password);
+
+        authenticatorDTO = new AuthenticatorDTO();
+        authenticatorDTO.setToken(authResponse.getIdToken());
+
+        requestBuilder = MockMvcRequestBuilders.post("/petparents/authenticate")
+                .header("x-api-key", "test-token")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectUtils.toJson(authenticatorDTO));
+
+        result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        contentAsString = result.getResponse().getContentAsString();
+
+        dtoResponse = objectMapper.readValue(contentAsString, new TypeReference<AuthenticationResponseDTO>() {});
+
+        assertThat(dtoResponse).isNotNull();
+        assertThat(dtoResponse.getToken()).isNotNull();
+        assertThat(dtoResponse.getUuid()).isNotNull();
+        assertThat(dtoResponse.isSignUp()).isFalse();
+        assertThat(dtoResponse.isSignIn()).isTrue();
     }
 
 }

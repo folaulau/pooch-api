@@ -38,12 +38,12 @@ public class AuthenticationResponseDTO implements Serializable {
      */
     private String            uuid;
 
-    private String            firstName;
-
-    private String            lastName;
-
     private String            email;
 
-    private String            userRole;
+    private String            role;
+
+    private boolean           signUp;
+
+    private boolean           signIn;
 
 }

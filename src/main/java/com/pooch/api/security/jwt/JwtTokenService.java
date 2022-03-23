@@ -17,6 +17,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.pooch.api.entity.petparent.PetParent;
+import com.pooch.api.entity.petsitter.PetSitter;
+import com.pooch.api.entity.role.Authority;
+import com.pooch.api.entity.role.Role;
 import com.pooch.api.utils.RandomGeneratorUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -36,25 +39,19 @@ public class JwtTokenService {
     /**
      * user can stay logged in for 14 days
      */
-    private static final int         LIFE_TIME_IN_DAYS = 14;
+    private static final int         LIFE_TIME_IN_DAYS = 200;
 
     private static final JWTVerifier VERIFIER          = JWT.require(ALGORITHM).withIssuer(ISSUER).build();
 
-    public String generateUserToken(PetParent petParent) {
+    public String generatePetParentToken(PetParent petParent) {
 
         try {
 
             Map<String, Object> hasura = new HashMap<String, Object>();
 
-            // Set<Role> roles = user.getRoles();
-            //
-            // boolean isPrimary = roles.stream().filter(r ->
-            // r.getAuthority().equals(Authority.teacher)).findFirst().isPresent();
-            //
-            // hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
-            // hasura.put("x-hasura-default-role", (isPrimary) ? Authority.teacher.name() : Authority.user.name());
-            // hasura.put("x-Hasura-user-id", user.getId() + "");
-            // hasura.put("x-Hasura-acct-id", user.getAccount().getId() + "");
+            hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
+            hasura.put("x-hasura-default-role", Authority.pet_parent.name());
+            hasura.put("x-Hasura-user-id", petParent.getId() + "");
 
             String token = JWT.create()
                     .withJWTId(RandomGeneratorUtils.getJWTId())
@@ -63,11 +60,10 @@ public class JwtTokenService {
                     .withIssuedAt(new Date())
                     .withAudience(audience)
                     .withIssuer(ISSUER)
-                    // .withClaim("primary", isPrimary)
-                    // .withClaim("uuid", user.getUuid())
-                    // .withClaim("acud", user.getAccount().getUuid())
-                    // .withClaim("name", user.getName())
-                    // .withClaim("hasura", hasura)
+                    .withClaim("uuid", petParent.getUuid())
+                    .withClaim("name", petParent.getFullName())
+                    .withClaim("role", Authority.pet_parent.name())
+                    .withClaim("hasura", hasura)
                     .sign(ALGORITHM);
             return token;
         } catch (JWTCreationException e) {
@@ -80,7 +76,7 @@ public class JwtTokenService {
 
     }
 
-    public JwtPayload getUserPayloadByToken(String token) {
+    public JwtPayload getPayloadByToken(String token) {
         if (token == null || token.length() == 0) {
             return null;
         }
@@ -97,10 +93,9 @@ public class JwtTokenService {
                 jwtPayload.setIat(jwt.getIssuedAt());
                 jwtPayload.setSub(jwt.getSubject());
                 jwtPayload.setAud(jwt.getAudience().get(0));
-                jwtPayload.setPrimary(jwt.getClaim("primary").asBoolean());
                 jwtPayload.setName(jwt.getClaim("name").asString());
                 jwtPayload.setUuid(jwt.getClaim("uuid").asString());
-                jwtPayload.setAcud(jwt.getClaim("acud").asString());
+                jwtPayload.setRole(jwt.getClaim("role").asString());
 
                 setHasura(jwtPayload, jwt);
 
@@ -110,6 +105,40 @@ public class JwtTokenService {
             log.warn("getPayloadByToken exception, msg: {}", e.getLocalizedMessage());
         }
         return null;
+    }
+
+    public String generatePetSitterToken(PetSitter petSitter) {
+
+        try {
+
+            Map<String, Object> hasura = new HashMap<String, Object>();
+
+            Set<Role> roles = petSitter.getRoles();
+
+            hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
+            hasura.put("x-hasura-default-role", Authority.pet_sitter.name());
+            hasura.put("x-Hasura-user-id", petSitter.getId() + "");
+
+            String token = JWT.create()
+                    .withJWTId(RandomGeneratorUtils.getJWTId())
+                    .withSubject(petSitter.getId() + "")
+                    .withExpiresAt(DateUtils.addDays(new Date(), LIFE_TIME_IN_DAYS))
+                    .withIssuedAt(new Date())
+                    .withAudience(audience)
+                    .withIssuer(ISSUER)
+                    .withClaim("uuid", petSitter.getUuid())
+                    .withClaim("name", petSitter.getFullName())
+                    .withClaim("role", Authority.pet_sitter.name())
+                    .withClaim("hasura", hasura)
+                    .sign(ALGORITHM);
+            return token;
+        } catch (JWTCreationException e) {
+            log.warn("JWTCreationException, msg: {}", e.getLocalizedMessage());
+            return null;
+        } catch (Exception e) {
+            log.warn("generateToken exception, msg: {}", e.getLocalizedMessage());
+            return null;
+        }
     }
 
     private void setHasura(JwtPayload jwtPayload, DecodedJWT jwt) {
@@ -123,14 +152,6 @@ public class JwtTokenService {
 
         if (hasura == null) {
             return;
-        }
-
-        try {
-            List<String> roles = (List<String>) hasura.get("x-hasura-allowed-roles");
-
-            jwtPayload.setRoles(new HashSet<>(roles));
-        } catch (Exception e) {
-            log.warn(e.getLocalizedMessage());
         }
 
     }

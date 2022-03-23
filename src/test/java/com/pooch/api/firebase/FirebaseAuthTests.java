@@ -26,16 +26,19 @@ import lombok.extern.slf4j.Slf4j;
 class FirebaseAuthTests extends IntegrationTestConfiguration {
 
     @Autowired
-    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth       firebaseAuth;
+
+    @Autowired
+    private FirebaseRestClient firebaseRestClient;
 
     @Test
     void test_createUser() throws FirebaseAuthException {
         // @formatter:off
-
+        String password = "Test1234!";
         CreateRequest request = new CreateRequest()
                 .setEmail(RandomGeneratorUtils.getRandomEmail())
                 .setEmailVerified(false)
-                .setPassword("Test1234!")
+                .setPassword(password)
                 .setPhoneNumber("+1"+RandomGeneratorUtils.getRandomPhone())
                 .setDisplayName(RandomGeneratorUtils.getRandomFullName())
                 .setPhotoUrl("http://www.example.com/12345678/photo.png")
@@ -47,6 +50,13 @@ class FirebaseAuthTests extends IntegrationTestConfiguration {
         assertThat(userRecord).isNotNull();
         assertThat(userRecord.getUid()).isNotNull();
 
+        // firebaseRestClient.signUp(RandomGeneratorUtils.getRandomEmail(), "Test1234!");
+        FirebaseAuthResponse authResponse = firebaseRestClient.signIn(userRecord.getEmail(), password);
+
+        log.info("idToken={}", authResponse.getIdToken());
+
+        assertThat(authResponse).isNotNull();
+        assertThat(authResponse.getIdToken()).isNotNull();
     }
 
     @Test

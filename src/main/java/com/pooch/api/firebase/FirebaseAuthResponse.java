@@ -1,7 +1,6 @@
-package com.pooch.api.dto;
+package com.pooch.api.firebase;
 
 import java.io.Serializable;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -14,17 +13,16 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PetCareDTO implements Serializable {
+public class FirebaseAuthResponse implements Serializable {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
 
-    private PetParentDTO      petParent;
-
-    private Set<PetDTO>       pets;
-
-    private PetSitterDTO      petSitter;
-
+    private String            kind;
+    private String            localId;
+    private String            email;
+    private String            idToken;
+    private String            displayName;
 }

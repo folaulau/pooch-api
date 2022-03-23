@@ -49,9 +49,6 @@ public class JwtPayload implements Serializable {
     // project id - JwtTokenService.audience
     private String              aud;
 
-    // account uuid
-    private String              acud;
-
     // issued at
     private Date                iat;
 
@@ -64,12 +61,9 @@ public class JwtPayload implements Serializable {
     // admin user?
     private Boolean             admin;
 
-    // primary user?
-    private Boolean             primary;
-
     private String              name;
 
-    private Set<String>         roles;
+    private String              role;
 
     /**
      * x-hasura-allowed-roles: [roles] - a list of allowed roles for the user i.e. acceptable values of the

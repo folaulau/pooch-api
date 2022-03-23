@@ -3,15 +3,22 @@ package com.pooch.api.entity.petsitter;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -24,9 +31,12 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
+import com.pooch.api.entity.role.Role;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -95,6 +105,11 @@ public class PetSitter implements Serializable {
     @Column(name = "description")
     private String            description;
 
+    @JsonIgnoreProperties(value = {"petSitters"})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "pet_sitter_roles", joinColumns = {@JoinColumn(name = "pet_sitter_id")}, inverseJoinColumns = {@JoinColumn(name = "role_id")})
+    private Set<Role>         roles;
+
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;
 
@@ -106,6 +121,20 @@ public class PetSitter implements Serializable {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime     updatedAt;
 
+    public void addRole(Role role) {
+        if (this.roles == null) {
+            this.roles = new HashSet<>();
+        }
+        this.roles.add(role);
+    }
+
+    public String getRoleAsString() {
+        if (this.roles == null) {
+            return null;
+        }
+        return this.roles.stream().findFirst().get().getAuthority().name();
+    }
+
     @PrePersist
     private void preCreate() {
         if (this.uuid == null || this.uuid.isEmpty()) {
@@ -115,6 +144,22 @@ public class PetSitter implements Serializable {
 
     @PreUpdate
     private void preUpdate() {
+    }
+
+    public String getFullName() {
+        StringBuilder str = new StringBuilder();
+        if (this.firstName != null && !this.firstName.isEmpty()) {
+            str.append(this.firstName);
+        }
+
+        if (this.lastName != null && !this.lastName.isEmpty()) {
+            if (!str.toString().isBlank()) {
+                str.append(" ");
+            }
+            str.append(this.lastName);
+        }
+
+        return null;
     }
 
 }

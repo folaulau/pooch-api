@@ -42,7 +42,7 @@ jobs:
 
       - name: Build with maven
         run: |
-          mvn -Daws.access.key=${{ secrets.AWS_ACCESS_KEY_ID }} -Daws.secret.key=${{ secrets.AWS_SECRET_ACCESS_KEY }} -Dstripe.secret.key=${{ secrets.STRIPE_SECRET_KEY }} -Dstripe.publishable.key=${{ secrets.STRIPE_PUBLISHABLE_KEY }} -Dspring.profiles.active=github clean package
+          mvn -Daws.access.key=${{ secrets.AWS_ACCESS_KEY_ID }} -Daws.secret.key=${{ secrets.AWS_SECRET_ACCESS_KEY }} -Dstripe.secret.key=${{ secrets.STRIPE_SECRET_KEY }} -Dstripe.publishable.key=${{ secrets.STRIPE_PUBLISHABLE_KEY }} -Dfirebase.web.api.key=${{ secrets.DEV_FIREBASE_WEB_API_KEY }} -Dspring.profiles.active=github clean package
         env:
           database.url: postgres://${{ env.POSTGRESQL_USER }}:${{ env.POSTGRESQL_PASSWORD }}@host.docker.internal:5432/${{ env.POSTGRESQL_DB }}
           database.username: ${{ env.POSTGRESQL_USER }}
