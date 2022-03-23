@@ -7,4 +7,6 @@ public interface AwsSecretsManagerService {
     public StripeSecrets getStripeSecrets();
 
     public TwilioSecrets getTwilioSecrets();
+    
+    public FirebaseSecrets getFirebaseSecrets();
 }

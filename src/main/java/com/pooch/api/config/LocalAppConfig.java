@@ -10,6 +10,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
+import com.pooch.api.aws.secretsmanager.FirebaseSecrets;
 import com.pooch.api.aws.secretsmanager.TwilioSecrets;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -36,6 +37,9 @@ public class LocalAppConfig {
 
     @Value("${aws.deploy.region:us-west-2}")
     private String targetRegion;
+
+    @Value("${firebase.web.api.key}")
+    private String firebaseWebApiKey;
 
     @Bean(name = "stripeApiSecretKey")
     public String stripeApiSecretKey(@Value("${stripe.secret.key}") String stripeApiSecretKey) {
@@ -120,5 +124,12 @@ public class LocalAppConfig {
         configuration.schemas(databaseName);
         configuration.baselineOnMigrate(true);
         return configuration.load();
+    }
+
+    @Bean(name = "firebaseSecrets")
+    public FirebaseSecrets firebaseSecrets() {
+        FirebaseSecrets firebaseSecrets = new FirebaseSecrets();
+        firebaseSecrets.setAuthWebApiKey(firebaseWebApiKey);
+        return firebaseSecrets;
     }
 }

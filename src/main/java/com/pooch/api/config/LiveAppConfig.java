@@ -13,6 +13,7 @@ import org.springframework.context.annotation.PropertySource;
 
 import com.pooch.api.aws.secretsmanager.AwsSecretsManagerService;
 import com.pooch.api.aws.secretsmanager.DatabaseSecrets;
+import com.pooch.api.aws.secretsmanager.FirebaseSecrets;
 import com.pooch.api.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.aws.secretsmanager.TwilioSecrets;
 import com.pooch.api.utils.ObjectUtils;
@@ -27,10 +28,10 @@ import lombok.extern.slf4j.Slf4j;
 public class LiveAppConfig {
 
     @Value("${aws.deploy.region:us-west-2}")
-    private String                targetRegion;
+    private String                   targetRegion;
 
     @Value("${spring.datasource.name}")
-    private String                databaseName;
+    private String                   databaseName;
 
     @Autowired
     private AwsSecretsManagerService awsSecretsManagerService;
@@ -112,10 +113,15 @@ public class LiveAppConfig {
     public StripeSecrets stripeSecret() {
         return awsSecretsManagerService.getStripeSecrets();
     }
-    
+
     @Bean(name = "twilioSecrets")
     public TwilioSecrets twilioSecrets() {
         return awsSecretsManagerService.getTwilioSecrets();
+    }
+
+    @Bean(name = "firebaseSecrets")
+    public FirebaseSecrets firebaseSecrets() {
+        return awsSecretsManagerService.getFirebaseSecrets();
     }
 
     @DependsOn("stripeSecret")
@@ -135,7 +141,7 @@ public class LiveAppConfig {
     public String stripeProductId(StripeSecrets stripeSecrets) {
         return stripeSecrets.getProductId();
     }
-    
+
     @DependsOn("stripeSecret")
     @Bean(name = "stripeWebhookSubscriptionSigningSecret")
     public String stripeWebhookSubscriptionSigningSecret(StripeSecrets stripeSecrets) {

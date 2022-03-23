@@ -27,6 +27,9 @@ public class AwsSecretsManagerServiceImp implements AwsSecretsManagerService {
     @Value("${twilio.secret.name}")
     private String            twilioSecretName;
 
+    @Value("${firebase.secret.name}")
+    private String            firebaseSecretName;
+
     @Autowired
     private AWSSecretsManager awsSecretsManager;
 
@@ -124,6 +127,38 @@ public class AwsSecretsManagerServiceImp implements AwsSecretsManagerService {
             log.info("secret binary secret data");
             binarySecretData = getSecretValueResponse.getSecretBinary();
             return TwilioSecrets.fromJson(binarySecretData.toString());
+        }
+    }
+
+    @Override
+    public FirebaseSecrets getFirebaseSecrets() {
+        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
+        getSecretValueRequest.setSecretId(firebaseSecretName);
+
+        GetSecretValueResult getSecretValueResponse = null;
+        try {
+            getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
+        } catch (Exception e) {
+            log.error("Failed to get values for sercret {}, msg:{}", firebaseSecretName, e.getMessage(), e);
+        }
+
+        if (getSecretValueResponse == null) {
+            return null;
+        }
+
+        ByteBuffer binarySecretData;
+        String secret;
+        // Decrypted secret using the associated KMS CMK
+        // Depending on whether the secret was a string or binary, one of these fields
+        // will be populated
+        if (getSecretValueResponse.getSecretString() != null) {
+            log.info("secret string");
+            secret = getSecretValueResponse.getSecretString();
+            return FirebaseSecrets.fromJson(secret);
+        } else {
+            log.info("secret binary secret data");
+            binarySecretData = getSecretValueResponse.getSecretBinary();
+            return FirebaseSecrets.fromJson(binarySecretData.toString());
         }
     }
 }

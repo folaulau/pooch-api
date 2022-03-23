@@ -29,6 +29,7 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.pooch.api.aws.secretsmanager.AwsSecretsManagerService;
+import com.pooch.api.aws.secretsmanager.FirebaseSecrets;
 import com.pooch.api.aws.secretsmanager.TwilioSecrets;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -61,6 +62,9 @@ public class GithubAppConfig {
 
     @Value("${aws.secret.access.key}")
     private String                   awsSecretAccessKey;
+
+    @Value("${firebase.web.api.key}")
+    private String                   firebaseWebApiKey;
 
     @Autowired
     private AwsSecretsManagerService awsSecretsManagerService;
@@ -178,5 +182,12 @@ public class GithubAppConfig {
     @Bean(name = "queue")
     public String queue(@Value("${queue}") String queue) {
         return queue;
+    }
+
+    @Bean(name = "firebaseSecrets")
+    public FirebaseSecrets firebaseSecrets() {
+        FirebaseSecrets firebaseSecrets = new FirebaseSecrets();
+        firebaseSecrets.setAuthWebApiKey(firebaseWebApiKey);
+        return firebaseSecrets;
     }
 }

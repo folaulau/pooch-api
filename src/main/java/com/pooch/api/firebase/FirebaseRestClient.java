@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.pooch.api.aws.secretsmanager.FirebaseSecrets;
 import com.pooch.api.utils.ObjectUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,13 +25,14 @@ import lombok.extern.slf4j.Slf4j;
 public class FirebaseRestClient {
 
     @Autowired
-    private RestTemplate restTemplate;
+    private RestTemplate    restTemplate;
 
-    @Value("${firebase.web.api.key}")
-    private String       firebaseWebApiKey;
+    @Autowired
+    private FirebaseSecrets firebaseSecrets;
 
     public FirebaseAuthResponse signUp(String email, String password, boolean returnSecureToken) {
         log.info("signUp()");
+        String firebaseWebApiKey = firebaseSecrets.getAuthWebApiKey();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -70,7 +73,7 @@ public class FirebaseRestClient {
 
     public FirebaseAuthResponse signIn(String email, String password, boolean returnSecureToken) {
         log.info("signIn()");
-
+        String firebaseWebApiKey = firebaseSecrets.getAuthWebApiKey();
         HttpHeaders headers = new HttpHeaders();
 
         Map<String, Object> authObject = new HashMap<>();
