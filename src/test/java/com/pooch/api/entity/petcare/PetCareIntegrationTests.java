@@ -108,6 +108,7 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
         JwtPayload petSitterJwtPayload = new JwtPayload();
         petSitterJwtPayload.setUuid(TEST_PETSITTER_UUID);
         petSitterJwtPayload.setRole(Authority.pet_parent.name());
+        
         Mockito.when(jwtTokenService.getPayloadByToken(TEST_PETSITTER_TOKEN)).thenReturn(petSitterJwtPayload);
     }
 

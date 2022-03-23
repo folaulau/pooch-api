@@ -1,7 +1,21 @@
 package com.pooch.api.entity.petsitter;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.google.firebase.auth.UserRecord;
+import com.pooch.api.dto.AuthenticationResponseDTO;
+import com.pooch.api.dto.AuthenticatorDTO;
+import com.pooch.api.dto.EntityDTOMapper;
+import com.pooch.api.dto.PetSitterDTO;
+import com.pooch.api.dto.PetSitterUpdateDTO;
+import com.pooch.api.entity.petparent.PetParent;
+import com.pooch.api.entity.role.Authority;
+import com.pooch.api.entity.role.Role;
+import com.pooch.api.firebase.FirebaseAuthService;
+import com.pooch.api.security.AuthenticationService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,5 +24,76 @@ import lombok.extern.slf4j.Slf4j;
 public class PetSitterServiceImp implements PetSitterService {
 
     @Autowired
-    private PetSitterDAO petSitterDAO;
+    private FirebaseAuthService       firebaseAuthService;
+
+    @Autowired
+    private PetSitterDAO              petSitterDAO;
+
+    @Autowired
+    private AuthenticationService     authenticationService;
+
+    @Autowired
+    private PetSitterValidatorService petSitterValidatorService;
+
+    @Autowired
+    private EntityDTOMapper           entityDTOMapper;
+
+    @Override
+    public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
+
+        UserRecord userRecord = firebaseAuthService.verifyAndGetUser(authenticatorDTO.getToken());
+
+        Optional<PetSitter> optPetSitter = petSitterDAO.getByUuid(userRecord.getUid());
+
+        PetSitter petSitter = null;
+
+        boolean signUp = false;
+
+        if (optPetSitter.isPresent()) {
+            /**
+             * sign in
+             */
+            petSitter = optPetSitter.get();
+        } else {
+            /**
+             * sign up
+             */
+
+            petSitter = new PetSitter();
+            petSitter.setUuid(userRecord.getUid());
+            petSitter.setEmail(userRecord.getEmail());
+            petSitter.addRole(new Role(Authority.pet_sitter));
+
+            Long phoneNumber = null;
+
+            try {
+                phoneNumber = Long.parseLong(userRecord.getPhoneNumber());
+            } catch (Exception e) {
+                log.warn("Exception, msg={}", e.getLocalizedMessage());
+            }
+
+            petSitter.setPhoneNumber(phoneNumber);
+
+            petSitter = petSitterDAO.save(petSitter);
+
+            signUp = true;
+        }
+
+        AuthenticationResponseDTO authenticationResponseDTO = authenticationService.authenticate(petSitter);
+        authenticationResponseDTO.setSignUp(signUp);
+        authenticationResponseDTO.setSignIn(!signUp);
+
+        return authenticationResponseDTO;
+    }
+
+    @Override
+    public PetSitterDTO updateProfile(PetSitterUpdateDTO petSitterUpdateDTO) {
+        PetSitter petSitter = petSitterValidatorService.validateUpdateProfile(petSitterUpdateDTO);
+
+        entityDTOMapper.patchPetSitterWithPetSitterUpdateDTO(petSitterUpdateDTO, petSitter);
+
+        petSitter = petSitterDAO.save(petSitter);
+
+        return entityDTOMapper.mapPetSitterToPetSitterDTO(petSitter);
+    }
 }
