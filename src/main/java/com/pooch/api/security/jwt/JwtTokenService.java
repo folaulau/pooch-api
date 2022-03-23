@@ -51,7 +51,7 @@ public class JwtTokenService {
 
             hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
             hasura.put("x-hasura-default-role", Authority.pet_parent.name());
-            hasura.put("x-Hasura-user-id", petParent.getId() + "");
+            hasura.put("x-Hasura-parent-id", petParent.getId() + "");
 
             String token = JWT.create()
                     .withJWTId(RandomGeneratorUtils.getJWTId())
@@ -117,7 +117,7 @@ public class JwtTokenService {
 
             hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
             hasura.put("x-hasura-default-role", Authority.pet_sitter.name());
-            hasura.put("x-Hasura-user-id", petSitter.getId() + "");
+            hasura.put("x-Hasura-sitter-id", petSitter.getId() + "");
 
             String token = JWT.create()
                     .withJWTId(RandomGeneratorUtils.getJWTId())

@@ -1,11 +1,21 @@
 - table:
     schema: public
+    name: address
+- table:
+    schema: public
     name: pet
   object_relationships:
   - name: pet_parent
     using:
       foreign_key_constraint_on: pet_parent_id
   array_relationships:
+  - name: pet_food_schedules
+    using:
+      foreign_key_constraint_on:
+        column: pet_id
+        table:
+          schema: public
+          name: pet_food_schedule
   - name: pet_vaccines
     using:
       foreign_key_constraint_on:
@@ -13,10 +23,78 @@
         table:
           schema: public
           name: pet_vaccine
+  - name: petcare_pets
+    using:
+      foreign_key_constraint_on:
+        column: pet_id
+        table:
+          schema: public
+          name: petcare_pets
+  select_permissions:
+  - role: pet_parent
+    permission:
+      columns:
+      - id
+      - pet_parent_id
+      - deleted
+      - spayed
+      - breed
+      - full_name
+      - gender
+      - training
+      - uuid
+      - dob
+      - weight
+      - notes
+      - created_at
+      - updated_at
+      filter:
+        pet_parent_id:
+          _eq: x-Hasura-parent-id
+      allow_aggregations: true
+- table:
+    schema: public
+    name: pet_care
+  object_relationships:
+  - name: petSitterByPetSitterId
+    using:
+      foreign_key_constraint_on: pet_sitter_id
+  - name: pet_sitter
+    using:
+      foreign_key_constraint_on: pet_parent_id
+  array_relationships:
+  - name: petcare_pets
+    using:
+      foreign_key_constraint_on:
+        column: petcare_id
+        table:
+          schema: public
+          name: petcare_pets
+- table:
+    schema: public
+    name: pet_care_service
+  object_relationships:
+  - name: pet_sitter
+    using:
+      foreign_key_constraint_on: pet_sitter_id
+- table:
+    schema: public
+    name: pet_food_schedule
+  object_relationships:
+  - name: pet
+    using:
+      foreign_key_constraint_on: pet_id
 - table:
     schema: public
     name: pet_parent
   array_relationships:
+  - name: pet_parent_roles
+    using:
+      foreign_key_constraint_on:
+        column: pet_parent_id
+        table:
+          schema: public
+          name: pet_parent_roles
   - name: pets
     using:
       foreign_key_constraint_on:
@@ -24,9 +102,77 @@
         table:
           schema: public
           name: pet
+  select_permissions:
+  - role: pet_parent
+    permission:
+      columns:
+      - id
+      - phone_number
+      - deleted
+      - email_verified
+      - phone_number_verified
+      - email
+      - full_name
+      - uuid
+      - rating
+      - created_at
+      - updated_at
+      filter:
+        id:
+          _eq: x-Hasura-parent-id
+      allow_aggregations: true
+- table:
+    schema: public
+    name: pet_parent_roles
+  object_relationships:
+  - name: pet_parent
+    using:
+      foreign_key_constraint_on: pet_parent_id
+  - name: role
+    using:
+      foreign_key_constraint_on: role_id
 - table:
     schema: public
     name: pet_sitter
+  array_relationships:
+  - name: petCaresByPetSitterId
+    using:
+      foreign_key_constraint_on:
+        column: pet_sitter_id
+        table:
+          schema: public
+          name: pet_care
+  - name: pet_care_services
+    using:
+      foreign_key_constraint_on:
+        column: pet_sitter_id
+        table:
+          schema: public
+          name: pet_care_service
+  - name: pet_cares
+    using:
+      foreign_key_constraint_on:
+        column: pet_parent_id
+        table:
+          schema: public
+          name: pet_care
+  - name: pet_sitter_roles
+    using:
+      foreign_key_constraint_on:
+        column: pet_sitter_id
+        table:
+          schema: public
+          name: pet_sitter_roles
+- table:
+    schema: public
+    name: pet_sitter_roles
+  object_relationships:
+  - name: pet_sitter
+    using:
+      foreign_key_constraint_on: pet_sitter_id
+  - name: role
+    using:
+      foreign_key_constraint_on: role_id
 - table:
     schema: public
     name: pet_vaccine
@@ -34,3 +180,34 @@
   - name: pet
     using:
       foreign_key_constraint_on: pet_id
+- table:
+    schema: public
+    name: petcare_pets
+  object_relationships:
+  - name: pet
+    using:
+      foreign_key_constraint_on: pet_id
+  - name: pet_care
+    using:
+      foreign_key_constraint_on: petcare_id
+- table:
+    schema: public
+    name: phone_number_verification
+- table:
+    schema: public
+    name: roles
+  array_relationships:
+  - name: pet_parent_roles
+    using:
+      foreign_key_constraint_on:
+        column: role_id
+        table:
+          schema: public
+          name: pet_parent_roles
+  - name: pet_sitter_roles
+    using:
+      foreign_key_constraint_on:
+        column: role_id
+        table:
+          schema: public
+          name: pet_sitter_roles
