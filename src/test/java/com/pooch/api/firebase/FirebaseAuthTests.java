@@ -2,6 +2,8 @@ package com.pooch.api.firebase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Iterator;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +11,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.firebase.auth.ActionCodeSettings;
+import com.google.firebase.auth.ExportedUserRecord;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.ListUsersPage;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.pooch.api.IntegrationTestConfiguration;
@@ -81,6 +85,35 @@ class FirebaseAuthTests extends IntegrationTestConfiguration {
         log.info("userRecord={}", ObjectUtils.toJson(userRecord));
         assertThat(userRecord).isNotNull();
         assertThat(userRecord.getUid()).isNotNull();
+
+    }
+
+    @Disabled
+    @Test
+    public void removeAllDevUsers() throws FirebaseAuthException {
+
+        ListUsersPage listUsersPage = firebaseAuth.listUsers(null);
+
+        while (listUsersPage != null) {
+            Iterator<ExportedUserRecord> it = listUsersPage.getValues().iterator();
+
+            while (it.hasNext()) {
+                ExportedUserRecord u = it.next();
+
+                log.info("firebase user={}", ObjectUtils.toJson(u));
+
+                firebaseAuth.deleteUser(u.getUid());
+            }
+
+            if (listUsersPage.hasNextPage()) {
+                String token = listUsersPage.getNextPageToken();
+
+                listUsersPage = firebaseAuth.listUsers(token);
+            } else {
+                listUsersPage = null;
+            }
+
+        }
 
     }
 
