@@ -113,6 +113,9 @@ class FirebaseAuthTests extends IntegrationTestConfiguration {
                 listUsersPage = null;
             }
 
+            /**
+             * refund booking fee
+             */
         }
 
     }

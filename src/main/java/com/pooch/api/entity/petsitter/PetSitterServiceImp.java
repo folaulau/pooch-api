@@ -16,6 +16,7 @@ import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
 import com.pooch.api.firebase.FirebaseAuthService;
 import com.pooch.api.security.AuthenticationService;
+import com.pooch.api.utils.ObjectUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,6 +43,8 @@ public class PetSitterServiceImp implements PetSitterService {
     public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
 
         UserRecord userRecord = firebaseAuthService.verifyAndGetUser(authenticatorDTO.getToken());
+
+        log.info("userRecord={}", ObjectUtils.toJson(userRecord));
 
         Optional<PetSitter> optPetSitter = petSitterDAO.getByUuid(userRecord.getUid());
 
