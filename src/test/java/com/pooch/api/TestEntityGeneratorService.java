@@ -17,6 +17,8 @@ import com.pooch.api.entity.petparent.PetParent;
 import com.pooch.api.entity.petparent.PetParentRepository;
 import com.pooch.api.entity.petsitter.PetSitter;
 import com.pooch.api.entity.petsitter.PetSitterRepository;
+import com.pooch.api.entity.role.Authority;
+import com.pooch.api.entity.role.Role;
 import com.pooch.api.utils.RandomGeneratorUtils;
 
 @Repository
@@ -58,6 +60,7 @@ public class TestEntityGeneratorService {
         petSitter.setPhoneNumberVerified(false);
 
         petSitter.setRating(RandomGeneratorUtils.getIntegerWithin(1, 5));
+        petSitter.addRole(new Role(Authority.pet_sitter));
 
         return petSitter;
     }
@@ -79,6 +82,7 @@ public class TestEntityGeneratorService {
         petParent.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));
         petParent.setPhoneNumberVerified(false);
         petParent.setRating(RandomGeneratorUtils.getIntegerWithin(1, 5));
+        petParent.addRole(new Role(Authority.pet_parent));
 
         return petParent;
     }
@@ -101,6 +105,7 @@ public class TestEntityGeneratorService {
         pet.addFoodSchedule(FoodSchedule.Morning);
         pet.addFoodSchedule(FoodSchedule.Night);
         pet.addVaccine(new Vaccine("vaccine", LocalDateTime.now().plusDays(24)));
+
         return pet;
     }
 }
