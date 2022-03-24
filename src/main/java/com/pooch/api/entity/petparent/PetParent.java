@@ -75,6 +75,13 @@ public class PetParent implements Serializable {
     private Boolean           emailVerified;
 
     /**
+     * Social platforms(facebook, google, etc) don't give email<br>
+     * Now create a temp email for now
+     */
+    @Column(name = "email_temp")
+    private boolean           emailTemp;
+
+    /**
      * assume all phone numbers are US numbers for now.
      */
     @Column(name = "phone_number")

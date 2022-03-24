@@ -76,6 +76,13 @@ public class PetSitter implements Serializable {
     @Column(name = "email_verified")
     private Boolean           emailVerified;
 
+    /**
+     * Social platforms(facebook, google, etc) don't give email<br>
+     * Now create a temp email for now
+     */
+    @Column(name = "email_temp")
+    private boolean           emailTemp;
+
     @Column(name = "phone_number")
     private Long              phoneNumber;
 
