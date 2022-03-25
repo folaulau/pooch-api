@@ -1,4 +1,4 @@
-package com.pooch.api.entity.petcare.careservice;
+package com.pooch.api.entity.groomer.careservice;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ import org.hibernate.annotations.Where;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
-import com.pooch.api.entity.petsitter.PetSitter;
+import com.pooch.api.entity.groomer.Groomer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,10 +36,10 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 @DynamicUpdate
 @Entity
-@SQLDelete(sql = "UPDATE " + DatabaseTableNames.PetCareService + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
+@SQLDelete(sql = "UPDATE " + DatabaseTableNames.CareService + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
 @Where(clause = "deleted = 'F'")
-@Table(name = DatabaseTableNames.PetCareService, indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
-public class PetCareService implements Serializable {
+@Table(name = DatabaseTableNames.CareService, indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
+public class CareService implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -73,8 +73,8 @@ public class PetCareService implements Serializable {
     private Double            largePrice;
 
     @ManyToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name = "pet_sitter_id")
-    private PetSitter         petSitter;
+    @JoinColumn(name = "groomer_id")
+    private Groomer           groomer;
 
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;

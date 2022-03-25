@@ -25,6 +25,6 @@ public class PetCareDTO implements Serializable {
 
     private Set<PetDTO>       pets;
 
-    private PetSitterDTO      petSitter;
+    private GroomerDTO      petSitter;
 
 }

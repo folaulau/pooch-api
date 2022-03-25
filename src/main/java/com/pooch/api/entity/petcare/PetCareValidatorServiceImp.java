@@ -11,13 +11,13 @@ import com.pooch.api.dto.PetCareCreateDTO;
 import com.pooch.api.dto.PetCreateDTO;
 import com.pooch.api.dto.PetDTO;
 import com.pooch.api.dto.PetParentUpdateDTO;
-import com.pooch.api.dto.PetSitterUuidDTO;
+import com.pooch.api.dto.GroomerUuidDTO;
+import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.pet.Pet;
 import com.pooch.api.entity.pet.PetDAO;
 import com.pooch.api.entity.petparent.PetParent;
 import com.pooch.api.entity.petparent.PetParentDAO;
-import com.pooch.api.entity.petsitter.PetSitter;
-import com.pooch.api.entity.petsitter.PetSitterDAO;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
 
@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PetCareValidatorServiceImp implements PetCareValidatorService {
 
     @Autowired
-    private PetSitterDAO petSitterDAO;
+    private GroomerDAO petSitterDAO;
 
     @Autowired
     private PetParentDAO petParentDAO;

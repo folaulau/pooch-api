@@ -1,4 +1,4 @@
-package com.pooch.api.entity.petsitter;
+package com.pooch.api.entity.groomer;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -13,41 +13,41 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
-import com.pooch.api.dto.PetSitterDTO;
-import com.pooch.api.dto.PetSitterUpdateDTO;
+import com.pooch.api.dto.GroomerDTO;
+import com.pooch.api.dto.GroomerUpdateDTO;
 import com.pooch.api.utils.ObjectUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 
-@Tag(name = "PetSitters", description = "Pet Sitter Operations")
+@Tag(name = "Groomers", description = "Groomer Operations")
 @Slf4j
 @RestController
-@RequestMapping("/petsitters")
-public class PetSitterRestController {
+@RequestMapping("/groomers")
+public class GroomerRestController {
 
     @Autowired
-    private PetSitterService petSitterService;
+    private GroomerService groomerService;
 
     @Operation(summary = "Authenticate", description = "sign up or sign in")
     @PostMapping(value = "/authenticate")
     public ResponseEntity<AuthenticationResponseDTO> authenticate(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @RequestBody AuthenticatorDTO authenticatorDTO) {
         log.info("authenticate={}", ObjectUtils.toJson(authenticatorDTO));
 
-        AuthenticationResponseDTO authenticationResponseDTO = petSitterService.authenticate(authenticatorDTO);
+        AuthenticationResponseDTO authenticationResponseDTO = groomerService.authenticate(authenticatorDTO);
 
         return new ResponseEntity<>(authenticationResponseDTO, OK);
     }
 
     @Operation(summary = "Update Profile", description = "update profile")
     @PutMapping(value = "/profile")
-    public ResponseEntity<PetSitterDTO> update(@RequestHeader(name = "token", required = true) String token, @RequestBody PetSitterUpdateDTO petSitterUpdateDTO) {
-        log.info("petSitterUpdateDTO={}", ObjectUtils.toJson(petSitterUpdateDTO));
+    public ResponseEntity<GroomerDTO> update(@RequestHeader(name = "token", required = true) String token, @RequestBody GroomerUpdateDTO groomerUpdateDTO) {
+        log.info("groomerUpdateDTO={}", ObjectUtils.toJson(groomerUpdateDTO));
 
-        PetSitterDTO petSitterDTO = petSitterService.updateProfile(petSitterUpdateDTO);
+        GroomerDTO groomerDTO = groomerService.updateProfile(groomerUpdateDTO);
 
-        return new ResponseEntity<>(petSitterDTO, OK);
+        return new ResponseEntity<>(groomerDTO, OK);
     }
 
 }

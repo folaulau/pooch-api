@@ -33,12 +33,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
+import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.pet.FoodSchedule;
 import com.pooch.api.entity.pet.Pet;
 import com.pooch.api.entity.pet.vaccine.Vaccine;
-import com.pooch.api.entity.petcare.careservice.PetCareService;
 import com.pooch.api.entity.petparent.PetParent;
-import com.pooch.api.entity.petsitter.PetSitter;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -67,7 +67,7 @@ public class PetCare implements Serializable {
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "pet_parent_id")
-    private PetSitter         petParent;
+    private Groomer         petParent;
 
     // @JsonIgnoreProperties(value = {"expenses", "scrubbedData"})
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH})
@@ -76,12 +76,7 @@ public class PetCare implements Serializable {
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "pet_sitter_id")
-    private PetSitter         petSitter;
-
-    // @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH})
-    // @JoinTable(name = "petcare_pets", joinColumns = @JoinColumn(name = "petcare_id", referencedColumnName = "id"),
-    // inverseJoinColumns = @JoinColumn(name = "pet_id", referencedColumnName = "id"))
-    // private Set<PetCareService> petCareServices;
+    private Groomer         petSitter;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
@@ -89,6 +84,15 @@ public class PetCare implements Serializable {
 
     @Column(name = "pick_up_date_time", nullable = false)
     private LocalDateTime     pickUpDateTime;
+
+    @Column(name = "drop_off_date_time", nullable = false)
+    private LocalDateTime     dropOffDateTime;
+
+    @Column(name = "start_date_time", nullable = false)
+    private LocalDateTime     startDateTime;
+
+    @Column(name = "end_date_time", nullable = false)
+    private LocalDateTime     endDateTime;
 
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;

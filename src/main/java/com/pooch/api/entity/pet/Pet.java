@@ -93,11 +93,11 @@ public class Pet implements Serializable {
     @Column(name = "weight")
     private Double            weight;
 
-    /**
-     * spayed or neutered
-     */
     @Column(name = "spayed")
     private Boolean           spayed;
+
+    @Column(name = "neutered")
+    private Boolean           neutered;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")

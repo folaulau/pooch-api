@@ -1,4 +1,4 @@
-package com.pooch.api.entity.petsitter;
+package com.pooch.api.entity.groomer;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -11,8 +11,8 @@ import com.google.firebase.auth.UserRecord;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.EntityDTOMapper;
-import com.pooch.api.dto.PetSitterDTO;
-import com.pooch.api.dto.PetSitterUpdateDTO;
+import com.pooch.api.dto.GroomerDTO;
+import com.pooch.api.dto.GroomerUpdateDTO;
 import com.pooch.api.entity.petparent.PetParent;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
@@ -25,19 +25,19 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class PetSitterServiceImp implements PetSitterService {
+public class GroomerServiceImp implements GroomerService {
 
     @Autowired
     private FirebaseAuthService       firebaseAuthService;
 
     @Autowired
-    private PetSitterDAO              petSitterDAO;
+    private GroomerDAO              groomerDAO;
 
     @Autowired
     private AuthenticationService     authenticationService;
 
     @Autowired
-    private PetSitterValidatorService petSitterValidatorService;
+    private GroomerValidatorService groomerValidatorService;
 
     @Autowired
     private EntityDTOMapper           entityDTOMapper;
@@ -49,9 +49,9 @@ public class PetSitterServiceImp implements PetSitterService {
 
         log.info("userRecord={}", ObjectUtils.toJson(userRecord));
 
-        Optional<PetSitter> optPetSitter = petSitterDAO.getByUuid(userRecord.getUid());
+        Optional<Groomer> optPetSitter = groomerDAO.getByUuid(userRecord.getUid());
 
-        PetSitter petSitter = null;
+        Groomer petSitter = null;
 
         boolean signUp = false;
 
@@ -65,7 +65,7 @@ public class PetSitterServiceImp implements PetSitterService {
              * sign up
              */
 
-            petSitter = new PetSitter();
+            petSitter = new Groomer();
             petSitter.setUuid(userRecord.getUid());
             petSitter.addRole(new Role(Authority.pet_sitter));
             
@@ -101,7 +101,7 @@ public class PetSitterServiceImp implements PetSitterService {
 
             petSitter.setPhoneNumber(phoneNumber);
 
-            petSitter = petSitterDAO.save(petSitter);
+            petSitter = groomerDAO.save(petSitter);
 
             signUp = true;
         }
@@ -114,12 +114,12 @@ public class PetSitterServiceImp implements PetSitterService {
     }
 
     @Override
-    public PetSitterDTO updateProfile(PetSitterUpdateDTO petSitterUpdateDTO) {
-        PetSitter petSitter = petSitterValidatorService.validateUpdateProfile(petSitterUpdateDTO);
+    public GroomerDTO updateProfile(GroomerUpdateDTO petSitterUpdateDTO) {
+        Groomer petSitter = groomerValidatorService.validateUpdateProfile(petSitterUpdateDTO);
 
         entityDTOMapper.patchPetSitterWithPetSitterUpdateDTO(petSitterUpdateDTO, petSitter);
 
-        petSitter = petSitterDAO.save(petSitter);
+        petSitter = groomerDAO.save(petSitter);
 
         return entityDTOMapper.mapPetSitterToPetSitterDTO(petSitter);
     }

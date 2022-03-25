@@ -15,7 +15,7 @@ import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.PhoneNumberVerificationCreateDTO;
 import com.pooch.api.dto.PhoneNumberVerificationDTO;
 import com.pooch.api.dto.PhoneNumberVerificationUpdateDTO;
-import com.pooch.api.entity.petsitter.PetSitterRestController;
+import com.pooch.api.entity.groomer.GroomerRestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

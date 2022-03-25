@@ -24,7 +24,7 @@ import org.hibernate.annotations.Where;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
-import com.pooch.api.entity.petsitter.PetSitter;
+import com.pooch.api.entity.groomer.Groomer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

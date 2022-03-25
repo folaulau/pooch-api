@@ -1,4 +1,4 @@
-package com.pooch.api.entity.petsitter;
+package com.pooch.api.entity.groomer;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -48,10 +48,10 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 @DynamicUpdate
 @Entity
-@SQLDelete(sql = "UPDATE " + DatabaseTableNames.PetSitter + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
+@SQLDelete(sql = "UPDATE " + DatabaseTableNames.Groomer + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
 @Where(clause = "deleted = 'F'")
-@Table(name = DatabaseTableNames.PetSitter, indexes = {@Index(columnList = "uuid"), @Index(columnList = "email"), @Index(columnList = "deleted")})
-public class PetSitter implements Serializable {
+@Table(name = DatabaseTableNames.Groomer, indexes = {@Index(columnList = "uuid"), @Index(columnList = "email"), @Index(columnList = "deleted")})
+public class Groomer implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -68,6 +68,9 @@ public class PetSitter implements Serializable {
 
     @Column(name = "last_name")
     private String            lastName;
+
+    @Column(name = "business_name")
+    private String            businessName;
 
     @NotEmpty
     @Column(name = "email", unique = true)
@@ -112,9 +115,12 @@ public class PetSitter implements Serializable {
     @Column(name = "description")
     private String            description;
 
-    @JsonIgnoreProperties(value = {"petSitters"})
+    @Column(name = "instant_booking", nullable = false)
+    private boolean           instantBooking;
+
+    @JsonIgnoreProperties(value = {"groomers"})
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "pet_sitter_roles", joinColumns = {@JoinColumn(name = "pet_sitter_id")}, inverseJoinColumns = {@JoinColumn(name = "role_id")})
+    @JoinTable(name = "groomer_roles", joinColumns = {@JoinColumn(name = "groomer_id")}, inverseJoinColumns = {@JoinColumn(name = "role_id")})
     private Set<Role>         roles;
 
     @Column(name = "deleted", nullable = false)
@@ -147,6 +153,10 @@ public class PetSitter implements Serializable {
         if (this.uuid == null || this.uuid.isEmpty()) {
             this.uuid = "petsitter-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
         }
+        /**
+         * by default set to true
+         */
+        this.instantBooking = true;
     }
 
     @PreUpdate

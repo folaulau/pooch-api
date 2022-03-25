@@ -1,8 +1,8 @@
 package com.pooch.api.dto;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Set;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,5 +22,13 @@ public class PetCareCreateDTO implements Serializable {
     private PetParentUpdateDTO petParent;
 
     private Set<PetCreateDTO>  pets;
+
+    private LocalDateTime      pickUpDateTime;
+
+    private LocalDateTime      dropOffDateTime;
+
+    private LocalDateTime      startDateTime;
+
+    private LocalDateTime      endDateTime;
 
 }

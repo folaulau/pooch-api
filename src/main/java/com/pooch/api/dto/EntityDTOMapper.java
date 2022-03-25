@@ -7,9 +7,9 @@ import org.mapstruct.Mappings;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
 
+import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.pet.Pet;
 import com.pooch.api.entity.petparent.PetParent;
-import com.pooch.api.entity.petsitter.PetSitter;
 import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
 
 @Mapper(componentModel = "spring", nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, unmappedTargetPolicy = ReportingPolicy.IGNORE)
@@ -26,7 +26,7 @@ public interface EntityDTOMapper {
 
     PetParentUpdateDTO mapPetParentToPetParentUpdateDTO(PetParent petParent);
 
-    PetSitterUuidDTO mapPetSitterToPetSitterUuidDTO(PetSitter petSitter);
+    GroomerUuidDTO mapPetSitterToPetSitterUuidDTO(Groomer petSitter);
 
     @Mappings({@Mapping(target = "uuid", ignore = true)})
     PetParent mapPetParentUpdateDTOToPetParent(PetParentUpdateDTO petParentUpdateDTO);
@@ -36,9 +36,9 @@ public interface EntityDTOMapper {
 
     PetParentDTO mapPetParentToPetParentDTO(PetParent petParent);
 
-    PetSitterDTO mapPetSitterToPetSitterDTO(PetSitter petSitter);
+    GroomerDTO mapPetSitterToPetSitterDTO(Groomer petSitter);
 
     @Mappings({@Mapping(target = "uuid", ignore = true)})
-    void patchPetSitterWithPetSitterUpdateDTO(PetSitterUpdateDTO petSitterUpdateDTO, @MappingTarget PetSitter petSitter);
+    void patchPetSitterWithPetSitterUpdateDTO(GroomerUpdateDTO petSitterUpdateDTO, @MappingTarget Groomer petSitter);
 
 }

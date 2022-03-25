@@ -3,8 +3,9 @@ package com.pooch.api;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import com.pooch.api.entity.petsitter.PetSitter;
-import com.pooch.api.entity.petsitter.PetSitterRepository;
+
+import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.groomer.GroomerRepository;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 
@@ -15,12 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 public class DatabaseTests extends IntegrationTestConfiguration {
 
     @Autowired
-    private PetSitterRepository petSitterRepository;
+    private GroomerRepository petSitterRepository;
 
     @Test
     void test_saveSitter() {
 
-        PetSitter sitter = new PetSitter();
+        Groomer sitter = new Groomer();
 
         sitter.setEmail(RandomGeneratorUtils.getRandomEmail());
 

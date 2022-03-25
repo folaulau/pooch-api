@@ -16,8 +16,8 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.petparent.PetParent;
-import com.pooch.api.entity.petsitter.PetSitter;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
 import com.pooch.api.utils.RandomGeneratorUtils;
@@ -107,7 +107,7 @@ public class JwtTokenService {
         return null;
     }
 
-    public String generatePetSitterToken(PetSitter petSitter) {
+    public String generatePetSitterToken(Groomer petSitter) {
 
         try {
 

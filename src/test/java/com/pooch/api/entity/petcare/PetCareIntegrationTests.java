@@ -39,8 +39,10 @@ import com.pooch.api.dto.PetCareCreateDTO;
 import com.pooch.api.dto.PetCreateDTO;
 import com.pooch.api.dto.PetParentCreateDTO;
 import com.pooch.api.dto.PetParentUpdateDTO;
-import com.pooch.api.dto.PetSitterUuidDTO;
+import com.pooch.api.dto.GroomerUuidDTO;
 import com.pooch.api.dto.VaccineCreateDTO;
+import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.pet.Breed;
 import com.pooch.api.entity.pet.FoodSchedule;
 import com.pooch.api.entity.pet.Gender;
@@ -48,8 +50,6 @@ import com.pooch.api.entity.pet.Training;
 import com.pooch.api.entity.petparent.PetParent;
 import com.pooch.api.entity.petparent.PetParentDAO;
 import com.pooch.api.entity.petparent.PetParentIntegrationTests;
-import com.pooch.api.entity.petsitter.PetSitter;
-import com.pooch.api.entity.petsitter.PetSitterDAO;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
@@ -72,7 +72,7 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
     private ObjectMapper               objectMapper;
 
     @Autowired
-    private PetSitterDAO               petSitterDAO;
+    private GroomerDAO               petSitterDAO;
 
     @Autowired
     private Filter                     springSecurityFilterChain;
@@ -134,7 +134,7 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
         /**
          * Pet Sitter
          */
-        PetSitter petSitter = testEntityGeneratorService.getDBPetSitter();
+        Groomer petSitter = testEntityGeneratorService.getDBPetSitter();
 
         petCareCreateDTO.setPetSitterUuid(petSitter.getUuid());
 

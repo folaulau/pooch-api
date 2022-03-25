@@ -8,6 +8,8 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.groomer.GroomerRepository;
 import com.pooch.api.entity.pet.Breed;
 import com.pooch.api.entity.pet.FoodSchedule;
 import com.pooch.api.entity.pet.Pet;
@@ -15,8 +17,6 @@ import com.pooch.api.entity.pet.PetRepository;
 import com.pooch.api.entity.pet.vaccine.Vaccine;
 import com.pooch.api.entity.petparent.PetParent;
 import com.pooch.api.entity.petparent.PetParentRepository;
-import com.pooch.api.entity.petsitter.PetSitter;
-import com.pooch.api.entity.petsitter.PetSitterRepository;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
 import com.pooch.api.utils.RandomGeneratorUtils;
@@ -25,7 +25,7 @@ import com.pooch.api.utils.RandomGeneratorUtils;
 public class TestEntityGeneratorService {
 
     @Autowired
-    private PetSitterRepository petSitterRepository;
+    private GroomerRepository petSitterRepository;
 
     @Autowired
     private PetParentRepository petParentRepository;
@@ -33,14 +33,14 @@ public class TestEntityGeneratorService {
     @Autowired
     private PetRepository       petRepository;
 
-    public PetSitter getDBPetSitter() {
-        PetSitter petSitter = getPetSitter();
+    public Groomer getDBPetSitter() {
+        Groomer petSitter = getPetSitter();
         return petSitterRepository.saveAndFlush(petSitter);
     }
 
-    public PetSitter getPetSitter() {
+    public Groomer getPetSitter() {
 
-        PetSitter petSitter = new PetSitter();
+        Groomer petSitter = new Groomer();
         petSitter.setUuid("pet-sitter-" + UUID.randomUUID().toString());
         String firstName = RandomGeneratorUtils.getRandomFirstname();
         petSitter.setFirstName(firstName);

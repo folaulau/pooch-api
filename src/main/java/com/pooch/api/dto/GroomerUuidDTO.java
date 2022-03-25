@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PetSitterUuidDTO implements Serializable {
+public class GroomerUuidDTO implements Serializable {
 
     /**
      * 

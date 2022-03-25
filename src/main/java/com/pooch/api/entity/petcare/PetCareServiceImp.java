@@ -13,12 +13,12 @@ import com.pooch.api.dto.PetCareDTO;
 import com.pooch.api.dto.PetCreateDTO;
 import com.pooch.api.dto.PetDTO;
 import com.pooch.api.dto.PetParentUpdateDTO;
+import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.pet.Pet;
 import com.pooch.api.entity.pet.PetDAO;
 import com.pooch.api.entity.petparent.PetParent;
 import com.pooch.api.entity.petparent.PetParentDAO;
-import com.pooch.api.entity.petsitter.PetSitter;
-import com.pooch.api.entity.petsitter.PetSitterDAO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +33,7 @@ public class PetCareServiceImp implements PetCareService {
     private EntityDTOMapper         entityDTOMapper;
 
     @Autowired
-    private PetSitterDAO            petSitterDAO;
+    private GroomerDAO            petSitterDAO;
 
     @Autowired
     private PetParentDAO            petParentDAO;
@@ -91,7 +91,7 @@ public class PetCareServiceImp implements PetCareService {
 
         if (petSitterUuid != null) {
 
-            PetSitter petSitter = petSitterDAO.getByUuid(petSitterUuid).get();
+            Groomer petSitter = petSitterDAO.getByUuid(petSitterUuid).get();
             petCareDTO.setPetSitter(entityDTOMapper.mapPetSitterToPetSitterDTO(petSitter));
 
         }

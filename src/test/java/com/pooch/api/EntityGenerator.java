@@ -1,14 +1,14 @@
 package com.pooch.api;
 
+import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.petparent.PetParent;
-import com.pooch.api.entity.petsitter.PetSitter;
 import com.pooch.api.utils.RandomGeneratorUtils;
 
 public final class EntityGenerator {
 
-    public static PetSitter getPetSitter() {
+    public static Groomer getPetSitter() {
 
-        PetSitter petSitter = new PetSitter();
+        Groomer petSitter = new Groomer();
         String firstName = RandomGeneratorUtils.getRandomFirstname();
         petSitter.setFirstName(firstName);
         String lastName = RandomGeneratorUtils.getRandomLastname();
