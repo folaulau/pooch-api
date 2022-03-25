@@ -65,7 +65,7 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
 
         // @formatter:on
         // When
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/petparents/authenticate")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/parents/authenticate")
                 .header("x-api-key", "test-token")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -101,7 +101,7 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
 
         // @formatter:on
         // When
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/petparents/authenticate")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/parents/authenticate")
                 .header("x-api-key", "test-token")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -127,7 +127,7 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
         authenticatorDTO = new AuthenticatorDTO();
         authenticatorDTO.setToken(authResponse.getIdToken());
 
-        requestBuilder = MockMvcRequestBuilders.post("/petparents/authenticate")
+        requestBuilder = MockMvcRequestBuilders.post("/parents/authenticate")
                 .header("x-api-key", "test-token")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
