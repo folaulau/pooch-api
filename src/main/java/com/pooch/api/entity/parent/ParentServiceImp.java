@@ -102,8 +102,6 @@ public class ParentServiceImp implements ParentService {
         }
 
         AuthenticationResponseDTO authenticationResponseDTO = authenticationService.authenticate(petParent);
-        authenticationResponseDTO.setSignUp(signUp);
-        authenticationResponseDTO.setSignIn(!signUp);
 
         return authenticationResponseDTO;
     }

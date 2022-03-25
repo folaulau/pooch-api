@@ -80,8 +80,6 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
         assertThat(dtoResponse).isNotNull();
         assertThat(dtoResponse.getToken()).isNotNull();
         assertThat(dtoResponse.getUuid()).isNotNull();
-        assertThat(dtoResponse.isSignUp()).isTrue();
-        assertThat(dtoResponse.isSignIn()).isFalse();
 
     }
 
@@ -116,8 +114,6 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
         assertThat(dtoResponse).isNotNull();
         assertThat(dtoResponse.getToken()).isNotNull();
         assertThat(dtoResponse.getUuid()).isNotNull();
-        assertThat(dtoResponse.isSignUp()).isTrue();
-        assertThat(dtoResponse.isSignIn()).isFalse();
 
         /**
          * Sign in
@@ -142,8 +138,6 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
         assertThat(dtoResponse).isNotNull();
         assertThat(dtoResponse.getToken()).isNotNull();
         assertThat(dtoResponse.getUuid()).isNotNull();
-        assertThat(dtoResponse.isSignUp()).isFalse();
-        assertThat(dtoResponse.isSignIn()).isTrue();
     }
 
 }

@@ -66,6 +66,7 @@ public class GroomerServiceImp implements GroomerService {
              */
 
             petSitter = new Groomer();
+           
             petSitter.setUuid(userRecord.getUid());
             petSitter.addRole(new Role(Authority.groomer));
 
@@ -107,8 +108,6 @@ public class GroomerServiceImp implements GroomerService {
         }
 
         AuthenticationResponseDTO authenticationResponseDTO = authenticationService.authenticate(petSitter);
-        authenticationResponseDTO.setSignUp(signUp);
-        authenticationResponseDTO.setSignIn(!signUp);
 
         return authenticationResponseDTO;
     }

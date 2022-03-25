@@ -40,27 +40,23 @@ public class AuthenticationServiceImp implements AuthenticationService {
     private JwtTokenService     jwtTokenService;
 
     @Override
-    public AuthenticationResponseDTO authenticate(Parent petParent) {
-        String jwt = jwtTokenService.generatePetParentToken(petParent);
+    public AuthenticationResponseDTO authenticate(Parent parent) {
+        String jwt = jwtTokenService.generatePetParentToken(parent);
 
-        AuthenticationResponseDTO auth = new AuthenticationResponseDTO();
+        AuthenticationResponseDTO auth = entityMapper.mapParentToAuthenticationResponse(parent);
         auth.setToken(jwt);
-        auth.setEmail(petParent.getEmail());
-        auth.setUuid(petParent.getUuid());
-        auth.setRole(petParent.getRoleAsString());
+        auth.setRole(parent.getRoleAsString());
 
         return auth;
     }
 
     @Override
-    public AuthenticationResponseDTO authenticate(Groomer petSitter) {
-        String jwt = jwtTokenService.generatePetSitterToken(petSitter);
+    public AuthenticationResponseDTO authenticate(Groomer groomer) {
+        String jwt = jwtTokenService.generatePetSitterToken(groomer);
 
-        AuthenticationResponseDTO auth = new AuthenticationResponseDTO();
+        AuthenticationResponseDTO auth = entityMapper.mapGroomerToAuthenticationResponse(groomer);
         auth.setToken(jwt);
-        auth.setEmail(petSitter.getEmail());
-        auth.setUuid(petSitter.getUuid());
-        auth.setRole(petSitter.getRoleAsString());
+        auth.setRole(groomer.getRoleAsString());
 
         return auth;
     }

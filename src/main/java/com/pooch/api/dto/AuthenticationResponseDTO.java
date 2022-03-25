@@ -1,6 +1,9 @@
 package com.pooch.api.dto;
 
 import java.io.Serializable;
+
+import javax.persistence.Column;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -40,10 +43,12 @@ public class AuthenticationResponseDTO implements Serializable {
 
     private String            email;
 
+    private Boolean           emailVerified;
+
+    private Long              phoneNumber;
+
+    private Boolean           phoneNumberVerified;
+
     private String            role;
-
-    private boolean           signUp;
-
-    private boolean           signIn;
 
 }
