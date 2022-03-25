@@ -11,7 +11,7 @@ import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.PetCreateDTO;
 import com.pooch.api.dto.PetDTO;
 import com.pooch.api.dto.VaccineCreateDTO;
-import com.pooch.api.entity.petparent.PetParent;
+import com.pooch.api.entity.parent.Parent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,7 +26,7 @@ public class PetServiceImp implements PetService {
     private EntityDTOMapper   entityDTOMapper;
 
     @Override
-    public List<PetDTO> add(PetParent petParent, Set<PetCreateDTO> petCreateDTOs) {
+    public List<PetDTO> add(Parent petParent, Set<PetCreateDTO> petCreateDTOs) {
 
         List<PetDTO> petDTOs = petCreateDTOs.stream().map(petCreateDTO -> {
 
@@ -41,7 +41,7 @@ public class PetServiceImp implements PetService {
                 entityDTOMapper.patchPet(petCreateDTO, pet);
             } else {
                 pet = entityDTOMapper.mapPetCreateDTOToPet(petCreateDTO);
-                pet.setPetParent(petParent);
+                pet.setParent(petParent);
             }
             
             pet = petDAO.save(pet);

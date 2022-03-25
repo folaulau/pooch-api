@@ -17,7 +17,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.pooch.api.entity.groomer.Groomer;
-import com.pooch.api.entity.petparent.PetParent;
+import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
 import com.pooch.api.utils.RandomGeneratorUtils;
@@ -43,14 +43,14 @@ public class JwtTokenService {
 
     private static final JWTVerifier VERIFIER          = JWT.require(ALGORITHM).withIssuer(ISSUER).build();
 
-    public String generatePetParentToken(PetParent petParent) {
+    public String generatePetParentToken(Parent petParent) {
 
         try {
 
             Map<String, Object> hasura = new HashMap<String, Object>();
 
             hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
-            hasura.put("x-hasura-default-role", Authority.pet_parent.name());
+            hasura.put("x-hasura-default-role", Authority.parent.name());
             hasura.put("x-Hasura-parent-id", petParent.getId() + "");
 
             String token = JWT.create()
@@ -62,7 +62,7 @@ public class JwtTokenService {
                     .withIssuer(ISSUER)
                     .withClaim("uuid", petParent.getUuid())
                     .withClaim("name", petParent.getFullName())
-                    .withClaim("role", Authority.pet_parent.name())
+                    .withClaim("role", Authority.parent.name())
                     .withClaim("hasura", hasura)
                     .sign(ALGORITHM);
             return token;
@@ -116,7 +116,7 @@ public class JwtTokenService {
             Set<Role> roles = petSitter.getRoles();
 
             hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
-            hasura.put("x-hasura-default-role", Authority.pet_sitter.name());
+            hasura.put("x-hasura-default-role", Authority.groomer.name());
             hasura.put("x-Hasura-sitter-id", petSitter.getId() + "");
 
             String token = JWT.create()
@@ -128,7 +128,7 @@ public class JwtTokenService {
                     .withIssuer(ISSUER)
                     .withClaim("uuid", petSitter.getUuid())
                     .withClaim("name", petSitter.getFullName())
-                    .withClaim("role", Authority.pet_sitter.name())
+                    .withClaim("role", Authority.groomer.name())
                     .withClaim("hasura", hasura)
                     .sign(ALGORITHM);
             return token;

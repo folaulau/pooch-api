@@ -1,4 +1,4 @@
-package com.pooch.api.entity.petparent;
+package com.pooch.api.entity.parent;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -22,13 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class PetParentServiceImp implements PetParentService {
+public class ParentServiceImp implements ParentService {
 
     @Autowired
     private FirebaseAuthService   firebaseAuthService;
 
     @Autowired
-    private PetParentDAO          petParentDAO;
+    private ParentDAO             parentDAO;
 
     @Autowired
     private AuthenticationService authenticationService;
@@ -44,9 +44,9 @@ public class PetParentServiceImp implements PetParentService {
 
         log.info("userRecord={}", ObjectUtils.toJson(userRecord));
 
-        Optional<PetParent> optPetParent = petParentDAO.getByUuid(userRecord.getUid());
+        Optional<Parent> optPetParent = parentDAO.getByUuid(userRecord.getUid());
 
-        PetParent petParent = null;
+        Parent petParent = null;
 
         boolean signUp = false;
 
@@ -60,9 +60,9 @@ public class PetParentServiceImp implements PetParentService {
              * sign up
              */
 
-            petParent = new PetParent();
+            petParent = new Parent();
             petParent.setUuid(userRecord.getUid());
-            petParent.addRole(new Role(Authority.pet_parent));
+            petParent.addRole(new Role(Authority.parent));
 
             String email = userRecord.getEmail();
 
@@ -96,7 +96,7 @@ public class PetParentServiceImp implements PetParentService {
 
             petParent.setPhoneNumber(phoneNumber);
 
-            petParent = petParentDAO.save(petParent);
+            petParent = parentDAO.save(petParent);
 
             signUp = true;
         }

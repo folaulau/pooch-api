@@ -37,19 +37,19 @@ import com.pooch.api.TestEntityGeneratorService;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.PetCareCreateDTO;
 import com.pooch.api.dto.PetCreateDTO;
-import com.pooch.api.dto.PetParentCreateDTO;
+import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.dto.PetParentUpdateDTO;
 import com.pooch.api.dto.GroomerUuidDTO;
 import com.pooch.api.dto.VaccineCreateDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
+import com.pooch.api.entity.parent.Parent;
+import com.pooch.api.entity.parent.ParentDAO;
+import com.pooch.api.entity.parent.ParentIntegrationTests;
 import com.pooch.api.entity.pet.Breed;
 import com.pooch.api.entity.pet.FoodSchedule;
 import com.pooch.api.entity.pet.Gender;
 import com.pooch.api.entity.pet.Training;
-import com.pooch.api.entity.petparent.PetParent;
-import com.pooch.api.entity.petparent.PetParentDAO;
-import com.pooch.api.entity.petparent.PetParentIntegrationTests;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
@@ -72,13 +72,13 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
     private ObjectMapper               objectMapper;
 
     @Autowired
-    private GroomerDAO               petSitterDAO;
+    private GroomerDAO                 petSitterDAO;
 
     @Autowired
     private Filter                     springSecurityFilterChain;
 
     @Autowired
-    private PetParentDAO               petParentDAO;
+    private ParentDAO                  petParentDAO;
 
     @Autowired
     private EntityDTOMapper            entityDTOMapper;
@@ -101,14 +101,14 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
 
         JwtPayload petParentJwtPayload = new JwtPayload();
         petParentJwtPayload.setUuid(TEST_PETPARENT_UUID);
-        petParentJwtPayload.setRole(Authority.pet_parent.name());
-        
+        petParentJwtPayload.setRole(Authority.parent.name());
+
         Mockito.when(jwtTokenService.getPayloadByToken(TEST_PETPARENT_TOKEN)).thenReturn(petParentJwtPayload);
 
         JwtPayload petSitterJwtPayload = new JwtPayload();
         petSitterJwtPayload.setUuid(TEST_PETSITTER_UUID);
-        petSitterJwtPayload.setRole(Authority.pet_parent.name());
-        
+        petSitterJwtPayload.setRole(Authority.parent.name());
+
         Mockito.when(jwtTokenService.getPayloadByToken(TEST_PETSITTER_TOKEN)).thenReturn(petSitterJwtPayload);
     }
 
@@ -125,7 +125,7 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
         /**
          * Pet Parent
          */
-        PetParent petParent = testEntityGeneratorService.getDBPetParent();
+        Parent petParent = testEntityGeneratorService.getDBPetParent();
 
         PetParentUpdateDTO petParentDTO = entityDTOMapper.mapPetParentToPetParentUpdateDTO(petParent);
 

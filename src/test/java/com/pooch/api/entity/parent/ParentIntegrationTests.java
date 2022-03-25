@@ -1,4 +1,4 @@
-package com.pooch.api.entity.petparent;
+package com.pooch.api.entity.parent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import javax.transaction.Transactional;
@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AutoConfigureMockMvc
-public class PetParentIntegrationTests extends IntegrationTestConfiguration {
+public class ParentIntegrationTests extends IntegrationTestConfiguration {
 
     @Autowired
     private MockMvc                mockMvc;

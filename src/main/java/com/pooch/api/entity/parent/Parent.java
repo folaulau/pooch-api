@@ -1,4 +1,4 @@
-package com.pooch.api.entity.petparent;
+package com.pooch.api.entity.parent;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -43,10 +43,10 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 @DynamicUpdate
 @Entity
-@SQLDelete(sql = "UPDATE " + DatabaseTableNames.PetParent + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
+@SQLDelete(sql = "UPDATE " + DatabaseTableNames.Parent + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
 @Where(clause = "deleted = 'F'")
-@Table(name = DatabaseTableNames.PetParent, indexes = {@Index(columnList = "uuid"), @Index(columnList = "email"), @Index(columnList = "phone_number"), @Index(columnList = "deleted")})
-public class PetParent implements Serializable {
+@Table(name = DatabaseTableNames.Parent, indexes = {@Index(columnList = "uuid"), @Index(columnList = "email"), @Index(columnList = "phone_number"), @Index(columnList = "deleted")})
+public class Parent implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -90,9 +90,9 @@ public class PetParent implements Serializable {
     @Column(name = "phone_number_verified")
     private Boolean           phoneNumberVerified;
 
-    @JsonIgnoreProperties(value = {"petParents"})
+    @JsonIgnoreProperties(value = {"parents"})
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "pet_parent_roles", joinColumns = {@JoinColumn(name = "pet_parent_id")}, inverseJoinColumns = {@JoinColumn(name = "role_id")})
+    @JoinTable(name = "parent_roles", joinColumns = {@JoinColumn(name = "parent_id")}, inverseJoinColumns = {@JoinColumn(name = "role_id")})
     private Set<Role>         roles;
 
     @Column(name = "deleted", nullable = false)

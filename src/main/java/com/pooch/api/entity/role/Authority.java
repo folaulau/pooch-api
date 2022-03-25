@@ -6,9 +6,9 @@ import java.util.stream.Collectors;
 
 public enum Authority {
 
-    pet_parent,
+    parent,
 
-    pet_sitter,
+    groomer,
 
     sales,
 

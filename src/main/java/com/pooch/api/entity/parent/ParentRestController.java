@@ -1,4 +1,4 @@
-package com.pooch.api.entity.petparent;
+package com.pooch.api.entity.parent;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -19,13 +19,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Tag(name = "PetParents", description = "Pet Parent Operations")
+@Tag(name = "Parents", description = "Parent Operations")
 @RestController
-@RequestMapping("/petparents")
-public class PetParentRestController {
+@RequestMapping("/parents")
+public class ParentRestController {
 
     @Autowired
-    private PetParentService petParentService;
+    private ParentService petParentService;
 
     @Operation(summary = "Authenticate", description = "sign up or sign in")
     @PostMapping(value = "/authenticate")

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PetParentCreateDTO implements Serializable {
+public class ParentUpdateDTO implements Serializable {
 
     /**
      * 

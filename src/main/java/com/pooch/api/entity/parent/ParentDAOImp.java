@@ -1,4 +1,4 @@
-package com.pooch.api.entity.petparent;
+package com.pooch.api.entity.parent;
 
 import java.util.Optional;
 
@@ -10,21 +10,21 @@ import lombok.extern.slf4j.Slf4j;
 
 @Repository
 @Slf4j
-public class PetParentDAOImp implements PetParentDAO {
+public class ParentDAOImp implements ParentDAO {
 
     @Autowired
-    private PetParentRepository petParentRepository;
+    private ParentRepository petParentRepository;
 
     @Autowired
     private JdbcTemplate        jdbcTemplate;
 
     @Override
-    public PetParent save(PetParent petParent) {
+    public Parent save(Parent petParent) {
         return petParentRepository.saveAndFlush(petParent);
     }
 
     @Override
-    public Optional<PetParent> getByUuid(String uuid) {
+    public Optional<Parent> getByUuid(String uuid) {
         return petParentRepository.findByUuid(uuid.trim());
     }
 

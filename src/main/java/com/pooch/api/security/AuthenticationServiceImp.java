@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.entity.groomer.Groomer;
-import com.pooch.api.entity.petparent.PetParent;
+import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
@@ -40,7 +40,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
     private JwtTokenService     jwtTokenService;
 
     @Override
-    public AuthenticationResponseDTO authenticate(PetParent petParent) {
+    public AuthenticationResponseDTO authenticate(Parent petParent) {
         String jwt = jwtTokenService.generatePetParentToken(petParent);
 
         AuthenticationResponseDTO auth = new AuthenticationResponseDTO();

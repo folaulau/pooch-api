@@ -14,10 +14,10 @@ import com.pooch.api.dto.PetParentUpdateDTO;
 import com.pooch.api.dto.GroomerUuidDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
+import com.pooch.api.entity.parent.Parent;
+import com.pooch.api.entity.parent.ParentDAO;
 import com.pooch.api.entity.pet.Pet;
 import com.pooch.api.entity.pet.PetDAO;
-import com.pooch.api.entity.petparent.PetParent;
-import com.pooch.api.entity.petparent.PetParentDAO;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
 
@@ -31,7 +31,7 @@ public class PetCareValidatorServiceImp implements PetCareValidatorService {
     private GroomerDAO petSitterDAO;
 
     @Autowired
-    private PetParentDAO petParentDAO;
+    private ParentDAO petParentDAO;
 
     @Autowired
     private PetDAO       petDAO;
@@ -46,13 +46,13 @@ public class PetCareValidatorServiceImp implements PetCareValidatorService {
 
         String petParentUuid = petParentUpdateDTO.getUuid();
 
-        Optional<PetParent> optPetParent = petParentDAO.getByUuid(petParentUuid);
+        Optional<Parent> optPetParent = petParentDAO.getByUuid(petParentUuid);
 
         if (!optPetParent.isPresent()) {
             throw new ApiException(ApiError.DEFAULT_MSG, "petParent not found for uuid=" + petParentUuid);
         }
 
-        PetParent petParent = optPetParent.get();
+        Parent petParent = optPetParent.get();
 
         // String petSitterUuid = petCareCreateDTO.getPetSitterUuid();
         //
@@ -83,7 +83,7 @@ public class PetCareValidatorServiceImp implements PetCareValidatorService {
                 } else {
                     Pet pet = optPet.get();
 
-                    if (!petParent.getId().equals(pet.getPetParent().getId())) {
+                    if (!petParent.getId().equals(pet.getParent().getId())) {
                         throw new ApiException(ApiError.DEFAULT_MSG, "Pet does not belong to petParent");
                     }
                 }

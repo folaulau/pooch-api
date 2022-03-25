@@ -14,7 +14,7 @@ import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.PetCareCreateDTO;
 import com.pooch.api.dto.PetCareDTO;
-import com.pooch.api.entity.petparent.PetParentRestController;
+import com.pooch.api.entity.parent.ParentRestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

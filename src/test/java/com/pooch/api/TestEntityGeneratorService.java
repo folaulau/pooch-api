@@ -10,13 +10,13 @@ import org.springframework.stereotype.Repository;
 
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerRepository;
+import com.pooch.api.entity.parent.Parent;
+import com.pooch.api.entity.parent.ParentRepository;
 import com.pooch.api.entity.pet.Breed;
 import com.pooch.api.entity.pet.FoodSchedule;
 import com.pooch.api.entity.pet.Pet;
 import com.pooch.api.entity.pet.PetRepository;
 import com.pooch.api.entity.pet.vaccine.Vaccine;
-import com.pooch.api.entity.petparent.PetParent;
-import com.pooch.api.entity.petparent.PetParentRepository;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
 import com.pooch.api.utils.RandomGeneratorUtils;
@@ -28,7 +28,7 @@ public class TestEntityGeneratorService {
     private GroomerRepository petSitterRepository;
 
     @Autowired
-    private PetParentRepository petParentRepository;
+    private ParentRepository petParentRepository;
 
     @Autowired
     private PetRepository       petRepository;
@@ -60,19 +60,19 @@ public class TestEntityGeneratorService {
         petSitter.setPhoneNumberVerified(false);
 
         petSitter.setRating(RandomGeneratorUtils.getIntegerWithin(1, 5));
-        petSitter.addRole(new Role(Authority.pet_sitter));
+        petSitter.addRole(new Role(Authority.groomer));
 
         return petSitter;
     }
 
-    public PetParent getDBPetParent() {
-        PetParent petParent = getPetParent();
+    public Parent getDBPetParent() {
+        Parent petParent = getPetParent();
         return petParentRepository.saveAndFlush(petParent);
     }
 
-    public PetParent getPetParent() {
+    public Parent getPetParent() {
 
-        PetParent petParent = new PetParent();
+        Parent petParent = new Parent();
         petParent.setUuid("pet-parent-" + UUID.randomUUID().toString());
         String firstName = RandomGeneratorUtils.getRandomFirstname();
         String lastName = RandomGeneratorUtils.getRandomLastname();
@@ -82,12 +82,12 @@ public class TestEntityGeneratorService {
         petParent.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));
         petParent.setPhoneNumberVerified(false);
         petParent.setRating(RandomGeneratorUtils.getIntegerWithin(1, 5));
-        petParent.addRole(new Role(Authority.pet_parent));
+        petParent.addRole(new Role(Authority.parent));
 
         return petParent;
     }
 
-    public Pet getDBPet(PetParent petParent) {
+    public Pet getDBPet(Parent petParent) {
         Pet pet = getPet(petParent);
         return petRepository.saveAndFlush(pet);
     }
@@ -96,11 +96,11 @@ public class TestEntityGeneratorService {
         return getPet(null);
     }
 
-    public Pet getPet(PetParent petParent) {
+    public Pet getPet(Parent petParent) {
 
         Pet pet = new Pet();
         pet.setBreed(Breed.Bulldog);
-        pet.setPetParent(petParent);
+        pet.setParent(petParent);
         pet.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 60)));
         pet.addFoodSchedule(FoodSchedule.Morning);
         pet.addFoodSchedule(FoodSchedule.Night);

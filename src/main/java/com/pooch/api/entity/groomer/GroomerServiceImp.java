@@ -13,7 +13,7 @@ import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.GroomerDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
-import com.pooch.api.entity.petparent.PetParent;
+import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
 import com.pooch.api.firebase.FirebaseAuthService;
@@ -28,19 +28,19 @@ import lombok.extern.slf4j.Slf4j;
 public class GroomerServiceImp implements GroomerService {
 
     @Autowired
-    private FirebaseAuthService       firebaseAuthService;
+    private FirebaseAuthService     firebaseAuthService;
 
     @Autowired
     private GroomerDAO              groomerDAO;
 
     @Autowired
-    private AuthenticationService     authenticationService;
+    private AuthenticationService   authenticationService;
 
     @Autowired
     private GroomerValidatorService groomerValidatorService;
 
     @Autowired
-    private EntityDTOMapper           entityDTOMapper;
+    private EntityDTOMapper         entityDTOMapper;
 
     @Override
     public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
@@ -67,8 +67,8 @@ public class GroomerServiceImp implements GroomerService {
 
             petSitter = new Groomer();
             petSitter.setUuid(userRecord.getUid());
-            petSitter.addRole(new Role(Authority.pet_sitter));
-            
+            petSitter.addRole(new Role(Authority.groomer));
+
             String email = userRecord.getEmail();
 
             if (email == null || email.isEmpty()) {

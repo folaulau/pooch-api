@@ -1,9 +1,9 @@
-package com.pooch.api.entity.petparent;
+package com.pooch.api.entity.parent;
 
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 
-public interface PetParentService {
+public interface ParentService {
 
     AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO);
 }

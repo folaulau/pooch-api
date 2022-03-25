@@ -40,8 +40,8 @@ import org.hibernate.annotations.Where;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
+import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.pet.vaccine.Vaccine;
-import com.pooch.api.entity.petparent.PetParent;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -109,8 +109,8 @@ public class Pet implements Serializable {
     private Set<Vaccine>      vaccines;
 
     @ManyToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name = "pet_parent_id")
-    private PetParent         petParent;
+    @JoinColumn(name = "parent_id")
+    private Parent            parent;
 
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;

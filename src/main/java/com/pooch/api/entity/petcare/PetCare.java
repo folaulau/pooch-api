@@ -35,10 +35,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.careservice.CareService;
+import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.pet.FoodSchedule;
 import com.pooch.api.entity.pet.Pet;
 import com.pooch.api.entity.pet.vaccine.Vaccine;
-import com.pooch.api.entity.petparent.PetParent;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
