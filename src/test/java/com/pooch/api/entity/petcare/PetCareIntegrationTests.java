@@ -72,19 +72,19 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
     private ObjectMapper               objectMapper;
 
     @Autowired
-    private GroomerDAO                 petSitterDAO;
+    private Filter                     springSecurityFilterChain;
+
+    @MockBean
+    private JwtTokenService            jwtTokenService;
 
     @Autowired
-    private Filter                     springSecurityFilterChain;
+    private GroomerDAO                 petSitterDAO;
 
     @Autowired
     private ParentDAO                  petParentDAO;
 
     @Autowired
     private EntityDTOMapper            entityDTOMapper;
-
-    @MockBean
-    private JwtTokenService            jwtTokenService;
 
     @Autowired
     private TestEntityGeneratorService testEntityGeneratorService;
@@ -125,7 +125,7 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
         /**
          * Pet Parent
          */
-        Parent petParent = testEntityGeneratorService.getDBPetParent();
+        Parent petParent = testEntityGeneratorService.getDBParent();
 
         PetParentUpdateDTO petParentDTO = entityDTOMapper.mapPetParentToPetParentUpdateDTO(petParent);
 
@@ -134,7 +134,7 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
         /**
          * Pet Sitter
          */
-        Groomer petSitter = testEntityGeneratorService.getDBPetSitter();
+        Groomer petSitter = testEntityGeneratorService.getDBGroomer();
 
         petCareCreateDTO.setPetSitterUuid(petSitter.getUuid());
 

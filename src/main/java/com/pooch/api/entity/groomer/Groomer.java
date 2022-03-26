@@ -151,7 +151,7 @@ public class Groomer implements Serializable {
     @PrePersist
     private void preCreate() {
         if (this.uuid == null || this.uuid.isEmpty()) {
-            this.uuid = "petsitter-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
+            this.uuid = "groomer-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
         }
         /**
          * by default set to true

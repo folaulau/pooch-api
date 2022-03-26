@@ -33,12 +33,12 @@ public class TestEntityGeneratorService {
     @Autowired
     private PetRepository       petRepository;
 
-    public Groomer getDBPetSitter() {
-        Groomer petSitter = getPetSitter();
+    public Groomer getDBGroomer() {
+        Groomer petSitter = getGroomer();
         return petSitterRepository.saveAndFlush(petSitter);
     }
 
-    public Groomer getPetSitter() {
+    public Groomer getGroomer() {
 
         Groomer petSitter = new Groomer();
         petSitter.setUuid("pet-sitter-" + UUID.randomUUID().toString());
@@ -65,12 +65,12 @@ public class TestEntityGeneratorService {
         return petSitter;
     }
 
-    public Parent getDBPetParent() {
-        Parent petParent = getPetParent();
+    public Parent getDBParent() {
+        Parent petParent = getParent();
         return petParentRepository.saveAndFlush(petParent);
     }
 
-    public Parent getPetParent() {
+    public Parent getParent() {
 
         Parent petParent = new Parent();
         petParent.setUuid("pet-parent-" + UUID.randomUUID().toString());

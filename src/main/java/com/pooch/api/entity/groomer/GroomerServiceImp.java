@@ -49,26 +49,26 @@ public class GroomerServiceImp implements GroomerService {
 
         log.info("userRecord={}", ObjectUtils.toJson(userRecord));
 
-        Optional<Groomer> optPetSitter = groomerDAO.getByUuid(userRecord.getUid());
+        String uuid = userRecord.getUid();
 
-        Groomer petSitter = null;
+        Optional<Groomer> optGroomer = groomerDAO.getByUuid(uuid);
 
-        boolean signUp = false;
+        Groomer groomer = null;
 
-        if (optPetSitter.isPresent()) {
+        if (optGroomer.isPresent()) {
             /**
              * sign in
              */
-            petSitter = optPetSitter.get();
+            groomer = optGroomer.get();
         } else {
             /**
              * sign up
              */
 
-            petSitter = new Groomer();
-           
-            petSitter.setUuid(userRecord.getUid());
-            petSitter.addRole(new Role(Authority.groomer));
+            groomer = new Groomer();
+
+            groomer.setUuid(uuid);
+            groomer.addRole(new Role(Authority.groomer));
 
             String email = userRecord.getEmail();
 
@@ -86,11 +86,11 @@ public class GroomerServiceImp implements GroomerService {
                 } else {
                     // temp email as placeholder
                     email = "tempParent" + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE) + "@poochapp.com";
-                    petSitter.setEmailTemp(true);
+                    groomer.setEmailTemp(true);
                 }
             }
 
-            petSitter.setEmail(email);
+            groomer.setEmail(email);
 
             Long phoneNumber = null;
 
@@ -100,14 +100,12 @@ public class GroomerServiceImp implements GroomerService {
                 log.warn("Exception, msg={}", e.getLocalizedMessage());
             }
 
-            petSitter.setPhoneNumber(phoneNumber);
+            groomer.setPhoneNumber(phoneNumber);
 
-            petSitter = groomerDAO.save(petSitter);
-
-            signUp = true;
+            groomer = groomerDAO.save(groomer);
         }
 
-        AuthenticationResponseDTO authenticationResponseDTO = authenticationService.authenticate(petSitter);
+        AuthenticationResponseDTO authenticationResponseDTO = authenticationService.authenticate(groomer);
 
         return authenticationResponseDTO;
     }

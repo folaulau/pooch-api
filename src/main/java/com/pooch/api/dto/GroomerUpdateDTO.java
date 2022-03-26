@@ -37,8 +37,6 @@ public class GroomerUpdateDTO implements Serializable {
 
     private Long                      phoneNumber;
 
-    private Integer                   rating;
-
     private Boolean                   offeredPickUp;
 
     private Boolean                   offeredDropOff;
