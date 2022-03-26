@@ -65,7 +65,7 @@ public class Parent implements Serializable {
      * 5 star rating
      */
     @Column(name = "rating")
-    private Integer           rating;
+    private Double            rating;
 
     @NotEmpty
     @Column(name = "email", unique = true)

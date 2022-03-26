@@ -96,7 +96,7 @@ public class Groomer implements Serializable {
      * 5 star rating
      */
     @Column(name = "rating")
-    private Integer           rating;
+    private Double            rating;
 
     @Column(name = "offered_pickup_off")
     private Boolean           offeredPickUp;

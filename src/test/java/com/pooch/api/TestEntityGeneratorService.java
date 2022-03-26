@@ -59,7 +59,7 @@ public class TestEntityGeneratorService {
         petSitter.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));
         petSitter.setPhoneNumberVerified(false);
 
-        petSitter.setRating(RandomGeneratorUtils.getIntegerWithin(1, 5));
+        petSitter.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
         petSitter.addRole(new Role(Authority.groomer));
 
         return petSitter;
@@ -81,7 +81,7 @@ public class TestEntityGeneratorService {
         petParent.setEmailVerified(false);
         petParent.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));
         petParent.setPhoneNumberVerified(false);
-        petParent.setRating(RandomGeneratorUtils.getIntegerWithin(1, 5));
+        petParent.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
         petParent.addRole(new Role(Authority.parent));
 
         return petParent;

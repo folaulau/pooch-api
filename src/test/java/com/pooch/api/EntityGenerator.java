@@ -26,7 +26,7 @@ public final class EntityGenerator {
         petSitter.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));
         petSitter.setPhoneNumberVerified(false);
 
-        petSitter.setRating(RandomGeneratorUtils.getIntegerWithin(1, 5));
+        petSitter.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
 
         return petSitter;
     }
