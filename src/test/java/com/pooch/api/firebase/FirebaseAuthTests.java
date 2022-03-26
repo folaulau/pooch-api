@@ -20,6 +20,8 @@ import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerRepository;
+import com.pooch.api.library.firebase.FirebaseAuthResponse;
+import com.pooch.api.library.firebase.FirebaseRestClient;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 

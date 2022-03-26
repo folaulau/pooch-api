@@ -16,7 +16,7 @@ import com.pooch.api.dto.GroomerUpdateDTO;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
-import com.pooch.api.firebase.FirebaseAuthService;
+import com.pooch.api.library.firebase.FirebaseAuthService;
 import com.pooch.api.security.AuthenticationService;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;

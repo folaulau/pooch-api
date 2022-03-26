@@ -67,7 +67,7 @@ public final class RandomGeneratorUtils {
         }
         return RandomStringUtils.randomAlphanumeric(a).toUpperCase() + "-" + RandomStringUtils.randomAlphanumeric(b).toUpperCase();
     }
-    
+
     public static String generatePasswordResetToken() {
         return "pr-token-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
     }
@@ -87,7 +87,7 @@ public final class RandomGeneratorUtils {
 
     public static String getRandomEmail() {
         // TODO Auto-generated method stub
-        return getRandomEmail(getRandomFirstname()+getRandomLastname());
+        return getRandomEmail(getRandomFirstname() + getRandomLastname());
     }
 
     public static String getRandomEmail(String name) {
@@ -104,7 +104,7 @@ public final class RandomGeneratorUtils {
             email.append(name);
         }
 
-        email.append(getIntegerWithin(0, Integer.MAX_VALUE-(2*4)));
+        email.append(getIntegerWithin(0, Integer.MAX_VALUE - (2 * 4)));
 
         if (null == domain || domain.trim().length() == 0) {
             email.append("@gmail.com");
@@ -126,17 +126,16 @@ public final class RandomGeneratorUtils {
     public static String getRandomFullName() {
         return getRandomFirstname() + " " + getRandomLastname();
     }
-    
 
     public static String getRandomPhone() {
         return getRandomPhone(0);
     }
-    
+
     public static String getRandomPhone(int areaCode) {
-        if(areaCode<100) {
+        if (areaCode < 100) {
             areaCode = getIntegerWithin(100, 999);
         }
-        return areaCode + "" + getIntegerWithin(100, 999)+""+getIntegerWithin(1000, 9999);
+        return areaCode + "" + getIntegerWithin(100, 999) + "" + getIntegerWithin(1000, 9999);
     }
 
     // ******** TOO BIG, LEAVE THESE HERE ************
@@ -306,6 +305,5 @@ public final class RandomGeneratorUtils {
             "Travis", "Mcneil", "Hinton", "Zhang", "Hays", "Mayo", "Fritz", "Branch", "Mooney", "Ewing", "Ritter", "Esparza", "Frey", "Braun", "Gay", "Riddle", "Haney", "Kaiser", "Holder", "Chaney",
             "Mcknight", "Gamble", "Vang", "Cooley", "Carney", "Cowan", "Forbes", "Ferrell", "Davies", "Barajas", "Shea", "Osborn", "Bright", "Cuevas", "Bolton", "Murillo", "Lutz", "Duarte", "Kidd",
             "Key", "Cooke");
-
 
 }

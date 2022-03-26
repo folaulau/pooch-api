@@ -1,12 +1,8 @@
-package com.pooch.api.entity.groomer;
+package com.pooch.api.entity.parent;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import javax.annotation.Resource;
-import javax.servlet.Filter;
 import javax.transaction.Transactional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -21,20 +17,18 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserRecord;
+import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
-import com.pooch.api.entity.parent.ParentIntegrationTests;
-import com.pooch.api.entity.role.Authority;
 import com.pooch.api.library.firebase.FirebaseAuthResponse;
+import com.pooch.api.library.firebase.FirebaseAuthService;
 import com.pooch.api.library.firebase.FirebaseRestClient;
-import com.pooch.api.security.jwt.JwtPayload;
-import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 
@@ -42,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AutoConfigureMockMvc
-public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
+public class ParentAuthIntegrationTests extends IntegrationTestConfiguration {
 
     @Autowired
     private MockMvc                mockMvc;
@@ -71,7 +65,7 @@ public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
 
         // @formatter:on
         // When
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/groomers/authenticate")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/parents/authenticate")
                 .header("x-api-key", "test-token")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -105,7 +99,7 @@ public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
 
         // @formatter:on
         // When
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/groomers/authenticate")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/parents/authenticate")
                 .header("x-api-key", "test-token")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -129,7 +123,7 @@ public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
         authenticatorDTO = new AuthenticatorDTO();
         authenticatorDTO.setToken(authResponse.getIdToken());
 
-        requestBuilder = MockMvcRequestBuilders.post("/groomers/authenticate")
+        requestBuilder = MockMvcRequestBuilders.post("/parents/authenticate")
                 .header("x-api-key", "test-token")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

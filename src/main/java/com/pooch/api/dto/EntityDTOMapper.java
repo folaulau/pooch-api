@@ -1,5 +1,7 @@
 package com.pooch.api.dto;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -11,6 +13,7 @@ import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.pet.Pet;
 import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
+import com.pooch.api.entity.s3file.S3File;
 
 @Mapper(componentModel = "spring", nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EntityDTOMapper {
@@ -44,5 +47,9 @@ public interface EntityDTOMapper {
     AuthenticationResponseDTO mapGroomerToAuthenticationResponse(Groomer groomer);
 
     AuthenticationResponseDTO mapParentToAuthenticationResponse(Parent parent);
+
+    S3FileDTO mapS3FileToS3FileDTO(S3File s3File);
+
+    List<S3FileDTO> mapS3FilesToS3FileDTOs(List<S3File> s3Files);
 
 }

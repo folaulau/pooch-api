@@ -1,4 +1,4 @@
-package com.pooch.api.firebase;
+package com.pooch.api.library.firebase;
 
 import java.util.Optional;
 

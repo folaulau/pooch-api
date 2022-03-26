@@ -35,8 +35,8 @@ import com.pooch.api.dto.GroomerDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
 import com.pooch.api.entity.parent.ParentIntegrationTests;
 import com.pooch.api.entity.role.Authority;
-import com.pooch.api.firebase.FirebaseAuthResponse;
-import com.pooch.api.firebase.FirebaseRestClient;
+import com.pooch.api.library.firebase.FirebaseAuthResponse;
+import com.pooch.api.library.firebase.FirebaseRestClient;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.ObjectUtils;
@@ -85,7 +85,7 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
 
     @Transactional
     @Test
-    void itUpdateProfile_valid() throws Exception {
+    void itShouldUpdateProfile_valid() throws Exception {
         // Given
         Groomer groomer = testEntityGeneratorService.getDBGroomer();
         GroomerUpdateDTO groomerUpdateDTO = new GroomerUpdateDTO();
