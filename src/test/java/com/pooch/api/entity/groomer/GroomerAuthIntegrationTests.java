@@ -50,9 +50,6 @@ public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
     @Autowired
     private ObjectMapper           objectMapper;
 
-    @MockBean
-    private JwtTokenService        jwtTokenService;
-
     @Captor
     private ArgumentCaptor<String> tokenCaptor;
 

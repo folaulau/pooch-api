@@ -41,7 +41,7 @@ public class TestEntityGeneratorService {
     public Groomer getGroomer() {
 
         Groomer petSitter = new Groomer();
-        petSitter.setUuid("pet-sitter-" + UUID.randomUUID().toString());
+        petSitter.setUuid("groomer-" + UUID.randomUUID().toString());
         String firstName = RandomGeneratorUtils.getRandomFirstname();
         petSitter.setFirstName(firstName);
         String lastName = RandomGeneratorUtils.getRandomLastname();
@@ -73,7 +73,7 @@ public class TestEntityGeneratorService {
     public Parent getParent() {
 
         Parent petParent = new Parent();
-        petParent.setUuid("pet-parent-" + UUID.randomUUID().toString());
+        petParent.setUuid("parent-" + UUID.randomUUID().toString());
         String firstName = RandomGeneratorUtils.getRandomFirstname();
         String lastName = RandomGeneratorUtils.getRandomLastname();
         petParent.setFullName(firstName + " " + lastName);

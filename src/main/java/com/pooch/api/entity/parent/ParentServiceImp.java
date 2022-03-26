@@ -48,8 +48,6 @@ public class ParentServiceImp implements ParentService {
 
         Parent petParent = null;
 
-        boolean signUp = false;
-
         if (optPetParent.isPresent()) {
             /**
              * sign in
@@ -91,17 +89,17 @@ public class ParentServiceImp implements ParentService {
             try {
                 phoneNumber = Long.parseLong(userRecord.getPhoneNumber());
             } catch (Exception e) {
-                log.warn("Exception, msg={}", e.getLocalizedMessage());
+                log.warn("phoneNumber Exception, msg={}", e.getLocalizedMessage());
             }
 
             petParent.setPhoneNumber(phoneNumber);
 
             petParent = parentDAO.save(petParent);
-
-            signUp = true;
         }
 
         AuthenticationResponseDTO authenticationResponseDTO = authenticationService.authenticate(petParent);
+
+        log.info("authenticationResponseDTO={}", ObjectUtils.toJson(authenticationResponseDTO));
 
         return authenticationResponseDTO;
     }

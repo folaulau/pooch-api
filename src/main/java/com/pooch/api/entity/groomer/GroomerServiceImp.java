@@ -97,7 +97,7 @@ public class GroomerServiceImp implements GroomerService {
             try {
                 phoneNumber = Long.parseLong(userRecord.getPhoneNumber());
             } catch (Exception e) {
-                log.warn("Exception, msg={}", e.getLocalizedMessage());
+                log.warn("phoneNumber Exception, msg={}", e.getLocalizedMessage());
             }
 
             groomer.setPhoneNumber(phoneNumber);
@@ -106,6 +106,8 @@ public class GroomerServiceImp implements GroomerService {
         }
 
         AuthenticationResponseDTO authenticationResponseDTO = authenticationService.authenticate(groomer);
+
+        log.info("authenticationResponseDTO={}", ObjectUtils.toJson(authenticationResponseDTO));
 
         return authenticationResponseDTO;
     }

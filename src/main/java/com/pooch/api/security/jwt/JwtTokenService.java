@@ -109,18 +109,16 @@ public class JwtTokenService {
     }
 
     public String generateGroomerToken(Groomer groomer) {
-
+        log.info("test1");
         try {
-
+            log.info("test2");
             Map<String, Object> hasura = new HashMap<String, Object>();
 
-            Set<Role> roles = groomer.getRoles();
-
             hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
-            hasura.put("x-hasura-default-role", Authority.groomer.name());
-            hasura.put("x-Hasura-groomer-id", groomer.getId() + "");
-            hasura.put("x-Hasura-groomer-uuid", groomer.getUuid());
-
+            hasura.put("x-hasura-default-role", Authority.parent.name());
+            hasura.put("x-Hasura-parent-id", groomer.getId() + "");
+            hasura.put("x-Hasura-parent-uuid", groomer.getUuid());
+            log.info("test3");
             String token = JWT.create()
                     .withJWTId(RandomGeneratorUtils.getJWTId())
                     .withSubject(groomer.getId() + "")
@@ -130,9 +128,10 @@ public class JwtTokenService {
                     .withIssuer(ISSUER)
                     .withClaim("uuid", groomer.getUuid())
                     .withClaim("name", groomer.getFullName())
-                    .withClaim("role", Authority.groomer.name())
+                    .withClaim("role", Authority.parent.name())
                     .withClaim("hasura", hasura)
                     .sign(ALGORITHM);
+            log.info("test12");
             return token;
         } catch (JWTCreationException e) {
             log.warn("JWTCreationException, msg: {}", e.getLocalizedMessage());

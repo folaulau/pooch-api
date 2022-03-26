@@ -52,8 +52,9 @@ public class AuthenticationServiceImp implements AuthenticationService {
 
     @Override
     public AuthenticationResponseDTO authenticate(Groomer groomer) {
+        log.info("groomer={}", groomer.toString());
         String jwt = jwtTokenService.generateGroomerToken(groomer);
-
+        log.info("jwt={}", jwt);
         AuthenticationResponseDTO auth = entityMapper.mapGroomerToAuthenticationResponse(groomer);
         auth.setToken(jwt);
         auth.setRole(groomer.getRoleAsString());

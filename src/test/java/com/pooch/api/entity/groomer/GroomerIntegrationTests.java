@@ -66,12 +66,6 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
     @Captor
     private ArgumentCaptor<String>     tokenCaptor;
 
-    @Autowired
-    private FirebaseRestClient         firebaseRestClient;
-
-    @Autowired
-    private EntityDTOMapper            entityDTOMapper;
-
     private String                     GROOMER_TOKEN = "GROOMER_TOKEN";
     private String                     GROOMER_UUID  = "GROOMER_UUID";
 
