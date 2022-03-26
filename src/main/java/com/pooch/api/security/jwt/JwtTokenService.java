@@ -52,6 +52,7 @@ public class JwtTokenService {
             hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
             hasura.put("x-hasura-default-role", Authority.parent.name());
             hasura.put("x-Hasura-parent-id", petParent.getId() + "");
+            hasura.put("x-Hasura-parent-uuid", petParent.getUuid());
 
             String token = JWT.create()
                     .withJWTId(RandomGeneratorUtils.getJWTId())
@@ -107,27 +108,28 @@ public class JwtTokenService {
         return null;
     }
 
-    public String generatePetSitterToken(Groomer petSitter) {
+    public String generateGroomerToken(Groomer groomer) {
 
         try {
 
             Map<String, Object> hasura = new HashMap<String, Object>();
 
-            Set<Role> roles = petSitter.getRoles();
+            Set<Role> roles = groomer.getRoles();
 
             hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
             hasura.put("x-hasura-default-role", Authority.groomer.name());
-            hasura.put("x-Hasura-sitter-id", petSitter.getId() + "");
+            hasura.put("x-Hasura-groomer-id", groomer.getId() + "");
+            hasura.put("x-Hasura-groomer-uuid", groomer.getUuid());
 
             String token = JWT.create()
                     .withJWTId(RandomGeneratorUtils.getJWTId())
-                    .withSubject(petSitter.getId() + "")
+                    .withSubject(groomer.getId() + "")
                     .withExpiresAt(DateUtils.addDays(new Date(), LIFE_TIME_IN_DAYS))
                     .withIssuedAt(new Date())
                     .withAudience(audience)
                     .withIssuer(ISSUER)
-                    .withClaim("uuid", petSitter.getUuid())
-                    .withClaim("name", petSitter.getFullName())
+                    .withClaim("uuid", groomer.getUuid())
+                    .withClaim("name", groomer.getFullName())
                     .withClaim("role", Authority.groomer.name())
                     .withClaim("hasura", hasura)
                     .sign(ALGORITHM);
