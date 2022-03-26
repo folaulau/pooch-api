@@ -22,14 +22,14 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
     public Groomer validateUpdateProfile(GroomerUpdateDTO petSitterUpdateDTO) {
         String uuid = petSitterUpdateDTO.getUuid();
 
-        if (uuid == null || !uuid.isEmpty()) {
+        if (uuid == null || uuid.isEmpty()) {
             throw new ApiException(ApiError.FAILURE, "uuid is empty. uuid=" + uuid);
         }
 
         Optional<Groomer> optPetSitter = groomerDAO.getByUuid(uuid);
 
         if (!optPetSitter.isPresent()) {
-            throw new ApiException(ApiError.FAILURE, "PetSitter not found for uuid=" + uuid);
+            throw new ApiException(ApiError.FAILURE, "Groomer not found for uuid=" + uuid);
         }
 
         Groomer petSitter = optPetSitter.get();
