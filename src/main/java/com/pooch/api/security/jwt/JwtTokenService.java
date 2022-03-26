@@ -77,6 +77,38 @@ public class JwtTokenService {
 
     }
 
+    public String generateGroomerToken(Groomer groomer) {
+        try {
+            Map<String, Object> hasura = new HashMap<String, Object>();
+
+            hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
+            hasura.put("x-hasura-default-role", Authority.parent.name());
+            hasura.put("x-Hasura-groomer-id", groomer.getId() + "");
+            hasura.put("x-Hasura-groomer-uuid", groomer.getUuid());
+
+            String token = JWT.create()
+                    .withJWTId(RandomGeneratorUtils.getJWTId())
+                    .withSubject(groomer.getId() + "")
+                    .withExpiresAt(DateUtils.addDays(new Date(), LIFE_TIME_IN_DAYS))
+                    .withIssuedAt(new Date())
+                    .withAudience(audience)
+                    .withIssuer(ISSUER)
+                    .withClaim("uuid", groomer.getUuid())
+                    .withClaim("name", groomer.getFullName())
+                    .withClaim("role", Authority.parent.name())
+                    .withClaim("hasura", hasura)
+                    .sign(ALGORITHM);
+            log.info("test12");
+            return token;
+        } catch (JWTCreationException e) {
+            log.warn("JWTCreationException, msg: {}", e.getLocalizedMessage());
+            return null;
+        } catch (Exception e) {
+            log.warn("generateToken exception, msg: {}", e.getLocalizedMessage());
+            return null;
+        }
+    }
+
     public JwtPayload getPayloadByToken(String token) {
         if (token == null || token.length() == 0) {
             return null;
@@ -106,40 +138,6 @@ public class JwtTokenService {
             log.warn("getPayloadByToken exception, msg: {}", e.getLocalizedMessage());
         }
         return null;
-    }
-
-    public String generateGroomerToken(Groomer groomer) {
-        log.info("test1");
-        try {
-            log.info("test2");
-            Map<String, Object> hasura = new HashMap<String, Object>();
-
-            hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
-            hasura.put("x-hasura-default-role", Authority.parent.name());
-            hasura.put("x-Hasura-parent-id", groomer.getId() + "");
-            hasura.put("x-Hasura-parent-uuid", groomer.getUuid());
-            log.info("test3");
-            String token = JWT.create()
-                    .withJWTId(RandomGeneratorUtils.getJWTId())
-                    .withSubject(groomer.getId() + "")
-                    .withExpiresAt(DateUtils.addDays(new Date(), LIFE_TIME_IN_DAYS))
-                    .withIssuedAt(new Date())
-                    .withAudience(audience)
-                    .withIssuer(ISSUER)
-                    .withClaim("uuid", groomer.getUuid())
-                    .withClaim("name", groomer.getFullName())
-                    .withClaim("role", Authority.parent.name())
-                    .withClaim("hasura", hasura)
-                    .sign(ALGORITHM);
-            log.info("test12");
-            return token;
-        } catch (JWTCreationException e) {
-            log.warn("JWTCreationException, msg: {}", e.getLocalizedMessage());
-            return null;
-        } catch (Exception e) {
-            log.warn("generateToken exception, msg: {}", e.getLocalizedMessage());
-            return null;
-        }
     }
 
     private void setHasura(JwtPayload jwtPayload, DecodedJWT jwt) {
