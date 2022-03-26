@@ -116,7 +116,7 @@ public class Groomer implements Serializable {
     private String            description;
 
     @Column(name = "instant_booking", nullable = false)
-    private boolean           instantBooking;
+    private Boolean           instantBooking;
 
     @JsonIgnoreProperties(value = {"groomers"})
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
