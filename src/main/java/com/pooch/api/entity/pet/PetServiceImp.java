@@ -3,6 +3,7 @@ package com.pooch.api.entity.pet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,10 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 public class PetServiceImp implements PetService {
 
     @Autowired
-    private PetDAO            petDAO;
+    private PetDAO          petDAO;
 
     @Autowired
-    private EntityDTOMapper   entityDTOMapper;
+    private EntityDTOMapper entityDTOMapper;
 
     @Override
     public List<PetDTO> add(Parent petParent, Set<PetCreateDTO> petCreateDTOs) {
@@ -43,13 +44,13 @@ public class PetServiceImp implements PetService {
                 pet = entityDTOMapper.mapPetCreateDTOToPet(petCreateDTO);
                 pet.setParent(petParent);
             }
-            
+
             pet = petDAO.save(pet);
-            
+
             PetDTO petDTO = entityDTOMapper.mapPetToPetDTO(pet);
             return petDTO;
 
-        }).toList();
+        }).collect(Collectors.toList());
 
         return petDTOs;
     }
