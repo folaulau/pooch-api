@@ -16,8 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.elasticsearch.client.ClientConfiguration;
-import org.springframework.data.elasticsearch.client.RestClients;
 import org.springframework.data.elasticsearch.config.EnableElasticsearchAuditing;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
@@ -26,48 +24,43 @@ import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchC
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.ElasticsearchTransport;
-import co.elastic.clients.transport.rest_client.RestClientTransport;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Profile(value = {"local"})
+@Profile(value = { "local" })
 @Configuration
 @EnableElasticsearchAuditing()
 @EnableElasticsearchRepositories(basePackages = "com.pooch.api.elastic.repo")
 public class ElasticsearchConfig {
 
-    @Value("${elasticsearch.host}")
-    private String clusterNode;
+	@Value("${elasticsearch.host}")
+	private String clusterNode;
 
-    @Value("${elasticsearch.httptype}")
-    private String clusterHttpType;
+	@Value("${elasticsearch.httptype}")
+	private String clusterHttpType;
 
-    @Value("${elasticsearch.username}")
-    private String username;
+	@Value("${elasticsearch.username}")
+	private String username;
 
-    @Value("${elasticsearch.password}")
-    private String password;
+	@Value("${elasticsearch.password}")
+	private String password;
 
-    @Value("${elasticsearch.port}")
-    private int    clusterHttpPort;
+	@Value("${elasticsearch.port}")
+	private int clusterHttpPort;
 
-    @Bean
-    public RestHighLevelClient restHighLevelClient() {
+	@Bean
+	public RestHighLevelClient restHighLevelClient() {
 
-        RestHighLevelClient restHighLevelClient = null;
-        try {
+		RestHighLevelClient restHighLevelClient = null;
+		try {
 
-            // @formatter:off
+			// @formatter:off
             
             final int numberOfThreads = 10;
             final int connectionTimeoutTime = 60;
  
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            credentialsProvider.setCredentials(AuthScope.ANY, 
-                       new UsernamePasswordCredentials(username, password));
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
 
             RestClientBuilder restClientBuilder = RestClient
             .builder(new HttpHost(clusterNode, clusterHttpPort, clusterHttpType));
@@ -98,32 +91,32 @@ public class ElasticsearchConfig {
             
             // @formatter:on
 
-            restHighLevelClient = new RestHighLevelClient(restClientBuilder);
+			restHighLevelClient = new RestHighLevelClient(restClientBuilder);
 
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-        return restHighLevelClient;
-    }
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+		return restHighLevelClient;
+	}
 
-    @Bean
-    public ElasticsearchClient elasticsearchClient() {
-        RestClient restClient = RestClient.builder(new HttpHost("localhost", 9200)).build();
+//	@Bean
+//	public ElasticsearchClient elasticsearchClient() {
+//		RestClient restClient = RestClient.builder(new HttpHost("localhost", 9200)).build();
+//
+//		// Create the transport with a Jackson mapper
+//		ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+//
+//		// And create the API client
+//		return new ElasticsearchClient(transport);
+//	}
 
-        // Create the transport with a Jackson mapper
-        ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+	@Bean
+	public ElasticsearchConverter elasticsearchConverter() {
+		return new MappingElasticsearchConverter(new SimpleElasticsearchMappingContext());
+	}
 
-        // And create the API client
-        return new ElasticsearchClient(transport);
-    }
-
-    @Bean
-    public ElasticsearchConverter elasticsearchConverter() {
-        return new MappingElasticsearchConverter(new SimpleElasticsearchMappingContext());
-    }
-
-    @Bean
-    public ElasticsearchOperations elasticsearchTemplate() {
-        return new ElasticsearchRestTemplate(restHighLevelClient(), elasticsearchConverter());
-    }
+	@Bean
+	public ElasticsearchOperations elasticsearchTemplate() {
+		return new ElasticsearchRestTemplate(restHighLevelClient(), elasticsearchConverter());
+	}
 }

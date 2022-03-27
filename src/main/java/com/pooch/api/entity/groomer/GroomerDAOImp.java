@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Repository
 @Slf4j
-public class GroomerAOImp implements GroomerDAO {
+public class GroomerDAOImp implements GroomerDAO {
 
     @Autowired
     private GroomerRepository groomerRepository;
