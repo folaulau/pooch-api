@@ -1,10 +1,12 @@
 package com.pooch.api.elastic.groomer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.elastic.repo.GroomerESRepository;
+import com.pooch.api.utils.ObjectUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,9 +17,11 @@ public class GroomerESDAOImp implements GroomerESDAO {
 	@Autowired
 	private GroomerESRepository groomerESRepository;
 
+	@Async
 	@Override
-	public GroomerES save(GroomerES groomerES) {
-		return groomerESRepository.save(groomerES);
+	public void save(GroomerES groomerES) {
+		log.info("groomerES={}", ObjectUtils.toJson(groomerES));
+		groomerES = groomerESRepository.save(groomerES);
 	}
 
 }
