@@ -31,7 +31,7 @@ public interface EntityDTOMapper {
 
 	PetParentUpdateDTO mapPetParentToPetParentUpdateDTO(Parent petParent);
 
-	GroomerUuidDTO mapPetSitterToPetSitterUuidDTO(Groomer petSitter);
+	GroomerUuidDTO mapGroomerToGroomerUuidDTO(Groomer groomer);
 
 	@Mappings({ @Mapping(target = "uuid", ignore = true) })
 	Parent mapPetParentUpdateDTOToPetParent(PetParentUpdateDTO petParentUpdateDTO);
@@ -41,10 +41,10 @@ public interface EntityDTOMapper {
 
 	PetParentDTO mapPetParentToPetParentDTO(Parent petParent);
 
-	GroomerDTO mapPetSitterToPetSitterDTO(Groomer petSitter);
+	GroomerDTO mapGroomerToGroomerDTO(Groomer groomer);
 
 	@Mappings({ @Mapping(target = "uuid", ignore = true) })
-	void patchPetSitterWithPetSitterUpdateDTO(GroomerUpdateDTO petSitterUpdateDTO, @MappingTarget Groomer petSitter);
+	void patchGroomerWithGroomerUpdateDTO(GroomerUpdateDTO groomerUpdateDTO, @MappingTarget Groomer groomer);
 
 	AuthenticationResponseDTO mapGroomerToAuthenticationResponse(Groomer groomer);
 

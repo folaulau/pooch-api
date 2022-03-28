@@ -17,11 +17,15 @@ public class PetCareCreateDTO implements Serializable {
      */
     private static final long  serialVersionUID = 1L;
 
-    private String             petSitterUuid;
+    private String             groomerUuid;
 
     private PetParentUpdateDTO petParent;
 
     private Set<PetCreateDTO>  pets;
+
+    /**
+     * care services with prices
+     */
 
     private LocalDateTime      pickUpDateTime;
 

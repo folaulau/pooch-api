@@ -134,9 +134,9 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
         /**
          * Pet Sitter
          */
-        Groomer petSitter = testEntityGeneratorService.getDBGroomer();
+        Groomer groomer = testEntityGeneratorService.getDBGroomer();
 
-        petCareCreateDTO.setPetSitterUuid(petSitter.getUuid());
+        petCareCreateDTO.setGroomerUuid(groomer.getUuid());
 
         /**
          * Pets

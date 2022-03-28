@@ -34,14 +34,16 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 public class PetParentUpdateDTO implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long      serialVersionUID = 1L;
 
-    private String            uuid;
+    private String                 uuid;
 
-    private String            fullName;
+    private String                 fullName;
 
-    private String            email;
+    private String                 email;
 
-    private String            phoneNumber;
+    private String                 phoneNumber;
+
+    private AddressCreateUpdateDTO address;
 
 }

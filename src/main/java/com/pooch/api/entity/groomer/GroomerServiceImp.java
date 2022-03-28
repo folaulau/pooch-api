@@ -116,10 +116,10 @@ public class GroomerServiceImp implements GroomerService {
     public GroomerDTO updateProfile(GroomerUpdateDTO petSitterUpdateDTO) {
         Groomer petSitter = groomerValidatorService.validateUpdateProfile(petSitterUpdateDTO);
 
-        entityDTOMapper.patchPetSitterWithPetSitterUpdateDTO(petSitterUpdateDTO, petSitter);
+        entityDTOMapper.patchGroomerWithGroomerUpdateDTO(petSitterUpdateDTO, petSitter);
 
         petSitter = groomerDAO.save(petSitter);
 
-        return entityDTOMapper.mapPetSitterToPetSitterDTO(petSitter);
+        return entityDTOMapper.mapGroomerToGroomerDTO(petSitter);
     }
 }

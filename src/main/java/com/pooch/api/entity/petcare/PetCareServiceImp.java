@@ -33,10 +33,10 @@ public class PetCareServiceImp implements PetCareService {
     private EntityDTOMapper         entityDTOMapper;
 
     @Autowired
-    private GroomerDAO            petSitterDAO;
+    private GroomerDAO              petSitterDAO;
 
     @Autowired
-    private ParentDAO            petParentDAO;
+    private ParentDAO               petParentDAO;
 
     @Autowired
     private PetDAO                  petDAO;
@@ -87,12 +87,12 @@ public class PetCareServiceImp implements PetCareService {
             petCareDTO.setPets(petDTOs);
         }
 
-        String petSitterUuid = petCareCreateDTO.getPetSitterUuid();
+        String groomerUuid = petCareCreateDTO.getGroomerUuid();
 
-        if (petSitterUuid != null) {
+        if (groomerUuid != null) {
 
-            Groomer petSitter = petSitterDAO.getByUuid(petSitterUuid).get();
-            petCareDTO.setPetSitter(entityDTOMapper.mapPetSitterToPetSitterDTO(petSitter));
+            Groomer petSitter = petSitterDAO.getByUuid(groomerUuid).get();
+            petCareDTO.setPetSitter(entityDTOMapper.mapGroomerToGroomerDTO(petSitter));
 
         }
 
