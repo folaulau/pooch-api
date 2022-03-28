@@ -25,7 +25,15 @@ jobs:
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
+      elasticsearch:
+        container_name: pooch-es-container
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.15.2
+        restart: always
+        environment:
+        - xpack.security.enabled=false
+        - discovery.type=single-node
+        ports:
+        - 9200:9200
     if: "!contains(github.event.head_commit.message, '--skip-ci')"
     outputs:
       ecr_image: ${{ steps.build-image.outputs.image }}
