@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.pooch.api.aws.secretsmanager.FirebaseSecrets;
+import com.pooch.api.library.aws.secretsmanager.FirebaseSecrets;
 import com.pooch.api.utils.ObjectUtils;
 
 import lombok.extern.slf4j.Slf4j;

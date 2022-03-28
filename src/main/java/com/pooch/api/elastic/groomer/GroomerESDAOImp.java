@@ -21,7 +21,11 @@ public class GroomerESDAOImp implements GroomerESDAO {
 	@Override
 	public void save(GroomerES groomerES) {
 		log.info("groomerES={}", ObjectUtils.toJson(groomerES));
+
+		groomerES.populateGeoPoints();
 		groomerES = groomerESRepository.save(groomerES);
+
+		log.info("saved groomerES={}", ObjectUtils.toJson(groomerES));
 	}
 
 }

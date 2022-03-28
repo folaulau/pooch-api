@@ -1,4 +1,4 @@
-package com.pooch.api.aws.secretsmanager;
+package com.pooch.api.library.aws.secretsmanager;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -12,25 +12,19 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Slf4j
 @Data
-public class StripeSecrets implements Serializable {
+public class FirebaseSecrets implements Serializable {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
 
-    private String            publishableKey;
+    private String            authWebApiKey;
 
-    private String            secretKey;
-
-    private String            productId;
-
-    private String            webhookSubscriptionSigningSecret;
-
-    public static StripeSecrets fromJson(String json) {
+    public static FirebaseSecrets fromJson(String json) {
 
         try {
-            return ObjectUtils.getObjectMapper().readValue(json, StripeSecrets.class);
+            return ObjectUtils.getObjectMapper().readValue(json, FirebaseSecrets.class);
         } catch (IOException e) {
             log.error("SecretManager to Json exception", e);
             return null;

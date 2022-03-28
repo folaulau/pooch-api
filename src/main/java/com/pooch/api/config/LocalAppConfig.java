@@ -10,8 +10,8 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
-import com.pooch.api.aws.secretsmanager.FirebaseSecrets;
-import com.pooch.api.aws.secretsmanager.TwilioSecrets;
+import com.pooch.api.library.aws.secretsmanager.FirebaseSecrets;
+import com.pooch.api.library.aws.secretsmanager.TwilioSecrets;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 

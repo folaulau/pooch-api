@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -19,6 +20,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -35,148 +37,169 @@ import org.hibernate.annotations.Where;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.pooch.api.elastic.repo.AddressES;
+import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.entity.DatabaseTableNames;
+import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.role.Role;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
 @DynamicUpdate
 @Entity
-@SQLDelete(sql = "UPDATE " + DatabaseTableNames.Groomer + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
+@SQLDelete(sql = "UPDATE " + DatabaseTableNames.Groomer
+		+ " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
 @Where(clause = "deleted = 'F'")
-@Table(name = DatabaseTableNames.Groomer, indexes = {@Index(columnList = "uuid"), @Index(columnList = "email"), @Index(columnList = "deleted")})
+@Table(name = DatabaseTableNames.Groomer, indexes = { @Index(columnList = "uuid"), @Index(columnList = "email"),
+		@Index(columnList = "deleted") })
 public class Groomer implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, updatable = false, unique = true)
-    private Long              id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id", nullable = false, updatable = false, unique = true)
+	private Long id;
 
-    @Column(name = "uuid", unique = true, nullable = false, updatable = false)
-    private String            uuid;
+	@Column(name = "uuid", unique = true, nullable = false, updatable = false)
+	private String uuid;
 
-    @Column(name = "first_name")
-    private String            firstName;
+	@Column(name = "first_name")
+	private String firstName;
 
-    @Column(name = "last_name")
-    private String            lastName;
+	@Column(name = "last_name")
+	private String lastName;
 
-    @Column(name = "business_name")
-    private String            businessName;
+	@Column(name = "business_name")
+	private String businessName;
 
-    @NotEmpty
-    @Column(name = "email", unique = true)
-    private String            email;
+	@NotEmpty
+	@Column(name = "email", unique = true)
+	private String email;
 
-    @Column(name = "email_verified")
-    private Boolean           emailVerified;
+	@Column(name = "email_verified")
+	private Boolean emailVerified;
 
-    /**
-     * Social platforms(facebook, google, etc) don't give email<br>
-     * Now create a temp email for now
-     */
-    @Column(name = "email_temp")
-    private boolean           emailTemp;
+	/**
+	 * Social platforms(facebook, google, etc) don't give email<br>
+	 * Now create a temp email for now
+	 */
+	@Column(name = "email_temp")
+	private boolean emailTemp;
 
-    @Column(name = "phone_number")
-    private Long              phoneNumber;
+	@Column(name = "phone_number")
+	private Long phoneNumber;
 
-    @Column(name = "phone_number_verified")
-    private Boolean           phoneNumberVerified;
+	@Column(name = "phone_number_verified")
+	private Boolean phoneNumberVerified;
 
-    /**
-     * 5 star rating
-     */
-    @Column(name = "rating")
-    private Double            rating;
+	/**
+	 * 5 star rating
+	 */
+	@Column(name = "rating")
+	private Double rating;
 
-    @Column(name = "offered_pickup_off")
-    private Boolean           offeredPickUp;
+	@Column(name = "offered_pickup_off")
+	private Boolean offeredPickUp;
 
-    @Column(name = "offered_drop_off")
-    private Boolean           offeredDropOff;
+	@Column(name = "offered_drop_off")
+	private Boolean offeredDropOff;
 
-    @Column(name = "charge_per_mile")
-    private Double            chargePerMile;
+	@Column(name = "charge_per_mile")
+	private Double chargePerMile;
 
-    @Column(name = "number_of_ocupancy")
-    private Long              numberOfOcupancy;
+	@Column(name = "number_of_ocupancy")
+	private Long numberOfOcupancy;
 
-    @Lob
-    @Type(type = "org.hibernate.type.TextType")
-    @Column(name = "description")
-    private String            description;
+	@Lob
+	@Type(type = "org.hibernate.type.TextType")
+	@Column(name = "description")
+	private String description;
 
-    @Column(name = "instant_booking", nullable = false)
-    private Boolean           instantBooking;
+	@Column(name = "instant_booking", nullable = false)
+	private Boolean instantBooking;
 
-    @JsonIgnoreProperties(value = {"groomers"})
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "groomer_roles", joinColumns = {@JoinColumn(name = "groomer_id")}, inverseJoinColumns = {@JoinColumn(name = "role_id")})
-    private Set<Role>         roles;
+	@JsonIgnoreProperties(value = { "groomers" })
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinTable(name = "groomer_roles", joinColumns = { @JoinColumn(name = "groomer_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "role_id") })
+	private Set<Role> roles;
 
-    @Column(name = "deleted", nullable = false)
-    private boolean           deleted;
+	@Column(name = "deleted", nullable = false)
+	private boolean deleted;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime     createdAt;
+	@CreationTimestamp
+	@Column(name = "created_at", nullable = false, updatable = false)
+	private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime     updatedAt;
+	@UpdateTimestamp
+	@Column(name = "updated_at", nullable = false)
+	private LocalDateTime updatedAt;
 
-    public void addRole(Role role) {
-        if (this.roles == null) {
-            this.roles = new HashSet<>();
-        }
-        this.roles.add(role);
-    }
+	@JsonIgnoreProperties(value = { "groomer" })
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "groomer_addresses", joinColumns = { @JoinColumn(name = "groomer_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "addres_id") })
+	private Set<Address> addresses;
 
-    public String getRoleAsString() {
-        if (this.roles == null) {
-            return null;
-        }
-        return this.roles.stream().findFirst().get().getAuthority().name();
-    }
+	public void addRole(Role role) {
+		if (this.roles == null) {
+			this.roles = new HashSet<>();
+		}
+		this.roles.add(role);
+	}
 
-    @PrePersist
-    private void preCreate() {
-        if (this.uuid == null || this.uuid.isEmpty()) {
-            this.uuid = "groomer-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
-        }
-        /**
-         * by default set to true
-         */
-        this.instantBooking = true;
-    }
+	public void addAddress(Address address) {
+		if (this.addresses == null) {
+			this.addresses = new HashSet<>();
+		}
+		this.addresses.add(address);
+	}
 
-    @PreUpdate
-    private void preUpdate() {
-    }
+	public String getRoleAsString() {
+		if (this.roles == null) {
+			return null;
+		}
+		return this.roles.stream().findFirst().get().getAuthority().name();
+	}
 
-    public String getFullName() {
-        StringBuilder str = new StringBuilder();
-        if (this.firstName != null && !this.firstName.isEmpty()) {
-            str.append(this.firstName);
-        }
+	public String getFullName() {
+		StringBuilder str = new StringBuilder();
+		if (this.firstName != null && !this.firstName.isEmpty()) {
+			str.append(this.firstName);
+		}
 
-        if (this.lastName != null && !this.lastName.isEmpty()) {
-            if (!str.toString().isBlank()) {
-                str.append(" ");
-            }
-            str.append(this.lastName);
-        }
+		if (this.lastName != null && !this.lastName.isEmpty()) {
+			if (!str.toString().isBlank()) {
+				str.append(" ");
+			}
+			str.append(this.lastName);
+		}
 
-        return null;
-    }
+		return null;
+	}
+
+	@PrePersist
+	private void preCreate() {
+		if (this.uuid == null || this.uuid.isEmpty()) {
+			this.uuid = "groomer-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
+		}
+		/**
+		 * by default set to true
+		 */
+		this.instantBooking = true;
+	}
+
+	@PreUpdate
+	private void preUpdate() {
+	}
 
 }

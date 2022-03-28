@@ -2,6 +2,7 @@ package com.pooch.api.entity.groomer.careservice;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -23,13 +24,17 @@ import org.hibernate.annotations.Where;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.pooch.api.elastic.repo.AddressES;
+import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.entity.DatabaseTableNames;
 import com.pooch.api.entity.groomer.Groomer;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

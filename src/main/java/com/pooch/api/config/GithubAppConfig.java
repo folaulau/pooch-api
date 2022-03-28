@@ -28,9 +28,9 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
-import com.pooch.api.aws.secretsmanager.AwsSecretsManagerService;
-import com.pooch.api.aws.secretsmanager.FirebaseSecrets;
-import com.pooch.api.aws.secretsmanager.TwilioSecrets;
+import com.pooch.api.library.aws.secretsmanager.AwsSecretsManagerService;
+import com.pooch.api.library.aws.secretsmanager.FirebaseSecrets;
+import com.pooch.api.library.aws.secretsmanager.TwilioSecrets;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 

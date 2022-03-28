@@ -28,6 +28,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.TestEntityGeneratorService;
+import com.pooch.api.dto.AddressCreateUpdateDTO;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.EntityDTOMapper;
@@ -94,6 +95,8 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
         groomerUpdateDTO.setFirstName("Folau");
         groomerUpdateDTO.setLastName("Kaveinga");
 
+        AddressCreateUpdateDTO address = AddressCreateUpdateDTO.builder().state("CA").street("222 Alta Ave").city("Santa Monica").zipcode("90402").latitude(34.025070).longitude(-118.507700).build();
+        groomerUpdateDTO.addAddress(address);
         // @formatter:on
         // When
         RequestBuilder requestBuilder = MockMvcRequestBuilders.put("/groomers/profile")
@@ -113,6 +116,8 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
         assertThat(groomerDTO.getUuid()).isNotNull();
         assertThat(groomerDTO.getFirstName()).isNotNull().isEqualTo("Folau");
         assertThat(groomerDTO.getLastName()).isNotNull().isEqualTo("Kaveinga");
+        assertThat(groomerDTO.getAddresses()).isNotNull();
+        assertThat(groomerDTO.getAddresses().size()).isEqualTo(1);
 
     }
 

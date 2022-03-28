@@ -1,4 +1,4 @@
-package com.pooch.api.aws.secretsmanager;
+package com.pooch.api.library.aws.secretsmanager;
 
 public interface AwsSecretsManagerService {
 

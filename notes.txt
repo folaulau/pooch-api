@@ -14,3 +14,5 @@ END $$;
 
 # elastic search
 docker pull docker.elastic.co/elasticsearch/elasticsearch:8.1.1
+
+https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html/#repositories

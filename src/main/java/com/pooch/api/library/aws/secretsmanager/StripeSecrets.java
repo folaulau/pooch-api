@@ -1,4 +1,4 @@
-package com.pooch.api.aws.secretsmanager;
+package com.pooch.api.library.aws.secretsmanager;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -12,23 +12,25 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Slf4j
 @Data
-public class TwilioSecrets implements Serializable {
+public class StripeSecrets implements Serializable {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
 
-    private String            accountSid;
+    private String            publishableKey;
 
-    private String            authToken;
+    private String            secretKey;
 
-    private String            smsSender;
+    private String            productId;
 
-    public static TwilioSecrets fromJson(String json) {
+    private String            webhookSubscriptionSigningSecret;
+
+    public static StripeSecrets fromJson(String json) {
 
         try {
-            return ObjectUtils.getObjectMapper().readValue(json, TwilioSecrets.class);
+            return ObjectUtils.getObjectMapper().readValue(json, StripeSecrets.class);
         } catch (IOException e) {
             log.error("SecretManager to Json exception", e);
             return null;

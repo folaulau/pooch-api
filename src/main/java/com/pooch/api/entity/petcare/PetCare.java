@@ -3,6 +3,7 @@ package com.pooch.api.entity.petcare;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,6 +36,8 @@ import org.hibernate.annotations.Where;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.pooch.api.elastic.repo.AddressES;
+import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.entity.DatabaseTableNames;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.careservice.CareService;
@@ -44,9 +47,11 @@ import com.pooch.api.entity.pet.Pet;
 import com.pooch.api.entity.pet.vaccine.Vaccine;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

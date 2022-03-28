@@ -3,8 +3,8 @@ package com.pooch.api.sms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.pooch.api.aws.secretsmanager.TwilioSecrets;
 import com.pooch.api.exception.ApiException;
+import com.pooch.api.library.aws.secretsmanager.TwilioSecrets;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 

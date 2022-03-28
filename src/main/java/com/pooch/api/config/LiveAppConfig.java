@@ -11,11 +11,11 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
-import com.pooch.api.aws.secretsmanager.AwsSecretsManagerService;
-import com.pooch.api.aws.secretsmanager.DatabaseSecrets;
-import com.pooch.api.aws.secretsmanager.FirebaseSecrets;
-import com.pooch.api.aws.secretsmanager.StripeSecrets;
-import com.pooch.api.aws.secretsmanager.TwilioSecrets;
+import com.pooch.api.library.aws.secretsmanager.AwsSecretsManagerService;
+import com.pooch.api.library.aws.secretsmanager.DatabaseSecrets;
+import com.pooch.api.library.aws.secretsmanager.FirebaseSecrets;
+import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
+import com.pooch.api.library.aws.secretsmanager.TwilioSecrets;
 import com.pooch.api.utils.ObjectUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

@@ -2,6 +2,7 @@ package com.pooch.api.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -16,46 +17,48 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 public class GroomerDTO implements Serializable {
 
-    private static final long      serialVersionUID = 1L;
+    private static final long   serialVersionUID = 1L;
 
-    private Long                   id;
+    private Long                id;
 
-    private String                 uuid;
+    private String              uuid;
 
-    private String                 firstName;
+    private String              firstName;
 
-    private String                 lastName;
+    private String              lastName;
 
-    private String                 businessName;
+    private String              businessName;
 
-    private String                 email;
+    private String              email;
 
-    private Boolean                emailVerified;
+    private Boolean             emailVerified;
 
-    private boolean                emailTemp;
+    private boolean             emailTemp;
 
-    private Long                   phoneNumber;
+    private Long                phoneNumber;
 
-    private Boolean                phoneNumberVerified;
+    private Boolean             phoneNumberVerified;
 
-    private Integer                rating;
+    private Integer             rating;
 
-    private Boolean                offeredPickUp;
+    private Boolean             offeredPickUp;
 
-    private Boolean                offeredDropOff;
+    private Boolean             offeredDropOff;
 
-    private Double                 chargePerMile;
+    private Double              chargePerMile;
 
-    private Long                   numberOfOcupancy;
+    private Long                numberOfOcupancy;
 
-    private String                 description;
+    private String              description;
 
-    private boolean                instantBooking;
+    private boolean             instantBooking;
 
     private Set<CareServiceDTO> careServices;
 
-    private LocalDateTime          createdAt;
+    private LocalDateTime       createdAt;
 
-    private LocalDateTime          updatedAt;
+    private LocalDateTime       updatedAt;
+
+    private List<AddressDTO>    addresses;
 
 }
