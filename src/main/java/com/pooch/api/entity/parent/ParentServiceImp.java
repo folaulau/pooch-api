@@ -21,6 +21,7 @@ import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.S3FileDTO;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
+import com.pooch.api.entity.s3file.FileType;
 import com.pooch.api.entity.s3file.S3File;
 import com.pooch.api.entity.s3file.S3FileDAO;
 import com.pooch.api.exception.ApiException;
@@ -139,7 +140,7 @@ public class ParentServiceImp implements ParentService {
         for (MultipartFile image : images) {
             String fileName = image.getOriginalFilename();
             String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
-            String objectKey = "parent/" + parent.getId() + "/images/" + UUID.randomUUID().toString() + "_" + santizedFileName;
+            String objectKey = "profile_images/parent/" + parent.getId() + "/" + UUID.randomUUID().toString() + "_" + santizedFileName;
 
             log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName, objectKey);
             ObjectMetadata metadata = new ObjectMetadata();
@@ -156,6 +157,7 @@ public class ParentServiceImp implements ParentService {
             }
 
             S3File s3File = new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
+            s3File.setFileType(FileType.Profile_Image);
             s3File.setParent(parent);
 
             s3Files.add(s3File);

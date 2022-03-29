@@ -10,4 +10,6 @@ public interface AwsS3Service {
     AwsUploadResponse uploadPublicObj(String objectKey, ObjectMetadata metadata, InputStream speechStream);
 
     AwsUploadResponse uploadPrivateObj(String objectKey, ObjectMetadata metadata, InputStream speechStream);
+
+    AwsUploadResponse refreshTTL(String s3key);
 }

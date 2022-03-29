@@ -8,6 +8,8 @@ import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -91,6 +93,10 @@ public class S3File implements Serializable {
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "groomer_id", nullable = true)
     private Groomer           groomer;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "file_type")
+    private FileType          fileType;
 
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;

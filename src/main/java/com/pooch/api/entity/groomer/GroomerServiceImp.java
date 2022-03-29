@@ -1,11 +1,17 @@
 package com.pooch.api.entity.groomer;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserRecord;
 import com.pooch.api.dto.AuthenticationResponseDTO;
@@ -13,11 +19,19 @@ import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.GroomerDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
+import com.pooch.api.dto.S3FileDTO;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
+import com.pooch.api.entity.s3file.FileType;
+import com.pooch.api.entity.s3file.S3File;
+import com.pooch.api.entity.s3file.S3FileDAO;
+import com.pooch.api.exception.ApiException;
+import com.pooch.api.library.aws.s3.AwsS3Service;
+import com.pooch.api.library.aws.s3.AwsUploadResponse;
 import com.pooch.api.library.firebase.FirebaseAuthService;
 import com.pooch.api.security.AuthenticationService;
+import com.pooch.api.utils.FileUtils;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 
@@ -41,6 +55,12 @@ public class GroomerServiceImp implements GroomerService {
 
     @Autowired
     private EntityDTOMapper         entityDTOMapper;
+
+    @Autowired
+    private S3FileDAO               s3FileDAO;
+
+    @Autowired
+    private AwsS3Service            awsS3Service;
 
     @Override
     public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
@@ -121,5 +141,84 @@ public class GroomerServiceImp implements GroomerService {
         petSitter = groomerDAO.save(petSitter);
 
         return entityDTOMapper.mapGroomerToGroomerDTO(petSitter);
+    }
+
+    @Override
+    public List<S3FileDTO> uploadProfileImages(String uuid, List<MultipartFile> images) {
+        Groomer groomer = groomerValidatorService.validateUploadProfileImages(uuid, images);
+
+        List<S3File> s3Files = new ArrayList<>();
+
+        for (MultipartFile image : images) {
+            String fileName = image.getOriginalFilename();
+            String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
+            String objectKey = "profile_images/groomer/" + groomer.getId() + "/" + UUID.randomUUID().toString() + "_" + santizedFileName;
+
+            log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName, objectKey);
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(image.getContentType());
+
+            AwsUploadResponse awsUploadResponse = null;
+            try {
+                awsUploadResponse = awsS3Service.uploadPublicObj(objectKey, metadata, image.getInputStream());
+            } catch (IOException e) {
+                log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
+                e.printStackTrace();
+
+                throw new ApiException("Unable to upload image", "issue with aws");
+            }
+
+            S3File s3File = new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
+            s3File.setFileType(FileType.Profile_Image);
+            s3File.setGroomer(groomer);
+
+            s3Files.add(s3File);
+        }
+
+        if (s3Files.size() > 0) {
+            s3Files = s3FileDAO.save(s3Files);
+        }
+
+        return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
+    }
+
+    @Override
+    public List<S3FileDTO> uploadContractDocuments(String uuid, List<MultipartFile> images) {
+        Groomer groomer = groomerValidatorService.validateUploadContracts(uuid, images);
+
+        List<S3File> s3Files = new ArrayList<>();
+
+        for (MultipartFile image : images) {
+            String fileName = image.getOriginalFilename();
+            String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
+            String objectKey = "contracts/groomer/" + groomer.getId() + "/" + UUID.randomUUID().toString() + "_" + santizedFileName;
+
+            log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName, objectKey);
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(image.getContentType());
+
+            AwsUploadResponse awsUploadResponse = null;
+            try {
+                awsUploadResponse = awsS3Service.uploadPrivateObj(objectKey, metadata, image.getInputStream());
+            } catch (IOException e) {
+                log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
+                e.printStackTrace();
+
+                throw new ApiException("Unable to upload file", "issue with aws");
+            }
+
+            S3File s3File = new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
+            s3File.setFileType(FileType.Contract_Attachment);
+            s3File.setIsPublic(false);
+            s3File.setGroomer(groomer);
+
+            s3Files.add(s3File);
+        }
+
+        if (s3Files.size() > 0) {
+            s3Files = s3FileDAO.save(s3Files);
+        }
+
+        return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
     }
 }

@@ -2,7 +2,9 @@ package com.pooch.api.library.aws.s3;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Date;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -94,5 +96,14 @@ public class AwsS3ServiceImp implements AwsS3Service {
         URL objectUrl = amazonS3.getUrl(S3_BUCKET, objectKey);
 
         return new AwsUploadResponse(objectKey, objectUrl.toString());
+    }
+
+    @Override
+    public AwsUploadResponse refreshTTL(String s3key) {
+        // URL objectUrl = amazonS3.getUrl(S3_BUCKET, s3key);
+
+        URL url = amazonS3.generatePresignedUrl(S3_BUCKET, s3key, DateUtils.addHours(new Date(), 6));
+
+        return new AwsUploadResponse(s3key, url.toString());
     }
 }
