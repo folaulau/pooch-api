@@ -90,9 +90,6 @@ public class GroomerES implements Serializable {
 	 */
 	@Field(type = FieldType.Nested)
 	private List<AddressES> addresses;
-//
-//	@GeoPointField
-//	private List<GeoPoint> geoPoints;
 
 	@Field
 	private boolean deleted;
