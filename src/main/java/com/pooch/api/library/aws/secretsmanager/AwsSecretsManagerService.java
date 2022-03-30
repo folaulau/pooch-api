@@ -9,4 +9,6 @@ public interface AwsSecretsManagerService {
     public TwilioSecrets getTwilioSecrets();
     
     public FirebaseSecrets getFirebaseSecrets();
+
+    public ElasticsearchSecrets getElasticsearchSecrets();
 }
