@@ -55,7 +55,6 @@ import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMa
 @Slf4j
 @Profile({"github"})
 @Configuration
-@PropertySource("classpath:config/application-github.properties")
 public class GithubAppConfig {
 
     @Value("${aws.deploy.region:us-west-2}")
