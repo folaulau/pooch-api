@@ -1,5 +1,6 @@
 package com.pooch.api.elastic.groomer;
 
+import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
@@ -14,18 +15,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GroomerESDAOImp implements GroomerESDAO {
 
-	@Autowired
-	private GroomerESRepository groomerESRepository;
+  @Autowired private RestHighLevelClient restHighLevelClient;
 
-	@Async
-	@Override
-	public void save(GroomerES groomerES) {
-		log.info("groomerES={}", ObjectUtils.toJson(groomerES));
+  @Autowired private GroomerESRepository groomerESRepository;
 
-		groomerES.populateGeoPoints();
-		groomerES = groomerESRepository.save(groomerES);
 
-		log.info("saved groomerES={}", ObjectUtils.toJson(groomerES));
-	}
+  @Async
+  @Override
+  public void save(GroomerES groomerES) {
+    log.info("groomerES={}", ObjectUtils.toJson(groomerES));
 
+    groomerES.populateGeoPoints();
+    groomerES = groomerESRepository.save(groomerES);
+
+    log.info("saved groomerES={}", ObjectUtils.toJson(groomerES));
+  }
 }

@@ -166,12 +166,13 @@ public class LiveAppConfig {
 
   @Bean
   public RestHighLevelClient restHighLevelClient() {
-
+    log.info("configuring elasticsearch");
     RestHighLevelClient restHighLevelClient = null;
     try {
 
       ElasticsearchSecrets esSecrets = awsSecretsManagerService.getElasticsearchSecrets();
 
+      log.info("ElasticsearchSecrets={}", ObjectUtils.toJson(esSecrets));
       // @formatter:off
 
       final int numberOfThreads = 50;
@@ -222,6 +223,7 @@ public class LiveAppConfig {
     } catch (Exception e) {
       log.error(e.getMessage());
     }
+    log.info("elasticsearch configured");
     return restHighLevelClient;
   }
 
