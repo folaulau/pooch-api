@@ -181,9 +181,9 @@ public class LiveAppConfig {
       final int numberOfThreads = 50;
       final int connectionTimeoutTime = 60;
 
-      final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-      credentialsProvider.setCredentials(
-          AuthScope.ANY, new UsernamePasswordCredentials(esSecrets.getUsername(), esSecrets.getPassword()));
+//      final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+//      credentialsProvider.setCredentials(
+//          AuthScope.ANY, new UsernamePasswordCredentials(esSecrets.getUsername(), esSecrets.getPassword()));
 
       RestClientBuilder restClientBuilder =
           RestClient.builder(new HttpHost(esSecrets.getHost(), esSecrets.getPort(), esSecrets.getHttpType()));
@@ -201,7 +201,7 @@ public class LiveAppConfig {
                           .setConnectTimeout(connectionTimeoutTime)
                           .build());
 
-              return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+              return httpClientBuilder;//.setDefaultCredentialsProvider(credentialsProvider);
             }
           });
 
