@@ -6,8 +6,6 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Document.VersionType;
-import org.springframework.data.elasticsearch.annotations.Dynamic;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.GeoPointField;
@@ -25,7 +23,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
-@Document(indexName = "groomer", dynamic = Dynamic.TRUE, versionType = VersionType.EXTERNAL)
+@Document(indexName = "groomer")
 public class GroomerES implements Serializable {
 
   private static final long serialVersionUID = 1L;
