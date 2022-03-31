@@ -49,7 +49,7 @@ public class AddressES implements Serializable {
 	private Double latitude;
 
 	@GeoPointField
-	private GeoPoint geoPoint;
+	private GeoPoint location;
 
 	private String timezone;
 
@@ -61,6 +61,6 @@ public class AddressES implements Serializable {
 		if (longitude == null || latitude == null) {
 			return;
 		}
-		this.geoPoint = new GeoPoint(latitude, longitude);
+		this.location = new GeoPoint(latitude, longitude);
 	}
 }

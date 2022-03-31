@@ -1,5 +1,6 @@
 package com.pooch.api.elastic.groomer;
 
+import com.pooch.api.dto.CustomPage;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceRepository;
@@ -45,5 +46,10 @@ public class GroomerESDAOImp implements GroomerESDAO {
     groomerES = groomerESRepository.save(groomerES);
 
     log.info("saved groomerES={}", ObjectUtils.toJson(groomerES));
+  }
+
+  @Override
+  public CustomPage<GroomerES> search(Long pageNumber, Long pageSize, Long lat, Long lon, String searchPhrase) {
+    return null;
   }
 }
