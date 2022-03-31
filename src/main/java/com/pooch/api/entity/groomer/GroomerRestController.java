@@ -82,8 +82,8 @@ public class GroomerRestController {
   @GetMapping(value = "/search")
   public ResponseEntity<CustomPage<GroomerES>> search(
           @RequestHeader(name = "token", required = true) String token,
-          @RequestParam Long pageNumber,
-          @RequestParam Long pageSize,
+          @RequestParam(required = false, defaultValue = "0") Long pageNumber,
+          @RequestParam(required = false, defaultValue = "25") Long pageSize,
           @RequestParam Long lat,
           @RequestParam Long lon,
           @RequestParam(required = false) String searchPhrase,

@@ -4,6 +4,8 @@ import com.pooch.api.dto.CustomPage;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceRepository;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -15,6 +17,8 @@ import com.pooch.api.utils.ObjectUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.Set;
 
 @Repository
@@ -28,6 +32,15 @@ public class GroomerESDAOImp implements GroomerESDAO {
   @Autowired private CareServiceRepository careServiceRepository;
 
   @Autowired private EntityDTOMapper entityDTOMapper;
+
+  @PostConstruct
+  public void setup(){
+    // remove when ready
+    try {
+      restHighLevelClient.indices().delete(new DeleteIndexRequest("groomer"), RequestOptions.DEFAULT);
+    } catch (IOException e) {
+    }
+  }
 
   @Async
   @Override
