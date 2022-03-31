@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.pooch.api.dto.*;
 import com.pooch.api.elastic.repo.GroomerES;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -84,11 +85,14 @@ public class GroomerRestController {
           @RequestHeader(name = "token", required = true) String token,
           @RequestParam(required = false, defaultValue = "0") Long pageNumber,
           @RequestParam(required = false, defaultValue = "25") Long pageSize,
-          @RequestParam Long lat,
-          @RequestParam Long lon,
+//          @Parameter(name = "lat", description = "latitude", required = true)  @RequestParam Long lat,
+//          @Parameter(name = "lon", description = "longitude", required = true) @RequestParam Long lon,
           @RequestParam(required = false) String searchPhrase,
           HttpServletRequest request) {
     log.info("search, searchPhrase={}", searchPhrase);
+
+    long lat = 0;
+    long lon = 0;
 
     CustomPage<GroomerES> results = groomerService.search(pageNumber,pageSize, lat, lon, searchPhrase);
 
