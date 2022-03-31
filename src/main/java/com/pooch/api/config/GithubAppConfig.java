@@ -8,6 +8,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -51,6 +52,8 @@ import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
+
+import java.io.IOException;
 
 @Slf4j
 @Profile({"github"})
@@ -269,6 +272,14 @@ public class GithubAppConfig {
         } catch (Exception e) {
             log.error(e.getMessage());
         }
+        boolean ping = false;
+        try {
+            ping = restHighLevelClient.ping(RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        log.info("elasticsearch configured! ping={}", ping);
         return restHighLevelClient;
     }
 

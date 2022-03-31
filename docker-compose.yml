@@ -7,6 +7,8 @@ services:
     environment:
     - xpack.security.enabled=false
     - discovery.type=single-node
+    - ELASTIC_PASSWORD=test
+    - ELASTIC_USERNAME=pooch
     ports:
     - 9200:9200
     - 9300:9300
@@ -16,6 +18,8 @@ services:
     restart: always
     environment:
     - ELASTICSEARCH_HOSTS=http://pooch-es-container:9200
+    - ELASTICSEARCH_USERNAME=pooch
+    - ELASTICSEARCH_PASSWORD=test
     depends_on:
     - elasticsearch
     ports:
