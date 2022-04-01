@@ -32,4 +32,10 @@ public class GroomerDAOImp implements GroomerDAO {
     public Optional<Groomer> getByUuid(String uuid) {
         return groomerRepository.findByUuid(uuid);
     }
+
+    @Override
+    public Optional<Groomer> getByEmail(String email) {
+        // TODO Auto-generated method stub
+        return groomerRepository.findByEmail(email);
+    }
 }

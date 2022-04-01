@@ -9,4 +9,6 @@ public interface GroomerDAO {
     Optional<Groomer> getById(long id);
 
     Optional<Groomer> getByUuid(String uuid);
+
+    Optional<Groomer> getByEmail(String email);
 }

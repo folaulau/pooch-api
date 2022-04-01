@@ -98,14 +98,17 @@ public class GroomerServiceImp implements GroomerService {
 
                 if (optEmail.isPresent()) {
                     email = optEmail.get();
+
+                    Optional<Groomer> optEmailGroomer = groomerDAO.getByEmail(email);
+                    if (optEmailGroomer.isPresent()) {
+                        throw new ApiException("Email taken", "an account has this email already","Please use one email per account");
+                    }
                 } else {
                     // temp email as placeholder
                     email = "tempParent" + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE) + "@poochapp.com";
                     groomer.setEmailTemp(true);
                 }
             }
-
-            groomer.setEmail(email);
 
             Long phoneNumber = null;
 

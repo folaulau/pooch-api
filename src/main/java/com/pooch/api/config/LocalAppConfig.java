@@ -181,10 +181,10 @@ public class LocalAppConfig {
         try {
             log.info("username={}, password={}", username, password);
 
-//            clusterNode = "dev-elastic.poochapp.net";
-//            clusterHttpType = "http";
-//            clusterHttpPort = 9200;
-            
+            // clusterNode = "dev-elastic.poochapp.net";
+            // clusterHttpType = "http";
+            // clusterHttpPort = 9200;
+
             log.info("clusterNode={}, httpType={}", clusterNode, this.clusterHttpType);
 
             final int numberOfThreads = 10;

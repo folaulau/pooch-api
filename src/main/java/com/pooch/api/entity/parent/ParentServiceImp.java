@@ -19,6 +19,7 @@ import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.S3FileDTO;
+import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
 import com.pooch.api.entity.s3file.FileType;
@@ -102,6 +103,11 @@ public class ParentServiceImp implements ParentService {
 
                 if (optEmail.isPresent()) {
                     email = optEmail.get();
+                    
+                    Optional<Parent> optEmailGroomer = parentDAO.getByEmail(email);
+                    if (optEmailGroomer.isPresent()) {
+                        throw new ApiException("Email taken", "an account has this email already","Please use one email per account");
+                    }
                 } else {
                     // temp email as placeholder
                     email = "tempParent" + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE) + "@poochapp.com";
