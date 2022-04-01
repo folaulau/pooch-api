@@ -13,4 +13,6 @@ public interface ParentService {
     AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO);
 
     List<S3FileDTO> uploadProfileImages(String uuid, List<MultipartFile> images);
+
+    void signOut(String token);
 }

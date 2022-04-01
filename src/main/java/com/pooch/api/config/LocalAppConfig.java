@@ -180,16 +180,22 @@ public class LocalAppConfig {
         RestHighLevelClient restHighLevelClient = null;
         try {
             log.info("username={}, password={}", username, password);
+
+//            clusterNode = "dev-elastic.poochapp.net";
+//            clusterHttpType = "http";
+//            clusterHttpPort = 9200;
+            
             log.info("clusterNode={}, httpType={}", clusterNode, this.clusterHttpType);
+
+            final int numberOfThreads = 10;
+            final int connectionTimeoutTime = 60;
+
       // @formatter:off
-
-      final int numberOfThreads = 10;
-      final int connectionTimeoutTime = 60;
-
 //      final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 //      credentialsProvider.setCredentials(
 //          AuthScope.ANY, new UsernamePasswordCredentials(username, password));
 
+      
       RestClientBuilder restClientBuilder =
           RestClient.builder(new HttpHost(clusterNode, clusterHttpPort, clusterHttpType));
 

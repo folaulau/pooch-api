@@ -170,4 +170,9 @@ public class ParentServiceImp implements ParentService {
         return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
     }
 
+    @Override
+    public void signOut(String token) {
+        // TODO Auto-generated method stub
+    }
+
 }
