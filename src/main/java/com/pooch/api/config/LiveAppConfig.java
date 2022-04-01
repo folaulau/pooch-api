@@ -226,8 +226,8 @@ public class LiveAppConfig {
 
         boolean ping = false;
         try {
-            ping = restHighLevelClient.ping(RequestOptions.DEFAULT);
-        } catch (IOException e) {
+//            ping = restHighLevelClient.ping(RequestOptions.DEFAULT);
+        } catch (Exception e) {
             log.warn("IOException. ping error, msg={}", e.getMessage());
         }
 
