@@ -89,7 +89,7 @@ public class GroomerRestController {
     }
     
     @Operation(summary = "Sign Out", description = "sign out")
-    @GetMapping(value = "/signout")
+    @DeleteMapping(value = "/signout")
     public ResponseEntity<ApiDefaultResponseDTO> signOut(@RequestHeader(name = "token", required = true) String token) {
         log.info("signOut={}", token);
         
