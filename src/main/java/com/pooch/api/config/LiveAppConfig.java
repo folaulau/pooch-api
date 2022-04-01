@@ -221,14 +221,14 @@ public class LiveAppConfig {
             restHighLevelClient = new RestHighLevelClient(restClientBuilder);
             log.info("RestHighLevelClient set!");
         } catch (Exception e) {
-            log.error("Exception, msg={}", e.getMessage());
+            log.warn("Exception RestHighLevelClient, msg={}", e.getMessage());
         }
 
         boolean ping = false;
         try {
             ping = restHighLevelClient.ping(RequestOptions.DEFAULT);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("IOException. ping error, msg={}", e.getMessage());
         }
 
         log.info("elasticsearch configured! ping={}", ping);

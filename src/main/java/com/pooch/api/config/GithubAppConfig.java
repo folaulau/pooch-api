@@ -85,19 +85,19 @@ public class GithubAppConfig {
     private String                   firebaseWebApiKey;
 
     @Value("${elasticsearch.host}")
-    private String clusterNode;
+    private String                   clusterNode;
 
     @Value("${elasticsearch.httptype}")
-    private String clusterHttpType;
+    private String                   clusterHttpType;
 
     @Value("${elasticsearch.username}")
-    private String username;
+    private String                   username;
 
     @Value("${elasticsearch.password}")
-    private String password;
+    private String                   password;
 
     @Value("${elasticsearch.port:9200}")
-    private int clusterHttpPort;
+    private int                      clusterHttpPort;
 
     @Autowired
     private AwsSecretsManagerService awsSecretsManagerService;
@@ -270,13 +270,13 @@ public class GithubAppConfig {
             restHighLevelClient = new RestHighLevelClient(restClientBuilder);
 
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.warn("Exception RestHighLevelClient, msg={}", e.getMessage());
         }
         boolean ping = false;
         try {
             ping = restHighLevelClient.ping(RequestOptions.DEFAULT);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("IOException. ping error, msg={}", e.getMessage());
         }
 
         log.info("elasticsearch configured! ping={}", ping);
