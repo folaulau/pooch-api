@@ -38,202 +38,193 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GroomerServiceImp implements GroomerService {
 
-  @Autowired private FirebaseAuthService firebaseAuthService;
+    @Autowired
+    private FirebaseAuthService     firebaseAuthService;
 
-  @Autowired private GroomerDAO groomerDAO;
+    @Autowired
+    private GroomerDAO              groomerDAO;
 
-  @Autowired private AuthenticationService authenticationService;
+    @Autowired
+    private AuthenticationService   authenticationService;
 
-  @Autowired private GroomerValidatorService groomerValidatorService;
+    @Autowired
+    private GroomerValidatorService groomerValidatorService;
 
-  @Autowired private EntityDTOMapper entityDTOMapper;
+    @Autowired
+    private EntityDTOMapper         entityDTOMapper;
 
-  @Autowired private S3FileDAO s3FileDAO;
+    @Autowired
+    private S3FileDAO               s3FileDAO;
 
-  @Autowired private AwsS3Service awsS3Service;
+    @Autowired
+    private AwsS3Service            awsS3Service;
 
-  @Autowired private GroomerESDAO groomerESDAO;
+    @Autowired
+    private GroomerESDAO            groomerESDAO;
 
-  @Override
-  public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
+    @Override
+    public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
 
-    UserRecord userRecord = firebaseAuthService.verifyAndGetUser(authenticatorDTO.getToken());
+        UserRecord userRecord = firebaseAuthService.verifyAndGetUser(authenticatorDTO.getToken());
 
-    log.info("userRecord={}", ObjectUtils.toJson(userRecord));
+        log.info("userRecord={}", ObjectUtils.toJson(userRecord));
 
-    String uuid = userRecord.getUid();
+        String uuid = userRecord.getUid();
 
-    Optional<Groomer> optGroomer = groomerDAO.getByUuid(uuid);
+        Optional<Groomer> optGroomer = groomerDAO.getByUuid(uuid);
 
-    Groomer groomer = null;
+        Groomer groomer = null;
 
-    if (optGroomer.isPresent()) {
-      /** sign in */
-      groomer = optGroomer.get();
-    } else {
-      /** sign up */
-      groomer = new Groomer();
-
-      groomer.setUuid(uuid);
-      groomer.addRole(new Role(Authority.groomer));
-
-      String email = userRecord.getEmail();
-
-      if (email == null || email.isEmpty()) {
-        UserInfo[] userInfos = userRecord.getProviderData();
-
-        Optional<String> optEmail =
-            Arrays.asList(userInfos).stream()
-                .filter(userInfo -> (userInfo.getEmail() != null && !userInfo.getEmail().isEmpty()))
-                .map(userInfo -> userInfo.getEmail())
-                .findFirst();
-
-        if (optEmail.isPresent()) {
-          email = optEmail.get();
+        if (optGroomer.isPresent()) {
+            /** sign in */
+            groomer = optGroomer.get();
         } else {
-          // temp email as placeholder
-          email =
-              "tempParent"
-                  + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE)
-                  + "@poochapp.com";
-          groomer.setEmailTemp(true);
+            /** sign up */
+            groomer = new Groomer();
+
+            groomer.setUuid(uuid);
+            groomer.addRole(new Role(Authority.groomer));
+
+            String email = userRecord.getEmail();
+
+            if (email == null || email.isEmpty()) {
+                UserInfo[] userInfos = userRecord.getProviderData();
+
+                Optional<String> optEmail = Arrays.asList(userInfos)
+                        .stream()
+                        .filter(userInfo -> (userInfo.getEmail() != null && !userInfo.getEmail().isEmpty()))
+                        .map(userInfo -> userInfo.getEmail())
+                        .findFirst();
+
+                if (optEmail.isPresent()) {
+                    email = optEmail.get();
+                } else {
+                    // temp email as placeholder
+                    email = "tempParent" + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE) + "@poochapp.com";
+                    groomer.setEmailTemp(true);
+                }
+            }
+
+            groomer.setEmail(email);
+
+            Long phoneNumber = null;
+
+            try {
+                phoneNumber = Long.parseLong(userRecord.getPhoneNumber());
+            } catch (Exception e) {
+                log.warn("phoneNumber Exception, msg={}", e.getLocalizedMessage());
+            }
+
+            groomer.setPhoneNumber(phoneNumber);
+
+            groomer = groomerDAO.save(groomer);
         }
-      }
 
-      groomer.setEmail(email);
+        AuthenticationResponseDTO authenticationResponseDTO = authenticationService.authenticate(groomer);
 
-      Long phoneNumber = null;
+        log.info("authenticationResponseDTO={}", ObjectUtils.toJson(authenticationResponseDTO));
 
-      try {
-        phoneNumber = Long.parseLong(userRecord.getPhoneNumber());
-      } catch (Exception e) {
-        log.warn("phoneNumber Exception, msg={}", e.getLocalizedMessage());
-      }
-
-      groomer.setPhoneNumber(phoneNumber);
-
-      groomer = groomerDAO.save(groomer);
+        return authenticationResponseDTO;
     }
 
-    AuthenticationResponseDTO authenticationResponseDTO =
-        authenticationService.authenticate(groomer);
+    @Override
+    public GroomerDTO updateProfile(GroomerUpdateDTO petSitterUpdateDTO) {
+        Groomer petSitter = groomerValidatorService.validateUpdateProfile(petSitterUpdateDTO);
 
-    log.info("authenticationResponseDTO={}", ObjectUtils.toJson(authenticationResponseDTO));
+        entityDTOMapper.patchGroomerWithGroomerUpdateDTO(petSitterUpdateDTO, petSitter);
 
-    return authenticationResponseDTO;
-  }
+        petSitter = groomerDAO.save(petSitter);
 
-  @Override
-  public GroomerDTO updateProfile(GroomerUpdateDTO petSitterUpdateDTO) {
-    Groomer petSitter = groomerValidatorService.validateUpdateProfile(petSitterUpdateDTO);
-
-    entityDTOMapper.patchGroomerWithGroomerUpdateDTO(petSitterUpdateDTO, petSitter);
-
-    petSitter = groomerDAO.save(petSitter);
-
-    return entityDTOMapper.mapGroomerToGroomerDTO(petSitter);
-  }
-
-  @Override
-  public List<S3FileDTO> uploadProfileImages(String uuid, List<MultipartFile> images) {
-    Groomer groomer = groomerValidatorService.validateUploadProfileImages(uuid, images);
-
-    List<S3File> s3Files = new ArrayList<>();
-
-    for (MultipartFile image : images) {
-      String fileName = image.getOriginalFilename();
-      String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
-      String objectKey =
-          "profile_images/groomer/"
-              + groomer.getId()
-              + "/"
-              + UUID.randomUUID().toString()
-              + "_"
-              + santizedFileName;
-
-      log.info(
-          "fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName, objectKey);
-      ObjectMetadata metadata = new ObjectMetadata();
-      metadata.setContentType(image.getContentType());
-
-      AwsUploadResponse awsUploadResponse = null;
-      try {
-        awsUploadResponse =
-            awsS3Service.uploadPublicObj(objectKey, metadata, image.getInputStream());
-      } catch (IOException e) {
-        log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
-        e.printStackTrace();
-
-        throw new ApiException("Unable to upload image", "issue with aws");
-      }
-
-      S3File s3File =
-          new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
-      s3File.setFileType(FileType.Profile_Image);
-      s3File.setGroomer(groomer);
-
-      s3Files.add(s3File);
+        return entityDTOMapper.mapGroomerToGroomerDTO(petSitter);
     }
 
-    if (s3Files.size() > 0) {
-      s3Files = s3FileDAO.save(s3Files);
+    @Override
+    public List<S3FileDTO> uploadProfileImages(String uuid, List<MultipartFile> images) {
+        Groomer groomer = groomerValidatorService.validateUploadProfileImages(uuid, images);
+
+        List<S3File> s3Files = new ArrayList<>();
+
+        for (MultipartFile image : images) {
+            String fileName = image.getOriginalFilename();
+            String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
+            String objectKey = "profile_images/groomer/" + groomer.getId() + "/" + UUID.randomUUID().toString() + "_" + santizedFileName;
+
+            log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName, objectKey);
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(image.getContentType());
+
+            AwsUploadResponse awsUploadResponse = null;
+            try {
+                awsUploadResponse = awsS3Service.uploadPublicObj(objectKey, metadata, image.getInputStream());
+            } catch (IOException e) {
+                log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
+                e.printStackTrace();
+
+                throw new ApiException("Unable to upload image", "issue with aws");
+            }
+
+            S3File s3File = new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
+            s3File.setFileType(FileType.Profile_Image);
+            s3File.setGroomer(groomer);
+
+            s3Files.add(s3File);
+        }
+
+        if (s3Files.size() > 0) {
+            s3Files = s3FileDAO.save(s3Files);
+        }
+
+        return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
     }
 
-    return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
-  }
+    @Override
+    public List<S3FileDTO> uploadContractDocuments(String uuid, List<MultipartFile> images) {
+        Groomer groomer = groomerValidatorService.validateUploadContracts(uuid, images);
 
-  @Override
-  public List<S3FileDTO> uploadContractDocuments(String uuid, List<MultipartFile> images) {
-    Groomer groomer = groomerValidatorService.validateUploadContracts(uuid, images);
+        List<S3File> s3Files = new ArrayList<>();
 
-    List<S3File> s3Files = new ArrayList<>();
+        for (MultipartFile image : images) {
+            String fileName = image.getOriginalFilename();
+            String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
+            String objectKey = "contracts/groomer/" + groomer.getId() + "/" + UUID.randomUUID().toString() + "_" + santizedFileName;
 
-    for (MultipartFile image : images) {
-      String fileName = image.getOriginalFilename();
-      String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
-      String objectKey =
-          "contracts/groomer/"
-              + groomer.getId()
-              + "/"
-              + UUID.randomUUID().toString()
-              + "_"
-              + santizedFileName;
+            log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName, objectKey);
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(image.getContentType());
 
-      log.info(
-          "fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName, objectKey);
-      ObjectMetadata metadata = new ObjectMetadata();
-      metadata.setContentType(image.getContentType());
+            AwsUploadResponse awsUploadResponse = null;
+            try {
+                awsUploadResponse = awsS3Service.uploadPrivateObj(objectKey, metadata, image.getInputStream());
+            } catch (IOException e) {
+                log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
+                e.printStackTrace();
 
-      AwsUploadResponse awsUploadResponse = null;
-      try {
-        awsUploadResponse =
-            awsS3Service.uploadPrivateObj(objectKey, metadata, image.getInputStream());
-      } catch (IOException e) {
-        log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
-        e.printStackTrace();
+                throw new ApiException("Unable to upload file", "issue with aws");
+            }
 
-        throw new ApiException("Unable to upload file", "issue with aws");
-      }
+            S3File s3File = new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
+            s3File.setFileType(FileType.Contract_Attachment);
+            s3File.setIsPublic(false);
+            s3File.setGroomer(groomer);
 
-      S3File s3File =
-          new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
-      s3File.setFileType(FileType.Contract_Attachment);
-      s3File.setIsPublic(false);
-      s3File.setGroomer(groomer);
+            s3Files.add(s3File);
+        }
 
-      s3Files.add(s3File);
+        if (s3Files.size() > 0) {
+            s3Files = s3FileDAO.save(s3Files);
+        }
+
+        return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
     }
 
-    if (s3Files.size() > 0) {
-      s3Files = s3FileDAO.save(s3Files);
+    @Override
+    public CustomPage<GroomerES> search(Long pageNumber, Long pageSize, Long lat, Long lon, String searchPhrase) {
+        return groomerESDAO.search(pageNumber, pageSize, lat, lon, searchPhrase);
     }
 
-    return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
-  }
-
-  @Override
-  public CustomPage<GroomerES> search(
-      Long pageNumber, Long pageSize, Long lat, Long lon, String searchPhrase) {
-    return groomerESDAO.search(pageNumber,pageSize,lat,lon,searchPhrase);
-  }
+    @Override
+    public ApiDefaultResponseDTO signOut(String token) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

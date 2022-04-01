@@ -26,76 +26,75 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/groomers")
 public class GroomerRestController {
 
-  @Autowired private GroomerService groomerService;
+    @Autowired
+    private GroomerService groomerService;
 
-  @Operation(summary = "Authenticate", description = "sign up or sign in")
-  @PostMapping(value = "/authenticate")
-  public ResponseEntity<AuthenticationResponseDTO> authenticate(
-      @RequestHeader(name = "x-api-key", required = true) String xApiKey,
-      @RequestBody AuthenticatorDTO authenticatorDTO) {
-    log.info("authenticate={}", ObjectUtils.toJson(authenticatorDTO));
+    @Operation(summary = "Authenticate", description = "sign up or sign in")
+    @PostMapping(value = "/authenticate")
+    public ResponseEntity<AuthenticationResponseDTO> authenticate(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @RequestBody AuthenticatorDTO authenticatorDTO) {
+        log.info("authenticate={}", ObjectUtils.toJson(authenticatorDTO));
 
-    AuthenticationResponseDTO authenticationResponseDTO =
-        groomerService.authenticate(authenticatorDTO);
+        AuthenticationResponseDTO authenticationResponseDTO = groomerService.authenticate(authenticatorDTO);
 
-    return new ResponseEntity<>(authenticationResponseDTO, OK);
-  }
+        return new ResponseEntity<>(authenticationResponseDTO, OK);
+    }
 
-  @Operation(summary = "Update Profile", description = "update profile")
-  @PutMapping(value = "/profile")
-  public ResponseEntity<GroomerDTO> update(
-      @RequestHeader(name = "token", required = true) String token,
-      @RequestBody GroomerUpdateDTO groomerUpdateDTO) {
-    log.info("groomerUpdateDTO={}", ObjectUtils.toJson(groomerUpdateDTO));
+    @Operation(summary = "Update Profile", description = "update profile")
+    @PutMapping(value = "/profile")
+    public ResponseEntity<GroomerDTO> update(@RequestHeader(name = "token", required = true) String token, @RequestBody GroomerUpdateDTO groomerUpdateDTO) {
+        log.info("groomerUpdateDTO={}", ObjectUtils.toJson(groomerUpdateDTO));
 
-    GroomerDTO groomerDTO = groomerService.updateProfile(groomerUpdateDTO);
+        GroomerDTO groomerDTO = groomerService.updateProfile(groomerUpdateDTO);
 
-    return new ResponseEntity<>(groomerDTO, OK);
-  }
+        return new ResponseEntity<>(groomerDTO, OK);
+    }
 
-  @Operation(summary = "Upload Profile Images", description = "upload profile images")
-  @PostMapping(value = "/{uuid}/profile/images")
-  public ResponseEntity<List<S3FileDTO>> uploadProfileImages(
-      @RequestHeader(name = "token", required = true) String token,
-      @PathVariable String uuid,
-      @RequestParam(name = "images") List<MultipartFile> images) {
-    log.info("uploadProfileImages, uuid={}", uuid);
+    @Operation(summary = "Upload Profile Images", description = "upload profile images")
+    @PostMapping(value = "/{uuid}/profile/images")
+    public ResponseEntity<List<S3FileDTO>> uploadProfileImages(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
+            @RequestParam(name = "images") List<MultipartFile> images) {
+        log.info("uploadProfileImages, uuid={}", uuid);
 
-    List<S3FileDTO> s3FileDTOs = groomerService.uploadProfileImages(uuid, images);
+        List<S3FileDTO> s3FileDTOs = groomerService.uploadProfileImages(uuid, images);
 
-    return new ResponseEntity<>(s3FileDTOs, OK);
-  }
+        return new ResponseEntity<>(s3FileDTOs, OK);
+    }
 
-  @Operation(summary = "Upload Contract Documents", description = "upload contract documents")
-  @PostMapping(value = "/{uuid}/contract/documents")
-  public ResponseEntity<List<S3FileDTO>> uploadContractDocuments(
-      @RequestHeader(name = "token", required = true) String token,
-      @PathVariable String uuid,
-      @RequestParam(name = "images") List<MultipartFile> images) {
-    log.info("uploadProfileImages, uuid={}", uuid);
+    @Operation(summary = "Upload Contract Documents", description = "upload contract documents")
+    @PostMapping(value = "/{uuid}/contract/documents")
+    public ResponseEntity<List<S3FileDTO>> uploadContractDocuments(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
+            @RequestParam(name = "images") List<MultipartFile> images) {
+        log.info("uploadProfileImages, uuid={}", uuid);
 
-    List<S3FileDTO> s3FileDTOs = groomerService.uploadContractDocuments(uuid, images);
+        List<S3FileDTO> s3FileDTOs = groomerService.uploadContractDocuments(uuid, images);
 
-    return new ResponseEntity<>(s3FileDTOs, OK);
-  }
+        return new ResponseEntity<>(s3FileDTOs, OK);
+    }
 
-  @Operation(summary = "Search Groomers", description = "search groomers")
-  @GetMapping(value = "/search")
-  public ResponseEntity<CustomPage<GroomerES>> search(
-          @RequestHeader(name = "token", required = true) String token,
-          @RequestParam(required = false, defaultValue = "0") Long pageNumber,
-          @RequestParam(required = false, defaultValue = "25") Long pageSize,
-//          @Parameter(name = "lat", description = "latitude", required = true)  @RequestParam Long lat,
-//          @Parameter(name = "lon", description = "longitude", required = true) @RequestParam Long lon,
-          @RequestParam(required = false) String searchPhrase,
-          HttpServletRequest request) {
-    log.info("search, searchPhrase={}", searchPhrase);
+    @Operation(summary = "Search Groomers", description = "search groomers")
+    @GetMapping(value = "/search")
+    public ResponseEntity<CustomPage<GroomerES>> search(@RequestHeader(name = "token", required = true) String token, @RequestParam(required = false, defaultValue = "0") Long pageNumber,
+            @RequestParam(required = false, defaultValue = "25") Long pageSize,
+            // @Parameter(name = "lat", description = "latitude", required = true) @RequestParam Long lat,
+            // @Parameter(name = "lon", description = "longitude", required = true) @RequestParam Long lon,
+            @RequestParam(required = false) String searchPhrase, HttpServletRequest request) {
+        log.info("search, searchPhrase={}", searchPhrase);
 
-    long lat = 0;
-    long lon = 0;
+        long lat = 0;
+        long lon = 0;
 
-    CustomPage<GroomerES> results = groomerService.search(pageNumber,pageSize, lat, lon, searchPhrase);
+        CustomPage<GroomerES> results = groomerService.search(pageNumber, pageSize, lat, lon, searchPhrase);
 
-    return new ResponseEntity<>(results, OK);
-  }
+        return new ResponseEntity<>(results, OK);
+    }
+    
+    @Operation(summary = "Sign Out", description = "sign out")
+    @GetMapping(value = "/signout")
+    public ResponseEntity<ApiDefaultResponseDTO> signOut(@RequestHeader(name = "token", required = true) String token) {
+        log.info("signOut={}", token);
+        
+        ApiDefaultResponseDTO result = groomerService.signOut(token);
+
+        return new ResponseEntity<>(new ApiDefaultResponseDTO(ApiDefaultResponseDTO.SUCCESS), OK);
+    }
 }
