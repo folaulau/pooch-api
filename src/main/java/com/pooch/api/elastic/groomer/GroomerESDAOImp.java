@@ -43,9 +43,9 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class GroomerESDAOImp implements GroomerESDAO {
 
-//    @Autowired
-//    @Qualifier("restHighLevelClient")
-//    private RestHighLevelClient   restHighLevelClient;
+    @Autowired
+    @Qualifier("restHighLevelClient")
+    private RestHighLevelClient   restHighLevelClient;
 
     @Autowired
     private GroomerESRepository   groomerESRepository;
@@ -56,15 +56,15 @@ public class GroomerESDAOImp implements GroomerESDAO {
     @Autowired
     private EntityDTOMapper       entityDTOMapper;
 
-//    @PostConstruct
-//    public void setup() {
-//        // remove when ready
-//        try {
-//            restHighLevelClient.indices().delete(new DeleteIndexRequest("groomer"), RequestOptions.DEFAULT);
-//        } catch (IOException e) {
-//            log.warn("IOException with deleting groomer index. msg={}", e.getLocalizedMessage());
-//        }
-//    }
+    @PostConstruct
+    public void setup() {
+        // remove when ready
+        try {
+            restHighLevelClient.indices().delete(new DeleteIndexRequest("groomer"), RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            log.warn("IOException with deleting groomer index. msg={}", e.getLocalizedMessage());
+        }
+    }
 
     @Async
     @Override
@@ -125,22 +125,22 @@ public class GroomerESDAOImp implements GroomerESDAO {
             log.info("\n{\n\"query\":{}\n}", searchSourceBuilder.query().toString());
         }
 
-//        try {
-//            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-//
-//            log.info("isTimedOut={}, totalShards={}, totalHits={}", searchResponse.isTimedOut(), searchResponse.getTotalShards(), searchResponse.getHits().getTotalHits().value);
-//
-//            List<GroomerES> groomers = getResponseResult(searchResponse.getHits());
-//
-//            log.info("groomers={}", ObjectUtils.toJson(groomers));
-//
-//        } catch (IOException e) {
-//            log.warn("IOException, msg={}", e.getLocalizedMessage());
-//            e.printStackTrace();
-//        } catch (Exception e) {
-//            log.warn("Exception, msg={}", e.getLocalizedMessage());
-//            e.printStackTrace();
-//        }
+        try {
+            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+
+            log.info("isTimedOut={}, totalShards={}, totalHits={}", searchResponse.isTimedOut(), searchResponse.getTotalShards(), searchResponse.getHits().getTotalHits().value);
+
+            List<GroomerES> groomers = getResponseResult(searchResponse.getHits());
+
+            log.info("groomers={}", ObjectUtils.toJson(groomers));
+
+        } catch (IOException e) {
+            log.warn("IOException, msg={}", e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            log.warn("Exception, msg={}", e.getLocalizedMessage());
+            e.printStackTrace();
+        }
 
         return null;
     }
