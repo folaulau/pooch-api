@@ -191,9 +191,9 @@ public class LocalAppConfig {
       final int numberOfThreads = 10;
       final int connectionTimeoutTime = 60;
 
-      final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-      credentialsProvider.setCredentials(
-          AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+//      final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+//      credentialsProvider.setCredentials(
+//          AuthScope.ANY, new UsernamePasswordCredentials(username, password));
 
       RestClientBuilder restClientBuilder =
           RestClient.builder(new HttpHost(clusterNode, clusterHttpPort, clusterHttpType));
@@ -211,7 +211,7 @@ public class LocalAppConfig {
                           .setConnectTimeout(connectionTimeoutTime)
                           .build());
 
-              return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+              return httpClientBuilder;//.setDefaultCredentialsProvider(credentialsProvider);
             }
           });
 
