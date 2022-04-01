@@ -109,7 +109,9 @@ public class GroomerServiceImp implements GroomerService {
                     groomer.setEmailTemp(true);
                 }
             }
-
+            
+            groomer.setEmail(email);
+            
             Long phoneNumber = null;
 
             try {
@@ -119,6 +121,8 @@ public class GroomerServiceImp implements GroomerService {
             }
 
             groomer.setPhoneNumber(phoneNumber);
+            
+            log.info("groomer={}", ObjectUtils.toJson(groomer));
 
             groomer = groomerDAO.save(groomer);
         }
