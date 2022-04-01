@@ -13,7 +13,6 @@ import com.pooch.api.utils.ObjectUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Profile(value = { "local" })
 @Slf4j
 @Component
 @Aspect

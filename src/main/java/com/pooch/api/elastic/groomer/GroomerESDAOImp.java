@@ -21,6 +21,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
@@ -42,124 +43,128 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class GroomerESDAOImp implements GroomerESDAO {
 
-  @Autowired private RestHighLevelClient restHighLevelClient;
+    @Autowired
+    @Qualifier("restHighLevelClient")
+    private RestHighLevelClient   restHighLevelClient;
 
-  @Autowired private GroomerESRepository groomerESRepository;
+    @Autowired
+    private GroomerESRepository   groomerESRepository;
 
-  @Autowired private CareServiceRepository careServiceRepository;
+    @Autowired
+    private CareServiceRepository careServiceRepository;
 
-  @Autowired private EntityDTOMapper entityDTOMapper;
+    @Autowired
+    private EntityDTOMapper       entityDTOMapper;
 
-  @PostConstruct
-  public void setup(){
-    // remove when ready
-    try {
-      restHighLevelClient.indices().delete(new DeleteIndexRequest("groomer"), RequestOptions.DEFAULT);
-    } catch (IOException e) {
-    }
-  }
-
-  @Async
-  @Override
-  public void save(GroomerES groomerES) {
-    log.info("groomerES={}", ObjectUtils.toJson(groomerES));
-
-    try {
-      Set<CareService> careServices = careServiceRepository.findByGroomerId(groomerES.getId());
-      groomerES.setCareServices(entityDTOMapper.mapCareServicesToCareServiceESs(careServices));
-    } catch (Exception e) {
-      log.warn("Exception, msg={}", e.getLocalizedMessage());
+    @PostConstruct
+    public void setup() {
+        // remove when ready
+        try {
+            restHighLevelClient.indices().delete(new DeleteIndexRequest("groomer"), RequestOptions.DEFAULT);
+        } catch (IOException e) {
+        }
     }
 
-    groomerES.populateGeoPoints();
+    @Async
+    @Override
+    public void save(GroomerES groomerES) {
+        log.info("groomerES={}", ObjectUtils.toJson(groomerES));
 
-    groomerES = groomerESRepository.save(groomerES);
+        try {
+            Set<CareService> careServices = careServiceRepository.findByGroomerId(groomerES.getId());
+            groomerES.setCareServices(entityDTOMapper.mapCareServicesToCareServiceESs(careServices));
+        } catch (Exception e) {
+            log.warn("Exception, msg={}", e.getLocalizedMessage());
+        }
 
-    log.info("saved groomerES={}", ObjectUtils.toJson(groomerES));
-  }
+        groomerES.populateGeoPoints();
 
-  @Override
-  public CustomPage<GroomerES> search(Long pageNumber, Long pageSize, Long lat, Long lon, String searchPhrase) {
-    SearchRequest searchRequest = new SearchRequest("groomer");
-    searchRequest.allowPartialSearchResults(true);
-    searchRequest.indicesOptions(IndicesOptions.lenientExpandOpen());
+        groomerES = groomerESRepository.save(groomerES);
 
-    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-    searchSourceBuilder.from((int) (pageNumber * pageSize));
-    searchSourceBuilder.size(Math.toIntExact(pageSize));
-    searchSourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
-    /**
-     * fetch only a few fields
-     */
-    searchSourceBuilder.fetchSource(new String[]{"*"}, new String[]{"cards"});
-    // searchSourceBuilder.fetchSource(new FetchSourceContext(true, new String[]{"*"}, new String[]{"cards"}));
-    /**
-     * Query with bool
-     */
-    BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-
-    /**
-     * Lehi skate park: 40.414897, -111.881186<br>
-     * get locations/addresses close to skate park(from a radius).<br>
-     * The geo_distance filter can work with multiple locations / points per document. Once a single location /
-     * point matches the filter, the document will be included in the filter.<br>
-     */
-    boolQuery.filter(QueryBuilders.geoDistanceQuery("addresses.location").point(40.414897, -111.881186)
-            .distance(1, DistanceUnit.MILES).geoDistance(GeoDistance.ARC));
-
-    searchSourceBuilder.query(QueryBuilders.nestedQuery("addresses", boolQuery, ScoreMode.None));
-
-    searchRequest.source(searchSourceBuilder);
-
-    searchRequest.preference("nested-address");
-
-    if (searchSourceBuilder.sorts() != null && searchSourceBuilder.sorts().size() > 0) {
-      log.info("\n{\n\"query\":{}, \"sort\":{}\n}", searchSourceBuilder.query().toString(), searchSourceBuilder.sorts().toString());
-    } else {
-      log.info("\n{\n\"query\":{}\n}", searchSourceBuilder.query().toString());
+        log.info("saved groomerES={}", ObjectUtils.toJson(groomerES));
     }
 
-    try {
-      SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+    @Override
+    public CustomPage<GroomerES> search(Long pageNumber, Long pageSize, Long lat, Long lon, String searchPhrase) {
+        SearchRequest searchRequest = new SearchRequest("groomer");
+        searchRequest.allowPartialSearchResults(true);
+        searchRequest.indicesOptions(IndicesOptions.lenientExpandOpen());
 
-      log.info("isTimedOut={}, totalShards={}, totalHits={}", searchResponse.isTimedOut(), searchResponse.getTotalShards(), searchResponse.getHits().getTotalHits().value);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.from((int) (pageNumber * pageSize));
+        searchSourceBuilder.size(Math.toIntExact(pageSize));
+        searchSourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+        /**
+         * fetch only a few fields
+         */
+        searchSourceBuilder.fetchSource(new String[]{"*"}, new String[]{"cards"});
+        // searchSourceBuilder.fetchSource(new FetchSourceContext(true, new String[]{"*"}, new String[]{"cards"}));
+        /**
+         * Query with bool
+         */
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
-      List<GroomerES> groomers = getResponseResult(searchResponse.getHits());
+        /**
+         * Lehi skate park: 40.414897, -111.881186<br>
+         * get locations/addresses close to skate park(from a radius).<br>
+         * The geo_distance filter can work with multiple locations / points per document. Once a single location /
+         * point matches the filter, the document will be included in the filter.<br>
+         */
+        boolQuery.filter(QueryBuilders.geoDistanceQuery("addresses.location").point(40.414897, -111.881186).distance(1, DistanceUnit.MILES).geoDistance(GeoDistance.ARC));
 
-      log.info("groomers={}", ObjectUtils.toJson(groomers));
+        searchSourceBuilder.query(QueryBuilders.nestedQuery("addresses", boolQuery, ScoreMode.None));
 
-    } catch (IOException e) {
-      log.warn("IOException, msg={}", e.getLocalizedMessage());
-      e.printStackTrace();
-    } catch (Exception e) {
-      log.warn("Exception, msg={}", e.getLocalizedMessage());
-      e.printStackTrace();
+        searchRequest.source(searchSourceBuilder);
+
+        searchRequest.preference("nested-address");
+
+        if (searchSourceBuilder.sorts() != null && searchSourceBuilder.sorts().size() > 0) {
+            log.info("\n{\n\"query\":{}, \"sort\":{}\n}", searchSourceBuilder.query().toString(), searchSourceBuilder.sorts().toString());
+        } else {
+            log.info("\n{\n\"query\":{}\n}", searchSourceBuilder.query().toString());
+        }
+
+        try {
+            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+
+            log.info("isTimedOut={}, totalShards={}, totalHits={}", searchResponse.isTimedOut(), searchResponse.getTotalShards(), searchResponse.getHits().getTotalHits().value);
+
+            List<GroomerES> groomers = getResponseResult(searchResponse.getHits());
+
+            log.info("groomers={}", ObjectUtils.toJson(groomers));
+
+        } catch (IOException e) {
+            log.warn("IOException, msg={}", e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            log.warn("Exception, msg={}", e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
-    return  null;
-  }
+    private List<GroomerES> getResponseResult(SearchHits searchHits) {
 
-  private List<GroomerES> getResponseResult(SearchHits searchHits) {
+        Iterator<SearchHit> it = searchHits.iterator();
 
-    Iterator<SearchHit> it = searchHits.iterator();
+        List<GroomerES> searchResults = new ArrayList<>();
 
-    List<GroomerES> searchResults = new ArrayList<>();
+        while (it.hasNext()) {
+            SearchHit searchHit = it.next();
+            log.info("sourceAsString={}", searchHit.getSourceAsString());
+            try {
 
-    while (it.hasNext()) {
-      SearchHit searchHit = it.next();
-      log.info("sourceAsString={}", searchHit.getSourceAsString());
-      try {
+                GroomerES obj = ObjectUtils.getObjectMapper().readValue(searchHit.getSourceAsString(), new TypeReference<GroomerES>() {});
+                // log.info("obj={}", ObjectUtils.toJson(obj));
 
-        GroomerES obj = ObjectUtils.getObjectMapper().readValue(searchHit.getSourceAsString(), new TypeReference<GroomerES>() {});
-        // log.info("obj={}", ObjectUtils.toJson(obj));
+                searchResults.add(obj);
+            } catch (IOException e) {
+                log.warn("IOException, msg={}", e.getLocalizedMessage());
+            }
+        }
 
-        searchResults.add(obj);
-      } catch (IOException e) {
-        log.warn("IOException, msg={}", e.getLocalizedMessage());
-      }
+        return searchResults;
+
     }
-
-    return searchResults;
-
-  }
 }
