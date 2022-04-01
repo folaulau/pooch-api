@@ -2,24 +2,20 @@ version: '3.0'
 services:
   elasticsearch:
     container_name: pooch-es-container
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.2
     restart: always
     environment:
     - xpack.security.enabled=false
     - discovery.type=single-node
-    - ELASTIC_USERNAME=pooch
-    - ELASTIC_PASSWORD=test
     ports:
     - 9200:9200
     - 9300:9300
   kibana:
     container_name: pooch-kb-container
-    image: docker.elastic.co/kibana/kibana:7.10.2
+    image: docker.elastic.co/kibana/kibana:7.15.2
     restart: always
     environment:
     - ELASTICSEARCH_HOSTS=http://pooch-es-container:9200
-    - ELASTICSEARCH_USERNAME=pooch
-    - ELASTICSEARCH_PASSWORD=test
     depends_on:
     - elasticsearch
     ports:
