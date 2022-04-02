@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PoochCareDTO implements Serializable {
+public class BookingDTO implements Serializable {
 
     /**
      * 

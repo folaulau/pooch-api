@@ -38,7 +38,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
 @Entity
-@Table(name = "pet_vaccine")
+@Table(name = "vaccine")
 public class Vaccine implements Serializable {
 
     private static final long serialVersionUID = 1L;

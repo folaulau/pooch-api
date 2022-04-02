@@ -29,7 +29,7 @@ import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.TestEntityGeneratorService;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.ParentCreateUpdateDTO;
-import com.pooch.api.dto.PoochCareCreateDTO;
+import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.PoochCreateDTO;
 import com.pooch.api.dto.VaccineCreateDTO;
 import com.pooch.api.entity.groomer.Groomer;
@@ -109,7 +109,7 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
     @Test
     void itShouldBookPetCare_valid() throws Exception {
         // Given
-        PoochCareCreateDTO petCareCreateDTO = new PoochCareCreateDTO();
+        BookingCreateDTO petCareCreateDTO = new BookingCreateDTO();
 
         /**
          * Pet Parent

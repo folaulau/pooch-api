@@ -1,4 +1,4 @@
-package com.pooch.api.entity.pooch.care;
+package com.pooch.api.entity.booking;
 
 import java.util.Optional;
 import java.util.Set;
@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.ApiDefaultResponseDTO;
-import com.pooch.api.dto.PoochCareCreateDTO;
+import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.PoochCreateDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.dto.GroomerUuidDTO;
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class PoochCareValidatorServiceImp implements PoochCareValidatorService {
+public class BookingValidatorServiceImp implements BookingValidatorService {
 
     @Autowired
     private GroomerDAO petSitterDAO;
@@ -37,7 +37,7 @@ public class PoochCareValidatorServiceImp implements PoochCareValidatorService {
     private PoochDAO   petDAO;
 
     @Override
-    public void validateBook(PoochCareCreateDTO petCareCreateDTO) {
+    public void validateBook(BookingCreateDTO petCareCreateDTO) {
         ParentCreateUpdateDTO parentCreateUpdateDTO = petCareCreateDTO.getParent();
 
         if (parentCreateUpdateDTO == null) {

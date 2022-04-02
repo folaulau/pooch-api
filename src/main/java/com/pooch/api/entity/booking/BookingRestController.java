@@ -1,4 +1,4 @@
-package com.pooch.api.entity.pooch.care;
+package com.pooch.api.entity.booking;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
-import com.pooch.api.dto.PoochCareCreateDTO;
-import com.pooch.api.dto.PoochCareDTO;
+import com.pooch.api.dto.BookingCreateDTO;
+import com.pooch.api.dto.BookingDTO;
 import com.pooch.api.entity.parent.ParentRestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,21 +21,21 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Tag(name = "PoochCares", description = "Pooch Care Operations")
+@Tag(name = "Bookings", description = "Booking Operations")
 @RestController
-@RequestMapping("/poochcares")
-public class PoochCareRestController {
+@RequestMapping("/bookings")
+public class BookingRestController {
 
     @Autowired
-    private PoochCareService poochCareService;
+    private BookingService bookingService;
 
-    @Operation(summary = "Book Pooch Care", description = "book a pooch care")
+    @Operation(summary = "Make booking", description = "make a booking")
     @PostMapping(value = "/book")
-    public ResponseEntity<PoochCareDTO> book(@RequestHeader(name = "token", required = true) String token, @RequestBody PoochCareCreateDTO petCareCreateDTO) {
+    public ResponseEntity<BookingDTO> book(@RequestHeader(name = "token", required = true) String token, @RequestBody BookingCreateDTO bookingCreateDTO) {
         log.info("book");
 
-        PoochCareDTO petCareDTO = poochCareService.book(petCareCreateDTO);
+        BookingDTO bookingDTO = bookingService.book(bookingCreateDTO);
 
-        return new ResponseEntity<>(petCareDTO, OK);
+        return new ResponseEntity<>(bookingDTO, OK);
     }
 }

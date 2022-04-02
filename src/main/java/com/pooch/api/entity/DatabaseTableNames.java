@@ -7,7 +7,7 @@ public interface DatabaseTableNames {
     String Parent                  = "parent";
     String PocchVaccine            = "pooch_vaccine";
     String PhoneNumberVerification = "phone_number_verification";
-    String PoochCare               = "pooch_care";
+    String Booking                 = "booking";
     String CareService             = "care_service";
     String Address                 = "address";
     String S3File                  = "s3file";

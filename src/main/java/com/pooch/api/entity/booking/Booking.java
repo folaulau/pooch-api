@@ -1,4 +1,4 @@
-package com.pooch.api.entity.pooch.care;
+package com.pooch.api.entity.booking;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -58,10 +58,10 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 @DynamicUpdate
 @Entity
-@SQLDelete(sql = "UPDATE " + DatabaseTableNames.PoochCare + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
+@SQLDelete(sql = "UPDATE " + DatabaseTableNames.Booking + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
 @Where(clause = "deleted = 'F'")
-@Table(name = DatabaseTableNames.PoochCare, indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
-public class PoochCare implements Serializable {
+@Table(name = DatabaseTableNames.Booking, indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
+public class Booking implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -80,7 +80,7 @@ public class PoochCare implements Serializable {
     // @JsonIgnoreProperties(value = {"expenses", "scrubbedData"})
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH})
     @JoinTable(name = "poochcare_pets", joinColumns = @JoinColumn(name = "poochcare_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "pooch_id", referencedColumnName = "id"))
-    private Set<Pooch>          pets;
+    private Set<Pooch>        pets;
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "groomer_id")
@@ -88,7 +88,7 @@ public class PoochCare implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private PoochCareStatus     status;
+    private BookingStatus     status;
 
     @Column(name = "pick_up_date_time", nullable = false)
     private LocalDateTime     pickUpDateTime;
@@ -116,7 +116,7 @@ public class PoochCare implements Serializable {
     @PrePersist
     private void preCreate() {
         if (this.uuid == null || this.uuid.isEmpty()) {
-            this.uuid = "petcare-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
+            this.uuid = "booking-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
         }
 
     }

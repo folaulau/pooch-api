@@ -109,7 +109,7 @@ public class Pooch implements Serializable {
     private String            notes;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "pet_id")
+    @JoinColumn(name = "pooch_id")
     private Set<Vaccine>      vaccines;
 
     @ManyToOne(cascade = CascadeType.DETACH)

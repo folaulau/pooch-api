@@ -147,7 +147,7 @@ public class Groomer implements Serializable {
 	@JsonIgnoreProperties(value = { "groomer" })
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "groomer_addresses", joinColumns = { @JoinColumn(name = "groomer_id") }, inverseJoinColumns = {
-			@JoinColumn(name = "addres_id") })
+			@JoinColumn(name = "address_id") })
 	private Set<Address> addresses;
 
 	public void addRole(Role role) {

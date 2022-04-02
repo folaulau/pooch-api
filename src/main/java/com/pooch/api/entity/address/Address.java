@@ -75,6 +75,9 @@ public class Address implements Serializable {
     @Column(name = "timezone")
     private String            timezone;
 
+    @Column(name = "primary")
+    private Boolean           primary;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime     createdAt;
@@ -93,6 +96,7 @@ public class Address implements Serializable {
                 .append(this.state)
                 .append(this.zipcode)
                 .append(this.country)
+                .append(this.primary)
                 .toHashCode();
 
         // return HashCodeBuilder.reflectionHashCode(this);
@@ -118,6 +122,7 @@ public class Address implements Serializable {
                 .append(this.state, other.state)
                 .append(this.zipcode, other.zipcode)
                 .append(this.country, other.country)
+                .append(this.primary, other.primary)
                 .isEquals();
     }
 

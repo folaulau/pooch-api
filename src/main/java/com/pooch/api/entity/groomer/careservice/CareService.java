@@ -2,7 +2,9 @@ package com.pooch.api.entity.groomer.careservice;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -13,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -91,5 +94,12 @@ public class CareService implements Serializable {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime     updatedAt;
+    
+    @PrePersist
+    private void preCreate() {
+        if (this.uuid == null || this.uuid.isEmpty()) {
+            this.uuid = "care-service-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
+        }
+    }
 
 }

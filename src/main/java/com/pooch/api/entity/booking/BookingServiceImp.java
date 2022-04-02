@@ -1,4 +1,4 @@
-package com.pooch.api.entity.pooch.care;
+package com.pooch.api.entity.booking;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.ParentCreateUpdateDTO;
-import com.pooch.api.dto.PoochCareCreateDTO;
-import com.pooch.api.dto.PoochCareDTO;
+import com.pooch.api.dto.BookingCreateDTO;
+import com.pooch.api.dto.BookingDTO;
 import com.pooch.api.dto.PoochCreateDTO;
 import com.pooch.api.dto.PoochDTO;
 import com.pooch.api.entity.groomer.Groomer;
@@ -22,31 +22,31 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class PoochCareServiceImp implements PoochCareService {
+public class BookingServiceImp implements BookingService {
 
     @Autowired
-    private PoochCareDAO              poochCareDAO;
+    private BookingDAO              poochCareDAO;
 
     @Autowired
-    private EntityDTOMapper           entityDTOMapper;
+    private EntityDTOMapper         entityDTOMapper;
 
     @Autowired
-    private GroomerDAO                groomerDAO;
+    private GroomerDAO              groomerDAO;
 
     @Autowired
-    private ParentDAO                 parentDAO;
+    private ParentDAO               parentDAO;
 
     @Autowired
-    private PoochDAO                  petDAO;
+    private PoochDAO                poochDAO;
 
     @Autowired
-    private PoochCareValidatorService petCareValidatorService;
+    private BookingValidatorService petCareValidatorService;
 
     @Override
-    public PoochCareDTO book(PoochCareCreateDTO petCareCreateDTO) {
+    public BookingDTO book(BookingCreateDTO petCareCreateDTO) {
         petCareValidatorService.validateBook(petCareCreateDTO);
 
-        PoochCareDTO petCareDTO = new PoochCareDTO();
+        BookingDTO petCareDTO = new BookingDTO();
 
         ParentCreateUpdateDTO parentCreateUpdateDTO = petCareCreateDTO.getParent();
 
@@ -72,9 +72,9 @@ public class PoochCareServiceImp implements PoochCareService {
                 if (uuid == null) {
                     pooch = entityDTOMapper.mapPoochCreateDTOToPooch(petCreateDTO);
                     pooch.setParent(parent);
-                    pooch = petDAO.save(pooch);
+                    pooch = poochDAO.save(pooch);
                 } else {
-                    pooch = petDAO.getByUuid(uuid).get();
+                    pooch = poochDAO.getByUuid(uuid).get();
                 }
 
                 PoochDTO petDTO = entityDTOMapper.mapPoochToPoochDTO(pooch);
