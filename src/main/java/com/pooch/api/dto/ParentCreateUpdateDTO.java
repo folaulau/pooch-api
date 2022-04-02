@@ -8,15 +8,24 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PhoneNumberVerificationUpdateDTO implements Serializable {
+public class ParentCreateUpdateDTO implements Serializable {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
 
+    private String            uuid;
+
+    private String            fullName;
+
+    private String            email;
+
     private Integer           countryCode;
+
     private Long              phoneNumber;
-    private String            code;
+
+    // https://www.twilio.com/blog/best-practices-phone-number-validation-user-enrollment
+    private String            phoneNumberVerificationUuid;
 
 }

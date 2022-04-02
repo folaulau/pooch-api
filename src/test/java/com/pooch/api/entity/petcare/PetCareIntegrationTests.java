@@ -1,15 +1,9 @@
 package com.pooch.api.entity.petcare;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.DynamicTest.stream;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.IntStream;
-
 import javax.annotation.Resource;
 import javax.servlet.Filter;
 import javax.transaction.Transactional;
@@ -31,25 +25,20 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pooch.api.EntityGenerator;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.TestEntityGeneratorService;
 import com.pooch.api.dto.EntityDTOMapper;
-import com.pooch.api.dto.PetCareCreateDTO;
-import com.pooch.api.dto.PetCreateDTO;
-import com.pooch.api.dto.ParentUpdateDTO;
-import com.pooch.api.dto.PetParentUpdateDTO;
-import com.pooch.api.dto.GroomerUuidDTO;
+import com.pooch.api.dto.ParentCreateUpdateDTO;
+import com.pooch.api.dto.PoochCareCreateDTO;
+import com.pooch.api.dto.PoochCreateDTO;
 import com.pooch.api.dto.VaccineCreateDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentDAO;
-import com.pooch.api.entity.parent.ParentIntegrationTests;
-import com.pooch.api.entity.pet.Breed;
-import com.pooch.api.entity.pet.FoodSchedule;
-import com.pooch.api.entity.pet.Gender;
-import com.pooch.api.entity.pet.Training;
+import com.pooch.api.entity.pooch.FoodSchedule;
+import com.pooch.api.entity.pooch.Gender;
+import com.pooch.api.entity.pooch.Training;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
@@ -120,16 +109,16 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
     @Test
     void itShouldBookPetCare_valid() throws Exception {
         // Given
-        PetCareCreateDTO petCareCreateDTO = new PetCareCreateDTO();
+        PoochCareCreateDTO petCareCreateDTO = new PoochCareCreateDTO();
 
         /**
          * Pet Parent
          */
         Parent petParent = testEntityGeneratorService.getDBParent();
 
-        PetParentUpdateDTO petParentDTO = entityDTOMapper.mapPetParentToPetParentUpdateDTO(petParent);
+        ParentCreateUpdateDTO petParentDTO = entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
 
-        petCareCreateDTO.setPetParent(petParentDTO);
+        petCareCreateDTO.setParent(petParentDTO);
 
         /**
          * Pet Sitter
@@ -141,11 +130,11 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
         /**
          * Pets
          */
-        Set<PetCreateDTO> petCreateDTOs = new HashSet<>();
+        Set<PoochCreateDTO> petCreateDTOs = new HashSet<>();
         for (int i = 0; i < 3; i++) {
-            PetCreateDTO petCreateDTO = new PetCreateDTO();
+            PoochCreateDTO petCreateDTO = new PoochCreateDTO();
             petCreateDTO.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 36)));
-            petCreateDTO.setBreed(Breed.Bulldog);
+            petCreateDTO.setBreed("Bulldog");
             petCreateDTO.setFullName(RandomGeneratorUtils.getRandomFullName());
             petCreateDTO.setGender(Gender.Female);
             petCreateDTO.setSpayed(true);
@@ -158,8 +147,7 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
             petCreateDTOs.add(petCreateDTO);
         }
 
-        petCareCreateDTO.setPets(petCreateDTOs);
-
+        petCareCreateDTO.setPooches(petCreateDTOs);
         // When
 
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/petcares/book")

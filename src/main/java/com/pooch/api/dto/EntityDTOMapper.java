@@ -15,34 +15,34 @@ import org.mapstruct.ReportingPolicy;
 import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
-import com.pooch.api.entity.pet.Pet;
 import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
+import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.s3file.S3File;
 
 @Mapper(componentModel = "spring", nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EntityDTOMapper {
 
-	Pet mapPetCreateDTOToPet(PetCreateDTO petCreateDTO);
+	Pooch mapPoochCreateDTOToPooch(PoochCreateDTO poochCreateDTO);
 
-	PetDTO mapPetToPetDTO(Pet pet);
+	PoochDTO mapPoochToPoochDTO(Pooch pooch);
 
 	@Mappings({ @Mapping(target = "uuid", ignore = true) })
-	Pet patchPet(PetCreateDTO petCreateDTO, @MappingTarget Pet pet);
+	Pooch patchPet(PoochCreateDTO petCreateDTO, @MappingTarget Pooch pet);
 
 	PhoneNumberVerificationDTO mapPhoneNumberVerificationToPhoneNumberVerificationDTO(
 			PhoneNumberVerification phoneNumberVerification);
 
-	PetParentUpdateDTO mapPetParentToPetParentUpdateDTO(Parent petParent);
+	ParentCreateUpdateDTO mapParentToParentCreateUpdateDTO(Parent petParent);
 
 	GroomerUuidDTO mapGroomerToGroomerUuidDTO(Groomer groomer);
 
 	@Mappings({ @Mapping(target = "uuid", ignore = true) })
-	Parent mapPetParentUpdateDTOToPetParent(PetParentUpdateDTO petParentUpdateDTO);
+	Parent mapNewUpdateDTOToParent(ParentCreateUpdateDTO petParentUpdateDTO);
 
 	@Mappings({ @Mapping(target = "uuid", ignore = true) })
-	void patchPetParentWithPetParentUpdateDTO(PetParentUpdateDTO petParentUpdateDTO, @MappingTarget Parent petParent);
+	void patchParentWithNewParentUpdateDTO(ParentCreateUpdateDTO parentCreateUpdateDTO, @MappingTarget Parent petParent);
 
-	PetParentDTO mapPetParentToPetParentDTO(Parent petParent);
+	ParentDTO mapPetParentToPetParentDTO(Parent petParent);
 
 	GroomerDTO mapGroomerToGroomerDTO(Groomer groomer);
 

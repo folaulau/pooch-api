@@ -4,11 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.pooch.api.entity.address.Address;
-import org.apache.commons.math3.analysis.function.Add;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,11 +14,10 @@ import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerRepository;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentRepository;
-import com.pooch.api.entity.pet.Breed;
-import com.pooch.api.entity.pet.FoodSchedule;
-import com.pooch.api.entity.pet.Pet;
-import com.pooch.api.entity.pet.PetRepository;
-import com.pooch.api.entity.pet.vaccine.Vaccine;
+import com.pooch.api.entity.pooch.FoodSchedule;
+import com.pooch.api.entity.pooch.Pooch;
+import com.pooch.api.entity.pooch.PoochRepository;
+import com.pooch.api.entity.pooch.vaccine.Vaccine;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
 import com.pooch.api.utils.RandomGeneratorUtils;
@@ -32,7 +29,7 @@ public class TestEntityGeneratorService {
 
   @Autowired private ParentRepository petParentRepository;
 
-  @Autowired private PetRepository petRepository;
+  @Autowired private PoochRepository petRepository;
 
   public Groomer getDBGroomer() {
     Groomer petSitter = getGroomer();
@@ -92,19 +89,19 @@ public class TestEntityGeneratorService {
     return petParent;
   }
 
-  public Pet getDBPet(Parent petParent) {
-    Pet pet = getPet(petParent);
+  public Pooch getDBPet(Parent petParent) {
+    Pooch pet = getPet(petParent);
     return petRepository.saveAndFlush(pet);
   }
 
-  public Pet getPet() {
+  public Pooch getPet() {
     return getPet(null);
   }
 
-  public Pet getPet(Parent petParent) {
+  public Pooch getPet(Parent petParent) {
 
-    Pet pet = new Pet();
-    pet.setBreed(Breed.Bulldog);
+    Pooch pet = new Pooch();
+    pet.setBreed("Bulldog");
     pet.setParent(petParent);
     pet.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 60)));
     pet.addFoodSchedule(FoodSchedule.Morning);

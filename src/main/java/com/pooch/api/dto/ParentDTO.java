@@ -32,18 +32,26 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
-public class ParentUpdateDTO implements Serializable {
+public class ParentDTO implements Serializable {
 
-    private static final long      serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    private String                 uuid;
+    private Long              id;
 
-    private String                 fullName;
+    private String            uuid;
 
-    private String                 email;
+    private String            fullName;
 
-    private String                 phoneNumber;
+    private String            email;
 
-    private AddressCreateUpdateDTO address;
+    private Boolean           emailVerified;
+
+    private String            phoneNumber;
+
+    private Boolean           phoneNumberVerified;
+
+    private LocalDateTime     createdAt;
+
+    private LocalDateTime     lastUpdatedAt;
 
 }
