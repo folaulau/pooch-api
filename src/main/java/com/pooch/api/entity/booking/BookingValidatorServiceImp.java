@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.ApiDefaultResponseDTO;
+import com.pooch.api.dto.BookingCancelDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.PoochCreateDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
@@ -28,13 +29,16 @@ import lombok.extern.slf4j.Slf4j;
 public class BookingValidatorServiceImp implements BookingValidatorService {
 
     @Autowired
-    private GroomerDAO petSitterDAO;
+    private GroomerDAO groomerDAO;
 
     @Autowired
-    private ParentDAO  petParentDAO;
+    private ParentDAO  parentDAO;
 
     @Autowired
-    private PoochDAO   petDAO;
+    private PoochDAO   poochDAO;
+
+    @Autowired
+    private BookingDAO bookingDAO;
 
     @Override
     public void validateBook(BookingCreateDTO petCareCreateDTO) {
@@ -46,7 +50,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
 
         String parentUuid = parentCreateUpdateDTO.getUuid();
 
-        Optional<Parent> optParent = petParentDAO.getByUuid(parentUuid);
+        Optional<Parent> optParent = parentDAO.getByUuid(parentUuid);
 
         if (!optParent.isPresent()) {
             throw new ApiException(ApiError.DEFAULT_MSG, "parent not found for uuid=" + parentUuid);
@@ -76,7 +80,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
             String uuid = petCreateDTO.getUuid();
 
             if (uuid != null && !uuid.isEmpty()) {
-                Optional<Pooch> optPet = petDAO.getByUuid(uuid);
+                Optional<Pooch> optPet = poochDAO.getByUuid(uuid);
 
                 if (!optPet.isPresent()) {
                     throw new ApiException(ApiError.DEFAULT_MSG, "Pet not found for uuid=" + uuid);
@@ -90,6 +94,25 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
             }
         }
 
+    }
+
+    @Override
+    public Booking validateCancel(BookingCancelDTO bookingCancelDTO) {
+        // TODO Auto-generated method stub
+        String uuid = bookingCancelDTO.getUuid();
+        if (uuid == null) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "uuid is required");
+        }
+
+        Optional<Booking> optBooking = bookingDAO.getByUuid(uuid);
+
+        if (!optBooking.isPresent()) {
+            throw new ApiException("Booking not found", "booking not found for uuid=" + uuid);
+        }
+
+        Booking booking = optBooking.get();
+
+        return booking;
     }
 
 }

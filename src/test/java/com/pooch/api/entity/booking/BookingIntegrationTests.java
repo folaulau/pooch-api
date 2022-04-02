@@ -1,4 +1,4 @@
-package com.pooch.api.entity.petcare;
+package com.pooch.api.entity.booking;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -49,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AutoConfigureMockMvc
-public class PetCareIntegrationTests extends IntegrationTestConfiguration {
+public class BookingIntegrationTests extends IntegrationTestConfiguration {
 
     @Autowired
     private MockMvc                    mockMvc;
@@ -107,7 +107,7 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
      */
     @Transactional
     @Test
-    void itShouldBookPetCare_valid() throws Exception {
+    void itShouldMakeBooking_valid() throws Exception {
         // Given
         BookingCreateDTO petCareCreateDTO = new BookingCreateDTO();
 
@@ -150,7 +150,7 @@ public class PetCareIntegrationTests extends IntegrationTestConfiguration {
         petCareCreateDTO.setPooches(petCreateDTOs);
         // When
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/petcares/book")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/bookings/book")
                 .header("token", TEST_PETPARENT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

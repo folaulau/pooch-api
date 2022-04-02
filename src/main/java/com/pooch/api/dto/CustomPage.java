@@ -20,42 +20,32 @@ import lombok.ToString;
 @JsonInclude(value = Include.NON_NULL)
 public class CustomPage<T> implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private int page;
-	private int totalPages;
-	private long totalElements;
-	private int size;
-	private boolean last;
-	private boolean first;
-	private List<T> content;
+    private int               pageNumber;
+    private int               pageSize;
+    private int               totalPages;
+    private long              totalElements;
+    private boolean           last;
+    private boolean           first;
+    private List<T>           content;
 
-	@JsonIgnore
-	private Page<T> actualPage;
+    public CustomPage() {
+    }
 
-	public CustomPage() {
-	}
+    public CustomPage(Page<T> jpaPage) {
+        this(jpaPage.getNumber(), jpaPage.getTotalPages(), jpaPage.getTotalElements(), jpaPage.getSize(), jpaPage.isLast(), jpaPage.isFirst());
+        this.setContent(jpaPage.getContent());
+    }
 
-	public CustomPage(Page<T> jpaPage) {
-		this(jpaPage.getNumber(), jpaPage.getTotalPages(), jpaPage.getTotalElements(), jpaPage.getSize(),
-				jpaPage.isLast(), jpaPage.isFirst());
-		this.setContent(jpaPage.getContent());
-		this.actualPage = jpaPage;
-	}
+    public CustomPage(int pageNumber, int totalPages, long totalElements, int pageSize, boolean last, boolean first) {
+        super();
+        this.pageNumber = pageNumber;
+        this.totalPages = totalPages;
+        this.totalElements = totalElements;
+        this.pageSize = pageSize;
+        this.last = last;
+        this.first = first;
+    }
 
-	public CustomPage(int page, int totalPages, long totalElements, int size, boolean last, boolean first) {
-		super();
-		this.page = page;
-		this.totalPages = totalPages;
-		this.totalElements = totalElements;
-		this.size = size;
-		this.last = last;
-		this.first = first;
-	}
-
-	public void printActualPage() {
-		System.out.println(actualPage.toString());
-	}
-
-	
 }

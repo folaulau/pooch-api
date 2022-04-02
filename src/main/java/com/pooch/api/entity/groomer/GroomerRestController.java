@@ -72,27 +72,20 @@ public class GroomerRestController {
     }
 
     @Operation(summary = "Search Groomers", description = "search groomers")
-    @GetMapping(value = "/search")
-    public ResponseEntity<CustomPage<GroomerES>> search(@RequestHeader(name = "token", required = true) String token, @RequestParam(required = false, defaultValue = "0") Long pageNumber,
-            @RequestParam(required = false, defaultValue = "25") Long pageSize,
-            // @Parameter(name = "lat", description = "latitude", required = true) @RequestParam Long lat,
-            // @Parameter(name = "lon", description = "longitude", required = true) @RequestParam Long lon,
-            @RequestParam(required = false) String searchPhrase, HttpServletRequest request) {
-        log.info("search, searchPhrase={}", searchPhrase);
+    @PostMapping(value = "/search")
+    public ResponseEntity<CustomPage<GroomerES>> search(@RequestHeader(name = "token", required = true) String token, @RequestBody GroomerSearchFiltersDTO filters) {
+        log.info("search");
 
-        long lat = 0;
-        long lon = 0;
-
-        CustomPage<GroomerES> results = groomerService.search(pageNumber, pageSize, lat, lon, searchPhrase);
+        CustomPage<GroomerES> results = groomerService.search(filters);
 
         return new ResponseEntity<>(results, OK);
     }
-    
+
     @Operation(summary = "Sign Out", description = "sign out")
     @DeleteMapping(value = "/signout")
     public ResponseEntity<ApiDefaultResponseDTO> signOut(@RequestHeader(name = "token", required = true) String token) {
         log.info("signOut={}", token);
-        
+
         ApiDefaultResponseDTO result = groomerService.signOut(token);
 
         return new ResponseEntity<>(new ApiDefaultResponseDTO(ApiDefaultResponseDTO.SUCCESS), OK);

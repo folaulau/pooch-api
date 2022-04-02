@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.ParentCreateUpdateDTO;
+import com.pooch.api.dto.BookingCancelDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.BookingDTO;
 import com.pooch.api.dto.PoochCreateDTO;
@@ -40,11 +41,11 @@ public class BookingServiceImp implements BookingService {
     private PoochDAO                poochDAO;
 
     @Autowired
-    private BookingValidatorService petCareValidatorService;
+    private BookingValidatorService bookingValidatorService;
 
     @Override
     public BookingDTO book(BookingCreateDTO petCareCreateDTO) {
-        petCareValidatorService.validateBook(petCareCreateDTO);
+        bookingValidatorService.validateBook(petCareCreateDTO);
 
         BookingDTO petCareDTO = new BookingDTO();
 
@@ -96,6 +97,13 @@ public class BookingServiceImp implements BookingService {
         petCareDTO.setParent(entityDTOMapper.mapPetParentToPetParentDTO(parent));
 
         return petCareDTO;
+    }
+
+    @Override
+    public BookingDTO cancel(BookingCancelDTO bookingCancelDTO) {
+        Booking booking = bookingValidatorService.validateCancel(bookingCancelDTO);
+        
+        return null;
     }
 
 }

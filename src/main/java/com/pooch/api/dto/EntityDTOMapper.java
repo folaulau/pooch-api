@@ -3,6 +3,7 @@ package com.pooch.api.dto;
 import java.util.List;
 import java.util.Set;
 
+import com.pooch.api.elastic.repo.AddressES;
 import com.pooch.api.elastic.repo.CareServiceES;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import org.mapstruct.Mapper;
@@ -13,6 +14,7 @@ import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import com.pooch.api.elastic.repo.GroomerES;
+import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
@@ -60,4 +62,6 @@ public interface EntityDTOMapper {
 	GroomerES mapGroomerEntityToGroomerES(Groomer groomer);
 
     List<CareServiceES> mapCareServicesToCareServiceESs(Set<CareService> careServices);
+
+    AddressES mapAddressToAddressEs(Address address);
 }

@@ -225,8 +225,8 @@ public class GroomerServiceImp implements GroomerService {
     }
 
     @Override
-    public CustomPage<GroomerES> search(Long pageNumber, Long pageSize, Long lat, Long lon, String searchPhrase) {
-        return groomerESDAO.search(pageNumber, pageSize, lat, lon, searchPhrase);
+    public CustomPage<GroomerES> search(GroomerSearchFiltersDTO filters) {
+        return groomerESDAO.search(filters);
     }
 
     @Override

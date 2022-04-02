@@ -8,9 +8,11 @@ import com.pooch.api.dto.*;
 import com.pooch.api.elastic.groomer.GroomerESDAO;
 import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.elastic.repo.GroomerESRepository;
+import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
+import com.pooch.api.utils.MathUtils;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,7 @@ import javax.annotation.Resource;
 import javax.servlet.Filter;
 import javax.transaction.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -48,94 +51,151 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureMockMvc
 public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration {
 
-  @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc                    mockMvc;
 
-  @Resource private WebApplicationContext webApplicationContext;
+    @Resource
+    private WebApplicationContext      webApplicationContext;
 
-  @Autowired private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper               objectMapper;
 
-  @Autowired private Filter springSecurityFilterChain;
+    @Autowired
+    private Filter                     springSecurityFilterChain;
 
-  @MockBean private JwtTokenService jwtTokenService;
+    @MockBean
+    private JwtTokenService            jwtTokenService;
 
-  @Autowired private GroomerESRepository groomerESRepository;
+    @Autowired
+    private GroomerESRepository        groomerESRepository;
 
-  @Captor private ArgumentCaptor<String> tokenCaptor;
+    @Autowired
+    private GroomerService             groomerService;
 
-  private String GROOMER_TOKEN = "GROOMER_TOKEN";
-  private String GROOMER_UUID = "GROOMER_UUID";
+    @Captor
+    private ArgumentCaptor<String>     tokenCaptor;
 
-  @Autowired private TestEntityGeneratorService testEntityGeneratorService;
-  @Autowired private EntityDTOMapper entityDTOMapper;
+    private String                     GROOMER_TOKEN = "GROOMER_TOKEN";
+    private String                     GROOMER_UUID  = "GROOMER_UUID";
 
-  private List<GroomerES> groomers = null;
+    @Autowired
+    private TestEntityGeneratorService testEntityGeneratorService;
+    @Autowired
+    private EntityDTOMapper            entityDTOMapper;
 
-  @BeforeEach
-  public void setUp() {
-    mockMvc =
-        MockMvcBuilders.webAppContextSetup(webApplicationContext)
-            .addFilters(springSecurityFilterChain)
-            .build();
+    private List<GroomerES>            groomers      = null;
 
-    JwtPayload groomerJwtPayload = new JwtPayload();
-    groomerJwtPayload.setUuid(GROOMER_UUID);
-    groomerJwtPayload.setRole(Authority.groomer.name());
+    @BeforeEach
+    public void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).addFilters(springSecurityFilterChain).build();
 
-    Mockito.when(jwtTokenService.getPayloadByToken(GROOMER_TOKEN)).thenReturn(groomerJwtPayload);
+        JwtPayload groomerJwtPayload = new JwtPayload();
+        groomerJwtPayload.setUuid(GROOMER_UUID);
+        groomerJwtPayload.setRole(Authority.groomer.name());
 
-    groomers =
-        List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).stream()
-            .map(
-                add -> {
-                  GroomerES groomer =
-                      entityDTOMapper.mapGroomerEntityToGroomerES(
-                          testEntityGeneratorService.getGroomer());
-                  groomer.setId(RandomGeneratorUtils.getLongWithin(1000, 1000000));
-                  groomer.populateGeoPoints();
-                  return groomerESRepository.save(groomer);
-                })
-            .collect(Collectors.toList());
-  }
+        Mockito.when(jwtTokenService.getPayloadByToken(GROOMER_TOKEN)).thenReturn(groomerJwtPayload);
 
-  @Disabled
-  @Transactional
-  @Test
-  void itShouldSearch_valid() throws Exception {
-    // Given
-    // @formatter:on
-    // When
+        groomers = new ArrayList<>();
+    }
 
-    // address: 1625 Centinela Ave APT J, Santa Monica, CA 90404
-    RequestBuilder requestBuilder =
-        MockMvcRequestBuilders.get("/groomers/search")
-            .header("token", GROOMER_TOKEN)
-            .accept(MediaType.APPLICATION_JSON)
-                .queryParam("lat","34.0737122")
-                .queryParam("lon","-118.197979")
+    // @Disabled
+    @Transactional
+    @Test
+    void itShouldSearchWithFiltersRadius_valid() throws Exception {
 
-            .contentType(MediaType.APPLICATION_JSON);
+        /**
+         * Groomer #1<br>
+         * 1043 Franklin St, Santa Monica, CA 90403<br>
+         * lat: 34.043148, long: -118.4750169<br>
+         */
+        GroomerES groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
 
-    MvcResult result =
-        this.mockMvc
-            .perform(requestBuilder)
-            .andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andReturn();
+        Address address = new Address();
+        address.setCity("Santa Monica");
+        address.setState("CA");
+        address.setZipcode("90403");
+        address.setStreet("1043 Franklin St");
+        address.setLatitude(34.043148);
+        address.setLongitude(-118.4750169);
+        groomer.setAddresses(null);
+        groomer.addAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
-    String contentAsString = result.getResponse().getContentAsString();
+        groomer.setId(RandomGeneratorUtils.getLongWithin(1000, 1000000));
+        groomer.populateGeoPoints();
+        groomer = groomerESRepository.save(groomer);
+        groomers.add(groomer);
+        /**
+         * Groomer #2<br>
+         * 1116 Stanford St, Santa Monica, CA 90403<br>
+         * lat: 34.0400821, -118.475029<br>
+         */
+        groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
 
-    CustomPage<GroomerES> searchResult =
-        objectMapper.readValue(contentAsString, new TypeReference<CustomPage<GroomerES>>() {});
+        address = new Address();
+        address.setCity("Santa Monica");
+        address.setState("CA");
+        address.setZipcode("90403");
+        address.setStreet("1116 Stanford St");
+        address.setLatitude(34.0400821);
+        address.setLongitude(-118.475029);
+        groomer.setAddresses(null);
+        groomer.addAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
-    assertThat(searchResult).isNotNull();
-  }
+        groomer.setId(RandomGeneratorUtils.getLongWithin(1000, 1000000));
+        groomer.populateGeoPoints();
+        groomer = groomerESRepository.save(groomer);
+        groomers.add(groomer);
 
-  @AfterEach
-  void cleanUp() {
-    groomers.stream()
-        .forEach(
-            groomer -> {
-              groomerESRepository.deleteById(groomer.getId());
-            });
-  }
+        double distanceFromMainGroomer = MathUtils.distance(34.043148, 34.0400821, -118.4750169, -118.475029);
+        System.out.println("distanceFromMainGroomer: " + distanceFromMainGroomer);
+
+        /**
+         * Groomer #3<br>
+         * 3408 Pearl St, Santa Monica, CA 90405<br>
+         * lat: 34.0251161, -118.4517642<br>
+         */
+        groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
+
+        address = new Address();
+        address.setCity("Santa Monica");
+        address.setState("CA");
+        address.setZipcode("90405");
+        address.setStreet("3408 Pearl St");
+        address.setLatitude(34.0251161);
+        address.setLongitude(-118.4517642);
+        groomer.setAddresses(null);
+        groomer.addAddress(entityDTOMapper.mapAddressToAddressEs(address));
+
+        groomer.setId(RandomGeneratorUtils.getLongWithin(1000, 1000000));
+        groomer.populateGeoPoints();
+        groomer = groomerESRepository.save(groomer);
+        groomers.add(groomer);
+
+        distanceFromMainGroomer = MathUtils.distance(34.043148, 34.0251161, -118.4750169, -118.4517642);
+        System.out.println("distanceFromMainGroomer: " + distanceFromMainGroomer);
+
+        /**
+         * Use groomer #1 as starting point, lat: 34.043148, long: -118.4750169<br>
+         */
+        GroomerSearchFiltersDTO filters = new GroomerSearchFiltersDTO();
+        filters.setLatitude(34.043148);
+        filters.setLongtitude(-118.4750169);
+        filters.setRadius(1);
+
+        CustomPage<GroomerES> searchResult = groomerService.search(filters);
+
+        System.out.println("search result");
+        System.out.println(searchResult.toString());
+
+        assertThat(searchResult).isNotNull();
+        // groomer 1 and 2
+        assertThat(searchResult.getTotalElements()).isEqualTo(2);
+    }
+
+    @AfterEach
+    void cleanUp() {
+        groomers.stream().forEach(groomer -> {
+            groomerESRepository.deleteById(groomer.getId());
+        });
+    }
 }

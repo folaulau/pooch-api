@@ -75,8 +75,8 @@ public class Address implements Serializable {
     @Column(name = "timezone")
     private String            timezone;
 
-    @Column(name = "primary")
-    private Boolean           primary;
+    @Column(name = "primary_address")
+    private boolean           primary;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

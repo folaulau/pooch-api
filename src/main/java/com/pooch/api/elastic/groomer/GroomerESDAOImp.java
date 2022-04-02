@@ -3,6 +3,7 @@ package com.pooch.api.elastic.groomer;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.pooch.api.dto.CustomPage;
 import com.pooch.api.dto.EntityDTOMapper;
+import com.pooch.api.dto.GroomerSearchFiltersDTO;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceRepository;
 import org.apache.lucene.search.join.ScoreMode;
@@ -22,6 +23,8 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
@@ -34,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -58,12 +62,11 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
     @PostConstruct
     public void setup() {
-        // remove when ready
-//        try {
-//            restHighLevelClient.indices().delete(new DeleteIndexRequest("groomer"), RequestOptions.DEFAULT);
-//        } catch (IOException e) {
-//            log.warn("IOException with deleting groomer index. msg={}", e.getLocalizedMessage());
-//        }
+        // try {
+        // restHighLevelClient.indices().delete(new DeleteIndexRequest("groomer"), RequestOptions.DEFAULT);
+        // } catch (IOException e) {
+        // log.warn("IOException with deleting groomer index. msg={}", e.getLocalizedMessage());
+        // }
     }
 
     @Async
@@ -86,10 +89,18 @@ public class GroomerESDAOImp implements GroomerESDAO {
     }
 
     @Override
-    public CustomPage<GroomerES> search(Long pageNumber, Long pageSize, Long lat, Long lon, String searchPhrase) {
+    public CustomPage<GroomerES> search(GroomerSearchFiltersDTO filters) {
         SearchRequest searchRequest = new SearchRequest("groomer");
         searchRequest.allowPartialSearchResults(true);
         searchRequest.indicesOptions(IndicesOptions.lenientExpandOpen());
+
+        filters = populateSearchFilterDefaultValues(filters);
+
+        int pageNumber = filters.getPageNumber();
+        int pageSize = filters.getPageSize();
+        int radius = filters.getRadius();
+        double latitude = filters.getLatitude();
+        double longtitude = filters.getLongtitude();
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.from((int) (pageNumber * pageSize));
@@ -98,7 +109,7 @@ public class GroomerESDAOImp implements GroomerESDAO {
         /**
          * fetch only a few fields
          */
-        searchSourceBuilder.fetchSource(new String[]{"*"}, new String[]{"cards"});
+        searchSourceBuilder.fetchSource(new String[]{"*"}, new String[]{});
         // searchSourceBuilder.fetchSource(new FetchSourceContext(true, new String[]{"*"}, new String[]{"cards"}));
         /**
          * Query with bool
@@ -111,7 +122,7 @@ public class GroomerESDAOImp implements GroomerESDAO {
          * The geo_distance filter can work with multiple locations / points per document. Once a single location /
          * point matches the filter, the document will be included in the filter.<br>
          */
-        boolQuery.filter(QueryBuilders.geoDistanceQuery("addresses.location").point(40.414897, -111.881186).distance(1, DistanceUnit.MILES).geoDistance(GeoDistance.ARC));
+        boolQuery.filter(QueryBuilders.geoDistanceQuery("addresses.location").point(latitude, longtitude).distance(radius, DistanceUnit.MILES).geoDistance(GeoDistance.ARC));
 
         searchSourceBuilder.query(QueryBuilders.nestedQuery("addresses", boolQuery, ScoreMode.None));
 
@@ -125,12 +136,17 @@ public class GroomerESDAOImp implements GroomerESDAO {
             log.info("\n{\n\"query\":{}\n}", searchSourceBuilder.query().toString());
         }
 
+        SearchResponse searchResponse = null;
+        List<GroomerES> groomers = Arrays.asList();
+        long totalHits = 0;
+
         try {
-            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
 
-            log.info("isTimedOut={}, totalShards={}, totalHits={}", searchResponse.isTimedOut(), searchResponse.getTotalShards(), searchResponse.getHits().getTotalHits().value);
+            totalHits = searchResponse.getHits().getTotalHits().value;
+            log.info("isTimedOut={}, totalShards={}, totalHits={}", searchResponse.isTimedOut(), searchResponse.getTotalShards(), totalHits);
 
-            List<GroomerES> groomers = getResponseResult(searchResponse.getHits());
+            groomers = getResponseResult(searchResponse.getHits());
 
             log.info("groomers={}", ObjectUtils.toJson(groomers));
 
@@ -142,7 +158,24 @@ public class GroomerESDAOImp implements GroomerESDAO {
             e.printStackTrace();
         }
 
-        return null;
+        return new CustomPage<>(new PageImpl<>(groomers, PageRequest.of(pageNumber, pageSize), totalHits));
+    }
+
+    private GroomerSearchFiltersDTO populateSearchFilterDefaultValues(GroomerSearchFiltersDTO filters) {
+
+        if (filters.getPageNumber() == null) {
+            filters.setPageNumber(0);
+        }
+
+        if (filters.getPageSize() == null) {
+            filters.setPageSize(25);
+        }
+
+        if (filters.getRadius() == null) {
+            filters.setRadius(5);
+        }
+
+        return filters;
     }
 
     private List<GroomerES> getResponseResult(SearchHits searchHits) {

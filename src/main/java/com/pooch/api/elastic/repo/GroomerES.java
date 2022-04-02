@@ -2,6 +2,8 @@ package com.pooch.api.elastic.repo;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
@@ -26,67 +28,91 @@ import lombok.NoArgsConstructor;
 @Document(indexName = "groomer")
 public class GroomerES implements Serializable {
 
-  private static final long serialVersionUID = 1L;
+    private static final long   serialVersionUID = 1L;
 
-  @Id private Long id;
+    @Id
+    private Long                id;
 
-  @Field private String uuid;
+    @Field
+    private String              uuid;
 
-  @Field private String firstName;
+    @Field
+    private String              firstName;
 
-  @Field private String lastName;
+    @Field
+    private String              lastName;
 
-  @Field private String businessName;
+    @Field
+    private String              businessName;
 
-  @Field private String email;
+    @Field
+    private String              email;
 
-  @Field private Boolean emailVerified;
+    @Field
+    private Boolean             emailVerified;
 
-  @Field private boolean emailTemp;
+    @Field
+    private boolean             emailTemp;
 
-  @Field private Long phoneNumber;
+    @Field
+    private Long                phoneNumber;
 
-  @Field private Boolean phoneNumberVerified;
+    @Field
+    private Boolean             phoneNumberVerified;
 
-  @Field private Double rating;
+    @Field
+    private Double              rating;
 
-  @Field private Boolean offeredPickUp;
+    @Field
+    private Boolean             offeredPickUp;
 
-  @Field private Boolean offeredDropOff;
+    @Field
+    private Boolean             offeredDropOff;
 
-  @Field private Double chargePerMile;
+    @Field
+    private Double              chargePerMile;
 
-  @Field private Long numberOfOcupancy;
+    @Field
+    private Long                numberOfOcupancy;
 
-  @Field private String description;
+    @Field
+    private String              description;
 
-  @Field private Boolean instantBooking;
+    @Field
+    private Boolean             instantBooking;
 
-  /** address */
+    /** address */
 
-  /** address */
-  @Field(type = FieldType.Nested)
-  private List<AddressES> addresses;
+    /** address */
+    @Field(type = FieldType.Nested)
+    private List<AddressES>     addresses;
 
-  @Field(type = FieldType.Nested)
-  private List<CareServiceES> careServices;
+    @Field(type = FieldType.Nested)
+    private List<CareServiceES> careServices;
 
-  @Field private boolean deleted;
+    @Field
+    private boolean             deleted;
 
-  @Field(format = DateFormat.basic_date_time)
-  private LocalDateTime createdAt;
+    @Field(format = DateFormat.basic_date_time)
+    private LocalDateTime       createdAt;
 
-  @Field(format = DateFormat.basic_date_time)
-  private LocalDateTime updatedAt;
+    @Field(format = DateFormat.basic_date_time)
+    private LocalDateTime       updatedAt;
 
-  public void populateGeoPoints() {
-    if (addresses == null || addresses.size() == 0) {
-      return;
+    public void populateGeoPoints() {
+        if (addresses == null || addresses.size() == 0) {
+            return;
+        }
+
+        addresses.forEach(address -> {
+            address.populateGeoPoint();
+        });
     }
 
-    addresses.forEach(
-        address -> {
-          address.populateGeoPoint();
-        });
-  }
+    public void addAddress(AddressES address) {
+        if (this.addresses == null) {
+            this.addresses = new ArrayList<>();
+        }
+        this.addresses.add(address);
+    }
 }
