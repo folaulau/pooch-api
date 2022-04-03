@@ -5,7 +5,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
@@ -114,5 +118,20 @@ public class GroomerES implements Serializable {
             this.addresses = new ArrayList<>();
         }
         this.addresses.add(address);
+    }
+
+    public void filterOutUnreachableLocations(GeoPoint searchLocation, int radius) {
+        if (this.addresses != null) {
+            this.addresses = this.addresses.stream().filter(address -> {
+
+                Double distanceFromSearch = address.calculateDistanceFromSearch(searchLocation);
+
+                if (distanceFromSearch == null || distanceFromSearch < 0 || distanceFromSearch < radius) {
+                    return true;
+                }
+
+                return false;
+            }).collect(Collectors.toList());
+        }
     }
 }

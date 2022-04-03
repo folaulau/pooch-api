@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
@@ -146,7 +147,7 @@ public class GroomerESDAOImp implements GroomerESDAO {
             totalHits = searchResponse.getHits().getTotalHits().value;
             log.info("isTimedOut={}, totalShards={}, totalHits={}", searchResponse.isTimedOut(), searchResponse.getTotalShards(), totalHits);
 
-            groomers = getResponseResult(searchResponse.getHits());
+            groomers = getResponseResult(searchResponse.getHits(), new GeoPoint(latitude, longtitude), radius);
 
             log.info("groomers={}", ObjectUtils.toJson(groomers));
 
@@ -178,7 +179,7 @@ public class GroomerESDAOImp implements GroomerESDAO {
         return filters;
     }
 
-    private List<GroomerES> getResponseResult(SearchHits searchHits) {
+    private List<GroomerES> getResponseResult(SearchHits searchHits, GeoPoint searchLocation, int radius) {
 
         Iterator<SearchHit> it = searchHits.iterator();
 
@@ -191,6 +192,8 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
                 GroomerES obj = ObjectUtils.getObjectMapper().readValue(searchHit.getSourceAsString(), new TypeReference<GroomerES>() {});
                 // log.info("obj={}", ObjectUtils.toJson(obj));
+
+                obj.filterOutUnreachableLocations(searchLocation, radius);
 
                 searchResults.add(obj);
             } catch (IOException e) {
