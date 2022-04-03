@@ -101,7 +101,7 @@ public class GroomerServiceImp implements GroomerService {
 
                     Optional<Groomer> optEmailGroomer = groomerDAO.getByEmail(email);
                     if (optEmailGroomer.isPresent()) {
-                        throw new ApiException("Email taken", "an account has this email already","Please use one email per account");
+                        throw new ApiException("Email taken", "an account has this email already", "Please use one email per account");
                     }
                 } else {
                     // temp email as placeholder
@@ -109,9 +109,9 @@ public class GroomerServiceImp implements GroomerService {
                     groomer.setEmailTemp(true);
                 }
             }
-            
+
             groomer.setEmail(email);
-            
+
             Long phoneNumber = null;
 
             try {
@@ -121,7 +121,7 @@ public class GroomerServiceImp implements GroomerService {
             }
 
             groomer.setPhoneNumber(phoneNumber);
-            
+
             log.info("groomer={}", ObjectUtils.toJson(groomer));
 
             groomer = groomerDAO.save(groomer);
@@ -226,6 +226,7 @@ public class GroomerServiceImp implements GroomerService {
 
     @Override
     public CustomPage<GroomerES> search(GroomerSearchFiltersDTO filters) {
+        groomerValidatorService.validateSearch(filters);
         return groomerESDAO.search(filters);
     }
 

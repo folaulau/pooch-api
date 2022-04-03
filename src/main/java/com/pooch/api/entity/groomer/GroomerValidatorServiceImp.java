@@ -1,5 +1,7 @@
 package com.pooch.api.entity.groomer;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.pooch.api.dto.GroomerSearchFiltersDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.exception.ApiError;
@@ -66,6 +69,20 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
         FileValidatorUtils.validateUploadContracts(images);
 
         return optParent.get();
+    }
+
+    @Override
+    public void validateSearch(GroomerSearchFiltersDTO filters) {
+        List<String> sorts = filters.getSorts();
+
+        if (sorts != null && sorts.size() > 0) {
+            for (String sort : sorts) {
+                if (!GroomerDAO.validSortValues.contains(sort)) {
+                    throw new ApiException(ApiError.DEFAULT_MSG, "sort not found, " + sort, "valid values: " + GroomerDAO.validSortValues.toString());
+                }
+            }
+        }
+
     }
 
 }

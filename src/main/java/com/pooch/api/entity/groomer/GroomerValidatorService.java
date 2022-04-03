@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.pooch.api.dto.GroomerSearchFiltersDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
 
 public interface GroomerValidatorService {
@@ -13,4 +14,6 @@ public interface GroomerValidatorService {
     Groomer validateUploadProfileImages(String uuid, List<MultipartFile> images);
 
     Groomer validateUploadContracts(String uuid, List<MultipartFile> images);
+
+    void validateSearch(GroomerSearchFiltersDTO filters);
 }

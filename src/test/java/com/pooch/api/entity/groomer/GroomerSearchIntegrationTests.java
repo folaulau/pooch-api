@@ -179,8 +179,103 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
          */
         GroomerSearchFiltersDTO filters = new GroomerSearchFiltersDTO();
         filters.setLatitude(34.043148);
-        filters.setLongtitude(-118.4750169);
+        filters.setLongitude(-118.4750169);
         filters.setRadius(1);
+
+        CustomPage<GroomerES> searchResult = groomerService.search(filters);
+
+        System.out.println("search result");
+        System.out.println(searchResult.toString());
+
+        assertThat(searchResult).isNotNull();
+        // groomer 1 and 2
+        assertThat(searchResult.getTotalElements()).isEqualTo(2);
+    }
+
+    @Transactional
+    @Test
+    void itShouldSearchWithFiltersRadiusAndDistance_valid() throws Exception {
+
+        /**
+         * Groomer #1<br>
+         * 1043 Franklin St, Santa Monica, CA 90403<br>
+         * lat: 34.043148, long: -118.4750169<br>
+         */
+        GroomerES groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
+
+        Address address = new Address();
+        address.setCity("Santa Monica");
+        address.setState("CA");
+        address.setZipcode("90403");
+        address.setStreet("1043 Franklin St");
+        address.setLatitude(34.043148);
+        address.setLongitude(-118.4750169);
+        groomer.setAddresses(null);
+        groomer.addAddress(entityDTOMapper.mapAddressToAddressEs(address));
+
+        groomer.setId(RandomGeneratorUtils.getLongWithin(1000, 1000000));
+        groomer.populateGeoPoints();
+        groomer = groomerESRepository.save(groomer);
+        groomers.add(groomer);
+        /**
+         * Groomer #2<br>
+         * 1116 Stanford St, Santa Monica, CA 90403<br>
+         * lat: 34.0400821, -118.475029<br>
+         */
+        groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
+
+        address = new Address();
+        address.setCity("Santa Monica");
+        address.setState("CA");
+        address.setZipcode("90403");
+        address.setStreet("1116 Stanford St");
+        address.setLatitude(34.0400821);
+        address.setLongitude(-118.475029);
+        groomer.setAddresses(null);
+        groomer.addAddress(entityDTOMapper.mapAddressToAddressEs(address));
+
+        groomer.setId(RandomGeneratorUtils.getLongWithin(1000, 1000000));
+        groomer.populateGeoPoints();
+        groomer = groomerESRepository.save(groomer);
+        groomers.add(groomer);
+
+        double distanceFromMainGroomer = MathUtils.distance(34.043148, 34.0400821, -118.4750169, -118.475029);
+        System.out.println("distanceFromMainGroomer: " + distanceFromMainGroomer);
+
+        /**
+         * Groomer #3<br>
+         * 3408 Pearl St, Santa Monica, CA 90405<br>
+         * lat: 34.0251161, -118.4517642<br>
+         */
+        groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
+
+        address = new Address();
+        address.setCity("Santa Monica");
+        address.setState("CA");
+        address.setZipcode("90405");
+        address.setStreet("3408 Pearl St");
+        address.setLatitude(34.0251161);
+        address.setLongitude(-118.4517642);
+        groomer.setAddresses(null);
+        groomer.addAddress(entityDTOMapper.mapAddressToAddressEs(address));
+
+        groomer.setId(RandomGeneratorUtils.getLongWithin(1000, 1000000));
+        groomer.populateGeoPoints();
+        groomer = groomerESRepository.save(groomer);
+        groomers.add(groomer);
+
+        distanceFromMainGroomer = MathUtils.distance(34.043148, 34.0251161, -118.4750169, -118.4517642);
+        System.out.println("distanceFromMainGroomer: " + distanceFromMainGroomer);
+
+        /**
+         * Use groomer #1 as starting point, lat: 34.043148, long: -118.4750169<br>
+         */
+        GroomerSearchFiltersDTO filters = new GroomerSearchFiltersDTO();
+        filters.setLatitude(34.043148);
+        filters.setLongitude(-118.4750169);
+        filters.setRadius(1);
+        filters.addSort(GroomerDAO.validSortValues.get(1));
+        filters.addSort(GroomerDAO.validSortValues.get(0));
 
         CustomPage<GroomerES> searchResult = groomerService.search(filters);
 

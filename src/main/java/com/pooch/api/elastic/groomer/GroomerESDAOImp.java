@@ -4,8 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.pooch.api.dto.CustomPage;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.GroomerSearchFiltersDTO;
+import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceRepository;
+import com.pooch.api.exception.ApiError;
+import com.pooch.api.exception.ApiException;
+
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
@@ -21,6 +25,11 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.GeoDistanceSortBuilder;
+import org.elasticsearch.search.sort.NestedSortBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageImpl;
@@ -101,7 +110,7 @@ public class GroomerESDAOImp implements GroomerESDAO {
         int pageSize = filters.getPageSize();
         int radius = filters.getRadius();
         double latitude = filters.getLatitude();
-        double longtitude = filters.getLongtitude();
+        double longitude = filters.getLongitude();
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.from((int) (pageNumber * pageSize));
@@ -113,22 +122,32 @@ public class GroomerESDAOImp implements GroomerESDAO {
         searchSourceBuilder.fetchSource(new String[]{"*"}, new String[]{});
         // searchSourceBuilder.fetchSource(new FetchSourceContext(true, new String[]{"*"}, new String[]{"cards"}));
         /**
-         * Query with bool
+         * Filter
          */
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
-        /**
-         * Lehi skate park: 40.414897, -111.881186<br>
-         * get locations/addresses close to skate park(from a radius).<br>
-         * The geo_distance filter can work with multiple locations / points per document. Once a single location /
-         * point matches the filter, the document will be included in the filter.<br>
-         */
-        boolQuery.filter(QueryBuilders.geoDistanceQuery("addresses.location").point(latitude, longtitude).distance(radius, DistanceUnit.MILES).geoDistance(GeoDistance.ARC));
+        boolQuery.filter(QueryBuilders.geoDistanceQuery("addresses.location").point(latitude, longitude).distance(radius, DistanceUnit.MILES).geoDistance(GeoDistance.ARC));
 
         searchSourceBuilder.query(QueryBuilders.nestedQuery("addresses", boolQuery, ScoreMode.None));
 
-        searchRequest.source(searchSourceBuilder);
+        String searchPhrase = filters.getSearchPhrase();
 
+        /**
+         * Sorting
+         */
+
+        filters.getSorts().stream().forEach(sorting -> {
+            // distance
+            if (sorting.endsWith(GroomerDAO.validSortValues.get(0))) {
+                addGeoLocationSorting(searchSourceBuilder, latitude, longitude, radius);
+
+                // rating
+            } else if (sorting.endsWith(GroomerDAO.validSortValues.get(1))) {
+                addRatingSorting(searchSourceBuilder);
+            }
+        });
+
+        searchRequest.source(searchSourceBuilder);
         searchRequest.preference("nested-address");
 
         if (searchSourceBuilder.sorts() != null && searchSourceBuilder.sorts().size() > 0) {
@@ -147,7 +166,7 @@ public class GroomerESDAOImp implements GroomerESDAO {
             totalHits = searchResponse.getHits().getTotalHits().value;
             log.info("isTimedOut={}, totalShards={}, totalHits={}", searchResponse.isTimedOut(), searchResponse.getTotalShards(), totalHits);
 
-            groomers = getResponseResult(searchResponse.getHits(), new GeoPoint(latitude, longtitude), radius);
+            groomers = getResponseResult(searchResponse.getHits(), new GeoPoint(latitude, longitude), radius);
 
             log.info("groomers={}", ObjectUtils.toJson(groomers));
 
@@ -162,6 +181,15 @@ public class GroomerESDAOImp implements GroomerESDAO {
         return new CustomPage<>(new PageImpl<>(groomers, PageRequest.of(pageNumber, pageSize), totalHits));
     }
 
+    private void addGeoLocationSorting(SearchSourceBuilder searchSourceBuilder, Double lat, Double lon, int radius) {
+        searchSourceBuilder.sort(new GeoDistanceSortBuilder("addresses.location", lat, lon).order(SortOrder.ASC)
+                .setNestedSort(new NestedSortBuilder("addresses").setFilter(QueryBuilders.geoDistanceQuery("addresses.location").point(lat, lon).distance(radius, DistanceUnit.MILES))));
+    }
+
+    private void addRatingSorting(SearchSourceBuilder searchSourceBuilder) {
+        searchSourceBuilder.sort(new FieldSortBuilder("rating").order(SortOrder.DESC));
+    }
+
     private GroomerSearchFiltersDTO populateSearchFilterDefaultValues(GroomerSearchFiltersDTO filters) {
 
         if (filters.getPageNumber() == null) {
@@ -174,6 +202,26 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
         if (filters.getRadius() == null) {
             filters.setRadius(5);
+        }
+
+        /**
+         * https://www.zillow.com/homedetails/2401-Ocean-Front-Walk-Venice-CA-90291/20443655_zpid/<br>
+         * lat: 33.982635, lon: -118.469807
+         */
+
+        Double latitude = filters.getLatitude();
+        Double longitude = filters.getLongitude();
+
+        /**
+         * for MVP, users might not allow their geo location to be had, use venice beach
+         */
+        if (latitude == null || longitude == null) {
+            filters.setLatitude(33.982635);
+            filters.setLongitude(-118.469807);
+        }
+
+        if (filters.getSorts() == null || filters.getSorts().size() == 0) {
+            filters.setSorts(Arrays.asList(GroomerDAO.validSortValues.get(0)));
         }
 
         return filters;

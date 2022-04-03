@@ -71,7 +71,8 @@ public class GroomerRestController {
         return new ResponseEntity<>(s3FileDTOs, OK);
     }
 
-    @Operation(summary = "Search Groomers", description = "search groomers")
+    @Operation(summary = "Search Groomers", description = "search groomers<br>" + "radius is in mile. default to 5 miles<br>" + "pageNumber starts at 0 as the first page<br>"
+            + "pageSize is 25 by default<br>" + "sorts valid values[distance,rating,searchPhrase]<br>")
     @PostMapping(value = "/search")
     public ResponseEntity<CustomPage<GroomerES>> search(@RequestHeader(name = "token", required = true) String token, @RequestBody GroomerSearchFiltersDTO filters) {
         log.info("search");
