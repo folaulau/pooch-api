@@ -72,11 +72,11 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
     @PostConstruct
     public void setup() {
-        // try {
-        // restHighLevelClient.indices().delete(new DeleteIndexRequest("groomer"), RequestOptions.DEFAULT);
-        // } catch (IOException e) {
-        // log.warn("IOException with deleting groomer index. msg={}", e.getLocalizedMessage());
-        // }
+        try {
+            restHighLevelClient.indices().delete(new DeleteIndexRequest("groomer"), RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            log.warn("IOException with deleting groomer index. msg={}", e.getLocalizedMessage());
+        }
     }
 
     @Async
