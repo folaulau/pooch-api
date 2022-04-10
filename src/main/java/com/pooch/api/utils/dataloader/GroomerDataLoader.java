@@ -52,53 +52,58 @@ public class GroomerDataLoader implements ApplicationRunner {
             return;
         }
 
-        Groomer groomer = null;
-        Address address = null;
-        CareService service = null;
+        try {
 
-        for (int i = 0; i < lastGroomerId; i++) {
-            groomer = generatorService.getGroomer();
-            groomer.setId((long) (i + 1));
-            groomer.setAddresses(null);
-            address = generatorService.getAddress();
-            address.setId((long) (i + 1));
-            groomer.addAddress(address);
+            Groomer groomer = null;
+            Address address = null;
+            CareService service = null;
 
-            log.info("groomer#={}, {}", (i + 1), ObjectUtils.toJson(groomer));
+            for (int i = 0; i < lastGroomerId; i++) {
+                groomer = generatorService.getGroomer();
+                groomer.setId((long) (i + 1));
+                groomer.setAddresses(null);
+                address = generatorService.getAddress();
+                address.setId((long) (i + 1));
+                groomer.addAddress(address);
 
-            Groomer savedGroomer = groomerDAO.save(groomer);
+                log.info("groomer#={}, {}", (i + 1), ObjectUtils.toJson(groomer));
 
-            List<String> services = Arrays.asList("Dog Daycare", "Grooming", "Overnight", "Nail Clipping");
+                Groomer savedGroomer = groomerDAO.save(groomer);
 
-            int j = 1;
-            if (i != 0) {
-                j = i * 4;
+                List<String> services = Arrays.asList("Dog Daycare", "Grooming", "Overnight", "Nail Clipping");
+
+                int j = 1;
+                if (i != 0) {
+                    j = i * 4;
+                }
+
+                List<CareService> careServices = new ArrayList<>();
+
+                for (int k = 0; k < services.size(); j++, k++) {
+                    String name = services.get(k);
+
+                    service = new CareService();
+                    service.setId((long) (i + j));
+                    service.setName(name);
+                    service.setServiceSmall(true);
+                    service.setSmallPrice((double) RandomGeneratorUtils.getIntegerWithin(10, 40));
+                    service.setServiceMedium(true);
+                    service.setMediumPrice((double) RandomGeneratorUtils.getIntegerWithin(40, 80));
+                    service.setServiceLarge(true);
+                    service.setLargePrice((double) RandomGeneratorUtils.getIntegerWithin(80, 120));
+                    service.setDescription("random text");
+                    service.setGroomer(savedGroomer);
+
+                    careServices.add(service);
+                }
+
+                careServiceRepository.saveAll(careServices);
+
+                log.info("done with groomer#", (i + 1));
+
             }
-
-            List<CareService> careServices = new ArrayList<>();
-
-            for (int k = 0; k < services.size(); j++, k++) {
-                String name = services.get(k);
-
-                service = new CareService();
-                service.setId((long) (i + j));
-                service.setName(name);
-                service.setServiceSmall(true);
-                service.setSmallPrice((double) RandomGeneratorUtils.getIntegerWithin(10, 40));
-                service.setServiceMedium(true);
-                service.setMediumPrice((double) RandomGeneratorUtils.getIntegerWithin(40, 80));
-                service.setServiceLarge(true);
-                service.setLargePrice((double) RandomGeneratorUtils.getIntegerWithin(80, 120));
-                service.setDescription("random text");
-                service.setGroomer(savedGroomer);
-
-                careServices.add(service);
-            }
-
-            careServiceRepository.saveAll(careServices);
-
-            log.info("done with groomer#", (i + 1));
-
+        } catch (Exception e) {
+            log.warn("Exception, msg={}", e.getLocalizedMessage());
         }
 
     }
