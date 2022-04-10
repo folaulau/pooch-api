@@ -17,6 +17,7 @@ import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.groomer.GroomerRepository;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceRepository;
+import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
 
@@ -51,12 +52,19 @@ public class GroomerDataLoader implements ApplicationRunner {
             return;
         }
 
+        Groomer groomer = null;
+        Address address = null;
+        CareService service = null;
+
         for (int i = 0; i < lastGroomerId; i++) {
-            Groomer groomer = generatorService.getDBGroomer();
+            groomer = generatorService.getGroomer();
             groomer.setId((long) (i + 1));
             groomer.setAddresses(null);
-            Address address = generatorService.getAddress();
+            address = generatorService.getAddress();
             address.setId((long) (i + 1));
+            groomer.addAddress(address);
+
+            log.info("groomer#={}, {}", (i + 1), ObjectUtils.toJson(groomer));
 
             Groomer savedGroomer = groomerDAO.save(groomer);
 
@@ -72,7 +80,7 @@ public class GroomerDataLoader implements ApplicationRunner {
             for (int k = 0; k < services.size(); j++, k++) {
                 String name = services.get(k);
 
-                CareService service = new CareService();
+                service = new CareService();
                 service.setId((long) (i + j));
                 service.setName(name);
                 service.setServiceSmall(true);
@@ -88,6 +96,8 @@ public class GroomerDataLoader implements ApplicationRunner {
             }
 
             careServiceRepository.saveAll(careServices);
+
+            log.info("done with groomer#", (i + 1));
 
         }
 

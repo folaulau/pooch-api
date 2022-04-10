@@ -53,7 +53,7 @@ public class DataLoadServiceImp implements DataLoadService {
 
             for (Groomer groomer : groomers) {
                 GroomerES groomerES = entityDTOMapper.mapGroomerEntityToGroomerES(groomer);
-
+                groomerES.populateGeoPoints();
                 try {
                     Set<CareService> careServices = careServiceRepository.findByGroomerId(groomerES.getId());
                     groomerES.setCareServices(entityDTOMapper.mapCareServicesToCareServiceESs(careServices));

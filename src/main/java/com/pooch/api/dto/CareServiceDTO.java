@@ -33,15 +33,21 @@ public class CareServiceDTO implements Serializable {
      */
     private Double            smallPrice;
 
+    private boolean           serviceSmall;
+
     /**
      * 21-40LB
      */
     private Double            mediumPrice;
 
+    private boolean           serviceMedium;
+
     /**
      * 41LB +
      */
     private Double            largePrice;
+
+    private boolean           serviceLarge;
 
     private LocalDateTime     createdAt;
 
