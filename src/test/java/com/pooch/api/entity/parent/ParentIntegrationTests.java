@@ -35,7 +35,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.pooch.api.IntegrationTestConfiguration;
-import com.pooch.api.TestEntityGeneratorService;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.GroomerDTO;
@@ -50,6 +49,7 @@ import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
+import com.pooch.api.utils.TestEntityGeneratorService;
 
 import lombok.extern.slf4j.Slf4j;
 

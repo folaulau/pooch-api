@@ -16,7 +16,7 @@ public final class EntityGenerator {
         petSitter.setEmail((firstName + "" + lastName).toLowerCase() + "@gmail.com");
         petSitter.setEmailVerified(false);
 
-        petSitter.setNumberOfOcupancy(RandomGeneratorUtils.getLongWithin(2L, 100L));
+        petSitter.setNumberOfOccupancy(RandomGeneratorUtils.getLongWithin(2L, 100L));
         petSitter.setChargePerMile(RandomGeneratorUtils.getDoubleWithin(1D, 3D));
         petSitter.setOfferedDropOff(true);
         petSitter.setOfferedPickUp(true);

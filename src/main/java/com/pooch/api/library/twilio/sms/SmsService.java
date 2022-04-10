@@ -1,4 +1,4 @@
-package com.pooch.api.sms;
+package com.pooch.api.library.twilio.sms;
 
 public interface SmsService {
 

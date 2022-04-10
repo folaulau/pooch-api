@@ -34,7 +34,7 @@ import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.PhoneNumberVerificationCreateDTO;
 import com.pooch.api.dto.PhoneNumberVerificationDTO;
 import com.pooch.api.dto.PhoneNumberVerificationUpdateDTO;
-import com.pooch.api.sms.SmsService;
+import com.pooch.api.library.twilio.sms.SmsService;
 import com.pooch.api.utils.ObjectUtils;
 
 import lombok.extern.slf4j.Slf4j;

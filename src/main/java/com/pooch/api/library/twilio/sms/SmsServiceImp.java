@@ -1,4 +1,4 @@
-package com.pooch.api.sms;
+package com.pooch.api.library.twilio.sms;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

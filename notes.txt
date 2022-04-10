@@ -16,3 +16,8 @@ END $$;
 docker pull docker.elastic.co/elasticsearch/elasticsearch:8.1.1
 
 https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html/#repositories
+
+
+
+Booking research
+https://www.youtube.com/watch?v=YyOXt2MEkv4

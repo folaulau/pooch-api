@@ -3,7 +3,6 @@ package com.pooch.api.entity.groomer;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pooch.api.IntegrationTestConfiguration;
-import com.pooch.api.TestEntityGeneratorService;
 import com.pooch.api.dto.*;
 import com.pooch.api.elastic.groomer.GroomerESDAO;
 import com.pooch.api.elastic.repo.GroomerES;
@@ -15,6 +14,8 @@ import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.MathUtils;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
+import com.pooch.api.utils.TestEntityGeneratorService;
+
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

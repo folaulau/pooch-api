@@ -114,8 +114,8 @@ public class Groomer implements Serializable {
     @Column(name = "charge_per_mile")
     private Double            chargePerMile;
 
-    @Column(name = "number_of_ocupancy")
-    private Long              numberOfOcupancy;
+    @Column(name = "number_of_occupancy")
+    private Long              numberOfOccupancy;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")

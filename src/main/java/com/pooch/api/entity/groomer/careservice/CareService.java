@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
@@ -22,6 +23,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
@@ -68,17 +70,31 @@ public class CareService implements Serializable {
     @Column(name = "small_price")
     private Double            smallPrice;
 
+    @Column(name = "service_small")
+    private boolean           serviceSmall;
+
     /**
      * 21-40LB
      */
     @Column(name = "medium_price")
     private Double            mediumPrice;
 
+    @Column(name = "service_medium")
+    private boolean           serviceMedium;
+
     /**
      * 41LB +
      */
     @Column(name = "large_price")
     private Double            largePrice;
+
+    @Column(name = "service_large")
+    private boolean           serviceLarge;
+
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
+    @Column(name = "description")
+    private String            description;
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "groomer_id")
@@ -94,7 +110,7 @@ public class CareService implements Serializable {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime     updatedAt;
-    
+
     @PrePersist
     private void preCreate() {
         if (this.uuid == null || this.uuid.isEmpty()) {

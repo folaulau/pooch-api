@@ -77,7 +77,7 @@ public class GroomerES implements Serializable {
     private Double              chargePerMile;
 
     @Field
-    private Long                numberOfOcupancy;
+    private Long                numberOfOccupancy;
 
     @Field
     private String              description;
@@ -93,6 +93,9 @@ public class GroomerES implements Serializable {
 
     @Field(type = FieldType.Nested)
     private List<CareServiceES> careServices;
+
+    @Field(type = FieldType.Nested)
+    private List<CalendarES>    calendar;
 
     @Field
     private boolean             deleted;
