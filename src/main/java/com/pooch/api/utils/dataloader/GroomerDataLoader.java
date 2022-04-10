@@ -66,7 +66,7 @@ public class GroomerDataLoader implements ApplicationRunner {
 
             log.info("groomer#={}, {}", (i + 1), ObjectUtils.toJson(groomer));
 
-            Groomer savedGroomer = groomerDAO.save(groomer);
+            Groomer savedGroomer = groomerRepository.save(groomer);
 
             List<String> services = Arrays.asList("Dog Daycare", "Grooming", "Overnight", "Nail Clipping");
 

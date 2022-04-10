@@ -299,7 +299,7 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
     @AfterEach
     void cleanUp() {
         groomers.stream().forEach(groomer -> {
-//            groomerESRepository.deleteById(groomer.getId());
+            groomerESRepository.deleteById(groomer.getId());
         });
     }
 }

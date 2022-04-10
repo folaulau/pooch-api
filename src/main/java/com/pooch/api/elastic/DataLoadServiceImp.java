@@ -40,6 +40,11 @@ public class DataLoadServiceImp implements DataLoadService {
     @Override
     public ApiDefaultResponseDTO loadGroomers() {
 
+        try {
+            groomerESRepository.deleteAll();
+        } catch (Exception e) {
+        }
+
         int pageNumber = 0;
         int pageSize = 50;
         Pageable page = PageRequest.of(pageNumber, pageSize);
