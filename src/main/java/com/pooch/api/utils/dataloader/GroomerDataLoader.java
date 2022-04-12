@@ -43,7 +43,7 @@ public class GroomerDataLoader implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        long lastGroomerId = 10;
+        long lastGroomerId = 5;
 
         Optional<Groomer> optGroomer = groomerRepository.findById(lastGroomerId);
 
