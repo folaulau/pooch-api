@@ -47,44 +47,45 @@ public class DataLoadServiceImp implements DataLoadService {
 
         int pageNumber = 0;
         int pageSize = 50;
-        Pageable page = PageRequest.of(pageNumber, pageSize);
+        
+        Pageable page = null;
+        Page<Groomer> result = null;
 
-        Page<Groomer> result = groomerRepository.findAll(page);
+        List<Groomer> groomers = null;
+        List<GroomerES> esGroomers = null;
 
-        while (result.hasContent()) {
-            List<Groomer> groomers = result.getContent();
+        do {
 
-            List<GroomerES> esGroomers = new ArrayList<>();
-
-            for (Groomer groomer : groomers) {
-                GroomerES groomerES = entityDTOMapper.mapGroomerEntityToGroomerES(groomer);
-                groomerES.populateGeoPoints();
-                try {
-                    Set<CareService> careServices = careServiceRepository.findByGroomerId(groomerES.getId());
-                    groomerES.setCareServices(entityDTOMapper.mapCareServicesToCareServiceESs(careServices));
-                } catch (Exception e) {
-                    log.warn("Exception, msg={}", e.getLocalizedMessage());
-                }
-
-                esGroomers.add(groomerES);
-            }
-
-            groomerESRepository.saveAll(esGroomers);
-
-            if (result.isLast()) {
-                break;
-            }
-
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
-            }
-
-            pageNumber++;
             page = PageRequest.of(pageNumber, pageSize);
 
             result = groomerRepository.findAll(page);
-        }
+
+            if (result.hasContent()) {
+
+                groomers = result.getContent();
+
+                esGroomers = new ArrayList<>();
+
+                for (Groomer groomer : groomers) {
+                    GroomerES groomerES = entityDTOMapper.mapGroomerEntityToGroomerES(groomer);
+                    groomerES.populateGeoPoints();
+                    try {
+                        Set<CareService> careServices = careServiceRepository.findByGroomerId(groomerES.getId());
+                        groomerES.setCareServices(entityDTOMapper.mapCareServicesToCareServiceESs(careServices));
+                    } catch (Exception e) {
+                        log.warn("Exception, msg={}", e.getLocalizedMessage());
+                    }
+
+                    esGroomers.add(groomerES);
+                }
+
+                groomerESRepository.saveAll(esGroomers);
+
+            }
+
+            pageNumber++;
+
+        } while (!result.isLast());
 
         log.info("Groomers have been loaded into Elasticsearch!");
 
