@@ -1,7 +1,5 @@
 package com.pooch.api.entity.groomer;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,9 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pooch.api.dto.CustomSort;
-import com.pooch.api.dto.GroomerSearchFiltersDTO;
+import com.pooch.api.dto.GroomerSearchParamsDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
-import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
 import com.pooch.api.utils.FileValidatorUtils;
@@ -73,13 +70,13 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
     }
 
     @Override
-    public void validateSearch(GroomerSearchFiltersDTO filters) {
+    public void validateSearch(GroomerSearchParamsDTO filters) {
         List<CustomSort> sorts = filters.getSorts();
 
         if (sorts != null && sorts.size() > 0) {
             for (CustomSort sort : sorts) {
-                if (!GroomerDAO.validSortValues.contains(sort.getProperty())) {
-                    throw new ApiException(ApiError.DEFAULT_MSG, "sort not found, " + sort, "valid values: " + GroomerDAO.validSortValues.toString());
+                if (!GroomerSearchSorting.exist(sort.getProperty())) {
+                    throw new ApiException(ApiError.DEFAULT_MSG, "sort not found, " + sort, "valid values: " +GroomerSearchSorting.sortings.toString());
                 }
             }
         }

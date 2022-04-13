@@ -12,10 +12,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/*
+ * Groomer search filters and sorts
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroomerSearchFiltersDTO implements Serializable {
+public class GroomerSearchParamsDTO implements Serializable {
 
     /**
      * 
@@ -36,7 +39,7 @@ public class GroomerSearchFiltersDTO implements Serializable {
     private List<String>      careServices;
 
     // review rating of groomers
-    private Integer           reviewRating;
+    private Integer           rating;
 
     public void addSort(String sort) {
         if (this.sorts == null) {

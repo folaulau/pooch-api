@@ -225,7 +225,7 @@ public class GroomerServiceImp implements GroomerService {
     }
 
     @Override
-    public CustomPage<GroomerES> search(GroomerSearchFiltersDTO filters) {
+    public CustomPage<GroomerES> search(GroomerSearchParamsDTO filters) {
         groomerValidatorService.validateSearch(filters);
         return groomerESDAO.search(filters);
     }

@@ -16,7 +16,7 @@ public interface GroomerService {
 
     List<S3FileDTO> uploadContractDocuments(String uuid, List<MultipartFile> images);
 
-    CustomPage<GroomerES> search(GroomerSearchFiltersDTO filters);
+    CustomPage<GroomerES> search(GroomerSearchParamsDTO filters);
 
     ApiDefaultResponseDTO signOut(String token);
 }

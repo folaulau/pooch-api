@@ -4,8 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.pooch.api.dto.CustomPage;
 import com.pooch.api.dto.CustomSort;
 import com.pooch.api.dto.EntityDTOMapper;
-import com.pooch.api.dto.GroomerSearchFiltersDTO;
+import com.pooch.api.dto.GroomerSearchParamsDTO;
 import com.pooch.api.entity.groomer.GroomerDAO;
+import com.pooch.api.entity.groomer.GroomerSearchSorting;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceRepository;
 import com.pooch.api.exception.ApiError;
@@ -73,11 +74,11 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
     @PostConstruct
     public void setup() {
-//        try {
-//            restHighLevelClient.indices().delete(new DeleteIndexRequest("groomer"), RequestOptions.DEFAULT);
-//        } catch (IOException e) {
-//            log.warn("IOException with deleting groomer index. msg={}", e.getLocalizedMessage());
-//        }
+        // try {
+        // restHighLevelClient.indices().delete(new DeleteIndexRequest("groomer"), RequestOptions.DEFAULT);
+        // } catch (IOException e) {
+        // log.warn("IOException with deleting groomer index. msg={}", e.getLocalizedMessage());
+        // }
     }
 
     @Async
@@ -100,12 +101,12 @@ public class GroomerESDAOImp implements GroomerESDAO {
     }
 
     @Override
-    public CustomPage<GroomerES> search(GroomerSearchFiltersDTO filters) {
+    public CustomPage<GroomerES> search(GroomerSearchParamsDTO filters) {
         SearchRequest searchRequest = new SearchRequest("groomer");
         searchRequest.allowPartialSearchResults(true);
         searchRequest.indicesOptions(IndicesOptions.lenientExpandOpen());
 
-        filters = populateSearchFilterDefaultValues(filters);
+        filters = populateSearchFilterAndSortDefaultValues(filters);
 
         int pageNumber = filters.getPageNumber();
         int pageSize = filters.getPageSize();
@@ -139,11 +140,11 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
         filters.getSorts().stream().forEach(sorting -> {
             // distance
-            if (sorting.getProperty().endsWith(GroomerDAO.validSortValues.get(0))) {
+            if (sorting.getProperty().equalsIgnoreCase(GroomerSearchSorting.distance.name())) {
                 addGeoLocationSorting(searchSourceBuilder, latitude, longitude, radius);
 
                 // rating
-            } else if (sorting.getProperty().endsWith(GroomerDAO.validSortValues.get(1))) {
+            } else if (sorting.getProperty().equalsIgnoreCase(GroomerSearchSorting.rating.name())) {
                 addRatingSorting(searchSourceBuilder);
             }
         });
@@ -191,7 +192,7 @@ public class GroomerESDAOImp implements GroomerESDAO {
         searchSourceBuilder.sort(new FieldSortBuilder("rating").order(SortOrder.DESC));
     }
 
-    private GroomerSearchFiltersDTO populateSearchFilterDefaultValues(GroomerSearchFiltersDTO filters) {
+    private GroomerSearchParamsDTO populateSearchFilterAndSortDefaultValues(GroomerSearchParamsDTO filters) {
 
         if (filters.getPageNumber() == null) {
             filters.setPageNumber(0);
@@ -222,7 +223,7 @@ public class GroomerESDAOImp implements GroomerESDAO {
         }
 
         if (filters.getSorts() == null || filters.getSorts().size() == 0) {
-            filters.setSorts(Arrays.asList(new CustomSort(GroomerDAO.validSortValues.get(0))));
+            filters.setSorts(Arrays.asList(new CustomSort(GroomerSearchSorting.distance.name())));
         }
 
         return filters;

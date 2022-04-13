@@ -1,7 +1,7 @@
 package com.pooch.api.elastic.groomer;
 
 import com.pooch.api.dto.CustomPage;
-import com.pooch.api.dto.GroomerSearchFiltersDTO;
+import com.pooch.api.dto.GroomerSearchParamsDTO;
 
 import org.springframework.scheduling.annotation.Async;
 
@@ -12,5 +12,5 @@ public interface GroomerESDAO {
 	@Async
 	void save(GroomerES groomerES);
 
-    CustomPage<GroomerES> search(GroomerSearchFiltersDTO filters);
+    CustomPage<GroomerES> search(GroomerSearchParamsDTO params);
 }
