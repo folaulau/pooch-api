@@ -2,6 +2,7 @@ package com.pooch.api.elastic.groomer;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.pooch.api.dto.CustomPage;
+import com.pooch.api.dto.CustomSort;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.GroomerSearchFiltersDTO;
 import com.pooch.api.entity.groomer.GroomerDAO;
@@ -108,7 +109,7 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
         int pageNumber = filters.getPageNumber();
         int pageSize = filters.getPageSize();
-        int radius = filters.getRadius();
+        int radius = filters.getDistance();
         double latitude = filters.getLatitude();
         double longitude = filters.getLongitude();
 
@@ -138,11 +139,11 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
         filters.getSorts().stream().forEach(sorting -> {
             // distance
-            if (sorting.endsWith(GroomerDAO.validSortValues.get(0))) {
+            if (sorting.getProperty().endsWith(GroomerDAO.validSortValues.get(0))) {
                 addGeoLocationSorting(searchSourceBuilder, latitude, longitude, radius);
 
                 // rating
-            } else if (sorting.endsWith(GroomerDAO.validSortValues.get(1))) {
+            } else if (sorting.getProperty().endsWith(GroomerDAO.validSortValues.get(1))) {
                 addRatingSorting(searchSourceBuilder);
             }
         });
@@ -200,8 +201,8 @@ public class GroomerESDAOImp implements GroomerESDAO {
             filters.setPageSize(25);
         }
 
-        if (filters.getRadius() == null) {
-            filters.setRadius(5);
+        if (filters.getDistance() == null) {
+            filters.setDistance(5);
         }
 
         /**
@@ -221,7 +222,7 @@ public class GroomerESDAOImp implements GroomerESDAO {
         }
 
         if (filters.getSorts() == null || filters.getSorts().size() == 0) {
-            filters.setSorts(Arrays.asList(GroomerDAO.validSortValues.get(0)));
+            filters.setSorts(Arrays.asList(new CustomSort(GroomerDAO.validSortValues.get(0))));
         }
 
         return filters;

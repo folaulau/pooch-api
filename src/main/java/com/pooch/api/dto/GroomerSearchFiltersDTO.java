@@ -24,12 +24,11 @@ public class GroomerSearchFiltersDTO implements Serializable {
 
     private Double            latitude;
     private Double            longitude;
-    private Integer           radius;
+    private Integer           distance;
     private Integer           pageNumber;
     private Integer           pageSize;
     private String            searchPhrase;
-    private List<CustomSort>  sortings;
-    private List<String>      sorts;
+    private List<CustomSort>  sorts;
 
     private LocalDateTime     startDateTime;
     private LocalDateTime     endDateTime;
@@ -43,6 +42,6 @@ public class GroomerSearchFiltersDTO implements Serializable {
         if (this.sorts == null) {
             this.sorts = new ArrayList<>();
         }
-        this.sorts.add(sort);
+        this.sorts.add(new CustomSort(sort, CustomSort.ASC));
     }
 }

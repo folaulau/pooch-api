@@ -187,7 +187,7 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
         GroomerSearchFiltersDTO filters = new GroomerSearchFiltersDTO();
         filters.setLatitude(34.043148);
         filters.setLongitude(-118.4750169);
-        filters.setRadius(1);
+        filters.setDistance(1);
 
         CustomPage<GroomerES> searchResult = groomerService.search(filters);
 
@@ -282,7 +282,7 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
         GroomerSearchFiltersDTO filters = new GroomerSearchFiltersDTO();
         filters.setLatitude(34.043148);
         filters.setLongitude(-118.4750169);
-        filters.setRadius(1);
+        filters.setDistance(1);
         filters.addSort(GroomerDAO.validSortValues.get(1));
         filters.addSort(GroomerDAO.validSortValues.get(0));
 
