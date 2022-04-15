@@ -81,6 +81,11 @@ public class ParentServiceImp implements ParentService {
              * sign in
              */
             petParent = optPetParent.get();
+
+            if (!petParent.isActive()) {
+                throw new ApiException("Your account is not active. Please contact our support team.", "status=" + petParent.getStatus());
+            }
+
         } else {
             /**
              * sign up
@@ -103,10 +108,10 @@ public class ParentServiceImp implements ParentService {
 
                 if (optEmail.isPresent()) {
                     email = optEmail.get();
-                    
+
                     Optional<Parent> optEmailGroomer = parentDAO.getByEmail(email);
                     if (optEmailGroomer.isPresent()) {
-                        throw new ApiException("Email taken", "an account has this email already","Please use one email per account");
+                        throw new ApiException("Email taken", "an account has this email already", "Please use one email per account");
                     }
                 } else {
                     // temp email as placeholder

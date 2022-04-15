@@ -2,13 +2,18 @@ package com.pooch.api.entity.parent;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,6 +23,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
@@ -36,6 +42,7 @@ import com.pooch.api.elastic.repo.AddressES;
 import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.entity.DatabaseTableNames;
 import com.pooch.api.entity.address.Address;
+import com.pooch.api.entity.groomer.GroomerStatus;
 import com.pooch.api.entity.role.Role;
 
 import lombok.AllArgsConstructor;
@@ -97,6 +104,10 @@ public class Parent implements Serializable {
     @Column(name = "phone_number_verified")
     private Boolean           phoneNumberVerified;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private ParentStatus      status;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id")
     private Address           address;
@@ -129,6 +140,17 @@ public class Parent implements Serializable {
             return null;
         }
         return this.roles.stream().findFirst().get().getAuthority().name();
+    }
+
+    public boolean isActive() {
+        return Optional.ofNullable(this.status).orElse(ParentStatus.NONE).equals(ParentStatus.ACTIVE);
+    }
+
+    @PrePersist
+    private void preCreate() {
+        if (this.status == null) {
+            this.status = ParentStatus.ACTIVE;
+        }
     }
 
 }
