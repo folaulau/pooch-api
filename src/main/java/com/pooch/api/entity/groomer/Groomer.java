@@ -11,6 +11,8 @@ import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -60,97 +62,105 @@ import lombok.NoArgsConstructor;
 @Table(name = DatabaseTableNames.Groomer, indexes = {@Index(columnList = "uuid"), @Index(columnList = "email"), @Index(columnList = "deleted")})
 public class Groomer implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long   serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, updatable = false, unique = true)
-    private Long              id;
+    private Long                id;
 
     @Column(name = "uuid", unique = true, nullable = false, updatable = false)
-    private String            uuid;
+    private String              uuid;
 
     @Column(name = "first_name")
-    private String            firstName;
+    private String              firstName;
 
     @Column(name = "last_name")
-    private String            lastName;
+    private String              lastName;
 
     @Column(name = "business_name")
-    private String            businessName;
+    private String              businessName;
 
     @NotEmpty
     @Column(name = "email", unique = true)
-    private String            email;
+    private String              email;
 
     @Column(name = "email_verified")
-    private Boolean           emailVerified;
+    private Boolean             emailVerified;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sign_up_status")
+    private GroomerSignUpStatus signUpStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private GroomerStatus       status;
 
     /**
      * Social platforms(facebook, google, etc) don't give email<br>
      * Now create a temp email for now
      */
     @Column(name = "email_temp")
-    private boolean           emailTemp;
+    private boolean             emailTemp;
 
     @Column(name = "phone_number")
-    private Long              phoneNumber;
+    private Long                phoneNumber;
 
     @Column(name = "phone_number_verified")
-    private Boolean           phoneNumberVerified;
+    private Boolean             phoneNumberVerified;
 
     /**
      * 5 star rating
      */
     @Column(name = "rating")
-    private Double            rating;
+    private Double              rating;
 
     @Column(name = "offered_pickup_off")
-    private Boolean           offeredPickUp;
+    private Boolean             offeredPickUp;
 
     @Column(name = "offered_drop_off")
-    private Boolean           offeredDropOff;
+    private Boolean             offeredDropOff;
 
     @Column(name = "charge_per_mile")
-    private Double            chargePerMile;
+    private Double              chargePerMile;
 
     @Column(name = "number_of_occupancy")
-    private Long              numberOfOccupancy;
+    private Long                numberOfOccupancy;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     @Column(name = "description")
-    private String            description;
+    private String              description;
 
     @Column(name = "instant_booking", nullable = false)
-    private Boolean           instantBooking;
+    private Boolean             instantBooking;
 
     /**
      * switch for market place listing(show up in search)
      */
     @Column(name = "listing")
-    private Boolean           listing;
+    private Boolean             listing;
 
     @JsonIgnoreProperties(value = {"groomers"})
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "groomer_roles", joinColumns = {@JoinColumn(name = "groomer_id")}, inverseJoinColumns = {@JoinColumn(name = "role_id")})
-    private Set<Role>         roles;
+    private Set<Role>           roles;
 
     @Column(name = "deleted", nullable = false)
-    private boolean           deleted;
+    private boolean             deleted;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime     createdAt;
+    private LocalDateTime       createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime     updatedAt;
+    private LocalDateTime       updatedAt;
 
     @JsonIgnoreProperties(value = {"groomer"})
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "groomer_addresses", joinColumns = {@JoinColumn(name = "groomer_id")}, inverseJoinColumns = {@JoinColumn(name = "address_id")})
-    private Set<Address>      addresses;
+    private Set<Address>        addresses;
 
     public void addRole(Role role) {
         if (this.roles == null) {

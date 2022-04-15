@@ -5,8 +5,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.pooch.api.entity.groomer.GroomerSignUpStatus;
+import com.pooch.api.entity.groomer.GroomerStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -52,6 +59,10 @@ public class GroomerDTO implements Serializable {
     private String              description;
 
     private boolean             instantBooking;
+
+    private GroomerSignUpStatus signUpStatus;
+
+    private GroomerStatus       status;
 
     private Set<CareServiceDTO> careServices;
 

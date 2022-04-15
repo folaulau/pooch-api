@@ -6,6 +6,9 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.pooch.api.entity.groomer.GroomerSignUpStatus;
+import com.pooch.api.entity.groomer.GroomerStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,6 +46,8 @@ public class GroomerUpdateDTO implements Serializable {
     private String                      description;
 
     private Boolean                     instantBooking;
+
+    private GroomerSignUpStatus         signUpStatus;
 
     private Set<CareServiceUpdateDTO>   careServices;
 
