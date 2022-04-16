@@ -59,7 +59,7 @@ public class RestMVCConfig {
 //    @Profile("!local")
     @Bean
     public OpenAPI openAPI() {
-        return new OpenAPI().addServersItem(new Server().url("https://"));
+        return new OpenAPI().addServersItem(new Server().url("https://dev-api.poochapp.net/v1"));
     }
 
 }
