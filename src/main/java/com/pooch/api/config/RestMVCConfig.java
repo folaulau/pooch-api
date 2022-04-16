@@ -3,6 +3,7 @@ package com.pooch.api.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
@@ -12,6 +13,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.pooch.api.utils.HttpRequestInterceptor;
 import com.pooch.api.utils.HttpResponseErrorHandler;
+
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class RestMVCConfig {
@@ -50,6 +54,12 @@ public class RestMVCConfig {
         restTemplate.getInterceptors().add(new HttpRequestInterceptor());
         restTemplate.setErrorHandler(new HttpResponseErrorHandler());
         return restTemplate;
+    }
+
+    @Profile("!local")
+    @Bean
+    public OpenAPI openAPI() {
+        return new OpenAPI().addServersItem(new Server().url("https://"));
     }
 
 }
