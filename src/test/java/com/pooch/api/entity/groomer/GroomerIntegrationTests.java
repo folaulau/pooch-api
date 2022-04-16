@@ -94,7 +94,7 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
         groomerUpdateDTO.setDescription("test description");
         groomerUpdateDTO.setFirstName("Folau");
         groomerUpdateDTO.setLastName("Kaveinga");
-
+        groomerUpdateDTO.setSignUpStatus(GroomerSignUpStatus.ADD_SERVICES);
         AddressCreateUpdateDTO address = AddressCreateUpdateDTO.builder().state("CA").street("222 Alta Ave").city("Santa Monica").zipcode("90402").latitude(34.025070).longitude(-118.507700).build();
         groomerUpdateDTO.addAddress(address);
         // @formatter:on
