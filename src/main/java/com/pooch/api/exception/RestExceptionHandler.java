@@ -257,7 +257,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         log.error("handleHttpMessageNotReadable(..)", ex);
         String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, Arrays.asList("Invalid request", "Invalid Payload", ex.getLocalizedMessage()));
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, Arrays.asList("Invalid request/payload", "Check your request and make you pass in the right data type for each field. Check if you are passing in an enum in a mal-formatted way.", ex.getLocalizedMessage()));
         return new ResponseEntity<>(apiError, status);
     }
 

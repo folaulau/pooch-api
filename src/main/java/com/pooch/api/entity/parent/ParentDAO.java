@@ -11,4 +11,6 @@ public interface ParentDAO {
     Optional<Parent> getByUuid(String uuid);
 
     Optional<Parent> getByEmail(String email);
+
+    boolean existEmail(String email);
 }

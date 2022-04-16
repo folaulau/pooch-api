@@ -38,4 +38,9 @@ public class GroomerDAOImp implements GroomerDAO {
         // TODO Auto-generated method stub
         return groomerRepository.findByEmail(email);
     }
+
+    @Override
+    public boolean existEmail(String email) {
+        return Optional.ofNullable(groomerRepository.getIdByEmail(email)).isPresent();
+    }
 }

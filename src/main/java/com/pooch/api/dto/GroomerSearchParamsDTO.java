@@ -26,21 +26,27 @@ public class GroomerSearchParamsDTO implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
+    /**
+     * filters
+     */
     private Double            latitude;
     private Double            longitude;
+    // filter and sort
     private Integer           distance;
     private Integer           pageNumber;
     private Integer           pageSize;
     private String            searchPhrase;
-    private List<CustomSort>  sorts;
 
     private LocalDate         startDate;
     private LocalDate         endDate;
     private List<String>      dogSizes;
     private List<String>      careServices;
-
-    // review rating of groomers
     private Integer           rating;
+
+    /**
+     * sort
+     */
+    private List<CustomSort>  sorts;
 
     public void addSort(String sort) {
         if (this.sorts == null) {

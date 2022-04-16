@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerRepository;
+import com.pooch.api.entity.groomer.GroomerSignUpStatus;
+import com.pooch.api.entity.groomer.GroomerStatus;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentRepository;
 import com.pooch.api.entity.pooch.FoodSchedule;
@@ -56,7 +58,8 @@ public class TestEntityGeneratorService {
         groomer.setChargePerMile(RandomGeneratorUtils.getDoubleWithin(1D, 3D));
         groomer.setOfferedDropOff(true);
         groomer.setOfferedPickUp(true);
-
+        groomer.setStatus(GroomerStatus.SIGNING_UP);
+        groomer.setSignUpStatus(GroomerSignUpStatus.ADD_SERVICES);
         groomer.setDescription("Test description");
 
         groomer.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));

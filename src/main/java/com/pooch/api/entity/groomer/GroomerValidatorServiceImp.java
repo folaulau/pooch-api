@@ -1,5 +1,6 @@
 package com.pooch.api.entity.groomer;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,22 +25,37 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
     private GroomerDAO groomerDAO;
 
     @Override
-    public Groomer validateUpdateProfile(GroomerUpdateDTO petSitterUpdateDTO) {
-        String uuid = petSitterUpdateDTO.getUuid();
+    public Groomer validateUpdateProfile(GroomerUpdateDTO groomerUpdateDTO) {
+        String uuid = groomerUpdateDTO.getUuid();
 
         if (uuid == null || uuid.isEmpty()) {
-            throw new ApiException(ApiError.FAILURE, "uuid is empty. uuid=" + uuid);
+            throw new ApiException(ApiError.DEFAULT_MSG, "uuid is empty. uuid=" + uuid);
         }
 
-        Optional<Groomer> optPetSitter = groomerDAO.getByUuid(uuid);
+        Optional<Groomer> optGroomer = groomerDAO.getByUuid(uuid);
 
-        if (!optPetSitter.isPresent()) {
-            throw new ApiException(ApiError.FAILURE, "Groomer not found for uuid=" + uuid);
+        if (!optGroomer.isPresent()) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "Groomer not found for uuid=" + uuid);
         }
 
-        Groomer petSitter = optPetSitter.get();
+        Groomer groomer = optGroomer.get();
 
-        return petSitter;
+        Optional.ofNullable(groomerUpdateDTO.getEmail()).ifPresent(email -> {
+            if (!email.trim().equalsIgnoreCase(groomer.getEmail())) {
+                if (groomerDAO.existEmail(email)) {
+                    log.debug("email is taken");
+                    throw new ApiException("Email is taken");
+                }
+            }
+        });
+
+        if (groomer.getStatus().equals(GroomerStatus.SIGNING_UP)) {
+            GroomerSignUpStatus k = Optional.ofNullable(groomerUpdateDTO.getSignUpStatus())
+                    .orElseThrow(() -> new ApiException(ApiError.DEFAULT_MSG, "signUpStatus is required", "status=" + Arrays.asList(GroomerSignUpStatus.values())));
+
+        }
+
+        return groomer;
     }
 
     @Override
@@ -76,7 +92,7 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
         if (sorts != null && sorts.size() > 0) {
             for (CustomSort sort : sorts) {
                 if (!GroomerSearchSorting.exist(sort.getProperty())) {
-                    throw new ApiException(ApiError.DEFAULT_MSG, "sort not found, " + sort, "valid values: " +GroomerSearchSorting.sortings.toString());
+                    throw new ApiException(ApiError.DEFAULT_MSG, "sort not found, " + sort, "valid values: " + GroomerSearchSorting.sortings.toString());
                 }
             }
         }

@@ -13,4 +13,6 @@ public interface GroomerDAO {
     Optional<Groomer> getByUuid(String uuid);
 
     Optional<Groomer> getByEmail(String email);
+
+    boolean existEmail(String email);
 }

@@ -138,13 +138,13 @@ public class GroomerServiceImp implements GroomerService {
 
     @Override
     public GroomerDTO updateProfile(GroomerUpdateDTO petSitterUpdateDTO) {
-        Groomer petSitter = groomerValidatorService.validateUpdateProfile(petSitterUpdateDTO);
+        Groomer groomer = groomerValidatorService.validateUpdateProfile(petSitterUpdateDTO);
 
-        entityDTOMapper.patchGroomerWithGroomerUpdateDTO(petSitterUpdateDTO, petSitter);
+        entityDTOMapper.patchGroomerWithGroomerUpdateDTO(petSitterUpdateDTO, groomer);
 
-        petSitter = groomerDAO.save(petSitter);
+        groomer = groomerDAO.save(groomer);
 
-        return entityDTOMapper.mapGroomerToGroomerDTO(petSitter);
+        return entityDTOMapper.mapGroomerToGroomerDTO(groomer);
     }
 
     @Override

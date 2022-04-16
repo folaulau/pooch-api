@@ -18,7 +18,7 @@ public class ParentDAOImp implements ParentDAO {
     private ParentRepository parentRepository;
 
     @Autowired
-    private JdbcTemplate        jdbcTemplate;
+    private JdbcTemplate     jdbcTemplate;
 
     @Override
     public Parent save(Parent petParent) {
@@ -34,6 +34,11 @@ public class ParentDAOImp implements ParentDAO {
     public Optional<Parent> getByEmail(String email) {
         // TODO Auto-generated method stub
         return parentRepository.findByEmail(email);
+    }
+
+    @Override
+    public boolean existEmail(String email) {
+        return Optional.ofNullable(parentRepository.getIdByEmail(email)).isPresent();
     }
 
 }
