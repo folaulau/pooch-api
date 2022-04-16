@@ -56,10 +56,16 @@ public class RestMVCConfig {
         return restTemplate;
     }
 
-//    @Profile("!local")
+    @Profile("dev")
     @Bean
-    public OpenAPI openAPI() {
+    public OpenAPI openDevAPI() {
         return new OpenAPI().addServersItem(new Server().url("https://dev-api.poochapp.net/v1"));
+    }
+
+    @Profile("prod")
+    @Bean
+    public OpenAPI openProdAPI() {
+        return new OpenAPI().addServersItem(new Server().url("https://prod-api.poochapp.net/v1"));
     }
 
 }

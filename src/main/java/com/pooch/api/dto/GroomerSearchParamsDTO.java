@@ -1,6 +1,7 @@
 package com.pooch.api.dto;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,8 @@ public class GroomerSearchParamsDTO implements Serializable {
     private String            searchPhrase;
     private List<CustomSort>  sorts;
 
-    private LocalDateTime     startDateTime;
-    private LocalDateTime     endDateTime;
+    private LocalDate         startDate;
+    private LocalDate         endDate;
     private List<String>      dogSizes;
     private List<String>      careServices;
 
