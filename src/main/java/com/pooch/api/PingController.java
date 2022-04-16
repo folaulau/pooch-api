@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * 
  * @author folaukaveinga
  */
-@Hidden
+//@Hidden
 @Tag(name = "Ping", description = "Ping Operation")
 @RestController
 public class PingController {

@@ -56,7 +56,7 @@ public class RestMVCConfig {
         return restTemplate;
     }
 
-    @Profile("!local")
+//    @Profile("!local")
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI().addServersItem(new Server().url("https://"));
