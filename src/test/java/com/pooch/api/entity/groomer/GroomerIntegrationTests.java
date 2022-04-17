@@ -30,6 +30,7 @@ import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.AddressCreateUpdateDTO;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
+import com.pooch.api.dto.CareServiceUpdateDTO;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.GroomerDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
@@ -87,6 +88,7 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
     @Transactional
     @Test
     void itShouldUpdateProfile_valid() throws Exception {
+        System.out.println("itShouldUpdateProfile_valid");
         // Given
         Groomer groomer = testEntityGeneratorService.getDBGroomer();
         GroomerUpdateDTO groomerUpdateDTO = new GroomerUpdateDTO();
@@ -97,6 +99,9 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
         groomerUpdateDTO.setSignUpStatus(GroomerSignUpStatus.ADD_SERVICES);
         AddressCreateUpdateDTO address = AddressCreateUpdateDTO.builder().state("CA").street("222 Alta Ave").city("Santa Monica").zipcode("90402").latitude(34.025070).longitude(-118.507700).build();
         groomerUpdateDTO.addAddress(address);
+
+        groomerUpdateDTO.addCareService(CareServiceUpdateDTO.builder().name("Overnight").build());
+
         // @formatter:on
         // When
         RequestBuilder requestBuilder = MockMvcRequestBuilders.put("/groomers/profile")
@@ -119,6 +124,8 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
         assertThat(groomerDTO.getDescription()).isNotNull().isEqualTo("test description");
         assertThat(groomerDTO.getAddresses()).isNotNull();
         assertThat(groomerDTO.getAddresses().size()).isEqualTo(1);
+        assertThat(groomerDTO.getCareServices()).isNotNull();
+        assertThat(groomerDTO.getCareServices().size()).isEqualTo(1);
 
     }
 
