@@ -29,7 +29,6 @@ public class CareServiceDAOImp implements CareServiceDAO {
         if (!optCareService.isPresent()) {
             return false;
         }
-        log.info("cs={}", ObjectUtils.toJson(optCareService.get()));
         return optCareService.get().getGroomer().getId().equals(groomerId);
     }
 
