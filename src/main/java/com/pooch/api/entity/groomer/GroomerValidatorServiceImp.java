@@ -129,7 +129,7 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
                  */
                 Optional.ofNullable(careServiceUpdateDTO.getUuid()).ifPresent(careServiceUuid -> {
                     if (!careServiceDAO.existByUuidAndGroomer(careServiceUuid, groomer.getId())) {
-                        throw new ApiException(ApiError.DEFAULT_MSG, "uuid not found for this groomer", "make sure you pass the correct uuid for careService");
+                        throw new ApiException(ApiError.DEFAULT_MSG, "uuid not found for this care service", "make sure you pass the correct uuid for careService");
                     }
                 });
 
