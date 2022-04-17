@@ -97,7 +97,7 @@ public class CareService implements Serializable {
     private String            description;
 
     @ManyToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name = "groomer_id")
+    @JoinColumn(name = "groomer_id", nullable = false)
     private Groomer           groomer;
 
     @Column(name = "deleted", nullable = false)

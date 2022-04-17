@@ -24,44 +24,56 @@ import com.pooch.api.entity.s3file.S3File;
 @Mapper(componentModel = "spring", nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EntityDTOMapper {
 
-	Pooch mapPoochCreateDTOToPooch(PoochCreateDTO poochCreateDTO);
+    Pooch mapPoochCreateDTOToPooch(PoochCreateDTO poochCreateDTO);
 
-	PoochDTO mapPoochToPoochDTO(Pooch pooch);
+    PoochDTO mapPoochToPoochDTO(Pooch pooch);
 
-	@Mappings({ @Mapping(target = "uuid", ignore = true) })
-	Pooch patchPet(PoochCreateDTO petCreateDTO, @MappingTarget Pooch pet);
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    Pooch patchPet(PoochCreateDTO petCreateDTO, @MappingTarget Pooch pet);
 
-	PhoneNumberVerificationDTO mapPhoneNumberVerificationToPhoneNumberVerificationDTO(
-			PhoneNumberVerification phoneNumberVerification);
+    PhoneNumberVerificationDTO mapPhoneNumberVerificationToPhoneNumberVerificationDTO(PhoneNumberVerification phoneNumberVerification);
 
-	ParentCreateUpdateDTO mapParentToParentCreateUpdateDTO(Parent petParent);
+    ParentCreateUpdateDTO mapParentToParentCreateUpdateDTO(Parent petParent);
 
-	GroomerUuidDTO mapGroomerToGroomerUuidDTO(Groomer groomer);
+    GroomerUuidDTO mapGroomerToGroomerUuidDTO(Groomer groomer);
 
-	@Mappings({ @Mapping(target = "uuid", ignore = true) })
-	Parent mapNewUpdateDTOToParent(ParentCreateUpdateDTO petParentUpdateDTO);
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    Parent mapNewUpdateDTOToParent(ParentCreateUpdateDTO petParentUpdateDTO);
 
-	@Mappings({ @Mapping(target = "uuid", ignore = true) })
-	void patchParentWithNewParentUpdateDTO(ParentCreateUpdateDTO parentCreateUpdateDTO, @MappingTarget Parent petParent);
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    void patchParentWithNewParentUpdateDTO(ParentCreateUpdateDTO parentCreateUpdateDTO, @MappingTarget Parent petParent);
 
-	ParentDTO mapPetParentToPetParentDTO(Parent petParent);
+    ParentDTO mapPetParentToPetParentDTO(Parent petParent);
 
-	GroomerDTO mapGroomerToGroomerDTO(Groomer groomer);
+    GroomerDTO mapGroomerToGroomerDTO(Groomer groomer);
 
-	@Mappings({ @Mapping(target = "uuid", ignore = true) })
-	void patchGroomerWithGroomerUpdateDTO(GroomerUpdateDTO groomerUpdateDTO, @MappingTarget Groomer groomer);
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    void patchGroomerWithGroomerUpdateDTO(GroomerUpdateDTO groomerUpdateDTO, @MappingTarget Groomer groomer);
 
-	AuthenticationResponseDTO mapGroomerToAuthenticationResponse(Groomer groomer);
+    AuthenticationResponseDTO mapGroomerToAuthenticationResponse(Groomer groomer);
 
-	AuthenticationResponseDTO mapParentToAuthenticationResponse(Parent parent);
+    AuthenticationResponseDTO mapParentToAuthenticationResponse(Parent parent);
 
-	S3FileDTO mapS3FileToS3FileDTO(S3File s3File);
+    S3FileDTO mapS3FileToS3FileDTO(S3File s3File);
 
-	List<S3FileDTO> mapS3FilesToS3FileDTOs(List<S3File> s3Files);
+    List<S3FileDTO> mapS3FilesToS3FileDTOs(List<S3File> s3Files);
 
-	GroomerES mapGroomerEntityToGroomerES(Groomer groomer);
+    GroomerES mapGroomerEntityToGroomerES(Groomer groomer);
 
     List<CareServiceES> mapCareServicesToCareServiceESs(Set<CareService> careServices);
 
     AddressES mapAddressToAddressEs(Address address);
+
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    void patchCareServiceWithCareServiceUpdateDTO(CareServiceUpdateDTO careServicesDTO, @MappingTarget CareService careService);
+
+    CareServiceDTO mapCareServiceToCareServiceDTO(CareService careService);
+
+    CareService mapCareServiceUpdateDTOToCareService(CareServiceUpdateDTO careServicesDTO);
+
+    Set<CareServiceDTO> mapCareServicesToCareServiceDTOs(Set<CareService> careServiceSet);
+
+    Set<CareServiceDTO> mapCareServicesToCareServiceDTOs(List<CareService> savedCareServices);
+
+    List<CareServiceDTO> mapCareServicesToCareServiceDTOsAsList(Set<CareService> careServices);
 }

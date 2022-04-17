@@ -2,6 +2,7 @@ package com.pooch.api.elastic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class DataLoadServiceImp implements DataLoadService {
 
         int pageNumber = 0;
         int pageSize = 50;
-        
+
         Pageable page = null;
         Page<Groomer> result = null;
 
@@ -70,8 +71,10 @@ public class DataLoadServiceImp implements DataLoadService {
                     GroomerES groomerES = entityDTOMapper.mapGroomerEntityToGroomerES(groomer);
                     groomerES.populateGeoPoints();
                     try {
-                        Set<CareService> careServices = careServiceRepository.findByGroomerId(groomerES.getId());
-                        groomerES.setCareServices(entityDTOMapper.mapCareServicesToCareServiceESs(careServices));
+                        Optional<Set<CareService>> optCareServices = careServiceRepository.findByGroomerId(groomerES.getId());
+                        if (optCareServices.isPresent()) {
+                            groomerES.setCareServices(entityDTOMapper.mapCareServicesToCareServiceESs(optCareServices.get()));
+                        }
                     } catch (Exception e) {
                         log.warn("Exception, msg={}", e.getLocalizedMessage());
                     }

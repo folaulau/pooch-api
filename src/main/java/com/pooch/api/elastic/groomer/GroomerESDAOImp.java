@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -87,8 +88,11 @@ public class GroomerESDAOImp implements GroomerESDAO {
         log.info("groomerES={}", ObjectUtils.toJson(groomerES));
 
         try {
-            Set<CareService> careServices = careServiceRepository.findByGroomerId(groomerES.getId());
-            groomerES.setCareServices(entityDTOMapper.mapCareServicesToCareServiceESs(careServices));
+
+            Optional<Set<CareService>> optCareServices = careServiceRepository.findByGroomerId(groomerES.getId());
+            if (optCareServices.isPresent()) {
+                groomerES.setCareServices(entityDTOMapper.mapCareServicesToCareServiceESs(optCareServices.get()));
+            }
         } catch (Exception e) {
             log.warn("Exception, msg={}", e.getLocalizedMessage());
         }

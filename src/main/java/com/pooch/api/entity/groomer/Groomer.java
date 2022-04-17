@@ -183,6 +183,10 @@ public class Groomer implements Serializable {
         return this.roles.stream().findFirst().get().getAuthority().name();
     }
 
+    public boolean isAllowedToLogin() {
+        return GroomerStatus.isAllowedToLogin(status);
+    }
+
     public String getFullName() {
         StringBuilder str = new StringBuilder();
         if (this.firstName != null && !this.firstName.isEmpty()) {

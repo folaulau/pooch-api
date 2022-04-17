@@ -31,8 +31,6 @@ public class GroomerUpdateDTO implements Serializable {
 
     private String                      email;
 
-    private boolean                     emailTemp;
-
     private Long                        phoneNumber;
 
     private Boolean                     offeredPickUp;

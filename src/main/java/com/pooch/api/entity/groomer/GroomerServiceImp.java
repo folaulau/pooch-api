@@ -3,9 +3,14 @@ package com.pooch.api.entity.groomer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
 
 import com.pooch.api.dto.*;
 import com.pooch.api.elastic.groomer.GroomerESDAO;
@@ -17,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserRecord;
+import com.pooch.api.entity.groomer.careservice.CareService;
+import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
@@ -62,6 +69,9 @@ public class GroomerServiceImp implements GroomerService {
     @Autowired
     private GroomerESDAO            groomerESDAO;
 
+    @Autowired
+    private CareServiceDAO          careServiceDAO;
+
     @Override
     public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
 
@@ -78,6 +88,11 @@ public class GroomerServiceImp implements GroomerService {
         if (optGroomer.isPresent()) {
             /** sign in */
             groomer = optGroomer.get();
+
+            if (!groomer.isAllowedToLogin()) {
+                log.info("{} can't sign in because for this reason=", groomer.getFullName(), groomer.getStatus().getDisAllowedToLoginReason());
+                throw new ApiException(groomer.getStatus().getDisAllowedToLoginReason());
+            }
         } else {
             /** sign up */
             groomer = new Groomer();
@@ -109,7 +124,7 @@ public class GroomerServiceImp implements GroomerService {
                     groomer.setEmailTemp(true);
                 }
             }
-            
+
             groomer.setEmail(email);
             groomer.setStatus(GroomerStatus.SIGNING_UP);
             groomer.setSignUpStatus(GroomerSignUpStatus.CREATE_PROFILE);
@@ -136,15 +151,73 @@ public class GroomerServiceImp implements GroomerService {
         return authenticationResponseDTO;
     }
 
+    /**
+     * Update all or nothing at all
+     */
+    @Transactional
     @Override
-    public GroomerDTO updateProfile(GroomerUpdateDTO petSitterUpdateDTO) {
-        Groomer groomer = groomerValidatorService.validateUpdateProfile(petSitterUpdateDTO);
+    public GroomerDTO updateProfile(GroomerUpdateDTO groomerUpdateDTO) {
+        Groomer groomer = groomerValidatorService.validateUpdateProfile(groomerUpdateDTO);
 
-        entityDTOMapper.patchGroomerWithGroomerUpdateDTO(petSitterUpdateDTO, groomer);
+        entityDTOMapper.patchGroomerWithGroomerUpdateDTO(groomerUpdateDTO, groomer);
 
-        groomer = groomerDAO.save(groomer);
+        String oldEmail = groomer.getEmail();
+        Long oldPhoneNumber = groomer.getPhoneNumber();
 
-        return entityDTOMapper.mapGroomerToGroomerDTO(groomer);
+        Groomer savedGroomer = groomerDAO.save(groomer);
+
+        String newEmail = groomerUpdateDTO.getEmail();
+        Long newPhoneNumber = groomerUpdateDTO.getPhoneNumber();
+
+        log.info("new email={}, old email={}", newEmail, oldEmail);
+        log.info("new phone={}, old phone={}", newPhoneNumber, oldPhoneNumber);
+
+        GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(groomer);
+
+        /**
+         * Update careServices
+         */
+
+        Set<CareService> careServices = careServiceDAO.findByGroomerId(groomer.getId()).orElse(new HashSet<>());
+
+        Set<CareServiceUpdateDTO> careServicesDTOs = groomerUpdateDTO.getCareServices();
+
+        if (null != careServicesDTOs) {
+            careServicesDTOs.stream().forEach(careServicesDTO -> {
+
+                String careServiceUuid = careServicesDTO.getUuid();
+
+                CareService careService = null;
+
+                if (careServiceUuid != null && !careServiceUuid.trim().isEmpty()) {
+                    careService = careServiceDAO.getByUuid(careServicesDTO.getUuid()).get();
+                    entityDTOMapper.patchCareServiceWithCareServiceUpdateDTO(careServicesDTO, careService);
+                } else {
+                    careService = entityDTOMapper.mapCareServiceUpdateDTOToCareService(careServicesDTO);
+                }
+
+                careService.setGroomer(savedGroomer);
+
+                CareService savedCareService = careServiceDAO.save(careService);
+
+                /**
+                 * remove stale CareService
+                 */
+                careServices.stream().filter(cs -> cs.getId().equals(savedCareService.getId())).findFirst().ifPresent(cs -> {
+                    careServices.remove(cs);
+                });
+
+                careServices.add(savedCareService);
+            });
+        }
+
+        groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOsAsList(careServices));
+
+        /**
+         * notify groomer of profile update only if status==ACTIVE
+         */
+
+        return groomerDTO;
     }
 
     @Override
