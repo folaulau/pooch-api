@@ -2,7 +2,6 @@ package com.pooch.api.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -66,7 +65,7 @@ public class GroomerDTO implements Serializable {
 
     private GroomerStatus       status;
 
-    private List<CareServiceDTO> careServices;
+    private Set<CareServiceDTO> careServices;
 
     private LocalDateTime       createdAt;
 
@@ -76,7 +75,7 @@ public class GroomerDTO implements Serializable {
 
     public void addCareService(CareServiceDTO careServiceDTO) {
         if (this.careServices == null) {
-            this.careServices = new ArrayList<>();
+            this.careServices = new HashSet<>();
         }
         this.careServices.add(careServiceDTO);
     }

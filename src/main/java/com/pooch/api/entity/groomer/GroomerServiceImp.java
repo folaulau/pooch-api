@@ -204,6 +204,7 @@ public class GroomerServiceImp implements GroomerService {
                  * remove stale CareService
                  */
                 careServices.stream().filter(cs -> cs.getId().equals(savedCareService.getId())).findFirst().ifPresent(cs -> {
+                    log.info("remove state cs");
                     careServices.remove(cs);
                 });
 
@@ -211,7 +212,7 @@ public class GroomerServiceImp implements GroomerService {
             });
         }
 
-        groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOsAsList(careServices));
+        groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(careServices));
 
         /**
          * notify groomer of profile update only if status==ACTIVE
