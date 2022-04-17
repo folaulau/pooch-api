@@ -36,7 +36,7 @@ public enum GroomerStatus {
     INACTIVE;
 
     public static boolean isAllowedToLogin(GroomerStatus status) {
-        return Arrays.asList(GroomerStatus.SUSPENDED, GroomerStatus.INACTIVE).contains(status);
+        return !Arrays.asList(GroomerStatus.SUSPENDED, GroomerStatus.INACTIVE).contains(status);
     }
 
     public String getDisAllowedToLoginReason() {
