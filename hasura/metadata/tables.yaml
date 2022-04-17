@@ -1,86 +1,316 @@
 - table:
     schema: public
     name: address
+  object_relationships:
+    - name: groomer_address
+      using:
+        foreign_key_constraint_on:
+          column: address_id
+          table:
+            schema: public
+            name: groomer_addresses
+  array_relationships:
+    - name: parents
+      using:
+        foreign_key_constraint_on:
+          column: address_id
+          table:
+            schema: public
+            name: parent
+  select_permissions:
+    - role: groomer
+      permission:
+        columns:
+          - id
+          - primary_address
+          - city
+          - country
+          - state
+          - street
+          - street2
+          - timezone
+          - uuid
+          - zipcode
+          - latitude
+          - longitude
+          - created_at
+          - updated_at
+        filter:
+          groomer_address:
+            groomer_id:
+              _eq: x-Hasura-groomer-id
+- table:
+    schema: public
+    name: booking
+  object_relationships:
+    - name: groomer
+      using:
+        foreign_key_constraint_on: parent_id
+    - name: groomerByGroomerId
+      using:
+        foreign_key_constraint_on: groomer_id
+  array_relationships:
+    - name: poochcare_pets
+      using:
+        foreign_key_constraint_on:
+          column: poochcare_id
+          table:
+            schema: public
+            name: poochcare_pets
 - table:
     schema: public
     name: care_service
+  object_relationships:
+    - name: groomer
+      using:
+        foreign_key_constraint_on: groomer_id
+  select_permissions:
+    - role: groomer
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - deleted
+          - service_large
+          - service_medium
+          - service_small
+          - name
+          - uuid
+          - large_price
+          - medium_price
+          - small_price
+          - description
+          - created_at
+          - updated_at
+        filter:
+          groomer:
+            id:
+              _eq: x-Hasura-groomer-id
 - table:
     schema: public
     name: groomer
+  array_relationships:
+    - name: bookings
+      using:
+        foreign_key_constraint_on:
+          column: parent_id
+          table:
+            schema: public
+            name: booking
+    - name: bookingsByGroomerId
+      using:
+        foreign_key_constraint_on:
+          column: groomer_id
+          table:
+            schema: public
+            name: booking
+    - name: care_services
+      using:
+        foreign_key_constraint_on:
+          column: groomer_id
+          table:
+            schema: public
+            name: care_service
+    - name: groomer_addresses
+      using:
+        foreign_key_constraint_on:
+          column: groomer_id
+          table:
+            schema: public
+            name: groomer_addresses
+    - name: groomer_roles
+      using:
+        foreign_key_constraint_on:
+          column: groomer_id
+          table:
+            schema: public
+            name: groomer_roles
+    - name: s3files
+      using:
+        foreign_key_constraint_on:
+          column: groomer_id
+          table:
+            schema: public
+            name: s3file
   select_permissions:
-  - role: groomer
-    permission:
-      columns:
-      - id
-      - number_of_ocupancy
-      - phone_number
-      - deleted
-      - email_temp
-      - email_verified
-      - instant_booking
-      - offered_drop_off
-      - offered_pickup_off
-      - phone_number_verified
-      - business_name
-      - email
-      - first_name
-      - last_name
-      - uuid
-      - charge_per_mile
-      - rating
-      - description
-      - created_at
-      - updated_at
-      filter:
-        uuid:
-          _eq: x-Hasura-groomer-uuid
-      allow_aggregations: true
+    - role: groomer
+      permission:
+        columns:
+          - id
+          - business_name
+          - charge_per_mile
+          - created_at
+          - deleted
+          - description
+          - email
+          - email_temp
+          - email_verified
+          - first_name
+          - instant_booking
+          - last_name
+          - listing
+          - number_of_occupancy
+          - offered_drop_off
+          - offered_pick_up
+          - phone_number
+          - phone_number_verified
+          - rating
+          - sign_up_status
+          - status
+          - updated_at
+          - uuid
+        filter:
+          uuid:
+            _eq: x-Hasura-groomer-uuid
+- table:
+    schema: public
+    name: groomer_addresses
+  object_relationships:
+    - name: address
+      using:
+        foreign_key_constraint_on: address_id
+    - name: groomer
+      using:
+        foreign_key_constraint_on: groomer_id
+  select_permissions:
+    - role: groomer
+      permission:
+        columns:
+          - address_id
+          - groomer_id
+        filter:
+          groomer_id:
+            _eq: x-Hasura-groomer-id
 - table:
     schema: public
     name: groomer_roles
+  object_relationships:
+    - name: groomer
+      using:
+        foreign_key_constraint_on: groomer_id
+    - name: role
+      using:
+        foreign_key_constraint_on: role_id
 - table:
     schema: public
     name: parent
-  select_permissions:
-  - role: parent
-    permission:
-      columns:
-      - id
-      - phone_number
-      - deleted
-      - email_temp
-      - email_verified
-      - phone_number_verified
-      - email
-      - full_name
-      - uuid
-      - rating
-      - created_at
-      - updated_at
-      filter:
-        uuid:
-          _eq: x-Hasura-parent-uuid
+  object_relationships:
+    - name: address
+      using:
+        foreign_key_constraint_on: address_id
+  array_relationships:
+    - name: parent_roles
+      using:
+        foreign_key_constraint_on:
+          column: parent_id
+          table:
+            schema: public
+            name: parent_roles
+    - name: pooches
+      using:
+        foreign_key_constraint_on:
+          column: parent_id
+          table:
+            schema: public
+            name: pooch
+    - name: s3files
+      using:
+        foreign_key_constraint_on:
+          column: parent_id
+          table:
+            schema: public
+            name: s3file
 - table:
     schema: public
     name: parent_roles
-- table:
-    schema: public
-    name: pet
-- table:
-    schema: public
-    name: pet_care
+  object_relationships:
+    - name: parent
+      using:
+        foreign_key_constraint_on: parent_id
+    - name: role
+      using:
+        foreign_key_constraint_on: role_id
 - table:
     schema: public
     name: pet_food_schedule
-- table:
-    schema: public
-    name: pet_vaccine
-- table:
-    schema: public
-    name: petcare_pets
+  object_relationships:
+    - name: pooch
+      using:
+        foreign_key_constraint_on: pet_id
 - table:
     schema: public
     name: phone_number_verification
 - table:
     schema: public
+    name: pooch
+  object_relationships:
+    - name: parent
+      using:
+        foreign_key_constraint_on: parent_id
+  array_relationships:
+    - name: pet_food_schedules
+      using:
+        foreign_key_constraint_on:
+          column: pet_id
+          table:
+            schema: public
+            name: pet_food_schedule
+    - name: poochcare_pets
+      using:
+        foreign_key_constraint_on:
+          column: pooch_id
+          table:
+            schema: public
+            name: poochcare_pets
+    - name: vaccines
+      using:
+        foreign_key_constraint_on:
+          column: pooch_id
+          table:
+            schema: public
+            name: vaccine
+- table:
+    schema: public
+    name: poochcare_pets
+  object_relationships:
+    - name: booking
+      using:
+        foreign_key_constraint_on: poochcare_id
+    - name: pooch
+      using:
+        foreign_key_constraint_on: pooch_id
+- table:
+    schema: public
     name: roles
+  array_relationships:
+    - name: groomer_roles
+      using:
+        foreign_key_constraint_on:
+          column: role_id
+          table:
+            schema: public
+            name: groomer_roles
+    - name: parent_roles
+      using:
+        foreign_key_constraint_on:
+          column: role_id
+          table:
+            schema: public
+            name: parent_roles
+- table:
+    schema: public
+    name: s3file
+  object_relationships:
+    - name: groomer
+      using:
+        foreign_key_constraint_on: groomer_id
+    - name: parent
+      using:
+        foreign_key_constraint_on: parent_id
+- table:
+    schema: public
+    name: vaccine
+  object_relationships:
+    - name: pooch
+      using:
+        foreign_key_constraint_on: pooch_id

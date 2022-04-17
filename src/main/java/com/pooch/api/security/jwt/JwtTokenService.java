@@ -82,7 +82,7 @@ public class JwtTokenService {
             Map<String, Object> hasura = new HashMap<String, Object>();
 
             hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
-            hasura.put("x-hasura-default-role", Authority.parent.name());
+            hasura.put("x-hasura-default-role", Authority.groomer.name());
             hasura.put("x-Hasura-groomer-id", groomer.getId() + "");
             hasura.put("x-Hasura-groomer-uuid", groomer.getUuid());
 
@@ -95,7 +95,7 @@ public class JwtTokenService {
                     .withIssuer(ISSUER)
                     .withClaim("uuid", groomer.getUuid())
                     .withClaim("name", groomer.getFullName())
-                    .withClaim("role", Authority.parent.name())
+                    .withClaim("role", Authority.groomer.name())
                     .withClaim("hasura", hasura)
                     .sign(ALGORITHM);
             log.info("test12");
