@@ -88,7 +88,7 @@ public class Pooch implements Serializable {
     private Training          training;
 
     @ElementCollection
-    @CollectionTable(name = "pet_food_schedule", joinColumns = {@JoinColumn(name = "pet_id")})
+    @CollectionTable(name = "pooch_food_schedule", joinColumns = {@JoinColumn(name = "pooch_id")})
     private Set<FoodSchedule> foodSchedule;
 
     @Column(name = "dob")

@@ -50,13 +50,23 @@
       using:
         foreign_key_constraint_on: groomer_id
   array_relationships:
-    - name: poochcare_pets
+    - name: booking_pooches
       using:
         foreign_key_constraint_on:
-          column: poochcare_id
+          column: booking_id
           table:
             schema: public
-            name: poochcare_pets
+            name: booking_pooches
+- table:
+    schema: public
+    name: booking_pooches
+  object_relationships:
+    - name: booking
+      using:
+        foreign_key_constraint_on: booking_id
+    - name: pooch
+      using:
+        foreign_key_constraint_on: pooch_id
 - table:
     schema: public
     name: care_service
@@ -83,9 +93,8 @@
           - created_at
           - updated_at
         filter:
-          groomer:
-            id:
-              _eq: x-Hasura-groomer-id
+          groomer_id:
+            _eq: x-Hasura-groomer-id
 - table:
     schema: public
     name: groomer
@@ -137,28 +146,28 @@
       permission:
         columns:
           - id
-          - business_name
-          - charge_per_mile
-          - created_at
+          - number_of_occupancy
+          - phone_number
           - deleted
-          - description
-          - email
           - email_temp
           - email_verified
-          - first_name
           - instant_booking
-          - last_name
           - listing
-          - number_of_occupancy
           - offered_drop_off
           - offered_pick_up
-          - phone_number
           - phone_number_verified
-          - rating
+          - business_name
+          - email
+          - first_name
+          - last_name
           - sign_up_status
           - status
-          - updated_at
           - uuid
+          - charge_per_mile
+          - rating
+          - description
+          - created_at
+          - updated_at
         filter:
           uuid:
             _eq: x-Hasura-groomer-uuid
@@ -220,6 +229,27 @@
           table:
             schema: public
             name: s3file
+  select_permissions:
+    - role: parent
+      permission:
+        columns:
+          - address_id
+          - id
+          - phone_number
+          - deleted
+          - email_temp
+          - email_verified
+          - phone_number_verified
+          - email
+          - full_name
+          - status
+          - uuid
+          - rating
+          - created_at
+          - updated_at
+        filter:
+          uuid:
+            _eq: x-Hasura-parent-uuid
 - table:
     schema: public
     name: parent_roles
@@ -232,13 +262,6 @@
         foreign_key_constraint_on: role_id
 - table:
     schema: public
-    name: pet_food_schedule
-  object_relationships:
-    - name: pooch
-      using:
-        foreign_key_constraint_on: pet_id
-- table:
-    schema: public
     name: phone_number_verification
 - table:
     schema: public
@@ -248,20 +271,20 @@
       using:
         foreign_key_constraint_on: parent_id
   array_relationships:
-    - name: pet_food_schedules
-      using:
-        foreign_key_constraint_on:
-          column: pet_id
-          table:
-            schema: public
-            name: pet_food_schedule
-    - name: poochcare_pets
+    - name: booking_pooches
       using:
         foreign_key_constraint_on:
           column: pooch_id
           table:
             schema: public
-            name: poochcare_pets
+            name: booking_pooches
+    - name: pooch_food_schedules
+      using:
+        foreign_key_constraint_on:
+          column: pooch_id
+          table:
+            schema: public
+            name: pooch_food_schedule
     - name: vaccines
       using:
         foreign_key_constraint_on:
@@ -269,16 +292,45 @@
           table:
             schema: public
             name: vaccine
+  select_permissions:
+    - role: parent
+      permission:
+        columns:
+          - id
+          - parent_id
+          - deleted
+          - neutered
+          - spayed
+          - breed
+          - full_name
+          - gender
+          - training
+          - uuid
+          - dob
+          - weight
+          - notes
+          - created_at
+          - updated_at
+        filter:
+          parent_id:
+            _eq: x-Hasura-parent-id
 - table:
     schema: public
-    name: poochcare_pets
+    name: pooch_food_schedule
   object_relationships:
-    - name: booking
-      using:
-        foreign_key_constraint_on: poochcare_id
     - name: pooch
       using:
         foreign_key_constraint_on: pooch_id
+  select_permissions:
+    - role: parent
+      permission:
+        columns:
+          - pooch_id
+          - food_schedule
+        filter:
+          pooch:
+            parent_id:
+              _eq: x-Hasura-parent-id
 - table:
     schema: public
     name: roles
@@ -307,6 +359,43 @@
     - name: parent
       using:
         foreign_key_constraint_on: parent_id
+  select_permissions:
+    - role: groomer
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - deleted
+          - is_public
+          - file_name
+          - file_type
+          - s3_key
+          - uuid
+          - url
+          - created_at
+          - updated_at
+        filter:
+          groomer_id:
+            _eq: x-Hasura-groomer-id
+    - role: parent
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - deleted
+          - is_public
+          - file_name
+          - file_type
+          - s3_key
+          - uuid
+          - url
+          - created_at
+          - updated_at
+        filter:
+          parent_id:
+            _eq: x-Hasura-parent-id
 - table:
     schema: public
     name: vaccine
@@ -314,3 +403,17 @@
     - name: pooch
       using:
         foreign_key_constraint_on: pooch_id
+  select_permissions:
+    - role: parent
+      permission:
+        columns:
+          - id
+          - pooch_id
+          - name
+          - created_at
+          - expire_date
+          - updated_at
+        filter:
+          pooch:
+            parent_id:
+              _eq: x-Hasura-parent-id

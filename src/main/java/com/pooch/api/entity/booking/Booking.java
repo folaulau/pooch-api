@@ -79,7 +79,7 @@ public class Booking implements Serializable {
 
     // @JsonIgnoreProperties(value = {"expenses", "scrubbedData"})
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH})
-    @JoinTable(name = "poochcare_pets", joinColumns = @JoinColumn(name = "poochcare_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "pooch_id", referencedColumnName = "id"))
+    @JoinTable(name = "booking_pooches", joinColumns = @JoinColumn(name = "booking_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "pooch_id", referencedColumnName = "id"))
     private Set<Pooch>        pets;
 
     @ManyToOne(cascade = CascadeType.DETACH)
