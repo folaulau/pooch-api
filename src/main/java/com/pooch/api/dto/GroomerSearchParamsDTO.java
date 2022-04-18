@@ -37,10 +37,23 @@ public class GroomerSearchParamsDTO implements Serializable {
     private Integer           pageSize;
     private String            searchPhrase;
 
+    /**
+     * Calendar
+     */
     private LocalDate         startDate;
     private LocalDate         endDate;
-    private List<String>      dogSizes;
-    private List<String>      careServices;
+
+    /**
+     * Care Service
+     */
+    private List<String>      poochSizes;
+    private List<String>      careServiceNames;
+    private Double            minPrice;
+    private Double            maxPrice;
+
+    /**
+     * Rating
+     */
     private Integer           rating;
 
     /**

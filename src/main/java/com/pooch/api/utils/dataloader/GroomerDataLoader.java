@@ -64,6 +64,7 @@ public class GroomerDataLoader implements ApplicationRunner {
                 groomer.setAddresses(null);
                 address = generatorService.getAddress();
                 address.setId((long) (i + 1));
+                address.setGroomer(groomer);
                 groomer.addAddress(address);
 
                 log.info("groomer#={}, {}", (i + 1), ObjectUtils.toJson(groomer));

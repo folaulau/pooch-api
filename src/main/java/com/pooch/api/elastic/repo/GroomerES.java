@@ -1,11 +1,13 @@
 package com.pooch.api.elastic.repo;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.springframework.data.annotation.Id;
@@ -16,6 +18,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.GeoPointField;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -100,12 +103,6 @@ public class GroomerES implements Serializable {
     @Field
     private boolean             deleted;
 
-    @Field(format = DateFormat.basic_date_time)
-    private LocalDateTime       createdAt;
-
-    @Field(format = DateFormat.basic_date_time)
-    private LocalDateTime       updatedAt;
-
     public void populateGeoPoints() {
         if (addresses == null || addresses.size() == 0) {
             return;
@@ -137,4 +134,5 @@ public class GroomerES implements Serializable {
             }).collect(Collectors.toList());
         }
     }
+
 }

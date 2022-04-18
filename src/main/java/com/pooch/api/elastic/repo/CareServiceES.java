@@ -54,8 +54,4 @@ public class CareServiceES implements Serializable {
 
     private boolean           deleted;
 
-    private LocalDateTime     createdAt;
-
-    private LocalDateTime     updatedAt;
-
 }

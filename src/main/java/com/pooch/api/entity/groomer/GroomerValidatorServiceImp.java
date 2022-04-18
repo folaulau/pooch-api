@@ -212,6 +212,11 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
             }
         }
 
+        Integer pageSize = filters.getPageSize();
+
+        if (pageSize != null && pageSize > 1000) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "pageSize is too big,pageSize="+pageSize);
+        }
     }
 
 }

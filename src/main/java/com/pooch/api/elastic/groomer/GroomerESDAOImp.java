@@ -198,15 +198,15 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
     private GroomerSearchParamsDTO populateSearchFilterAndSortDefaultValues(GroomerSearchParamsDTO filters) {
 
-        if (filters.getPageNumber() == null) {
+        if (filters.getPageNumber() == null || filters.getPageNumber() < 0) {
             filters.setPageNumber(0);
         }
 
-        if (filters.getPageSize() == null) {
+        if (filters.getPageSize() == null || filters.getPageSize() <= 0) {
             filters.setPageSize(25);
         }
 
-        if (filters.getDistance() == null) {
+        if (filters.getDistance() == null || filters.getDistance() <= 0) {
             filters.setDistance(5);
         }
 

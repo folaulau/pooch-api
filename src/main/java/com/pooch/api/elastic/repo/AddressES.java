@@ -58,10 +58,6 @@ public class AddressES implements Serializable {
 
     private String            timezone;
 
-    private LocalDateTime     createdAt;
-
-    private LocalDateTime     updatedAt;
-
     public void populateGeoPoint() {
         if (longitude == null || latitude == null) {
             return;
