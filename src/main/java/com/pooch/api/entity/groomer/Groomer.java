@@ -158,8 +158,7 @@ public class Groomer implements Serializable {
     private LocalDateTime       updatedAt;
 
     @JsonIgnoreProperties(value = {"groomer"})
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "groomer_addresses", joinColumns = {@JoinColumn(name = "groomer_id")}, inverseJoinColumns = {@JoinColumn(name = "address_id")})
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "groomer")
     private Set<Address>        addresses;
 
     public void addRole(Role role) {

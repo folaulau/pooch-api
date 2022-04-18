@@ -108,8 +108,9 @@ public class Parent implements Serializable {
     @Column(name = "status")
     private ParentStatus      status;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id")
+    @JsonIgnoreProperties(value = {"parent"})
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "parent")
+    // @JoinColumn(name = "address_id")
     private Address           address;
 
     @JsonIgnoreProperties(value = {"parents"})

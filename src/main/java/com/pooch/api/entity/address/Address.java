@@ -5,11 +5,15 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -23,6 +27,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
+import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.parent.Parent;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -77,6 +83,14 @@ public class Address implements Serializable {
 
     @Column(name = "primary_address")
     private boolean           primary;
+
+    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @JoinColumn(name = "groomer_id", nullable = true)
+    private Groomer           groomer;
+
+    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id", nullable = true)
+    private Parent            parent;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -191,10 +191,13 @@ public class GroomerServiceImp implements GroomerService {
                 if (addressUuid != null && !addressUuid.trim().isEmpty()) {
                     address = addresses.stream().filter(addr -> addr.getUuid().equalsIgnoreCase(addressUuid)).findFirst().get();
                     entityDTOMapper.patchAddressWithAddressCreateUpdateDTO(addressCreateUpdateDTO, address);
+                    address.setGroomer(groomer);
                 } else {
                     address = entityDTOMapper.mapAddressCreateUpdateDTOToAddress(addressCreateUpdateDTO);
+                    address.setGroomer(groomer);
                     addresses.add(address);
                 }
+
             });
         }
 
