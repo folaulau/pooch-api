@@ -22,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserRecord;
+import com.pooch.api.entity.address.Address;
+import com.pooch.api.entity.address.AddressDAO;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
 import com.pooch.api.entity.parent.Parent;
@@ -71,6 +73,9 @@ public class GroomerServiceImp implements GroomerService {
 
     @Autowired
     private CareServiceDAO          careServiceDAO;
+
+    @Autowired
+    private AddressDAO              addressDAO;
 
     @Override
     public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
@@ -164,13 +169,38 @@ public class GroomerServiceImp implements GroomerService {
         String oldEmail = groomer.getEmail();
         Long oldPhoneNumber = groomer.getPhoneNumber();
 
-        Groomer savedGroomer = groomerDAO.save(groomer);
-
         String newEmail = groomerUpdateDTO.getEmail();
         Long newPhoneNumber = groomerUpdateDTO.getPhoneNumber();
 
         log.info("new email={}, old email={}", newEmail, oldEmail);
         log.info("new phone={}, old phone={}", newPhoneNumber, oldPhoneNumber);
+
+        /**
+         * Update addresses
+         */
+
+        Set<Address> addresses = groomer.getAddresses();
+
+        Set<AddressCreateUpdateDTO> addressDTOs = groomerUpdateDTO.getAddresses();
+
+        if (addressDTOs != null) {
+            addressDTOs.stream().forEach(addressCreateUpdateDTO -> {
+                String addressUuid = addressCreateUpdateDTO.getUuid();
+
+                Address address = null;
+                if (addressUuid != null && !addressUuid.trim().isEmpty()) {
+                    address = addresses.stream().filter(addr -> addr.getUuid().equalsIgnoreCase(addressUuid)).findFirst().get();
+                    entityDTOMapper.patchAddressWithAddressCreateUpdateDTO(addressCreateUpdateDTO, address);
+                } else {
+                    address = entityDTOMapper.mapAddressCreateUpdateDTOToAddress(addressCreateUpdateDTO);
+                    addresses.add(address);
+                }
+            });
+        }
+
+        groomer.setAddresses(addresses);
+
+        Groomer savedGroomer = groomerDAO.save(groomer);
 
         GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(groomer);
 

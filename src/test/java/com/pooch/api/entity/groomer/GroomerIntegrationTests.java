@@ -123,7 +123,7 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
         assertThat(groomerDTO.getLastName()).isNotNull().isEqualTo("Kaveinga");
         assertThat(groomerDTO.getDescription()).isNotNull().isEqualTo("test description");
         assertThat(groomerDTO.getAddresses()).isNotNull();
-        assertThat(groomerDTO.getAddresses().size()).isEqualTo(1);
+        assertThat(groomerDTO.getAddresses().size()).isEqualTo(2);
         assertThat(groomerDTO.getCareServices()).isNotNull();
         assertThat(groomerDTO.getCareServices().size()).isEqualTo(1);
 

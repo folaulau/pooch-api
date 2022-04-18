@@ -10,10 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.pooch.api.dto.AddressCreateUpdateDTO;
 import com.pooch.api.dto.CareServiceUpdateDTO;
 import com.pooch.api.dto.CustomSort;
 import com.pooch.api.dto.GroomerSearchParamsDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
+import com.pooch.api.entity.address.AddressDAO;
 import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
 import com.pooch.api.entity.groomer.careservice.CareServiceName;
 import com.pooch.api.exception.ApiError;
@@ -32,6 +34,9 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
 
     @Autowired
     private CareServiceDAO careServiceDAO;
+
+    @Autowired
+    private AddressDAO     addressDAO;
 
     @Override
     public Groomer validateUpdateProfile(GroomerUpdateDTO groomerUpdateDTO) {
@@ -137,6 +142,34 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
             }
         }
 
+        Set<AddressCreateUpdateDTO> addressDTOs = groomerUpdateDTO.getAddresses();
+
+        if (addressDTOs != null) {
+            for (AddressCreateUpdateDTO addressDTO : addressDTOs) {
+                Double latitude = addressDTO.getLatitude();
+
+                if (latitude == null) {
+                    log.info("Latitude is required");
+                    throw new ApiException("Address is invalid", "Latitude is required");
+                }
+                Double longitude = addressDTO.getLongitude();
+
+                if (longitude == null) {
+                    log.info("Longitude is required");
+                    throw new ApiException("Address is invalid", "Longitude is required");
+                }
+                String addressUuid = addressDTO.getUuid();
+                if (addressUuid != null && !addressUuid.isEmpty()) {
+
+                    groomer.getAddresses()
+                            .stream()
+                            .filter(addr -> addr.getUuid().equalsIgnoreCase(addressUuid))
+                            .findFirst()
+                            .orElseThrow(() -> new ApiException("Address not found", "uuid=" + addressDTO.getUuid() + " not found", "address may not belong to this user"));
+                }
+            }
+        }
+
         return groomer;
     }
 
@@ -180,6 +213,5 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
         }
 
     }
-
 
 }

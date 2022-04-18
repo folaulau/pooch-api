@@ -47,7 +47,7 @@ public interface EntityDTOMapper {
 
     GroomerDTO mapGroomerToGroomerDTO(Groomer groomer);
 
-    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "addresses", ignore = true)})
     void patchGroomerWithGroomerUpdateDTO(GroomerUpdateDTO groomerUpdateDTO, @MappingTarget Groomer groomer);
 
     AuthenticationResponseDTO mapGroomerToAuthenticationResponse(Groomer groomer);
@@ -76,4 +76,10 @@ public interface EntityDTOMapper {
     Set<CareServiceDTO> mapCareServicesToCareServiceDTOs(List<CareService> savedCareServices);
 
     List<CareServiceDTO> mapCareServicesToCareServiceDTOsAsList(Set<CareService> careServices);
+
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    void patchAddressWithAddressCreateUpdateDTO(AddressCreateUpdateDTO addressCreateUpdateDTO, @MappingTarget Address address);
+
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    Address mapAddressCreateUpdateDTOToAddress(AddressCreateUpdateDTO addressCreateUpdateDTO);
 }
