@@ -11,7 +11,7 @@ public final class PathUtils {
 
     public static final String[] TEST_URLS        = {"/tests/**", "/integration"};
 
-    public static final String[] PUBLIC_URLS      = {"/phonenumbers/request-verification", "/phonenumbers/verification"};
+    public static final String[] PUBLIC_URLS      = {"/groomers/search", "/groomers/search/", "/phonenumbers/request-verification", "/phonenumbers/verification"};
 
     public static final String[] SWAGGER_DOC_URLS = {"/v3/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources", "/swagger-resources/**", "/swagger-resources/configuration/ui",
             "/swagger-resources/configuration/security", "/v2/api-docs", "/webjars/**", "/webjars/springfox-swagger-ui/**", "/webjars/springfox-swagger-ui/springfox.css?v=2.8.0-SNAPSHOT",

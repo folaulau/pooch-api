@@ -74,7 +74,7 @@ public class GroomerRestController {
     @Operation(summary = "Search Groomers", description = "search groomers<br>" + "distance is in mile. default to 5 miles<br>" + "pageNumber starts at 0 as the first page<br>"
             + "pageSize is 25 by default<br>" + "sorts valid values[distance,rating,searchPhrase]<br>")
     @PostMapping(value = "/search")
-    public ResponseEntity<CustomPage<GroomerES>> search(@RequestHeader(name = "token", required = true) String token, @RequestBody GroomerSearchParamsDTO params) {
+    public ResponseEntity<CustomPage<GroomerES>> search(@RequestBody GroomerSearchParamsDTO params) {
         log.info("search");
 
         CustomPage<GroomerES> results = groomerService.search(params);
