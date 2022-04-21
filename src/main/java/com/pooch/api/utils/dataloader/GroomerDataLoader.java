@@ -43,7 +43,7 @@ public class GroomerDataLoader implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        long lastGroomerId = 5;
+        long lastGroomerId = 10;
 
         Optional<Groomer> optGroomer = groomerRepository.findById(lastGroomerId);
 
@@ -62,7 +62,19 @@ public class GroomerDataLoader implements ApplicationRunner {
                 groomer = generatorService.getGroomer();
                 groomer.setId((long) (i + 1));
                 groomer.setAddresses(null);
+                
                 address = generatorService.getAddress();
+                
+                if(i==3) {
+                    address = new Address();
+                    address.setCity("Venice");
+                    address.setState("CA");
+                    address.setZipcode("90291");
+                    address.setStreet("1800 Ocean Front Walk");
+                    address.setLatitude(33.9850469);
+                    address.setLongitude(-118.4694832);
+                }
+                
                 address.setId((long) (i + 1));
                 address.setGroomer(groomer);
                 groomer.addAddress(address);

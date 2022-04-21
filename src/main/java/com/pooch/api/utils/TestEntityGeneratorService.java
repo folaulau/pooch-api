@@ -235,6 +235,26 @@ public class TestEntityGeneratorService {
 
         addresses.add(address);
 
+        /**
+         * 1800 Ocean Front Walk, Venice, CA 90291
+         * 
+         * 
+         * 
+         * 
+         * 
+         * 10:53 THIS IS THE LAT 33.9850469 this is the long -118.4694832
+         */
+
+        address = new Address();
+        address.setCity("Venice");
+        address.setState("CA");
+        address.setZipcode("90291");
+        address.setStreet("1800 Ocean Front Walk");
+        address.setLatitude(33.9850469);
+        address.setLongitude(-118.4694832);
+
+        addresses.add(address);
+
         return addresses.get(RandomGeneratorUtils.getIntegerWithin(0, addresses.size() - 1));
     }
 }
