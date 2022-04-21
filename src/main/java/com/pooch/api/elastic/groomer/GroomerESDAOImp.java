@@ -134,6 +134,8 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
         boolQuery.filter(QueryBuilders.geoDistanceQuery("addresses.location").point(latitude, longitude).distance(radius, DistanceUnit.MILES).geoDistance(GeoDistance.ARC));
 
+        
+        
         searchSourceBuilder.query(QueryBuilders.nestedQuery("addresses", boolQuery, ScoreMode.None));
 
         String searchPhrase = filters.getSearchPhrase();

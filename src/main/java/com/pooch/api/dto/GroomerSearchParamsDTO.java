@@ -5,9 +5,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
+
+import com.pooch.api.entity.pooch.PoochSize;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -46,8 +49,8 @@ public class GroomerSearchParamsDTO implements Serializable {
     /**
      * Care Service
      */
-    private List<String>      poochSizes;
-    private List<String>      careServiceNames;
+    private Set<String>       poochSizes;
+    private Set<String>       careServiceNames;
     private Double            minPrice;
     private Double            maxPrice;
 

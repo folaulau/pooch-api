@@ -18,6 +18,7 @@ import com.pooch.api.dto.GroomerUpdateDTO;
 import com.pooch.api.entity.address.AddressDAO;
 import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
 import com.pooch.api.entity.groomer.careservice.CareServiceName;
+import com.pooch.api.entity.pooch.PoochSize;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
 import com.pooch.api.utils.FileValidatorUtils;
@@ -215,8 +216,60 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
         Integer pageSize = filters.getPageSize();
 
         if (pageSize != null && pageSize > 1000) {
-            throw new ApiException(ApiError.DEFAULT_MSG, "pageSize is too big,pageSize="+pageSize);
+            throw new ApiException(ApiError.DEFAULT_MSG, "pageSize is too big,pageSize=" + pageSize);
         }
+
+        /**
+         * Care Services
+         */
+        Set<String> poochSizes = filters.getPoochSizes();
+
+        if (poochSizes != null) {
+            for (String poochSize : poochSizes) {
+                if (!PoochSize.isValidSize(poochSize)) {
+                    throw new ApiException(ApiError.DEFAULT_MSG, "poochSize=" + poochSize + " is invalid", "valid poochSize values=" + PoochSize.sizes);
+                }
+            }
+        }
+
+        Set<String> careServiceNames = filters.getCareServiceNames();
+
+        if (careServiceNames != null) {
+            for (String careServiceName : careServiceNames) {
+                if (!CareServiceName.isValidCareServiceName(careServiceName)) {
+                    throw new ApiException(ApiError.DEFAULT_MSG, "service name=" + careServiceName, "valid serviceNames=" + CareServiceName.careServiceNames, "care service name is case sensitive");
+                }
+            }
+        }
+
+        Double poochMinPrice = filters.getMinPrice();
+
+        if (poochMinPrice != null && (0 > poochMinPrice || poochMinPrice > 1000000)) {
+
+            throw new ApiException(ApiError.DEFAULT_MSG, "poochMinPrice=" + poochMinPrice + " is invalid");
+
+        }
+
+        Double poochMaxPrice = filters.getMaxPrice();
+
+        if (poochMaxPrice != null && (0 > poochMaxPrice || poochMaxPrice > 1000000)) {
+
+            throw new ApiException(ApiError.DEFAULT_MSG, "poochMaxPrice=" + poochMaxPrice + " is invalid");
+
+        }
+
+        if (poochMinPrice != null && poochMaxPrice != null && poochMinPrice > poochMaxPrice) {
+            throw new ApiException("Min Price must be equal to or less than Max Price", "poochMinPrice=" + poochMinPrice + " is invalid");
+        }
+
+        Integer rating = filters.getRating();
+
+        if (rating != null && (rating < 0 || rating > 1000)) {
+
+            throw new ApiException("Invalid rating", "rating=" + rating);
+
+        }
+
     }
 
 }
