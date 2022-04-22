@@ -123,6 +123,7 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
 
         groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
         groomer.populateGeoPoints();
+        groomer.setStatus(GroomerStatus.ACTIVE);
         groomer = groomerESRepository.save(groomer);
         groomers.add(groomer);
         /**
@@ -144,6 +145,7 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
 
         groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
         groomer.populateGeoPoints();
+        groomer.setStatus(GroomerStatus.ACTIVE);
         groomer = groomerESRepository.save(groomer);
         groomers.add(groomer);
         
@@ -173,6 +175,7 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
 
         groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
         groomer.populateGeoPoints();
+        groomer.setStatus(GroomerStatus.ACTIVE);
         groomer = groomerESRepository.save(groomer);
         groomers.add(groomer);
 
@@ -222,6 +225,7 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
 
         groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
         groomer.populateGeoPoints();
+        groomer.setStatus(GroomerStatus.ACTIVE);
         groomer = groomerESRepository.save(groomer);
         groomers.add(groomer);
         /**
@@ -243,6 +247,7 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
 
         groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
         groomer.populateGeoPoints();
+        groomer.setStatus(GroomerStatus.ACTIVE);
         groomer = groomerESRepository.save(groomer);
         groomers.add(groomer);
 
@@ -268,6 +273,7 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
 
         groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
         groomer.populateGeoPoints();
+        groomer.setStatus(GroomerStatus.ACTIVE);
         groomer = groomerESRepository.save(groomer);
         groomers.add(groomer);
 
