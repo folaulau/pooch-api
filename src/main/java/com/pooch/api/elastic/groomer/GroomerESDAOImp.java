@@ -7,6 +7,7 @@ import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.GroomerSearchParamsDTO;
 import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.groomer.GroomerSearchSorting;
+import com.pooch.api.entity.groomer.GroomerStatus;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceRepository;
 import com.pooch.api.exception.ApiError;
@@ -132,7 +133,11 @@ public class GroomerESDAOImp implements GroomerESDAO {
          */
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
-        boolQuery.filter(QueryBuilders.geoDistanceQuery("addresses.location").point(latitude, longitude).distance(radius, DistanceUnit.MILES).geoDistance(GeoDistance.ARC));
+        // termQuery is case sensitive
+        boolQuery.filter(QueryBuilders.termQuery("status.keyword", GroomerStatus.ACTIVE.name()));
+
+        boolQuery.filter(QueryBuilders.nestedQuery("addresses",
+                QueryBuilders.geoDistanceQuery("addresses.location").point(latitude, longitude).distance(radius, DistanceUnit.MILES).geoDistance(GeoDistance.ARC), ScoreMode.None));
 
         /**
          * CareServices
@@ -143,8 +148,8 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
         Double minPrice = filters.getMinPrice();
         Double maxPrice = filters.getMaxPrice();
-
-        searchSourceBuilder.query(QueryBuilders.nestedQuery("addresses", boolQuery, ScoreMode.None));
+        
+        searchSourceBuilder.query(boolQuery);
 
         String searchPhrase = filters.getSearchPhrase();
 

@@ -1,27 +1,20 @@
 package com.pooch.api.elastic.repo;
 
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.GeoPointField;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.pooch.api.entity.groomer.GroomerSignUpStatus;
+import com.pooch.api.entity.groomer.GroomerStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -87,6 +80,12 @@ public class GroomerES implements Serializable {
 
     @Field
     private Boolean             instantBooking;
+
+    @Field
+    private GroomerSignUpStatus signUpStatus;
+
+    @Field
+    private GroomerStatus       status;
 
     /** address */
 

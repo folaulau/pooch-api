@@ -15,6 +15,8 @@ import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.groomer.GroomerRepository;
+import com.pooch.api.entity.groomer.GroomerSignUpStatus;
+import com.pooch.api.entity.groomer.GroomerStatus;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceRepository;
 import com.pooch.api.utils.ObjectUtils;
@@ -60,6 +62,8 @@ public class GroomerDataLoader implements ApplicationRunner {
 
             for (int i = 0; i < lastGroomerId; i++) {
                 groomer = generatorService.getGroomer();
+                groomer.setSignUpStatus(GroomerSignUpStatus.COMPLETED);
+                groomer.setStatus(GroomerStatus.ACTIVE);
                 groomer.setId((long) (i + 1));
                 groomer.setAddresses(null);
                 
