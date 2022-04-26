@@ -6,6 +6,8 @@ import java.util.Set;
 import com.pooch.api.elastic.repo.AddressES;
 import com.pooch.api.elastic.repo.CareServiceES;
 import com.pooch.api.entity.groomer.careservice.CareService;
+import com.pooch.api.entity.groomer.careservice.type.GroomerServiceCategory;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -82,4 +84,6 @@ public interface EntityDTOMapper {
 
     @Mappings({@Mapping(target = "uuid", ignore = true)})
     Address mapAddressCreateUpdateDTOToAddress(AddressCreateUpdateDTO addressCreateUpdateDTO);
+
+    List<GroomerServiceCategoryDTO> mapGroomerServiceCategorysToGroomerServiceCategoryDTOs(List<GroomerServiceCategory> categories);
 }

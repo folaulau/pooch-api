@@ -100,7 +100,7 @@ public class GroomerRestController {
 
     @Operation(summary = "Get Service Types", description = "get service types")
     @GetMapping("/service/types")
-    public ResponseEntity<List<GroomerServiceCategory>> getAllServiceTypes(@RequestHeader(name = "token", required = true) String token) {
+    public ResponseEntity<List<GroomerServiceCategoryDTO>> getAllServiceTypes(@RequestHeader(name = "token", required = true) String token) {
         log.info("getAllServiceTypes={}", token);
 
         return new ResponseEntity<>(groomerServiceTypeService.getAllGroomerServiceTypes(), OK);
