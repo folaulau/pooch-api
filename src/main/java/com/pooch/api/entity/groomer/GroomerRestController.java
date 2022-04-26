@@ -56,7 +56,7 @@ public class GroomerRestController {
     }
 
     @Operation(summary = "Upload Profile Images", description = "upload profile images")
-    @PostMapping(value = "/{uuid}/profile/images")
+    @PostMapping(value = "/{uuid}/profile/images", consumes = { "multipart/form-data" })
     public ResponseEntity<List<S3FileDTO>> uploadProfileImages(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
             @RequestParam(name = "images") List<MultipartFile> images) {
         log.info("uploadProfileImages, uuid={}", uuid);
@@ -67,12 +67,12 @@ public class GroomerRestController {
     }
 
     @Operation(summary = "Upload Contract Documents", description = "upload contract documents")
-    @PostMapping(value = "/{uuid}/contract/documents")
+    @PostMapping(value = "/{uuid}/contract/documents", consumes = { "multipart/form-data" })
     public ResponseEntity<List<S3FileDTO>> uploadContractDocuments(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
-            @RequestParam(name = "images") List<MultipartFile> images) {
+            @RequestParam(name = "docs") List<MultipartFile> docs) {
         log.info("uploadProfileImages, uuid={}", uuid);
 
-        List<S3FileDTO> s3FileDTOs = groomerService.uploadContractDocuments(uuid, images);
+        List<S3FileDTO> s3FileDTOs = groomerService.uploadContractDocuments(uuid, docs);
 
         return new ResponseEntity<>(s3FileDTOs, OK);
     }
@@ -100,8 +100,8 @@ public class GroomerRestController {
 
     @Operation(summary = "Get Service Types", description = "get service types")
     @GetMapping("/service/types")
-    public ResponseEntity<List<GroomerServiceCategoryDTO>> getAllServiceTypes(@RequestHeader(name = "token", required = true) String token) {
-        log.info("getAllServiceTypes={}", token);
+    public ResponseEntity<List<GroomerServiceCategoryDTO>> getAllServiceTypes() {
+        log.info("getAllServiceTypes()");
 
         return new ResponseEntity<>(groomerServiceTypeService.getAllGroomerServiceTypes(), OK);
     }

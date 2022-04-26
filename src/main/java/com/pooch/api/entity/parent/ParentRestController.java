@@ -46,7 +46,7 @@ public class ParentRestController {
     }
 
     @Operation(summary = "Upload Profile Images", description = "upload profile images")
-    @PostMapping(value = "/{uuid}/profile/images")
+    @PostMapping(value = "/{uuid}/profile/images", consumes = { "multipart/form-data" })
     public ResponseEntity<List<S3FileDTO>> uploadProfileImages(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
             @RequestParam(name = "images") List<MultipartFile> images) {
         log.info("uploadProfileImages, uuid={}", uuid);
