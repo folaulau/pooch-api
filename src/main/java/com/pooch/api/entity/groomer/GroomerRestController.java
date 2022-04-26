@@ -6,6 +6,9 @@ import java.util.List;
 
 import com.pooch.api.dto.*;
 import com.pooch.api.elastic.repo.GroomerES;
+import com.pooch.api.entity.groomer.careservice.type.GroomerServiceCategory;
+import com.pooch.api.entity.groomer.careservice.type.GroomerServiceTypeService;
+
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +30,10 @@ import javax.servlet.http.HttpServletRequest;
 public class GroomerRestController {
 
     @Autowired
-    private GroomerService groomerService;
+    private GroomerService            groomerService;
+
+    @Autowired
+    private GroomerServiceTypeService groomerServiceTypeService;
 
     @Operation(summary = "Authenticate", description = "sign up or sign in")
     @PostMapping(value = "/authenticate")
@@ -90,5 +96,13 @@ public class GroomerRestController {
         ApiDefaultResponseDTO result = groomerService.signOut(token);
 
         return new ResponseEntity<>(new ApiDefaultResponseDTO(ApiDefaultResponseDTO.SUCCESS), OK);
+    }
+
+    @Operation(summary = "Get Service Types", description = "get service types")
+    @GetMapping("/service/types")
+    public ResponseEntity<List<GroomerServiceCategory>> getAllServiceTypes(@RequestHeader(name = "token", required = true) String token) {
+        log.info("getAllServiceTypes={}", token);
+
+        return new ResponseEntity<>(groomerServiceTypeService.getAllGroomerServiceTypes(), OK);
     }
 }

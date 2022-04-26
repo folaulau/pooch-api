@@ -24,7 +24,9 @@ public interface FileValidatorUtils {
             .stream()
             .collect(Collectors.toMap(Function.identity(), Function.identity()));
 
-    Map<String, String> VALID_CONTRACT_EXTENSIONS = Arrays.asList("pdf", "docx", "dotx", "dot", "doc").stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+    Map<String, String> VALID_CONTRACT_EXTENSIONS = Arrays.asList("pdf", "docx", "dotx", "dot", "doc", "png", "gif", "jpeg", "jpg")
+            .stream()
+            .collect(Collectors.toMap(Function.identity(), Function.identity()));
 
     public static void validateUploadImages(List<MultipartFile> images) {
         if (images.size() > 100) {
@@ -47,7 +49,7 @@ public interface FileValidatorUtils {
             String extension = FileUtils.getFileExtension(originalFilename).toLowerCase();
 
             if (!VALID_IMAGE_EXTENSIONS.containsKey(extension)) {
-                throw new ApiException(originalFilename + " is invalid. Unsupported file extension");
+                throw new ApiException(originalFilename + " is invalid. Unsupported file extension", "extension=" + extension);
             }
         }
     }
@@ -73,7 +75,7 @@ public interface FileValidatorUtils {
             String extension = FileUtils.getFileExtension(originalFilename).toLowerCase();
 
             if (!VALID_CONTRACT_EXTENSIONS.containsKey(extension)) {
-                throw new ApiException(originalFilename + " is invalid. Unsupported file extension");
+                throw new ApiException(originalFilename + " is invalid. Unsupported file extension", "extension=" + extension);
             }
         }
     }
