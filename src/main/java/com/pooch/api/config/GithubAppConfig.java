@@ -42,6 +42,7 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.pooch.api.library.aws.secretsmanager.AwsSecretsManagerService;
 import com.pooch.api.library.aws.secretsmanager.FirebaseSecrets;
+import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.aws.secretsmanager.TwilioSecrets;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -197,19 +198,26 @@ public class GithubAppConfig {
         return awsSecretsManagerService.getTwilioSecrets();
     }
 
-    @Bean(name = "stripeApiSecretKey")
-    public String stripeApiSecretKey(@Value("${stripe.secret.key}") String stripeApiSecretKey) {
-        return stripeApiSecretKey;
-    }
+    // @Bean(name = "stripeApiSecretKey")
+    // public String stripeApiSecretKey(@Value("${stripe.secret.key}") String stripeApiSecretKey) {
+    // return stripeApiSecretKey;
+    // }
+    //
+    // @Bean(name = "stripeProductId")
+    // public String stripeProductId(@Value("${stripe.product}") String stripeProductId) {
+    // return stripeProductId;
+    // }
+    //
+    // @Bean(name = "stripeWebhookSubscriptionSigningSecret")
+    // public String stripeWebhookSubscriptionSigningSecret(@Value("${stripe.webhook.subscription.signing.secret}")
+    // String stripeWebhookSubscriptionSigningSecret) {
+    // return stripeWebhookSubscriptionSigningSecret;
+    // }
 
-    @Bean(name = "stripeProductId")
-    public String stripeProductId(@Value("${stripe.product}") String stripeProductId) {
-        return stripeProductId;
-    }
-
-    @Bean(name = "stripeWebhookSubscriptionSigningSecret")
-    public String stripeWebhookSubscriptionSigningSecret(@Value("${stripe.webhook.subscription.signing.secret}") String stripeWebhookSubscriptionSigningSecret) {
-        return stripeWebhookSubscriptionSigningSecret;
+    @Bean(name = "stripeSecrets")
+    public StripeSecrets stripeSecrets(@Value("${stripe.publishable.key}") String publishableKey, @Value("${stripe.secret.key}") String secretKey, @Value("${stripe.product}") String productId,
+            @Value("${stripe.webhook.signing.key}") String webhookSigningKey) {
+        return new StripeSecrets(publishableKey, secretKey, productId, webhookSigningKey);
     }
 
     @Bean(name = "queue")

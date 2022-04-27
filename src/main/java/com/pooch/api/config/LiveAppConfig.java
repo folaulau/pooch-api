@@ -120,8 +120,8 @@ public class LiveAppConfig {
         return configuration.load();
     }
 
-    @Bean(name = "stripeSecret")
-    public StripeSecrets stripeSecret() {
+    @Bean(name = "stripeSecrets")
+    public StripeSecrets stripeSecrets() {
         return awsSecretsManagerService.getStripeSecrets();
     }
 
@@ -133,30 +133,6 @@ public class LiveAppConfig {
     @Bean(name = "firebaseSecrets")
     public FirebaseSecrets firebaseSecrets() {
         return awsSecretsManagerService.getFirebaseSecrets();
-    }
-
-    @DependsOn("stripeSecret")
-    @Bean(name = "stripeApiSecretKey")
-    public String stripeApiSecretKey(StripeSecrets stripeSecrets) {
-        return stripeSecrets.getSecretKey();
-    }
-
-    @DependsOn("stripeSecret")
-    @Bean(name = "stripeApiPublishableKey")
-    public String stripeApiPublishableKey(StripeSecrets stripeSecrets) {
-        return stripeSecrets.getPublishableKey();
-    }
-
-    @DependsOn("stripeSecret")
-    @Bean(name = "stripeProductId")
-    public String stripeProductId(StripeSecrets stripeSecrets) {
-        return stripeSecrets.getProductId();
-    }
-
-    @DependsOn("stripeSecret")
-    @Bean(name = "stripeWebhookSubscriptionSigningSecret")
-    public String stripeWebhookSubscriptionSigningSecret(StripeSecrets stripeSecrets) {
-        return stripeSecrets.getWebhookSubscriptionSigningSecret();
     }
 
     @Bean(name = "queue")
@@ -226,7 +202,7 @@ public class LiveAppConfig {
 
         boolean ping = false;
         try {
-//            ping = restHighLevelClient.ping(RequestOptions.DEFAULT);
+            // ping = restHighLevelClient.ping(RequestOptions.DEFAULT);
         } catch (Exception e) {
             log.warn("IOException. ping error, msg={}", e.getMessage());
         }

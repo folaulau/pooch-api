@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
 import com.pooch.api.library.aws.secretsmanager.FirebaseSecrets;
+import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.aws.secretsmanager.TwilioSecrets;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -86,14 +87,10 @@ public class LocalAppConfig {
     @Value("${elasticsearch.port}")
     private int    clusterHttpPort;
 
-    @Bean(name = "stripeApiSecretKey")
-    public String stripeApiSecretKey(@Value("${stripe.secret.key}") String stripeApiSecretKey) {
-        return stripeApiSecretKey;
-    }
-
-    @Bean(name = "stripeProductId")
-    public String stripeProductId(@Value("${stripe.product}") String stripeProductId) {
-        return stripeProductId;
+    @Bean(name = "stripeSecrets")
+    public StripeSecrets stripeSecrets(@Value("${stripe.publishable.key}") String publishableKey, @Value("${stripe.secret.key}") String secretKey, @Value("${stripe.product}") String productId,
+            @Value("${stripe.webhook.signing.key}") String webhookSigningKey) {
+        return new StripeSecrets(publishableKey, secretKey, productId, webhookSigningKey);
     }
 
     @Bean(name = "queue")

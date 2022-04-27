@@ -5,10 +5,12 @@ import java.io.Serializable;
 
 import com.pooch.api.utils.ObjectUtils;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@AllArgsConstructor
 @NoArgsConstructor
 @Slf4j
 @Data
@@ -25,7 +27,7 @@ public class StripeSecrets implements Serializable {
 
     private String            productId;
 
-    private String            webhookSubscriptionSigningSecret;
+    private String            webhookSigningSecret;
 
     public static StripeSecrets fromJson(String json) {
 

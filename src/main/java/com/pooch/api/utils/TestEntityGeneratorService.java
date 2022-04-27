@@ -53,7 +53,7 @@ public class TestEntityGeneratorService {
         groomer.setLastName(lastName);
         groomer.setEmail((firstName + "" + lastName).toLowerCase() + "@gmail.com");
         groomer.setEmailVerified(false);
-
+        groomer.setBusinessName((firstName + " " + lastName).toLowerCase());
         groomer.setNumberOfOccupancy(RandomGeneratorUtils.getLongWithin(2L, 100L));
         groomer.setChargePerMile(RandomGeneratorUtils.getDoubleWithin(1D, 3D));
         groomer.setOfferedDropOff(true);

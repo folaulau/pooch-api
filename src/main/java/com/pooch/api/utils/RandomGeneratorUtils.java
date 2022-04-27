@@ -112,7 +112,7 @@ public final class RandomGeneratorUtils {
             email.append(domain);
         }
 
-        return email.toString();
+        return email.toString().toLowerCase();
     }
 
     public static String getRandomFirstname() {
