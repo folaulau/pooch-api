@@ -215,9 +215,8 @@ public class GithubAppConfig {
     // }
 
     @Bean(name = "stripeSecrets")
-    public StripeSecrets stripeSecrets(@Value("${stripe.publishable.key}") String publishableKey, @Value("${stripe.secret.key}") String secretKey, @Value("${stripe.product}") String productId,
-            @Value("${stripe.webhook.signing.key}") String webhookSigningKey) {
-        return new StripeSecrets(publishableKey, secretKey, productId, webhookSigningKey);
+    public StripeSecrets stripeSecrets() {
+        return awsSecretsManagerService.getStripeSecrets();
     }
 
     @Bean(name = "queue")
