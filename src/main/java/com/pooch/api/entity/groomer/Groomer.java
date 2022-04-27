@@ -218,4 +218,8 @@ public class Groomer implements Serializable {
     private void preUpdate() {
     }
 
+    public boolean isActive() {
+        return status.equals(GroomerStatus.ACTIVE);
+    }
+
 }

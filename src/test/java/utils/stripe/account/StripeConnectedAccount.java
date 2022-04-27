@@ -1,5 +1,7 @@
 package utils.stripe.account;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.File;
 import java.net.URL;
 import java.time.Instant;
@@ -90,6 +92,7 @@ public class StripeConnectedAccount {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        
 
         ArrayList paymentMethodTypes = new ArrayList();
         paymentMethodTypes.add("card");

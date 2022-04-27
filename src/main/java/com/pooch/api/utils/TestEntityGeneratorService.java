@@ -42,6 +42,11 @@ public class TestEntityGeneratorService {
         Groomer petSitter = getGroomer();
         return petSitterRepository.saveAndFlush(petSitter);
     }
+    
+    public Groomer getActiveDBGroomer() {
+        Groomer petSitter = getActiveGroomer();
+        return petSitterRepository.saveAndFlush(petSitter);
+    }
 
     public Groomer getGroomer() {
 
@@ -60,6 +65,36 @@ public class TestEntityGeneratorService {
         groomer.setOfferedPickUp(true);
         groomer.setStatus(GroomerStatus.SIGNING_UP);
         groomer.setSignUpStatus(GroomerSignUpStatus.ADD_SERVICES);
+        groomer.setDescription("Test description");
+
+        groomer.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));
+        groomer.setPhoneNumberVerified(false);
+
+        groomer.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
+        groomer.addRole(new Role(Authority.groomer));
+
+        groomer.addAddress(getAddress());
+
+        return groomer;
+    }
+    
+    public Groomer getActiveGroomer() {
+
+        Groomer groomer = new Groomer();
+        groomer.setUuid("groomer-" + UUID.randomUUID().toString());
+        String firstName = RandomGeneratorUtils.getRandomFirstname();
+        groomer.setFirstName(firstName);
+        String lastName = RandomGeneratorUtils.getRandomLastname();
+        groomer.setLastName(lastName);
+        groomer.setEmail((firstName + "" + lastName).toLowerCase() + "@gmail.com");
+        groomer.setEmailVerified(false);
+        groomer.setBusinessName((firstName + " " + lastName).toLowerCase());
+        groomer.setNumberOfOccupancy(RandomGeneratorUtils.getLongWithin(2L, 100L));
+        groomer.setChargePerMile(RandomGeneratorUtils.getDoubleWithin(1D, 3D));
+        groomer.setOfferedDropOff(true);
+        groomer.setOfferedPickUp(true);
+        groomer.setStatus(GroomerStatus.ACTIVE);
+        groomer.setSignUpStatus(GroomerSignUpStatus.COMPLETED);
         groomer.setDescription("Test description");
 
         groomer.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));
