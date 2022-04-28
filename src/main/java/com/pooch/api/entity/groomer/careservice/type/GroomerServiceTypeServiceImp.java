@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.EntityDTOMapper;
@@ -15,6 +16,7 @@ import com.pooch.api.dto.GroomerServiceCategoryDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
+@DependsOn({"careServiceTypeDataLoader"})// load date first
 @Service
 @Slf4j
 public class GroomerServiceTypeServiceImp implements GroomerServiceTypeService {
