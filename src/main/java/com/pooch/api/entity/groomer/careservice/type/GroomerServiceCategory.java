@@ -45,7 +45,7 @@ public class GroomerServiceCategory implements Serializable {
     @Column(name = "id", nullable = false, updatable = false, unique = true)
     private Long              id;
 
-    @Column(name = "uuid", nullable = false)
+    @Column(name = "uuid")
     private String            uuid;
 
     @Column(name = "name", unique = true)
