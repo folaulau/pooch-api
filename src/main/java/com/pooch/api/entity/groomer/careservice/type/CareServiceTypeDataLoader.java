@@ -39,7 +39,6 @@ public class CareServiceTypeDataLoader implements ApplicationRunner {
               "De-shedding",
               "De-skunkin",
               "Flea Bath",
-              "Nail Clipping",
               "Cut and Style",
               "Deep Cleaning Shampoo",
               "Blow dry",

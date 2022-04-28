@@ -45,10 +45,10 @@ public class GroomerServiceCategory implements Serializable {
     @Column(name = "id", nullable = false, updatable = false, unique = true)
     private Long              id;
 
-    @Column(name = "uuid", unique = true, nullable = false)
+    @Column(name = "uuid", nullable = false)
     private String            uuid;
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     private String            name;
 
     @Enumerated(EnumType.STRING)

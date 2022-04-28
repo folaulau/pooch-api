@@ -17,7 +17,8 @@ import com.pooch.api.dto.GroomerSearchParamsDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
 import com.pooch.api.entity.address.AddressDAO;
 import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
-import com.pooch.api.entity.groomer.careservice.CareServiceName;
+import com.pooch.api.entity.groomer.careservice.type.GroomerServiceTypeService;
+import com.pooch.api.entity.groomer.careservice.type.GroomerServiceTypeServiceImp;
 import com.pooch.api.entity.pooch.PoochSize;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
@@ -31,13 +32,16 @@ import lombok.extern.slf4j.Slf4j;
 public class GroomerValidatorServiceImp implements GroomerValidatorService {
 
     @Autowired
-    private GroomerDAO     groomerDAO;
+    private GroomerDAO                groomerDAO;
 
     @Autowired
-    private CareServiceDAO careServiceDAO;
+    private CareServiceDAO            careServiceDAO;
 
     @Autowired
-    private AddressDAO     addressDAO;
+    private AddressDAO                addressDAO;
+
+    @Autowired
+    private GroomerServiceTypeService groomerServiceTypeService;
 
     @Override
     public Groomer validateUpdateProfile(GroomerUpdateDTO groomerUpdateDTO) {
@@ -57,15 +61,15 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
         }
 
         Groomer groomer = optGroomer.get();
-//
-//        Optional.ofNullable(groomerUpdateDTO.getEmail()).ifPresent(email -> {
-//            if (!email.trim().equalsIgnoreCase(groomer.getEmail())) {
-//                if (groomerDAO.existEmail(email)) {
-//                    log.debug("email is taken");
-//                    throw new ApiException("Email is taken");
-//                }
-//            }
-//        });
+        //
+        // Optional.ofNullable(groomerUpdateDTO.getEmail()).ifPresent(email -> {
+        // if (!email.trim().equalsIgnoreCase(groomer.getEmail())) {
+        // if (groomerDAO.existEmail(email)) {
+        // log.debug("email is taken");
+        // throw new ApiException("Email is taken");
+        // }
+        // }
+        // });
 
         if (groomer.getStatus().equals(GroomerStatus.SIGNING_UP)) {
             GroomerSignUpStatus signUpStatus = Optional.ofNullable(groomerUpdateDTO.getSignUpStatus())
@@ -88,9 +92,9 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
                 if (serviceName == null || serviceName.isBlank()) {
                     throw new ApiException("Service name is required", "serviceName=" + serviceName);
                 }
-
-                if (!CareServiceName.isValidCareServiceName(serviceName)) {
-                    throw new ApiException("Invalid service name", "service name=" + serviceName, "valid serviceNames=" + CareServiceName.careServiceNames, "care service name is case sensitive");
+                
+                if (groomerServiceTypeService.getByName(serviceName)==null) {
+                    throw new ApiException("Invalid service name", "service name=" + serviceName, "valid serviceNames=" + GroomerServiceTypeServiceImp.dict.values(), "care service name is case sensitive");
                 }
 
                 if (serviceNames.contains(serviceName)) {
@@ -236,8 +240,8 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
 
         if (careServiceNames != null) {
             for (String careServiceName : careServiceNames) {
-                if (!CareServiceName.isValidCareServiceName(careServiceName)) {
-                    throw new ApiException(ApiError.DEFAULT_MSG, "service name=" + careServiceName, "valid serviceNames=" + CareServiceName.careServiceNames, "care service name is case sensitive");
+                if (groomerServiceTypeService.getByName(careServiceName)==null) {
+                    throw new ApiException("Invalid service name", "service name=" + careServiceName, "valid serviceNames=" + GroomerServiceTypeServiceImp.dict.values(), "care service name is case sensitive");
                 }
             }
         }

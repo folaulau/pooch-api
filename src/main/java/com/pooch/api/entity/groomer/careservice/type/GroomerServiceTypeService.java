@@ -7,4 +7,6 @@ import com.pooch.api.dto.GroomerServiceCategoryDTO;
 public interface GroomerServiceTypeService {
 
     List<GroomerServiceCategoryDTO> getAllGroomerServiceTypes();
+    
+    GroomerServiceCategory getByName(String name);
 }
