@@ -166,13 +166,10 @@ public class GroomerServiceImp implements GroomerService {
 
         entityDTOMapper.patchGroomerWithGroomerUpdateDTO(groomerUpdateDTO, groomer);
 
-        String oldEmail = groomer.getEmail();
         Long oldPhoneNumber = groomer.getPhoneNumber();
 
-        String newEmail = groomerUpdateDTO.getEmail();
         Long newPhoneNumber = groomerUpdateDTO.getPhoneNumber();
 
-        log.info("new email={}, old email={}", newEmail, oldEmail);
         log.info("new phone={}, old phone={}", newPhoneNumber, oldPhoneNumber);
 
         /**

@@ -57,15 +57,15 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
         }
 
         Groomer groomer = optGroomer.get();
-
-        Optional.ofNullable(groomerUpdateDTO.getEmail()).ifPresent(email -> {
-            if (!email.trim().equalsIgnoreCase(groomer.getEmail())) {
-                if (groomerDAO.existEmail(email)) {
-                    log.debug("email is taken");
-                    throw new ApiException("Email is taken");
-                }
-            }
-        });
+//
+//        Optional.ofNullable(groomerUpdateDTO.getEmail()).ifPresent(email -> {
+//            if (!email.trim().equalsIgnoreCase(groomer.getEmail())) {
+//                if (groomerDAO.existEmail(email)) {
+//                    log.debug("email is taken");
+//                    throw new ApiException("Email is taken");
+//                }
+//            }
+//        });
 
         if (groomer.getStatus().equals(GroomerStatus.SIGNING_UP)) {
             GroomerSignUpStatus signUpStatus = Optional.ofNullable(groomerUpdateDTO.getSignUpStatus())
