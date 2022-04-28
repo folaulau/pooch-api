@@ -1,5 +1,6 @@
 package com.pooch.api.entity.groomer.careservice.type;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +14,21 @@ public class CareServiceTypeDataLoader implements ApplicationRunner {
     @Autowired
     private GroomerServiceCategoryRepository groomerServiceCategoryRepository;
 
+    /**
+     * List<String> careServiceNames = Arrays.asList("Dog Daycare", "Grooming", "Overnight", "Nail Clipping","Pick up/
+     * Drop off");
+     * 
+     */
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         // @formatter:off
  
-      List<String> groomerCatogories = List.of("Dog Bath",
+      List<String> groomerCatogories = List.of("Dog Daycare",
+              "Grooming",
+              "Overnight",
+              "Nail Clipping",
+              "Pick up/Drop off",
               "Dog Bath Double Coat",
               "Dog Bath Soft Coat",
               "Dog Bath Wire Coat",
@@ -54,9 +65,9 @@ public class CareServiceTypeDataLoader implements ApplicationRunner {
       
       long latestRowId = kennelCatogories.size() + groomerCatogories.size();
       
-      groomerServiceCategoryRepository.findById(latestRowId).ifPresent(groomerServiceCategory -> {
-          return;
-      });
+//      groomerServiceCategoryRepository.findById(latestRowId).ifPresent(groomerServiceCategory -> {
+//          return;
+//      });
       
       long count = 1;
 
