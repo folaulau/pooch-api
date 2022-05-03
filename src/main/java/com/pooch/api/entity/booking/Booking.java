@@ -3,6 +3,7 @@ package com.pooch.api.entity.booking;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -75,12 +76,12 @@ public class Booking implements Serializable {
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "parent_id")
-    private Groomer           parent;
+    private Parent            parent;
 
     // @JsonIgnoreProperties(value = {"expenses", "scrubbedData"})
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH})
     @JoinTable(name = "booking_pooches", joinColumns = @JoinColumn(name = "booking_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "pooch_id", referencedColumnName = "id"))
-    private Set<Pooch>        pets;
+    private Set<Pooch>        pooches;
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "groomer_id")
@@ -112,6 +113,13 @@ public class Booking implements Serializable {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime     updatedAt;
+
+    public void addPooch(Pooch pooch) {
+        if (this.pooches == null) {
+            this.pooches = new HashSet<>();
+        }
+        this.pooches.add(pooch);
+    }
 
     @PrePersist
     private void preCreate() {

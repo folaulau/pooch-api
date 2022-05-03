@@ -3,6 +3,7 @@ package com.pooch.api.utils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,8 +18,10 @@ import com.pooch.api.entity.groomer.GroomerStatus;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentRepository;
 import com.pooch.api.entity.pooch.FoodSchedule;
+import com.pooch.api.entity.pooch.Gender;
 import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.pooch.PoochRepository;
+import com.pooch.api.entity.pooch.Training;
 import com.pooch.api.entity.pooch.vaccine.Vaccine;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
@@ -42,7 +45,7 @@ public class TestEntityGeneratorService {
         Groomer petSitter = getGroomer();
         return petSitterRepository.saveAndFlush(petSitter);
     }
-    
+
     public Groomer getActiveDBGroomer() {
         Groomer petSitter = getActiveGroomer();
         return petSitterRepository.saveAndFlush(petSitter);
@@ -77,7 +80,7 @@ public class TestEntityGeneratorService {
 
         return groomer;
     }
-    
+
     public Groomer getActiveGroomer() {
 
         Groomer groomer = new Groomer();
@@ -291,5 +294,19 @@ public class TestEntityGeneratorService {
         addresses.add(address);
 
         return addresses.get(RandomGeneratorUtils.getIntegerWithin(0, addresses.size() - 1));
+    }
+
+    public Pooch getPooch() {
+        Pooch pooch = new Pooch();
+        pooch.setBreed("Bulldog");
+        pooch.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(1, 12)));
+        pooch.addFoodSchedule(FoodSchedule.Morning);
+        pooch.addFoodSchedule(FoodSchedule.Night);
+        pooch.setFullName(RandomGeneratorUtils.getRandomFullName());
+        pooch.setGender(Gender.Male);
+        pooch.setNeutered(true);
+        pooch.setTraining(Training.Medium);
+        pooch.setWeight(RandomGeneratorUtils.getDoubleWithin(1.0, 30.0));
+        return pooch;
     }
 }
