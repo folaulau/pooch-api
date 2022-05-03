@@ -12,4 +12,5 @@ public interface DatabaseTableNames {
     String Address                 = "address";
     String S3File                  = "s3file";
     String CareServiceCategory     = "care_service_category";
+    String Review                  = "review";
 }

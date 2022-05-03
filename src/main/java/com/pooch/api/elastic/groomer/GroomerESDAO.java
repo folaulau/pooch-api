@@ -6,6 +6,7 @@ import com.pooch.api.dto.GroomerSearchParamsDTO;
 import org.springframework.scheduling.annotation.Async;
 
 import com.pooch.api.elastic.repo.GroomerES;
+import com.pooch.api.entity.groomer.Groomer;
 
 public interface GroomerESDAO {
 

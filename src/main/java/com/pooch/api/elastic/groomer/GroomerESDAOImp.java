@@ -5,6 +5,7 @@ import com.pooch.api.dto.CustomPage;
 import com.pooch.api.dto.CustomSort;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.GroomerSearchParamsDTO;
+import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.groomer.GroomerSearchSorting;
 import com.pooch.api.entity.groomer.GroomerStatus;
@@ -148,7 +149,7 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
         Double minPrice = filters.getMinPrice();
         Double maxPrice = filters.getMaxPrice();
-        
+
         searchSourceBuilder.query(boolQuery);
 
         String searchPhrase = filters.getSearchPhrase();

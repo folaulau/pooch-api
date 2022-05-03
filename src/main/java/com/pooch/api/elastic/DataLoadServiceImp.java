@@ -95,4 +95,15 @@ public class DataLoadServiceImp implements DataLoadService {
         return new ApiDefaultResponseDTO("Groomers have been loaded into Elasticsearch!");
     }
 
+    @Override
+    public void reloadGroomer(Groomer groomer) {
+        reloadGroomer(groomer,0);
+    }
+
+    @Override
+    public void reloadGroomer(Groomer groomer, double rating) {
+        // TODO Auto-generated method stub
+
+    }
+
 }

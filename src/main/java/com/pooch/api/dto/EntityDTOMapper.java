@@ -7,6 +7,7 @@ import com.pooch.api.elastic.repo.AddressES;
 import com.pooch.api.elastic.repo.CareServiceES;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.type.GroomerServiceCategory;
+import com.pooch.api.entity.groomer.review.Review;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -86,4 +87,8 @@ public interface EntityDTOMapper {
     Address mapAddressCreateUpdateDTOToAddress(AddressCreateUpdateDTO addressCreateUpdateDTO);
 
     List<GroomerServiceCategoryDTO> mapGroomerServiceCategorysToGroomerServiceCategoryDTOs(List<GroomerServiceCategory> categories);
+
+    Review mapReviewCreateDTOToReview(ReviewCreateDTO review);
+
+    ReviewDTO mapReviewToReviewDTO(Review review);
 }
