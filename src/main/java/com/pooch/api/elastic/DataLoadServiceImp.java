@@ -19,6 +19,7 @@ import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerRepository;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceRepository;
+import com.pooch.api.entity.groomer.review.ReviewDAO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,6 +38,9 @@ public class DataLoadServiceImp implements DataLoadService {
 
     @Autowired
     private EntityDTOMapper       entityDTOMapper;
+
+    @Autowired
+    private ReviewDAO             reviewDAO;
 
     @Override
     public ApiDefaultResponseDTO loadGroomers() {
@@ -79,6 +83,8 @@ public class DataLoadServiceImp implements DataLoadService {
                         log.warn("Exception, msg={}", e.getLocalizedMessage());
                     }
 
+                    groomer.setRating(reviewDAO.getRatingByGroomerId(groomer.getId()));
+
                     esGroomers.add(groomerES);
                 }
 
@@ -97,7 +103,7 @@ public class DataLoadServiceImp implements DataLoadService {
 
     @Override
     public void reloadGroomer(Groomer groomer) {
-        reloadGroomer(groomer,0);
+        reloadGroomer(groomer, 0);
     }
 
     @Override

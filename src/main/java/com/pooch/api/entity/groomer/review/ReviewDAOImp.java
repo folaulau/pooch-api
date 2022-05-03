@@ -25,8 +25,12 @@ class ReviewDAOImp implements ReviewDAO {
 
         StringBuilder query = new StringBuilder();
 
-        query.append("");
-
+        query.append("""
+                SELECT AVG(rating) 
+                FROM review 
+                WHERE groomer_id = ? AND deleted = false
+                GROUP BY groomer_id
+                """);
         double averageRating = 0;
 
         try {

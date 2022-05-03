@@ -7,7 +7,7 @@ import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-interface ReviewDAO {
+public interface ReviewDAO {
 
     Review save(Review review);
 
