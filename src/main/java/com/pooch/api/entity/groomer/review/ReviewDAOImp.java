@@ -26,7 +26,7 @@ class ReviewDAOImp implements ReviewDAO {
         StringBuilder query = new StringBuilder();
 
         query.append("""
-                SELECT AVG(rating) 
+                SELECT TRUNC(AVG(rating)::numeric,2) 
                 FROM review 
                 WHERE groomer_id = ? AND deleted = false
                 GROUP BY groomer_id

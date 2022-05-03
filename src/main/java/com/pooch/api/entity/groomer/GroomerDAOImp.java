@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 import com.pooch.api.entity.DatabaseTableNames;
@@ -54,24 +53,24 @@ public class GroomerDAOImp implements GroomerDAO {
 
         query.append("""
 
-                UPDATE """ + DatabaseTableNames.Groomer + """
-                SET rating =
-                    (SELECT AVG(rating)
-                    FROM """ + DatabaseTableNames.Review + """
+                UPDATE %s
+                SET rating = 
+                    (SELECT TRUNC(AVG(rating)::numeric,2)
+                    FROM %s
                     WHERE groomer_id = ? AND deleted = false
-                    GROUP BY groomer_id)
+                    GROUP BY groomer_id) 
                 WHERE id = ?
 
-                """);
+                """.formatted(DatabaseTableNames.Groomer, DatabaseTableNames.Review));
 
-        // log.info("query={}", query.toString());
+        log.info("query={}", query.toString());
 
         try {
             int count = jdbcTemplate.update(query.toString(), new Object[]{id, id});
 
-            // log.info("groomer {} rating updated, count={}", id, count);
+            log.info("groomer {} rating updated, count={}", id, count);
         } catch (Exception e) {
-            log.warn("Exception, msg={}", e.getLocalizedMessage());
+            log.warn("updateRating Exception, msg={}", e.getLocalizedMessage());
         }
 
     }
