@@ -55,10 +55,10 @@ public class GroomerDAOImp implements GroomerDAO {
 
                 UPDATE %s
                 SET rating = 
-                    (SELECT TRUNC(AVG(rating)::numeric,2)
-                    FROM %s
-                    WHERE groomer_id = ? AND deleted = false
-                    GROUP BY groomer_id) 
+                    (SELECT TRUNC(AVG(rating)::numeric,2) 
+                    FROM %s 
+                    WHERE groomer_id = ? AND deleted = false 
+                    GROUP BY groomer_id)  
                 WHERE id = ?
 
                 """.formatted(DatabaseTableNames.Groomer, DatabaseTableNames.Review));

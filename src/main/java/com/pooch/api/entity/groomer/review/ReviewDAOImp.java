@@ -28,8 +28,8 @@ class ReviewDAOImp implements ReviewDAO {
         query.append("""
                 SELECT TRUNC(AVG(rating)::numeric,2) 
                 FROM review 
-                WHERE groomer_id = ? AND deleted = false
-                GROUP BY groomer_id
+                WHERE groomer_id = ? AND deleted = false 
+                GROUP BY groomer_id 
                 """);
         double averageRating = 0;
 
