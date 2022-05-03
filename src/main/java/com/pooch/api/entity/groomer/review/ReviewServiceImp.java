@@ -10,6 +10,7 @@ import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.ReviewCreateDTO;
 import com.pooch.api.dto.ReviewDTO;
 import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.groomer.GroomerEvent;
 import com.pooch.api.entity.groomer.GroomerUpdateEvent;
 import com.pooch.api.entity.parent.Parent;
@@ -20,6 +21,9 @@ public class ReviewServiceImp implements ReviewService {
 
     @Autowired
     private ReviewDAO                 reviewDAO;
+
+    @Autowired
+    private GroomerDAO                groomerDAO;
 
     @Autowired
     private EntityDTOMapper           entityDTOMapper;
@@ -45,6 +49,8 @@ public class ReviewServiceImp implements ReviewService {
         }
 
         review = reviewDAO.save(review);
+        
+        groomerDAO.updateRating(groomer.getId());
 
         applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 

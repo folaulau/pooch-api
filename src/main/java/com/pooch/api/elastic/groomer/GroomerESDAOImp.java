@@ -84,21 +84,10 @@ public class GroomerESDAOImp implements GroomerESDAO {
         // }
     }
 
-    @Async
     @Override
     public void save(GroomerES groomerES) {
         log.info("groomerES={}", ObjectUtils.toJson(groomerES));
-
-        try {
-
-            Optional<Set<CareService>> optCareServices = careServiceRepository.findByGroomerId(groomerES.getId());
-            if (optCareServices.isPresent()) {
-                groomerES.setCareServices(entityDTOMapper.mapCareServicesToCareServiceESs(optCareServices.get()));
-            }
-        } catch (Exception e) {
-            log.warn("Exception, msg={}", e.getLocalizedMessage());
-        }
-
+        
         groomerES.populateGeoPoints();
 
         groomerES = groomerESRepository.save(groomerES);
@@ -274,4 +263,5 @@ public class GroomerESDAOImp implements GroomerESDAO {
         return searchResults;
 
     }
+
 }

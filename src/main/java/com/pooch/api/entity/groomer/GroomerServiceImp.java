@@ -16,6 +16,7 @@ import com.pooch.api.dto.*;
 import com.pooch.api.elastic.groomer.GroomerESDAO;
 import com.pooch.api.elastic.repo.GroomerES;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,34 +49,37 @@ import lombok.extern.slf4j.Slf4j;
 public class GroomerServiceImp implements GroomerService {
 
     @Autowired
-    private FirebaseAuthService     firebaseAuthService;
+    private FirebaseAuthService       firebaseAuthService;
 
     @Autowired
-    private GroomerDAO              groomerDAO;
+    private GroomerDAO                groomerDAO;
 
     @Autowired
-    private AuthenticationService   authenticationService;
+    private AuthenticationService     authenticationService;
 
     @Autowired
-    private GroomerValidatorService groomerValidatorService;
+    private GroomerValidatorService   groomerValidatorService;
 
     @Autowired
-    private EntityDTOMapper         entityDTOMapper;
+    private EntityDTOMapper           entityDTOMapper;
 
     @Autowired
-    private S3FileDAO               s3FileDAO;
+    private S3FileDAO                 s3FileDAO;
 
     @Autowired
-    private AwsS3Service            awsS3Service;
+    private AwsS3Service              awsS3Service;
 
     @Autowired
-    private GroomerESDAO            groomerESDAO;
+    private GroomerESDAO              groomerESDAO;
 
     @Autowired
-    private CareServiceDAO          careServiceDAO;
+    private CareServiceDAO            careServiceDAO;
 
     @Autowired
-    private AddressDAO              addressDAO;
+    private AddressDAO                addressDAO;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
@@ -247,6 +251,8 @@ public class GroomerServiceImp implements GroomerService {
         /**
          * notify groomer of profile update only if status==ACTIVE
          */
+
+        applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 
         return groomerDTO;
     }

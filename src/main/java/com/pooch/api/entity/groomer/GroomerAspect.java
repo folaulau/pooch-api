@@ -24,18 +24,18 @@ public class GroomerAspect {
 	@Autowired
 	private EntityDTOMapper entityDTOMapper;
 
-	/**
-	 * https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#aop-advice-after-returning
-	 */
-	@AfterReturning(pointcut = "execution(* com.pooch.api.entity.groomer.GroomerDAOImp.save(..))", returning = "groomer")
-	public void pushGroomerToElasticsearch(Groomer groomer) {
-		log.info("pushGroomerToElasticsearch={}", ObjectUtils.toJson(groomer));
-
-		GroomerES groomerES = entityDTOMapper.mapGroomerEntityToGroomerES(groomer);
-
-		log.info("groomerES={}", ObjectUtils.toJson(groomerES));
-
-		groomerESDAO.save(groomerES);
-
-	}
+//	/**
+//	 * https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#aop-advice-after-returning
+//	 */
+//	@AfterReturning(pointcut = "execution(* com.pooch.api.entity.groomer.GroomerDAOImp.save(..))", returning = "groomer")
+//	public void pushGroomerToElasticsearch(Groomer groomer) {
+//		log.info("pushGroomerToElasticsearch={}", ObjectUtils.toJson(groomer));
+//
+//		GroomerES groomerES = entityDTOMapper.mapGroomerEntityToGroomerES(groomer);
+//
+//		log.info("groomerES={}", ObjectUtils.toJson(groomerES));
+//
+//		groomerESDAO.save(groomerES);
+//
+//	}
 }

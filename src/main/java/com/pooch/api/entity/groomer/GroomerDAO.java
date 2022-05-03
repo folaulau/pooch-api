@@ -15,4 +15,6 @@ public interface GroomerDAO {
     Optional<Groomer> getByEmail(String email);
 
     boolean existEmail(String email);
+    
+    void updateRating(long id);
 }

@@ -54,10 +54,10 @@ public class GroomerEventHandlerImp implements GroomerEventHandler {
             return;
         }
 
-        groomer.setRating(reviewDAO.getRatingByGroomerId(groomer.getId()));
-
         GroomerES groomerES = entityDTOMapper.mapGroomerEntityToGroomerES(groomer);
         groomerES.populateGeoPoints();
+        
+        
         try {
             Optional<Set<CareService>> optCareServices = careServiceRepository.findByGroomerId(groomerES.getId());
             if (optCareServices.isPresent()) {
