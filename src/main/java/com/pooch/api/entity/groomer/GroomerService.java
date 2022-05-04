@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface GroomerService {
 
+    Groomer findByUuid(String uuid);
+
     AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO);
 
     GroomerDTO updateProfile(GroomerUpdateDTO petSitterUpdateDTO);
@@ -19,4 +21,8 @@ public interface GroomerService {
     CustomPage<GroomerES> search(GroomerSearchParamsDTO filters);
 
     ApiDefaultResponseDTO signOut(String token);
+
+    GroomerDTO updatePaymentMethod();
+
+    StripeAccountLinkDTO getStripeAccountLink(String uuid);
 }

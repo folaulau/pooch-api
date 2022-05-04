@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -141,6 +142,19 @@ public class Groomer implements Serializable {
     @Column(name = "listing")
     private Boolean             listing;
 
+    /**
+     * ======== Stripe =========
+     */
+
+    @Column(name = "stripe_connected_account_id")
+    private String              stripeConnectedAccountId;
+
+    @Column(name = "stripe_payment_method_set_up")
+    private boolean             stripePaymentMethodSetUp;
+
+    @Column(name = "stripe_connected_account_status")
+    private String              stripeConnectedAccountStatus;
+
     @JsonIgnoreProperties(value = {"groomers"})
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "groomer_roles", joinColumns = {@JoinColumn(name = "groomer_id")}, inverseJoinColumns = {@JoinColumn(name = "role_id")})
@@ -184,6 +198,16 @@ public class Groomer implements Serializable {
 
     public boolean isAllowedToLogin() {
         return GroomerStatus.isAllowedToLogin(status);
+    }
+
+    public Optional<Address> getMainAddress() {
+        if (this.addresses == null || this.addresses.size() == 0) {
+            return Optional.empty();
+        }
+        if (this.addresses.size() == 1) {
+            return this.addresses.stream().findFirst();
+        }
+        return this.addresses.stream().sorted((add1, add2) -> add1.getId().compareTo(add2.getId())).findFirst();
     }
 
     public String getFullName() {

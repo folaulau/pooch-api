@@ -55,8 +55,28 @@ public class GroomerRestController {
         return new ResponseEntity<>(groomerDTO, OK);
     }
 
+    @Operation(summary = "Get Stripe Account Link", description = "get stripe account link")
+    @GetMapping(value = "/{uuid}/stripe-account-link")
+    public ResponseEntity<StripeAccountLinkDTO> getStripeAccountLink(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid) {
+        log.info("updatePaymentMethod");
+
+        StripeAccountLinkDTO stripeAccountLinkDTO = groomerService.getStripeAccountLink(uuid);
+
+        return new ResponseEntity<>(stripeAccountLinkDTO, OK);
+    }
+
+    @Operation(summary = "Update Payment Method", description = "update payment method")
+    @PutMapping(value = "/payment-method")
+    public ResponseEntity<GroomerDTO> updatePaymentMethod(@RequestHeader(name = "token", required = true) String token) {
+        log.info("updatePaymentMethod");
+
+        GroomerDTO groomerDTO = groomerService.updatePaymentMethod();
+
+        return new ResponseEntity<>(groomerDTO, OK);
+    }
+
     @Operation(summary = "Upload Profile Images", description = "upload profile images")
-    @PostMapping(value = "/{uuid}/profile/images", consumes = { "multipart/form-data" })
+    @PostMapping(value = "/{uuid}/profile/images", consumes = {"multipart/form-data"})
     public ResponseEntity<List<S3FileDTO>> uploadProfileImages(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
             @RequestParam(name = "images") List<MultipartFile> images) {
         log.info("uploadProfileImages, uuid={}", uuid);
@@ -67,7 +87,7 @@ public class GroomerRestController {
     }
 
     @Operation(summary = "Upload Contract Documents", description = "upload contract documents")
-    @PostMapping(value = "/{uuid}/contract/documents", consumes = { "multipart/form-data" })
+    @PostMapping(value = "/{uuid}/contract/documents", consumes = {"multipart/form-data"})
     public ResponseEntity<List<S3FileDTO>> uploadContractDocuments(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
             @RequestParam(name = "docs") List<MultipartFile> docs) {
         log.info("uploadProfileImages, uuid={}", uuid);
