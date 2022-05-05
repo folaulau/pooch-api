@@ -251,7 +251,7 @@ public class Groomer implements Serializable {
     }
 
     public boolean isStripeReady() {
-        return this.stripeDetailsSubmitted;
+        return this.stripeDetailsSubmitted && this.stripeChargesEnabled && this.stripePayoutsEnabled;
     }
 
     @PrePersist
@@ -264,6 +264,10 @@ public class Groomer implements Serializable {
          */
         this.instantBooking = true;
         this.listing = false;
+
+        this.stripeDetailsSubmitted = false;
+        this.stripeChargesEnabled = false;
+        this.stripePayoutsEnabled = false;
     }
 
     @PreUpdate
