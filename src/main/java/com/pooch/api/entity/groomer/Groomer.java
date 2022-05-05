@@ -150,7 +150,7 @@ public class Groomer implements Serializable {
     private String              stripeConnectedAccountId;
 
     @Column(name = "stripe_payment_method_set_up")
-    private boolean             stripePaymentMethodSetUp;
+    private Boolean             stripePaymentMethodSetUp;
 
     @Column(name = "stripe_connected_account_status")
     private String              stripeConnectedAccountStatus;
@@ -236,6 +236,7 @@ public class Groomer implements Serializable {
          */
         this.instantBooking = true;
         this.listing = false;
+        this.stripePaymentMethodSetUp = false;
     }
 
     @PreUpdate
