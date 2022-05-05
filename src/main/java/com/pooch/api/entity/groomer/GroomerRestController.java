@@ -57,7 +57,8 @@ public class GroomerRestController {
 
     @Operation(summary = "Get Stripe Account Link", description = "get stripe account link")
     @GetMapping(value = "/{uuid}/stripe-account-link")
-    public ResponseEntity<StripeAccountLinkDTO> getStripeAccountLink(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid, @RequestParam(required = false) String host) {
+    public ResponseEntity<StripeAccountLinkDTO> getStripeAccountLink(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
+            @RequestParam(required = false) String host) {
         log.info("updatePaymentMethod");
 
         StripeAccountLinkDTO stripeAccountLinkDTO = groomerService.getStripeAccountLink(uuid, host);
@@ -66,9 +67,9 @@ public class GroomerRestController {
     }
 
     @Operation(summary = "Sync Stripe Update Info", description = "Groomer did some updates on his Stripe connected account and this endpoint is a call back to pull latest updates from Stripe and sync with Groomer db info.")
-    @PutMapping(value = "/{uuid}/stripe-info")
+    @PutMapping(value = "/{uuid}/sync-stripe-info")
     public ResponseEntity<GroomerDTO> syncStripeInfo(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid) {
-        log.info("updatePaymentMethod");
+        log.info("syncStripeInfo");
 
         GroomerDTO groomerDTO = groomerService.syncStripeInfo(uuid);
 
