@@ -20,6 +20,7 @@ import com.pooch.api.elastic.groomer.GroomerESDAO;
 import com.pooch.api.elastic.repo.GroomerES;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -40,15 +41,20 @@ import com.pooch.api.entity.s3file.S3FileDAO;
 import com.pooch.api.exception.ApiException;
 import com.pooch.api.library.aws.s3.AwsS3Service;
 import com.pooch.api.library.aws.s3.AwsUploadResponse;
+import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.firebase.FirebaseAuthService;
+import com.pooch.api.library.stripe.account.StripeAccountService;
 import com.pooch.api.security.AuthenticationService;
 import com.pooch.api.utils.FileUtils;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
+import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.AccountLink;
+import com.stripe.net.RequestOptions;
 import com.stripe.param.AccountCreateParams;
 import com.stripe.param.AccountLinkCreateParams;
+import com.stripe.param.AccountRetrieveParams;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -87,10 +93,20 @@ public class GroomerServiceImp implements GroomerService {
     private AddressDAO                addressDAO;
 
     @Autowired
+    @Qualifier(value = "stripeSecrets")
+    private StripeSecrets             stripeSecrets;
+
+    @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Value("${spring.profiles.active}")
     private String                    env;
+
+    @Autowired
+    private StripeAccountService      stripeAccountService;
+
+    @Autowired
+    private GroomerAuditService       groomerAuditService;
 
     @Override
     public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
@@ -270,6 +286,8 @@ public class GroomerServiceImp implements GroomerService {
 
         applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 
+        groomerAuditService.audit(savedGroomer);
+
         return groomerDTO;
     }
 
@@ -308,6 +326,8 @@ public class GroomerServiceImp implements GroomerService {
         if (s3Files.size() > 0) {
             s3Files = s3FileDAO.save(s3Files);
         }
+
+        groomerAuditService.auditAsync(groomer);
 
         return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
     }
@@ -349,6 +369,8 @@ public class GroomerServiceImp implements GroomerService {
             s3Files = s3FileDAO.save(s3Files);
         }
 
+        groomerAuditService.auditAsync(groomer);
+
         return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
     }
 
@@ -365,125 +387,67 @@ public class GroomerServiceImp implements GroomerService {
     }
 
     @Override
-    public GroomerDTO updatePaymentMethod() {
+    public GroomerDTO syncStripeInfo(String uuid) {
+
+        Groomer groomer = findByUuid(uuid);
         /**
          * get stripe account and update groomer
          */
-        return null;
+
+        com.stripe.model.Account account = stripeAccountService.getById(groomer.getStripeConnectedAccountId());
+
+        groomer.setStripeChargesEnabled(account.getChargesEnabled());
+        groomer.setStripeDetailsSubmitted(account.getDetailsSubmitted());
+        groomer.setStripePayoutsEnabled(account.getPayoutsEnabled());
+        groomer.setStripeAcceptCardPayments(account.getCapabilities().getCardPayments());
+
+        groomer = this.groomerDAO.save(groomer);
+
+        groomerAuditService.auditAsync(groomer);
+
+        return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
     }
 
     @Override
     public StripeAccountLinkDTO getStripeAccountLink(String uuid) {
+
+        Stripe.apiKey = stripeSecrets.getSecretKey();
+
         Groomer groomer = this.findByUuid(uuid);
 
+        if (!groomer.getSignUpStatus().equals(GroomerSignUpStatus.COMPLETED)) {
+            throw new ApiException("You have not finished signing up.", "signUpStatus=" + groomer.getSignUpStatus());
+        }
+
         if (groomer.getStripeConnectedAccountId() == null) {
-            com.stripe.model.Account account = createStripeConnectedAccount(groomer);
+            com.stripe.model.Account account = stripeAccountService.create(groomer);
             groomer.setStripeConnectedAccountId(account.getId());
-            groomer.setStripePaymentMethodSetUp(false);
+            groomer.setStripeChargesEnabled(account.getChargesEnabled());
+            groomer.setStripeDetailsSubmitted(account.getDetailsSubmitted());
+            groomer.setStripePayoutsEnabled(account.getPayoutsEnabled());
+            groomer.setStripeAcceptCardPayments(account.getCapabilities().getCardPayments());
             groomer = this.groomerDAO.save(groomer);
 
             try {
                 Thread.sleep(1000);
             } catch (Exception e) {
             }
+
+        } else {
+            com.stripe.model.Account account = stripeAccountService.getById(groomer.getStripeConnectedAccountId());
+
+            groomer.setStripeChargesEnabled(account.getChargesEnabled());
+            groomer.setStripeDetailsSubmitted(account.getDetailsSubmitted());
+            groomer.setStripePayoutsEnabled(account.getPayoutsEnabled());
+            groomer.setStripeAcceptCardPayments(account.getCapabilities().getCardPayments());
+
+            groomer = this.groomerDAO.save(groomer);
+
         }
-
-        // @formatter:off
-        AccountLinkCreateParams params =
-                AccountLinkCreateParams
-                  .builder()
-                  .setAccount(groomer.getStripeConnectedAccountId())
-                  .setRefreshUrl("http://localhost:3000/dashboard/payments")
-                  .setReturnUrl("http://localhost:3000/dashboard/payments")
-                  .setType(AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING)
-                  .build();
-
-        // @formatter:on
-
-        AccountLink accountLink = null;
-        try {
-            accountLink = AccountLink.create(params);
-
-            System.out.println("accountLink=" + accountLink.toJson());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // only take account_onboarding for now
+        AccountLink accountLink = stripeAccountService.getByAccountId(groomer.getStripeConnectedAccountId(), AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING);
 
         return new StripeAccountLinkDTO(LocalDateTime.ofInstant(Instant.ofEpochSecond(accountLink.getExpiresAt()), TimeZone.getDefault().toZoneId()), accountLink.getUrl());
 
     }
-
-    private com.stripe.model.Account createStripeConnectedAccount(Groomer groomer) {
-
-        Optional<Address> optAddress = groomer.getMainAddress();
-
-        Address address = optAddress.get();
-
-        // @formatter:off
-
-        Map<String,String> metadata = new HashMap<>();
-        metadata.put("env", env);
-        metadata.put("id", groomer.getId()+"");
-        metadata.put("uuid", groomer.getUuid());
-        
-        AccountCreateParams params =
-                AccountCreateParams
-                  .builder()
-                  .setEmail(groomer.getEmail())
-                  .setMetadata(metadata)
-                  .setCountry("US")
-                  .setType(AccountCreateParams.Type.EXPRESS)
-                  .setCapabilities(
-                    AccountCreateParams.Capabilities
-                      .builder()
-                      .setCardPayments(
-                        AccountCreateParams.Capabilities.CardPayments
-                          .builder()
-                          .setRequested(true)
-                          .build()
-                      )
-                      .setTransfers(
-                        AccountCreateParams.Capabilities.Transfers
-                          .builder()
-                          .setRequested(true)
-                          .build()
-                      )
-                      .build()
-                  )
-                  .setBusinessType(AccountCreateParams.BusinessType.COMPANY)
-                  .setCompany(com.stripe.param.AccountCreateParams.Company.builder()
-                          .setPhone(groomer.getPhoneNumber()+"")
-                          .setName(groomer.getBusinessName())
-                          .setAddress(com.stripe.param.AccountCreateParams.Company.Address.builder()
-                                  .setCity(address.getCity())
-                                  .setCountry("US")
-                                  .setState(address.getState())
-                                  .setPostalCode(address.getZipcode())
-                                  .setLine1(address.getStreet())
-                                  .build())
-                          
-                          .build())
-                  .setBusinessProfile(
-                          AccountCreateParams.BusinessProfile
-                          .builder()
-                          .setName(groomer.getBusinessName())
-                          .setProductDescription("Pooch or Dog Care")
-                          .build()
-                  )
-                  .build();
-        // @formatter:on
-
-        com.stripe.model.Account account = null;
-
-        try {
-            account = com.stripe.model.Account.create(params);
-            System.out.println("account=" + account.toJson());
-        } catch (StripeException e) {
-            log.warn("StripeException, msg={}", e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-
-        return account;
-    }
-
 }

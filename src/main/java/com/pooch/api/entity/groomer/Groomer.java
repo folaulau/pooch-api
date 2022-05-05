@@ -149,11 +149,31 @@ public class Groomer implements Serializable {
     @Column(name = "stripe_connected_account_id")
     private String              stripeConnectedAccountId;
 
-    @Column(name = "stripe_payment_method_set_up")
-    private Boolean             stripePaymentMethodSetUp;
+    /**
+     * Stripe account.capabilities.card_payments<br>
+     * active or inactive
+     */
+    @Column(name = "stripe_accept_card_payments")
+    private String              stripeAcceptCardPayments;
 
-    @Column(name = "stripe_connected_account_status")
-    private String              stripeConnectedAccountStatus;
+    @Column(name = "stripe_details_submitted")
+    private Boolean             stripeDetailsSubmitted;
+
+    /**
+     * two fields indicate complete: charges_enabled and payouts_enabled
+     */
+
+    /**
+     * Stripe account.charges_enabled
+     */
+    @Column(name = "stripe_charges_enabled")
+    private Boolean             stripeChargesEnabled;
+
+    /**
+     * Stripe.account.payouts_enabled
+     */
+    @Column(name = "stripe_payouts_enabled")
+    private Boolean             stripePayoutsEnabled;
 
     @JsonIgnoreProperties(value = {"groomers"})
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -226,6 +246,14 @@ public class Groomer implements Serializable {
         return null;
     }
 
+    public boolean isActive() {
+        return status.equals(GroomerStatus.ACTIVE);
+    }
+
+    public boolean isStripeReady() {
+        return this.stripeDetailsSubmitted;
+    }
+
     @PrePersist
     private void preCreate() {
         if (this.uuid == null || this.uuid.isEmpty()) {
@@ -236,15 +264,10 @@ public class Groomer implements Serializable {
          */
         this.instantBooking = true;
         this.listing = false;
-        this.stripePaymentMethodSetUp = false;
     }
 
     @PreUpdate
     private void preUpdate() {
-    }
-
-    public boolean isActive() {
-        return status.equals(GroomerStatus.ACTIVE);
     }
 
 }

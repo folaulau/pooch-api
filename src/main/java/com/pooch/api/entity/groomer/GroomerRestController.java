@@ -65,12 +65,12 @@ public class GroomerRestController {
         return new ResponseEntity<>(stripeAccountLinkDTO, OK);
     }
 
-    @Operation(summary = "Update Payment Method", description = "update payment method")
-    @PutMapping(value = "/payment-method")
-    public ResponseEntity<GroomerDTO> updatePaymentMethod(@RequestHeader(name = "token", required = true) String token) {
+    @Operation(summary = "Sync Stripe Update Info", description = "Groomer did some updates on his Stripe connected account and this endpoint is a call back to pull latest updates from Stripe and sync with Groomer db info.")
+    @PutMapping(value = "/{uuid}/stripe-info")
+    public ResponseEntity<GroomerDTO> syncStripeInfo(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid) {
         log.info("updatePaymentMethod");
 
-        GroomerDTO groomerDTO = groomerService.updatePaymentMethod();
+        GroomerDTO groomerDTO = groomerService.syncStripeInfo(uuid);
 
         return new ResponseEntity<>(groomerDTO, OK);
     }

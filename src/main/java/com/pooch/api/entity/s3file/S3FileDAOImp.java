@@ -44,4 +44,14 @@ public class S3FileDAOImp implements S3FileDAO {
     public Optional<S3File> getByUuid(String uuid) {
         return s3FileRepository.findByUuid(uuid);
     }
+
+    @Override
+    public List<S3File> getByGroomerId(Long groomerId) {
+        return s3FileRepository.findByGroomerId(groomerId);
+    }
+
+    @Override
+    public List<S3File> getByParentId(Long parentId) {
+        return s3FileRepository.findByParentId(parentId);
+    }
 }

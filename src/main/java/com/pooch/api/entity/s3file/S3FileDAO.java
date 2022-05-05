@@ -13,4 +13,8 @@ public interface S3FileDAO {
 
     Optional<S3File> getByUuid(String uuid);
 
+    List<S3File> getByGroomerId(Long groomerId);
+
+    List<S3File> getByParentId(Long parentId);
+
 }
