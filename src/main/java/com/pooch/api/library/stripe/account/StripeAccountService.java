@@ -9,5 +9,5 @@ public interface StripeAccountService {
 
     com.stripe.model.Account getById(String id);
 
-    com.stripe.model.AccountLink getByAccountId(String accountId, AccountLinkCreateParams.Type type);
+    com.stripe.model.AccountLink getByAccountId(String accountId, AccountLinkCreateParams.Type type, String host);
 }

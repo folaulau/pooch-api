@@ -19,6 +19,7 @@ import com.stripe.model.AccountLink;
 import com.stripe.net.RequestOptions;
 import com.stripe.param.AccountCreateParams;
 import com.stripe.param.AccountLinkCreateParams;
+import com.stripe.param.AccountLinkCreateParams.Type;
 import com.stripe.param.AccountRetrieveParams;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,9 @@ public class StripeAccountServiceImp implements StripeAccountService {
 
     @Value("${spring.profiles.active}")
     private String        env;
+
+    @Value("${poochfolio.web.app.uri}")
+    private String        poochfolioUrl;
 
     @Override
     public Account create(Groomer groomer) {
@@ -127,18 +131,28 @@ public class StripeAccountServiceImp implements StripeAccountService {
     }
 
     @Override
-    public AccountLink getByAccountId(String accountId, AccountLinkCreateParams.Type type) {
+    public AccountLink getByAccountId(String accountId, Type type, String host) {
         Stripe.apiKey = stripeSecrets.getSecretKey();
-        
-        AccountLinkCreateParams params =
-                AccountLinkCreateParams
-                  .builder()
-                  .setAccount(accountId)
-                  .setRefreshUrl("http://localhost:3000/dashboard/payments")
-                  .setReturnUrl("http://localhost:3000/dashboard/payments")
-                  .setType(type)
-                  .build();
-        
+
+        StringBuilder url = new StringBuilder();
+
+        /**
+         * host
+         */
+        if (host != null && host.trim().length() > 0) {
+            url.append(host);
+        } else {
+            url.append(this.poochfolioUrl);
+        }
+
+        /**
+         * path
+         */
+        String refreshUrl = url.toString() + "/dashboard/payment-method";
+        String returnUrl = url.toString() + "/dashboard/payment-method?from=stripe";
+
+        AccountLinkCreateParams params = AccountLinkCreateParams.builder().setAccount(accountId).setRefreshUrl(refreshUrl).setReturnUrl(returnUrl).setType(type).build();
+
         AccountLink accountLink = null;
         try {
             accountLink = AccountLink.create(params);

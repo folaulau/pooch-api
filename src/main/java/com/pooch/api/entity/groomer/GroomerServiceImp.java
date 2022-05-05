@@ -409,7 +409,7 @@ public class GroomerServiceImp implements GroomerService {
     }
 
     @Override
-    public StripeAccountLinkDTO getStripeAccountLink(String uuid) {
+    public StripeAccountLinkDTO getStripeAccountLink(String uuid, String host) {
 
         Stripe.apiKey = stripeSecrets.getSecretKey();
 
@@ -445,7 +445,7 @@ public class GroomerServiceImp implements GroomerService {
 
         }
         // only take account_onboarding for now
-        AccountLink accountLink = stripeAccountService.getByAccountId(groomer.getStripeConnectedAccountId(), AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING);
+        AccountLink accountLink = stripeAccountService.getByAccountId(groomer.getStripeConnectedAccountId(), AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING, host);
 
         return new StripeAccountLinkDTO(LocalDateTime.ofInstant(Instant.ofEpochSecond(accountLink.getExpiresAt()), TimeZone.getDefault().toZoneId()), accountLink.getUrl());
 

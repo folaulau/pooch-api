@@ -57,10 +57,10 @@ public class GroomerRestController {
 
     @Operation(summary = "Get Stripe Account Link", description = "get stripe account link")
     @GetMapping(value = "/{uuid}/stripe-account-link")
-    public ResponseEntity<StripeAccountLinkDTO> getStripeAccountLink(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid) {
+    public ResponseEntity<StripeAccountLinkDTO> getStripeAccountLink(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid, @RequestParam(required = false) String host) {
         log.info("updatePaymentMethod");
 
-        StripeAccountLinkDTO stripeAccountLinkDTO = groomerService.getStripeAccountLink(uuid);
+        StripeAccountLinkDTO stripeAccountLinkDTO = groomerService.getStripeAccountLink(uuid, host);
 
         return new ResponseEntity<>(stripeAccountLinkDTO, OK);
     }

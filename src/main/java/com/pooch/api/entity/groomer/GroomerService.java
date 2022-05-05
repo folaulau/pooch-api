@@ -22,7 +22,7 @@ public interface GroomerService {
 
     ApiDefaultResponseDTO signOut(String token);
 
-    StripeAccountLinkDTO getStripeAccountLink(String uuid);
+    StripeAccountLinkDTO getStripeAccountLink(String uuid, String host);
 
     GroomerDTO syncStripeInfo(String uuid);
 }
