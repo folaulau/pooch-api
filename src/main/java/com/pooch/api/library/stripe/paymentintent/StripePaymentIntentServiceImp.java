@@ -96,12 +96,16 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
         params.put("payment_method_types", paymentMethodTypes);
         params.put("amount", amount.longValue() * 100);
         params.put("currency", "usd");
+        params.put("application_fee_amount", 123);
+        
+        Map<String, Object> transferDataParams = new HashMap<>();
+        transferDataParams.put("destination", accountId);
+        params.put("transfer_data", transferDataParams);
 
-        RequestOptions requestOptions = RequestOptions.builder().setStripeAccount(accountId).build();
         PaymentIntent paymentIntent = null;
 
         try {
-            paymentIntent = PaymentIntent.create(params, requestOptions);
+            paymentIntent = PaymentIntent.create(params);
             System.out.println(paymentIntent.toJson());
         } catch (StripeException e) {
             log.warn("StripeException, msg={}", e.getMessage());
@@ -116,8 +120,9 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
         Groomer groomer = stripePaymentIntentValidatorService.validateProcessNewPaymentIntent(paymentIntentCreateDTO);
         // remember to remove acct_1KtIhI2ELI6szoyV and poochfolio is ready
         // use groomer's connected account id
-
-        PaymentIntent paymentIntent = create("acct_1KtIhI2ELI6szoyV", BigDecimal.valueOf(paymentIntentCreateDTO.getAmount()));
+        
+        String acountId = "acct_1Kvuna2E8yUfNXhV";// Lucy Mullins
+        PaymentIntent paymentIntent = create(acountId, BigDecimal.valueOf(paymentIntentCreateDTO.getAmount()));
 
         PaymentIntentDTO paymentIntentDTO = PaymentIntentDTO.builder()
                 .amount((double)(paymentIntent.getAmount() / 100))
