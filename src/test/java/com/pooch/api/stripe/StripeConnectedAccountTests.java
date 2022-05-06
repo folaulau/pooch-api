@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import javax.servlet.Filter;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -100,6 +101,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
         Mockito.when(jwtTokenService.getPayloadByToken(PARENT_TOKEN)).thenReturn(groomerJwtPayload);
     }
 
+    @Disabled
     @Test
     void createConnectedAccountAndPaymentIntent() {
         Stripe.apiKey = stripeSecrets.getSecretKey();
