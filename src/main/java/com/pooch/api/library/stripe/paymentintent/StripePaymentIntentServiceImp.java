@@ -92,11 +92,13 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
         List<String> paymentMethodTypes = new ArrayList<>();
         paymentMethodTypes.add("card");
 
+        long applicationFeeAmount = 10 * 100;
+        
         Map<String, Object> params = new HashMap<>();
         params.put("payment_method_types", paymentMethodTypes);
         params.put("amount", amount.longValue() * 100);
         params.put("currency", "usd");
-        params.put("application_fee_amount", 123);
+        params.put("application_fee_amount", applicationFeeAmount);
         
         Map<String, Object> transferDataParams = new HashMap<>();
         transferDataParams.put("destination", accountId);
