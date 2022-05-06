@@ -396,10 +396,7 @@ public class GroomerServiceImp implements GroomerService {
 
         com.stripe.model.Account account = stripeAccountService.getById(groomer.getStripeConnectedAccountId());
 
-        groomer.setStripeChargesEnabled(account.getChargesEnabled());
-        groomer.setStripeDetailsSubmitted(account.getDetailsSubmitted());
-        groomer.setStripePayoutsEnabled(account.getPayoutsEnabled());
-        groomer.setStripeAcceptCardPayments(account.getCapabilities().getCardPayments());
+        groomer = syncStripeAccountWithGroomer(groomer, account);
 
         groomer = this.groomerDAO.save(groomer);
 
@@ -419,14 +416,11 @@ public class GroomerServiceImp implements GroomerService {
             throw new ApiException("You have not finished signing up.", "signUpStatus=" + groomer.getSignUpStatus());
         }
 
+        com.stripe.model.Account account = null;
+
         if (groomer.getStripeConnectedAccountId() == null) {
-            com.stripe.model.Account account = stripeAccountService.create(groomer);
+            account = stripeAccountService.create(groomer);
             groomer.setStripeConnectedAccountId(account.getId());
-            groomer.setStripeChargesEnabled(account.getChargesEnabled());
-            groomer.setStripeDetailsSubmitted(account.getDetailsSubmitted());
-            groomer.setStripePayoutsEnabled(account.getPayoutsEnabled());
-            groomer.setStripeAcceptCardPayments(account.getCapabilities().getCardPayments());
-            groomer = this.groomerDAO.save(groomer);
 
             try {
                 Thread.sleep(1000);
@@ -434,20 +428,26 @@ public class GroomerServiceImp implements GroomerService {
             }
 
         } else {
-            com.stripe.model.Account account = stripeAccountService.getById(groomer.getStripeConnectedAccountId());
-
-            groomer.setStripeChargesEnabled(account.getChargesEnabled());
-            groomer.setStripeDetailsSubmitted(account.getDetailsSubmitted());
-            groomer.setStripePayoutsEnabled(account.getPayoutsEnabled());
-            groomer.setStripeAcceptCardPayments(account.getCapabilities().getCardPayments());
-
-            groomer = this.groomerDAO.save(groomer);
-
+            account = stripeAccountService.getById(groomer.getStripeConnectedAccountId());
+            
         }
+
+        groomer = syncStripeAccountWithGroomer(groomer, account);
+
+        groomer = this.groomerDAO.save(groomer);
+
         // only take account_onboarding for now
         AccountLink accountLink = stripeAccountService.getByAccountId(groomer.getStripeConnectedAccountId(), AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING, host);
 
         return new StripeAccountLinkDTO(LocalDateTime.ofInstant(Instant.ofEpochSecond(accountLink.getExpiresAt()), TimeZone.getDefault().toZoneId()), accountLink.getUrl());
 
+    }
+
+    private Groomer syncStripeAccountWithGroomer(Groomer groomer, com.stripe.model.Account account) {
+        groomer.setStripeChargesEnabled(account.getChargesEnabled());
+        groomer.setStripeDetailsSubmitted(account.getDetailsSubmitted());
+        groomer.setStripePayoutsEnabled(account.getPayoutsEnabled());
+        groomer.setStripeAcceptCardPayments(account.getCapabilities().getCardPayments());
+        return groomer;
     }
 }
