@@ -21,6 +21,7 @@ import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.S3FileDTO;
 import com.pooch.api.utils.ObjectUtils;
+import com.pooch.api.xapikey.XApiKeyService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,12 +34,17 @@ import lombok.extern.slf4j.Slf4j;
 public class ParentRestController {
 
     @Autowired
-    private ParentService parentService;
+    private ParentService  parentService;
+
+    @Autowired
+    private XApiKeyService xApiKeyService;
 
     @Operation(summary = "Authenticate", description = "sign up or sign in")
     @PostMapping(value = "/authenticate")
     public ResponseEntity<AuthenticationResponseDTO> authenticate(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @RequestBody AuthenticatorDTO authenticatorDTO) {
         // log.info("authenticate={}", ObjectUtils.toJson(authenticatorDTO));
+
+        xApiKeyService.validateForPoochAppMobile(xApiKey);
 
         AuthenticationResponseDTO authenticationResponseDTO = parentService.authenticate(authenticatorDTO);
 
@@ -46,7 +52,7 @@ public class ParentRestController {
     }
 
     @Operation(summary = "Upload Profile Images", description = "upload profile images")
-    @PostMapping(value = "/{uuid}/profile/images", consumes = { "multipart/form-data" })
+    @PostMapping(value = "/{uuid}/profile/images", consumes = {"multipart/form-data"})
     public ResponseEntity<List<S3FileDTO>> uploadProfileImages(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
             @RequestParam(name = "images") List<MultipartFile> images) {
         log.info("uploadProfileImages, uuid={}", uuid);
@@ -55,12 +61,12 @@ public class ParentRestController {
 
         return new ResponseEntity<>(s3FileDTOs, OK);
     }
-    
+
     @Operation(summary = "Sign Out", description = "sign out")
     @DeleteMapping(value = "/signout")
     public ResponseEntity<ApiDefaultResponseDTO> signOut(@RequestHeader(name = "token", required = true) String token) {
         log.info("signOut={}", token);
-        
+
         parentService.signOut(token);
 
         return new ResponseEntity<>(new ApiDefaultResponseDTO(ApiDefaultResponseDTO.SUCCESS), OK);

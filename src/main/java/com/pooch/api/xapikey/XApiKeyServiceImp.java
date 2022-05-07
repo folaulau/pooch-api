@@ -32,4 +32,12 @@ public class XApiKeyServiceImp implements XApiKeyService {
         throw new ApiException("Invalid x-api-key for utility", "x-api-key not found, " + xApiKey);
     }
 
+    @Override
+    public boolean validateForPoochAppMobile(String key) {
+        if (key == null || key.isEmpty()) {
+            return false;
+        }
+        return XApiKeys.POOCHAPP_MOBILE.equalsIgnoreCase(key);
+    }
+
 }

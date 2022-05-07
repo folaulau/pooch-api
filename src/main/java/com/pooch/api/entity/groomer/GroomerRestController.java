@@ -43,6 +43,8 @@ public class GroomerRestController {
     @PostMapping(value = "/authenticate")
     public ResponseEntity<AuthenticationResponseDTO> authenticate(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @RequestBody AuthenticatorDTO authenticatorDTO) {
         log.info("authenticate={}", ObjectUtils.toJson(authenticatorDTO));
+        
+        xApiKeyService.validate(xApiKey);
 
         AuthenticationResponseDTO authenticationResponseDTO = groomerService.authenticate(authenticatorDTO);
 
