@@ -1,4 +1,4 @@
-package com.pooch.api.entity.role;
+package com.pooch.api.xapikey;
 
 import java.util.Arrays;
 

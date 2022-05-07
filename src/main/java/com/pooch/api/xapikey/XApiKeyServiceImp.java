@@ -2,7 +2,6 @@ package com.pooch.api.xapikey;
 
 import org.springframework.stereotype.Service;
 
-import com.pooch.api.entity.role.XApiKeys;
 import com.pooch.api.exception.ApiException;
 
 import lombok.extern.slf4j.Slf4j;

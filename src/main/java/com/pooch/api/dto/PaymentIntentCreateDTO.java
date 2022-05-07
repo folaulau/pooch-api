@@ -22,6 +22,4 @@ public class PaymentIntentCreateDTO implements Serializable {
 
     private Double            amount;
 
-    private boolean           savePaymentMethodForFutureUse;
-
 }
