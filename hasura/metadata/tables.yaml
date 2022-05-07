@@ -330,6 +330,7 @@
           - created_at
           - updated_at
         filter: {}
+        limit: 1
     - role: groomer
       permission:
         columns:
