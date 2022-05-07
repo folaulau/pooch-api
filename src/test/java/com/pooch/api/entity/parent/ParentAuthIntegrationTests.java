@@ -31,6 +31,7 @@ import com.pooch.api.library.firebase.FirebaseAuthService;
 import com.pooch.api.library.firebase.FirebaseRestClient;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
+import com.pooch.api.xapikey.XApiKeys;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -66,7 +67,7 @@ public class ParentAuthIntegrationTests extends IntegrationTestConfiguration {
         // @formatter:on
         // When
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/parents/authenticate")
-                .header("x-api-key", "test-token")
+                .header("x-api-key", XApiKeys.POOCHAPP_MOBILE)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));
@@ -100,7 +101,7 @@ public class ParentAuthIntegrationTests extends IntegrationTestConfiguration {
         // @formatter:on
         // When
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/parents/authenticate")
-                .header("x-api-key", "test-token")
+                .header("x-api-key", XApiKeys.POOCHAPP_MOBILE)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));
@@ -124,7 +125,7 @@ public class ParentAuthIntegrationTests extends IntegrationTestConfiguration {
         authenticatorDTO.setToken(authResponse.getIdToken());
 
         requestBuilder = MockMvcRequestBuilders.post("/parents/authenticate")
-                .header("x-api-key", "test-token")
+                .header("x-api-key", XApiKeys.POOCHAPP_MOBILE)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));
