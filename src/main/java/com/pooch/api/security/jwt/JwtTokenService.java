@@ -155,4 +155,31 @@ public class JwtTokenService {
 
     }
 
+    public String generateAnonymousForParent() {
+        try {
+            Map<String, Object> hasura = new HashMap<String, Object>();
+
+            hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
+            hasura.put("x-hasura-default-role", Authority.anonymous.name());
+
+            String token = JWT.create()
+                    .withJWTId(RandomGeneratorUtils.getJWTId())
+                    .withExpiresAt(DateUtils.addDays(new Date(), 300))
+                    .withIssuedAt(new Date())
+                    .withAudience(audience)
+                    .withIssuer(ISSUER)
+                    .withClaim("role", Authority.anonymous.name())
+                    .withClaim("hasura", hasura)
+                    .sign(ALGORITHM);
+            log.info("test12");
+            return token;
+        } catch (JWTCreationException e) {
+            log.warn("JWTCreationException, msg: {}", e.getLocalizedMessage());
+            return null;
+        } catch (Exception e) {
+            log.warn("generateToken exception, msg: {}", e.getLocalizedMessage());
+            return null;
+        }
+    }
+
 }
