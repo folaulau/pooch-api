@@ -37,6 +37,7 @@ import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
+import com.pooch.api.xapikey.XApiKeys;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -72,7 +73,7 @@ public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
         // @formatter:on
         // When
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/groomers/authenticate")
-                .header("x-api-key", "test-token")
+                .header("x-api-key", XApiKeys.POOCHFOLIO_WEB)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));
@@ -106,7 +107,7 @@ public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
         // @formatter:on
         // When
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/groomers/authenticate")
-                .header("x-api-key", "test-token")
+                .header("x-api-key", XApiKeys.POOCHFOLIO_WEB)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));
@@ -130,7 +131,7 @@ public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
         authenticatorDTO.setToken(authResponse.getIdToken());
 
         requestBuilder = MockMvcRequestBuilders.post("/groomers/authenticate")
-                .header("x-api-key", "test-token")
+                .header("x-api-key", XApiKeys.POOCHFOLIO_WEB)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));
