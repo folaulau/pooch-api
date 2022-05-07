@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pooch.api.utils.ObjectUtils;
+import com.pooch.api.xapikey.XApiKeyService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,6 +35,9 @@ public class GroomerRestController {
 
     @Autowired
     private GroomerServiceTypeService groomerServiceTypeService;
+
+    @Autowired
+    private XApiKeyService            xApiKeyService;
 
     @Operation(summary = "Authenticate", description = "sign up or sign in")
     @PostMapping(value = "/authenticate")
@@ -101,9 +105,11 @@ public class GroomerRestController {
     @Operation(summary = "Search Groomers", description = "search groomers<br>" + "distance is in mile. default to 5 miles<br>" + "pageNumber starts at 0 as the first page<br>"
             + "pageSize is 25 by default<br>" + "sorts valid values[distance,rating,searchPhrase]<br>")
     @PostMapping(value = "/search")
-    public ResponseEntity<CustomPage<GroomerES>> search(@RequestBody GroomerSearchParamsDTO params) {
+    public ResponseEntity<CustomPage<GroomerES>> search(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @RequestBody GroomerSearchParamsDTO params) {
         log.info("search");
-
+        
+        xApiKeyService.validate(xApiKey);
+        
         CustomPage<GroomerES> results = groomerService.search(params);
 
         return new ResponseEntity<>(results, OK);
@@ -121,9 +127,10 @@ public class GroomerRestController {
 
     @Operation(summary = "Get Service Types", description = "get service types")
     @GetMapping("/service/types")
-    public ResponseEntity<List<GroomerServiceCategoryDTO>> getAllServiceTypes() {
+    public ResponseEntity<List<GroomerServiceCategoryDTO>> getAllServiceTypes(@RequestHeader(name = "x-api-key", required = true) String xApiKey) {
         log.info("getAllServiceTypes()");
-
+        xApiKeyService.validate(xApiKey);
+        
         return new ResponseEntity<>(groomerServiceTypeService.getAllGroomerServiceTypes(), OK);
     }
 }

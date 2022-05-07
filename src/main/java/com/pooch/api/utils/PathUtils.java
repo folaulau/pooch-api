@@ -11,7 +11,7 @@ public final class PathUtils {
 
     public static final String[] TEST_URLS        = {"/tests/**", "/integration"};
 
-    public static final String[] PUBLIC_URLS      = {"/stripe/paymentintent", "/groomers/service/types", "/groomers/search", "/groomers/search/", "/phonenumbers/request-verification",
+    public static final String[] PUBLIC_URLS      = {"/utils/load-groomers-to-es", "/stripe/paymentintent", "/groomers/service/types", "/groomers/search", "/groomers/search/", "/phonenumbers/request-verification",
             "/phonenumbers/verification"};
 
     public static final String[] SWAGGER_DOC_URLS = {"/v3/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources", "/swagger-resources/**", "/swagger-resources/configuration/ui",

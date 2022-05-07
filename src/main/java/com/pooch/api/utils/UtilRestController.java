@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.elastic.DataLoadService;
+import com.pooch.api.xapikey.XApiKeyService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +28,15 @@ public class UtilRestController {
     @Autowired
     private DataLoadService dataLoadService;
 
+    @Autowired
+    private XApiKeyService  xApiKeyService;
+
     @Operation(summary = "Load Groomers To ES", description = "Reload groomers into Elasticsearch")
     @PostMapping(value = "/load-groomers-to-es")
-    public ResponseEntity<ApiDefaultResponseDTO> loadGroomersToES(@RequestHeader(name = "token", required = true) String token) {
+    public ResponseEntity<ApiDefaultResponseDTO> loadGroomersToES(@RequestHeader(name = "x-api-key", required = true) String xApiKey) {
         log.info("loadGroomersToES");
+
+        xApiKeyService.validateForUtility(xApiKey);
 
         ApiDefaultResponseDTO response = dataLoadService.loadGroomers();
 
