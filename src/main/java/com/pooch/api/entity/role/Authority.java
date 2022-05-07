@@ -13,6 +13,8 @@ public enum Authority {
     sales,
 
     engineer,
+    
+    anonymous,
 
     admin;
 
