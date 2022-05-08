@@ -21,4 +21,6 @@ public class AuthenticatorDTO implements Serializable {
      */
     private String            token;
 
+    private boolean           rememberMe;
+
 }
