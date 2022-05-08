@@ -94,6 +94,7 @@ public class ParentServiceImp implements ParentService {
             petParent = new Parent();
             petParent.setUuid(userRecord.getUid());
             petParent.addRole(new Role(Authority.parent));
+            petParent.setStatus(ParentStatus.ACTIVE);
 
             String email = userRecord.getEmail();
 
