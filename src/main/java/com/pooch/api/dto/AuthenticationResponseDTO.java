@@ -51,4 +51,8 @@ public class AuthenticationResponseDTO implements Serializable {
 
     private String            role;
 
+    private String            status;
+    
+    private String            signUpStatus;
+
 }
