@@ -15,6 +15,8 @@ public enum GroomerStatus {
      */
     PENDING_APPROVAL,
 
+    PENDING_STRIPE,
+
     /**
      * Ready to bring in business
      */

@@ -165,7 +165,7 @@ public class GroomerServiceImp implements GroomerService {
 
             groomer.setEmail(email);
             groomer.setStatus(GroomerStatus.SIGNING_UP);
-            groomer.setSignUpStatus(GroomerSignUpStatus.CREATE_PROFILE);
+            groomer.setSignUpStatus(GroomerSignUpStatus.SIGNED_UP);
 
             Long phoneNumber = null;
 

@@ -2,8 +2,9 @@ package com.pooch.api.entity.groomer;
 
 public enum GroomerSignUpStatus {
 
-    CREATE_PROFILE,
-    ADD_SERVICES,
-    ADD_PAYMENT_METHOD,
+    SIGNED_UP,
+    PROFILE_CREATED,
+    LISTING_CREATED,
+    PAYMENT_METHOD_ADDED,
     COMPLETED;
 }

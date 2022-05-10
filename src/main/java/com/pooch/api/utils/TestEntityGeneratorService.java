@@ -67,7 +67,7 @@ public class TestEntityGeneratorService {
         groomer.setOfferedDropOff(true);
         groomer.setOfferedPickUp(true);
         groomer.setStatus(GroomerStatus.SIGNING_UP);
-        groomer.setSignUpStatus(GroomerSignUpStatus.ADD_SERVICES);
+        groomer.setSignUpStatus(GroomerSignUpStatus.LISTING_CREATED);
         groomer.setDescription("Test description");
 
         groomer.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));

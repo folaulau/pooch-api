@@ -44,13 +44,15 @@ public class GroomerAuditServiceImp implements GroomerAuditService {
     public Groomer audit(Groomer groomer) {
 
         // check for sign up flow
-
-        boolean isReadyToActivate = checkForAddresses(groomer) && checkForServices(groomer) && checkForDocuments(groomer) && groomer.isStripeReady();
+        boolean isReadyToActivate = checkForAddresses(groomer) && checkForServices(groomer) && checkForDocuments(groomer);
 
         // check status
-
         if (isReadyToActivate) {
-            groomer.setStatus(GroomerStatus.PENDING_APPROVAL);
+            if (groomer.isStripeReady()) {
+                groomer.setStatus(GroomerStatus.ACTIVE);
+            } else {
+                groomer.setStatus(GroomerStatus.PENDING_STRIPE);
+            }
         } else {
             groomer.setStatus(GroomerStatus.SIGNING_UP);
         }
