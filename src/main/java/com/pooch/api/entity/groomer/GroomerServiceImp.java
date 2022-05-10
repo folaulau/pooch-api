@@ -218,10 +218,50 @@ public class GroomerServiceImp implements GroomerService {
         }
 
         groomer.setAddresses(addresses);
-
+        
         Groomer savedGroomer = groomerDAO.save(groomer);
 
         GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(savedGroomer);
+        
+        /**
+         * Update careServices
+         */
+
+        Set<CareService> careServices = careServiceDAO.findByGroomerId(groomer.getId()).orElse(new HashSet<>());
+
+        Set<CareServiceUpdateDTO> careServicesDTOs = groomerCreateProfileDTO.getCareServices();
+
+        if (null != careServicesDTOs) {
+            careServicesDTOs.stream().forEach(careServicesDTO -> {
+
+                String careServiceUuid = careServicesDTO.getUuid();
+
+                CareService careService = null;
+
+                if (careServiceUuid != null && !careServiceUuid.trim().isEmpty()) {
+                    careService = careServiceDAO.getByUuid(careServicesDTO.getUuid()).get();
+                    entityDTOMapper.patchCareServiceWithCareServiceUpdateDTO(careServicesDTO, careService);
+                } else {
+                    careService = entityDTOMapper.mapCareServiceUpdateDTOToCareService(careServicesDTO);
+                }
+
+                careService.setGroomer(savedGroomer);
+
+                CareService savedCareService = careServiceDAO.save(careService);
+
+                /**
+                 * remove stale CareService
+                 */
+                careServices.stream().filter(cs -> cs.getId().equals(savedCareService.getId())).findFirst().ifPresent(cs -> {
+                    log.info("remove state cs");
+                    careServices.remove(cs);
+                });
+
+                careServices.add(savedCareService);
+            });
+        }
+
+        groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(careServices));
 
         return groomerDTO;
     }
