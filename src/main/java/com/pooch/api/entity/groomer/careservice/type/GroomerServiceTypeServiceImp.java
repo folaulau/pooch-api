@@ -40,9 +40,9 @@ public class GroomerServiceTypeServiceImp implements GroomerServiceTypeService {
 
     @Override
     public List<GroomerServiceCategoryDTO> getAllGroomerServiceTypes() {
-        if (!dict.isEmpty()) {
-            return entityDTOMapper.mapGroomerServiceCategorysToGroomerServiceCategoryDTOs(dict.values().stream().collect(Collectors.toList()));
-        }
+//        if (!dict.isEmpty()) {
+//            return entityDTOMapper.mapGroomerServiceCategorysToGroomerServiceCategoryDTOs(dict.values().stream().collect(Collectors.toList()));
+//        }
 
         List<GroomerServiceCategory> categories = groomerServiceCategoryRepository.findAll();
 
