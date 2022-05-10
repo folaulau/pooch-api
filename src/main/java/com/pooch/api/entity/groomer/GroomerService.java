@@ -27,4 +27,6 @@ public interface GroomerService {
     GroomerDTO syncStripeInfo(String uuid);
 
     GroomerDTO createUpdateProfile(GroomerCreateProfileDTO groomerCreateProfileDTO);
+
+    GroomerDTO createUpdateListing(GroomerCreateListingDTO groomerCreateListingDTO);
 }

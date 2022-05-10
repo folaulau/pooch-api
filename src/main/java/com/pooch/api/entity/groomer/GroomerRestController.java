@@ -43,7 +43,7 @@ public class GroomerRestController {
     @PostMapping(value = "/authenticate")
     public ResponseEntity<AuthenticationResponseDTO> authenticate(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @RequestBody AuthenticatorDTO authenticatorDTO) {
         log.info("authenticate={}", ObjectUtils.toJson(authenticatorDTO));
-        
+
         xApiKeyService.validate(xApiKey);
 
         AuthenticationResponseDTO authenticationResponseDTO = groomerService.authenticate(authenticatorDTO);
@@ -60,13 +60,23 @@ public class GroomerRestController {
 
         return new ResponseEntity<>(groomerDTO, OK);
     }
-    
+
     @Operation(summary = "Create Profile", description = "create profile")
     @PutMapping(value = "/create-profile")
     public ResponseEntity<GroomerDTO> createProfile(@RequestHeader(name = "token", required = true) String token, @RequestBody GroomerCreateProfileDTO groomerCreateProfileDTO) {
         log.info("createProfile={}", ObjectUtils.toJson(groomerCreateProfileDTO));
 
         GroomerDTO groomerDTO = groomerService.createUpdateProfile(groomerCreateProfileDTO);
+
+        return new ResponseEntity<>(groomerDTO, OK);
+    }
+
+    @Operation(summary = "Create Listing", description = "create listing")
+    @PutMapping(value = "/create-listing")
+    public ResponseEntity<GroomerDTO> createUpdateListing(@RequestHeader(name = "token", required = true) String token, @RequestBody GroomerCreateListingDTO groomerCreateListingDTO) {
+        log.info("createUpdateListing={}", ObjectUtils.toJson(groomerCreateListingDTO));
+
+        GroomerDTO groomerDTO = groomerService.createUpdateListing(groomerCreateListingDTO);
 
         return new ResponseEntity<>(groomerDTO, OK);
     }
@@ -119,9 +129,9 @@ public class GroomerRestController {
     @PostMapping(value = "/search")
     public ResponseEntity<CustomPage<GroomerES>> search(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @RequestBody GroomerSearchParamsDTO params) {
         log.info("search");
-        
+
         xApiKeyService.validate(xApiKey);
-        
+
         CustomPage<GroomerES> results = groomerService.search(params);
 
         return new ResponseEntity<>(results, OK);
@@ -142,7 +152,7 @@ public class GroomerRestController {
     public ResponseEntity<List<GroomerServiceCategoryDTO>> getAllServiceTypes(@RequestHeader(name = "x-api-key", required = true) String xApiKey) {
         log.info("getAllServiceTypes()");
         xApiKeyService.validate(xApiKey);
-        
+
         return new ResponseEntity<>(groomerServiceTypeService.getAllGroomerServiceTypes(), OK);
     }
 }

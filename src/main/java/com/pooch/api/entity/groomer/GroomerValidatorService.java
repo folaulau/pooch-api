@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.pooch.api.dto.GroomerCreateListingDTO;
 import com.pooch.api.dto.GroomerCreateProfileDTO;
 import com.pooch.api.dto.GroomerSearchParamsDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
@@ -19,4 +20,6 @@ public interface GroomerValidatorService {
     void validateSearch(GroomerSearchParamsDTO filters);
 
     Groomer validateCreateUpdateProfile(GroomerCreateProfileDTO groomerCreateProfileDTO);
+
+    Groomer validateCreateUpdateListing(GroomerCreateListingDTO groomerCreateListingDTO);
 }

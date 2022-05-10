@@ -15,4 +15,6 @@ public interface CareServiceDAO {
     Optional<CareService> getByUuid(String uuid);
 
     Optional<Set<CareService>> findByGroomerId(Long groomerId);
+    
+    boolean deleteByIds(Set<Long> ids);
 }

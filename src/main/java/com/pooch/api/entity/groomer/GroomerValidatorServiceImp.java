@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pooch.api.dto.AddressCreateUpdateDTO;
 import com.pooch.api.dto.CareServiceUpdateDTO;
 import com.pooch.api.dto.CustomSort;
+import com.pooch.api.dto.GroomerCreateListingDTO;
 import com.pooch.api.dto.GroomerCreateProfileDTO;
 import com.pooch.api.dto.GroomerSearchParamsDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
@@ -103,6 +104,13 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
         }
 
         return groomer;
+    }
+    
+
+    @Override
+    public Groomer validateCreateUpdateListing(GroomerCreateListingDTO groomerCreateListingDTO) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
@@ -339,5 +347,6 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
         }
 
     }
+
 
 }

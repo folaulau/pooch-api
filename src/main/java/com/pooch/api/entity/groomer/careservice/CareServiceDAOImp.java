@@ -46,4 +46,16 @@ public class CareServiceDAOImp implements CareServiceDAO {
     public List<CareService> saveAll(Set<CareService> careServices) {
         return careServiceRepository.saveAll(careServices);
     }
+
+    @Override
+    public boolean deleteByIds(Set<Long> ids) {
+        try {
+            careServiceRepository.deleteAllByIdInBatch(ids);
+        } catch (Exception e) {
+            log.warn("Exception, msg={}", e.getLocalizedMessage());
+            return false;
+        }
+
+        return true;
+    }
 }

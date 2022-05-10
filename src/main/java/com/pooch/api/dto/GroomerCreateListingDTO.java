@@ -17,23 +17,25 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
-public class GroomerCreateProfileDTO implements Serializable {
+public class GroomerCreateListingDTO implements Serializable {
 
     private static final long         serialVersionUID = 1L;
 
     private String                    uuid;
 
-    private String                    firstName;
+    private Boolean                   offeredPickUp;
 
-    private String                    lastName;
+    private Boolean                   offeredDropOff;
 
-    private String                    businessName;
+    private Double                    chargePerMile;
 
-    private Long                      phoneNumber;
+    private Long                      numberOfOcupancy;
+
+    private String                    description;
+
+    private Boolean                   instantBooking;
 
     private Set<CareServiceUpdateDTO> careServices;
-
-    private AddressCreateUpdateDTO    address;
 
     public void addCareService(CareServiceUpdateDTO careService) {
         if (this.careServices == null || this.careServices.size() == 0) {
