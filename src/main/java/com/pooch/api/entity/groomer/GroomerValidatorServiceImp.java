@@ -105,12 +105,32 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
 
         return groomer;
     }
-    
 
     @Override
     public Groomer validateCreateUpdateListing(GroomerCreateListingDTO groomerCreateListingDTO) {
-        // TODO Auto-generated method stub
-        return null;
+        log.info("validateCreateUpdateListing={}", ObjectUtils.toJson(groomerCreateListingDTO));
+
+        String uuid = groomerCreateListingDTO.getUuid();
+
+        if (uuid == null || uuid.isEmpty()) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "uuid is empty. uuid=" + uuid);
+        }
+
+        Optional<Groomer> optGroomer = groomerDAO.getByUuid(uuid);
+
+        if (!optGroomer.isPresent()) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "Groomer not found for uuid=" + uuid);
+        }
+
+        Groomer groomer = optGroomer.get();
+
+        ApiError error = new ApiError();
+
+        if (error.hasErrors()) {
+            throw new ApiException(error);
+        }
+
+        return groomer;
     }
 
     @Override
@@ -347,6 +367,5 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
         }
 
     }
-
 
 }
