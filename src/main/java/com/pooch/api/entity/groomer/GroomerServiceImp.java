@@ -221,6 +221,8 @@ public class GroomerServiceImp implements GroomerService {
 
         groomer.setAddresses(addresses);
 
+        groomer.setSignUpStatus(GroomerSignUpStatus.PROFILE_CREATED);
+        
         Groomer savedGroomer = groomerDAO.save(groomer);
 
         GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(savedGroomer);
@@ -282,6 +284,8 @@ public class GroomerServiceImp implements GroomerService {
 
         entityDTOMapper.patchGroomerWithGroomerCreateListingDTO(groomerCreateListingDTO, groomer);
 
+        groomer.setSignUpStatus(GroomerSignUpStatus.LISTING_CREATED);
+        
         Groomer savedGroomer = groomerDAO.save(groomer);
 
         GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(savedGroomer);
