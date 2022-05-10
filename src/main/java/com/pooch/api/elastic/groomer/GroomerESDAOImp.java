@@ -124,7 +124,7 @@ public class GroomerESDAOImp implements GroomerESDAO {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
         // termQuery is case sensitive
-        boolQuery.filter(QueryBuilders.termQuery("status.keyword", GroomerStatus.ACTIVE.name()));
+        boolQuery.filter(QueryBuilders.termsQuery("status.keyword", GroomerStatus.ACTIVE.name(),GroomerStatus.PENDING_STRIPE.name(),GroomerStatus.PENDING_APPROVAL.name()));
 
         boolQuery.filter(QueryBuilders.nestedQuery("addresses",
                 QueryBuilders.geoDistanceQuery("addresses.location").point(latitude, longitude).distance(radius, DistanceUnit.MILES).geoDistance(GeoDistance.ARC), ScoreMode.None));
