@@ -63,8 +63,8 @@ public class CareServiceTypeDataLoader implements ApplicationRunner {
             "Full Day",
             "Half Day");
       
-      long latestRowId = kennelCatogories.size() + groomerCatogories.size();
-      
+//     long latestRowId = kennelCatogories.size() + groomerCatogories.size();
+//      
 //      groomerServiceCategoryRepository.findById(latestRowId).ifPresent(groomerServiceCategory -> {
 //          return;
 //      });
