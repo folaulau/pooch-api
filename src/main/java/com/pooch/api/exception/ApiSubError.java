@@ -53,4 +53,9 @@ public class ApiSubError implements Serializable {
         this.message = message;
     }
 
+    public ApiSubError(String field, String message) {
+        this.field = field;
+        this.message = message;
+    }
+
 }

@@ -60,4 +60,13 @@ public class AddressCreateUpdateDTO implements Serializable {
 
     private String            timezone;
 
+    public boolean isValidAddress() {
+        return (this.street != null && this.street.trim().isEmpty() == false) 
+                && (this.city != null && this.city.trim().isEmpty() == false)
+                && (this.state != null && this.state.trim().isEmpty() == false) 
+                && (this.zipcode != null && this.zipcode.trim().isEmpty() == false) 
+                && (this.longitude != null)
+                && (this.latitude != null);
+    }
+
 }

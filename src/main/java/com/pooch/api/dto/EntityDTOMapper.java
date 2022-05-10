@@ -91,4 +91,7 @@ public interface EntityDTOMapper {
     Review mapReviewCreateDTOToReview(ReviewCreateDTO review);
 
     ReviewDTO mapReviewToReviewDTO(Review review);
+
+    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "addresses", ignore = true)})
+    void patchGroomerWithGroomerCreateProfileDTO(GroomerCreateProfileDTO groomerCreateProfileDTO, @MappingTarget Groomer groomer);
 }

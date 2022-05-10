@@ -192,6 +192,40 @@ public class GroomerServiceImp implements GroomerService {
         return this.groomerDAO.getByUuid(uuid).orElseThrow(() -> new ApiException("Groomer not found", "groomer not found for uuid=" + uuid));
     }
 
+    @Override
+    public GroomerDTO createUpdateProfile(GroomerCreateProfileDTO groomerCreateProfileDTO) {
+        Groomer groomer = groomerValidatorService.validateCreateUpdateProfile(groomerCreateProfileDTO);
+
+        entityDTOMapper.patchGroomerWithGroomerCreateProfileDTO(groomerCreateProfileDTO, groomer);
+
+        Set<Address> addresses = groomer.getAddresses();
+
+        AddressCreateUpdateDTO addressDTO = groomerCreateProfileDTO.getAddress();
+        
+        if (addressDTO != null) {
+            String addressUuid = addressDTO.getUuid();
+
+            Address address = null;
+            if (addressUuid != null && !addressUuid.trim().isEmpty()) {
+                address = addresses.stream().filter(addr -> addr.getUuid().equalsIgnoreCase(addressUuid)).findFirst().get();
+                entityDTOMapper.patchAddressWithAddressCreateUpdateDTO(addressDTO, address);
+                address.setGroomer(groomer);
+            } else {
+                address = entityDTOMapper.mapAddressCreateUpdateDTOToAddress(addressDTO);
+                address.setGroomer(groomer);
+                addresses.add(address);
+            }
+        }
+
+        groomer.setAddresses(addresses);
+
+        Groomer savedGroomer = groomerDAO.save(groomer);
+
+        GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(savedGroomer);
+
+        return groomerDTO;
+    }
+
     /**
      * Update all or nothing at all
      */
@@ -429,7 +463,7 @@ public class GroomerServiceImp implements GroomerService {
 
         } else {
             account = stripeAccountService.getById(groomer.getStripeConnectedAccountId());
-            
+
         }
 
         groomer = syncStripeAccountWithGroomer(groomer, account);

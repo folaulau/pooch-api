@@ -60,6 +60,16 @@ public class GroomerRestController {
 
         return new ResponseEntity<>(groomerDTO, OK);
     }
+    
+    @Operation(summary = "Create Profile", description = "create profile")
+    @PutMapping(value = "/create-profile")
+    public ResponseEntity<GroomerDTO> createProfile(@RequestHeader(name = "token", required = true) String token, @RequestBody GroomerCreateProfileDTO groomerCreateProfileDTO) {
+        log.info("createProfile={}", ObjectUtils.toJson(groomerCreateProfileDTO));
+
+        GroomerDTO groomerDTO = groomerService.createUpdateProfile(groomerCreateProfileDTO);
+
+        return new ResponseEntity<>(groomerDTO, OK);
+    }
 
     @Operation(summary = "Get Stripe Account Link", description = "get stripe account link")
     @GetMapping(value = "/{uuid}/stripe-account-link")

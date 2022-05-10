@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pooch.api.dto.AddressCreateUpdateDTO;
 import com.pooch.api.dto.CareServiceUpdateDTO;
 import com.pooch.api.dto.CustomSort;
+import com.pooch.api.dto.GroomerCreateProfileDTO;
 import com.pooch.api.dto.GroomerSearchParamsDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
 import com.pooch.api.entity.address.AddressDAO;
@@ -22,6 +24,7 @@ import com.pooch.api.entity.groomer.careservice.type.GroomerServiceTypeServiceIm
 import com.pooch.api.entity.pooch.PoochSize;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
+import com.pooch.api.exception.ApiSubError;
 import com.pooch.api.utils.FileValidatorUtils;
 import com.pooch.api.utils.ObjectUtils;
 
@@ -40,8 +43,67 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
     @Autowired
     private AddressDAO                addressDAO;
 
+    private static Pattern            phonePattern = Pattern.compile("^\\d{10}$");
+
     @Autowired
     private GroomerServiceTypeService groomerServiceTypeService;
+
+    @Override
+    public Groomer validateCreateUpdateProfile(GroomerCreateProfileDTO groomerCreateProfileDTO) {
+
+        log.info("validateCreateUpdateProfile={}", ObjectUtils.toJson(groomerCreateProfileDTO));
+
+        String uuid = groomerCreateProfileDTO.getUuid();
+
+        if (uuid == null || uuid.isEmpty()) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "uuid is empty. uuid=" + uuid);
+        }
+
+        Optional<Groomer> optGroomer = groomerDAO.getByUuid(uuid);
+
+        if (!optGroomer.isPresent()) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "Groomer not found for uuid=" + uuid);
+        }
+
+        Groomer groomer = optGroomer.get();
+
+        ApiError error = new ApiError();
+
+        String firstName = groomerCreateProfileDTO.getFirstName();
+
+        if (firstName == null || firstName.trim().isEmpty()) {
+            error.addError(new ApiSubError("Invalid First Name", "groomer", "firstName", ""));
+        }
+
+        String lastName = groomerCreateProfileDTO.getLastName();
+
+        if (lastName == null || lastName.trim().isEmpty()) {
+            error.addError(new ApiSubError("Invalid Last Name", "groomer", "lastName", ""));
+        }
+
+        String businessName = groomerCreateProfileDTO.getBusinessName();
+        if (businessName == null || businessName.trim().isEmpty()) {
+            error.addError(new ApiSubError("Invalid BusinessName", "groomer", "businessName", ""));
+        }
+
+        Long phoneNumber = groomerCreateProfileDTO.getPhoneNumber();
+
+        if (phoneNumber == null || !phonePattern.matcher("" + phoneNumber).matches()) {
+            error.addError(new ApiSubError("Invalid Phone Number", "groomer", "phoneNumber", ""));
+        }
+
+        AddressCreateUpdateDTO address = groomerCreateProfileDTO.getAddress();
+
+        if (address == null || address.isValidAddress() == false) {
+            error.addError(new ApiSubError("Invalid Address", "address", "address", ""));
+        }
+
+        if (error.hasErrors()) {
+            throw new ApiException(error);
+        }
+
+        return groomer;
+    }
 
     @Override
     public Groomer validateUpdateProfile(GroomerUpdateDTO groomerUpdateDTO) {
@@ -92,9 +154,10 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
                 if (serviceName == null || serviceName.isBlank()) {
                     throw new ApiException("Service name is required", "serviceName=" + serviceName);
                 }
-                
-                if (groomerServiceTypeService.getByName(serviceName)==null) {
-                    throw new ApiException("Invalid service name", "service name=" + serviceName, "valid serviceNames=" + GroomerServiceTypeServiceImp.dict.values(), "care service name is case sensitive");
+
+                if (groomerServiceTypeService.getByName(serviceName) == null) {
+                    throw new ApiException("Invalid service name", "service name=" + serviceName, "valid serviceNames=" + GroomerServiceTypeServiceImp.dict.values(),
+                            "care service name is case sensitive");
                 }
 
                 if (serviceNames.contains(serviceName)) {
@@ -240,8 +303,9 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
 
         if (careServiceNames != null) {
             for (String careServiceName : careServiceNames) {
-                if (groomerServiceTypeService.getByName(careServiceName)==null) {
-                    throw new ApiException("Invalid service name", "service name=" + careServiceName, "valid serviceNames=" + GroomerServiceTypeServiceImp.dict.values(), "care service name is case sensitive");
+                if (groomerServiceTypeService.getByName(careServiceName) == null) {
+                    throw new ApiException("Invalid service name", "service name=" + careServiceName, "valid serviceNames=" + GroomerServiceTypeServiceImp.dict.values(),
+                            "care service name is case sensitive");
                 }
             }
         }

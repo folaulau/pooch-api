@@ -25,4 +25,6 @@ public interface GroomerService {
     StripeAccountLinkDTO getStripeAccountLink(String uuid, String host);
 
     GroomerDTO syncStripeInfo(String uuid);
+
+    GroomerDTO createUpdateProfile(GroomerCreateProfileDTO groomerCreateProfileDTO);
 }

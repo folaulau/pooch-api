@@ -110,16 +110,27 @@ public class ApiError extends ApiDefaultResponseDTO {
         this.errors.add(new ApiSubError(subError));
     }
 
+    public void addError(ApiSubError error) {
+        if (this.errors == null) {
+            this.errors = new ArrayList<>();
+        }
+        this.errors.add(error);
+    }
+
     public boolean hasError(String message) {
         if (errors == null || errors.size() == 0) {
             return false;
         }
-        
+
         if (message == null) {
             return false;
         }
 
         return errors.stream().filter(error -> error.getMessage().toLowerCase().equals(message.toLowerCase())).findFirst().isPresent();
+    }
+
+    public boolean hasErrors() {
+        return (this.errors != null && this.errors.size() > 0);
     }
 
 }
