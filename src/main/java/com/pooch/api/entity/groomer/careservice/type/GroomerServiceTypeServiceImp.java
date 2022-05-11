@@ -16,7 +16,7 @@ import com.pooch.api.dto.GroomerServiceCategoryDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
-@DependsOn({"careServiceTypeDataLoader"})// load date first
+@DependsOn({"careServiceTypeDataLoader"}) // load date first
 @Service
 @Slf4j
 public class GroomerServiceTypeServiceImp implements GroomerServiceTypeService {
@@ -40,9 +40,10 @@ public class GroomerServiceTypeServiceImp implements GroomerServiceTypeService {
 
     @Override
     public List<GroomerServiceCategoryDTO> getAllGroomerServiceTypes() {
-//        if (!dict.isEmpty()) {
-//            return entityDTOMapper.mapGroomerServiceCategorysToGroomerServiceCategoryDTOs(dict.values().stream().collect(Collectors.toList()));
-//        }
+        // if (!dict.isEmpty()) {
+        // return
+        // entityDTOMapper.mapGroomerServiceCategorysToGroomerServiceCategoryDTOs(dict.values().stream().collect(Collectors.toList()));
+        // }
 
         List<GroomerServiceCategory> categories = groomerServiceCategoryRepository.findAll();
 
@@ -63,6 +64,12 @@ public class GroomerServiceTypeServiceImp implements GroomerServiceTypeService {
             dict.put(groomerServiceCategory.getName(), groomerServiceCategory);
         }
         return groomerServiceCategory;
+    }
+
+    @Override
+    public List<GroomerServiceCategory> getTopServiceTypes(Long count) {
+        List<GroomerServiceCategory> categories = groomerServiceCategoryRepository.findAll();
+        return categories.subList(0, count.intValue());
     }
 
 }

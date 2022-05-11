@@ -35,6 +35,8 @@ import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.address.AddressDAO;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
+import com.pooch.api.entity.groomer.careservice.type.GroomerServiceCategory;
+import com.pooch.api.entity.groomer.careservice.type.GroomerServiceTypeService;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
 import com.pooch.api.entity.s3file.FileType;
@@ -93,6 +95,9 @@ public class GroomerServiceImp implements GroomerService {
 
     @Autowired
     private AddressDAO                addressDAO;
+
+    @Autowired
+    private GroomerServiceTypeService groomerServiceTypeService;
 
     @Autowired
     @Qualifier(value = "stripeSecrets")
@@ -222,7 +227,7 @@ public class GroomerServiceImp implements GroomerService {
         groomer.setAddresses(addresses);
 
         groomer.setSignUpStatus(GroomerSignUpStatus.PROFILE_CREATED);
-        
+
         Groomer savedGroomer = groomerDAO.save(groomer);
 
         GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(savedGroomer);
@@ -231,7 +236,9 @@ public class GroomerServiceImp implements GroomerService {
          * Update careServices
          */
 
-        Set<CareService> careServices = careServiceDAO.findByGroomerId(groomer.getId()).orElse(new HashSet<>());
+        final Set<CareService> careServices = careServiceDAO.findByGroomerId(groomer.getId()).orElse(new HashSet<>());
+        final Set<Long> careServicesToRemove = (careServices.size() > 0 ? careServices.stream().map(careService -> careService.getId()).collect(Collectors.toSet()) : new HashSet<>());
+        Set<CareService> dbCareServices = careServices;
 
         Set<CareServiceUpdateDTO> careServicesDTOs = groomerCreateProfileDTO.getCareServices();
 
@@ -244,6 +251,7 @@ public class GroomerServiceImp implements GroomerService {
 
                 if (careServiceUuid != null && !careServiceUuid.trim().isEmpty()) {
                     careService = careServiceDAO.getByUuid(careServicesDTO.getUuid()).get();
+                    careServicesToRemove.remove(careService.getId());
                     entityDTOMapper.patchCareServiceWithCareServiceUpdateDTO(careServicesDTO, careService);
                 } else {
                     careService = entityDTOMapper.mapCareServiceUpdateDTOToCareService(careServicesDTO);
@@ -265,13 +273,48 @@ public class GroomerServiceImp implements GroomerService {
             });
         }
 
-        groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(careServices));
+        List<GroomerServiceCategory> careServiceTypes = groomerServiceTypeService.getTopServiceTypes(4L);
+
+        Set<Long> careServiceIdsToRemove = dbCareServices.stream().filter(cs -> {
+            if (careServicesToRemove.contains(cs.getId()) && canRemoveTopCareService(careServiceTypes, cs)) {
+                return false;
+            } else {
+                return true;
+            }
+        }).map(cs -> cs.getId()).collect(Collectors.toSet());
+
+        /**
+         * delete careServices that are not passed
+         */
+        if (careServicesToRemove.size() > 0) {
+            careServiceDAO.deleteByIds(careServiceIdsToRemove);
+        }
+
+        Set<CareService> savedSareServices = careServices.stream().filter(careService -> {
+            if (careServicesToRemove.contains(careService.getId())) {
+                return true;
+            } else {
+                return false;
+            }
+        }).collect(Collectors.toSet());
+
+        groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(savedSareServices));
 
         applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 
         groomerAuditService.audit(savedGroomer);
 
         return groomerDTO;
+    }
+
+    private boolean canRemoveTopCareService(List<GroomerServiceCategory> careServiceTypes, CareService careService) {
+        return careServiceTypes.stream().filter(cst -> {
+            if (cst.getName().equalsIgnoreCase(careService.getName())) {
+                return true;
+            } else {
+                return false;
+            }
+        }).findFirst().isPresent();
     }
 
     /**
@@ -285,7 +328,7 @@ public class GroomerServiceImp implements GroomerService {
         entityDTOMapper.patchGroomerWithGroomerCreateListingDTO(groomerCreateListingDTO, groomer);
 
         groomer.setSignUpStatus(GroomerSignUpStatus.LISTING_CREATED);
-        
+
         Groomer savedGroomer = groomerDAO.save(groomer);
 
         GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(savedGroomer);

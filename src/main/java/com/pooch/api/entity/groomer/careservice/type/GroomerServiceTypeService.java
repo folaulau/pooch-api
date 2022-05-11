@@ -8,5 +8,7 @@ public interface GroomerServiceTypeService {
 
     List<GroomerServiceCategoryDTO> getAllGroomerServiceTypes();
     
+    List<GroomerServiceCategory> getTopServiceTypes(Long count);
+    
     GroomerServiceCategory getByName(String name);
 }
