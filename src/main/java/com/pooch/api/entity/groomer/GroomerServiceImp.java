@@ -273,16 +273,21 @@ public class GroomerServiceImp implements GroomerService {
             });
         }
 
+        log.info("careServicesToRemove={}",ObjectUtils.toJson(careServicesToRemove)); 
+        
         List<GroomerServiceCategory> careServiceTypes = groomerServiceTypeService.getTopServiceTypes(4L);
+        
+        log.info("careServiceTypes={}",ObjectUtils.toJson(careServiceTypes)); 
 
         Set<Long> careServiceIdsToRemove = dbCareServices.stream().filter(cs -> {
             if (careServicesToRemove.contains(cs.getId()) && canRemoveTopCareService(careServiceTypes, cs)) {
-                return false;
-            } else {
                 return true;
+            } else {
+                return false;
             }
         }).map(cs -> cs.getId()).collect(Collectors.toSet());
-
+        
+        log.info("careServiceIdsToRemove={}",ObjectUtils.toJson(careServiceIdsToRemove));        
         /**
          * delete careServices that are not passed
          */
