@@ -15,6 +15,8 @@ import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerRepository;
 import com.pooch.api.entity.groomer.GroomerSignUpStatus;
 import com.pooch.api.entity.groomer.GroomerStatus;
+import com.pooch.api.entity.groomer.careservice.CareService;
+import com.pooch.api.entity.groomer.careservice.CareServiceRepository;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentRepository;
 import com.pooch.api.entity.pooch.FoodSchedule;
@@ -33,13 +35,16 @@ import com.pooch.api.entity.role.Role;
 public class TestEntityGeneratorService {
 
     @Autowired
-    private GroomerRepository petSitterRepository;
+    private GroomerRepository     petSitterRepository;
 
     @Autowired
-    private ParentRepository  petParentRepository;
+    private ParentRepository      petParentRepository;
 
     @Autowired
-    private PoochRepository   petRepository;
+    private PoochRepository       petRepository;
+
+    @Autowired
+    private CareServiceRepository careServiceRepository;
 
     public Groomer getDBGroomer() {
         Groomer petSitter = getGroomer();
@@ -114,6 +119,31 @@ public class TestEntityGeneratorService {
     public Parent getDBParent() {
         Parent petParent = getParent();
         return petParentRepository.saveAndFlush(petParent);
+    }
+
+    public CareService getDBCareService(Groomer groomer) {
+        CareService careService = getCareService(groomer);
+        return careServiceRepository.saveAndFlush(careService);
+    }
+
+    public CareService getCareService() {
+        return getCareService(null);
+    }
+
+    public CareService getCareService(Groomer groomer) {
+        List<String> serviceTypes = Arrays.asList("Dog Daycare", "Grooming", "Overnight", "Pick up/Drop off", "Nail Clipping");
+        CareService careService = CareService.builder()
+                .serviceSmall(true)
+                .smallPrice(RandomGeneratorUtils.getDoubleWithin(10, 30))
+                .serviceMedium(true)
+                .mediumPrice(RandomGeneratorUtils.getDoubleWithin(30, 50))
+                .serviceLarge(true)
+                .largePrice(RandomGeneratorUtils.getDoubleWithin(50, 70))
+                .name(serviceTypes.get(RandomGeneratorUtils.getIntegerWithin(0, 4)))
+                .groomer(groomer)
+                .build();
+
+        return careService;
     }
 
     public Parent getParent() {

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.BookingCancelDTO;
+import com.pooch.api.dto.BookingCareServiceDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.PoochCreateDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
@@ -15,12 +16,16 @@ import com.pooch.api.dto.GroomerUuidDTO;
 import com.pooch.api.dto.ParentCreateUpdateDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
+import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentDAO;
 import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.pooch.PoochDAO;
+import com.pooch.api.entity.pooch.PoochSize;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
+import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
+import com.stripe.model.PaymentIntent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,20 +34,26 @@ import lombok.extern.slf4j.Slf4j;
 public class BookingValidatorServiceImp implements BookingValidatorService {
 
     @Autowired
-    private GroomerDAO groomerDAO;
+    private GroomerDAO                 groomerDAO;
 
     @Autowired
-    private ParentDAO  parentDAO;
+    private ParentDAO                  parentDAO;
 
     @Autowired
-    private PoochDAO   poochDAO;
+    private PoochDAO                   poochDAO;
 
     @Autowired
-    private BookingDAO bookingDAO;
+    private BookingDAO                 bookingDAO;
+
+    @Autowired
+    private CareServiceDAO             careServiceDAO;
+
+    @Autowired
+    private StripePaymentIntentService stripePaymentIntentService;
 
     @Override
-    public void validateBook(BookingCreateDTO petCareCreateDTO) {
-        ParentCreateUpdateDTO parentCreateUpdateDTO = petCareCreateDTO.getParent();
+    public void validateBook(BookingCreateDTO bookingCreateDTO) {
+        ParentCreateUpdateDTO parentCreateUpdateDTO = bookingCreateDTO.getParent();
 
         if (parentCreateUpdateDTO == null) {
             throw new ApiException(ApiError.DEFAULT_MSG, "petParent is required");
@@ -50,50 +61,92 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
 
         String parentUuid = parentCreateUpdateDTO.getUuid();
 
-        Optional<Parent> optParent = parentDAO.getByUuid(parentUuid);
-
-        if (!optParent.isPresent()) {
-            throw new ApiException(ApiError.DEFAULT_MSG, "parent not found for uuid=" + parentUuid);
+        if (parentUuid == null || parentUuid.trim().isEmpty()) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "parent.uuid is required");
         }
 
-        Parent parent = optParent.get();
+        Parent parent = parentDAO.getByUuid(parentUuid).orElseThrow(() -> new ApiException(ApiError.DEFAULT_MSG, "parent not found for uuid=" + parentUuid));
 
-        // String petSitterUuid = petCareCreateDTO.getPetSitterUuid();
-        //
-        // if (null == petSitterUuid || petSitterUuid.isEmpty()) {
-        // throw new ApiException(ApiError.DEFAULT_MSG, "petSitter not found for uuid=" + petSitterUuid);
-        // }
-        //
-        // Optional<PetSitter> optPetSitter = petSitterDAO.getByUuid(petSitterUuid);
-        //
-        // if (!optPetSitter.isPresent()) {
-        // throw new ApiException(ApiError.DEFAULT_MSG, "petSitter not found for uuid=" + petSitterUuid);
-        // }
-        //
-        // PetSitter petSitter = optPetSitter.get();
+        String groomerUuid = bookingCreateDTO.getGroomerUuid();
+
+        if (groomerUuid == null || groomerUuid.trim().isEmpty()) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "groomerUuid is required");
+        }
+
+        Groomer groomer = groomerDAO.getByUuid(groomerUuid).orElseThrow(() -> new ApiException("Groomer not found", "groomer not found for uuid=" + groomerUuid));
+
+        if (bookingCreateDTO.getAgreedToContracts() == null) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "Please agree to contracts", "agreedToContracts is null");
+        }
 
         /**
          * Pets
          */
-        Set<PoochCreateDTO> petCreateDTOs = petCareCreateDTO.getPooches();
+        Set<PoochCreateDTO> petCreateDTOs = bookingCreateDTO.getPooches();
+
+        if (petCreateDTOs == null || petCreateDTOs.size() <= 0) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "Add a pooch", "pooches are empty");
+        }
+
         for (PoochCreateDTO petCreateDTO : petCreateDTOs) {
             String uuid = petCreateDTO.getUuid();
 
-            if (uuid != null && !uuid.isEmpty()) {
-                Optional<Pooch> optPet = poochDAO.getByUuid(uuid);
+            if (uuid != null && !uuid.trim().isEmpty()) {
 
-                if (!optPet.isPresent()) {
-                    throw new ApiException(ApiError.DEFAULT_MSG, "Pet not found for uuid=" + uuid);
-                } else {
-                    Pooch pet = optPet.get();
+                Pooch pooch = poochDAO.getByUuid(uuid).orElseThrow(() -> new ApiException(ApiError.DEFAULT_MSG, "Pooch not found for uuid=" + uuid));
 
-                    if (!parent.getId().equals(pet.getParent().getId())) {
-                        throw new ApiException(ApiError.DEFAULT_MSG, "Pet does not belong to petParent");
-                    }
+                if (!parent.getId().equals(pooch.getParent().getId())) {
+                    throw new ApiException(ApiError.DEFAULT_MSG, "Pooch does not belong to Parent", "pooch has to belong to his/her parent");
                 }
             }
         }
 
+        Set<BookingCareServiceDTO> services = bookingCreateDTO.getServices();
+
+        if (services == null || services.size() <= 0) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "Add a service", "services are empty");
+        }
+
+        for (BookingCareServiceDTO service : services) {
+            String uuid = service.getUuid();
+
+            if (uuid == null || uuid.trim().isEmpty()) {
+                throw new ApiException(ApiError.DEFAULT_MSG, "service.uuid is required");
+            }
+
+            String size = service.getSize();
+
+            if (!PoochSize.isValidSize(size)) {
+                throw new ApiException(ApiError.DEFAULT_MSG, "service.size is invalid", "valid sizes: " + PoochSize.sizes);
+            }
+
+            Integer count = service.getCount();
+
+            if (count == null || count <= 1 || count > 1000) {
+                throw new ApiException(ApiError.DEFAULT_MSG, "service.count is invalid", "valid count value: 1-1000");
+            }
+
+            if (!careServiceDAO.existByUuidAndGroomer(uuid, groomer.getId())) {
+                throw new ApiException(ApiError.DEFAULT_MSG, "service.uuid belongs to a different groomer");
+            }
+
+        }
+
+        String paymentIntentId = bookingCreateDTO.getPaymentIntentId();
+
+        if (paymentIntentId == null || paymentIntentId.trim().isEmpty()) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "PaymentIntentId is required");
+        }
+
+        com.stripe.model.PaymentIntent paymentIntent = stripePaymentIntentService.getById(paymentIntentId);
+
+        if (paymentIntent == null) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "PaymentIntent not found for id=" + paymentIntentId);
+        }
+
+        if (!paymentIntent.getStatus().equalsIgnoreCase("succeeded")) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "Payment has not been made", "payment status=" + paymentIntent.getStatus());
+        }
     }
 
     @Override

@@ -199,6 +199,7 @@ public class GroomerServiceImp implements GroomerService {
         return this.groomerDAO.getByUuid(uuid).orElseThrow(() -> new ApiException("Groomer not found", "groomer not found for uuid=" + uuid));
     }
 
+    @Transactional
     @Override
     public GroomerDTO createUpdateProfile(GroomerCreateProfileDTO groomerCreateProfileDTO) {
         Groomer groomer = groomerValidatorService.validateCreateUpdateProfile(groomerCreateProfileDTO);
@@ -297,11 +298,14 @@ public class GroomerServiceImp implements GroomerService {
 
         Set<CareService> savedSareServices = careServices.stream().filter(careService -> {
             if (careServicesToRemove.contains(careService.getId())) {
-                return true;
-            } else {
                 return false;
+            } else {
+                return true;
             }
         }).collect(Collectors.toSet());
+        
+
+        log.info("savedSareServices={}",ObjectUtils.toJson(savedSareServices));
 
         groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(savedSareServices));
 
@@ -326,6 +330,7 @@ public class GroomerServiceImp implements GroomerService {
      * Only save ones passed<br>
      * Delete any not pass
      */
+    @Transactional
     @Override
     public GroomerDTO createUpdateListing(GroomerCreateListingDTO groomerCreateListingDTO) {
         Groomer groomer = groomerValidatorService.validateCreateUpdateListing(groomerCreateListingDTO);
@@ -409,6 +414,7 @@ public class GroomerServiceImp implements GroomerService {
     /**
      * Update all or nothing at all
      */
+    @Deprecated
     @Transactional
     @Override
     public GroomerDTO updateProfile(GroomerUpdateDTO groomerUpdateDTO) {

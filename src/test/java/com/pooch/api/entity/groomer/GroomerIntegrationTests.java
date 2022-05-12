@@ -32,6 +32,7 @@ import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.CareServiceUpdateDTO;
 import com.pooch.api.dto.EntityDTOMapper;
+import com.pooch.api.dto.GroomerCreateProfileDTO;
 import com.pooch.api.dto.GroomerDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
 import com.pooch.api.entity.parent.ParentIntegrationTests;
@@ -91,20 +92,21 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
         System.out.println("itShouldUpdateProfile_valid");
         // Given
         Groomer groomer = testEntityGeneratorService.getDBGroomer();
-        GroomerUpdateDTO groomerUpdateDTO = new GroomerUpdateDTO();
+        GroomerCreateProfileDTO groomerUpdateDTO = new GroomerCreateProfileDTO();
         groomerUpdateDTO.setUuid(groomer.getUuid());
-        groomerUpdateDTO.setDescription("test description");
         groomerUpdateDTO.setFirstName("Folau");
         groomerUpdateDTO.setLastName("Kaveinga");
-        groomerUpdateDTO.setSignUpStatus(GroomerSignUpStatus.PROFILE_CREATED);
+        groomerUpdateDTO.setBusinessName("Folau Dev");
+        groomerUpdateDTO.setPhoneNumber(3109934731L);
+
         AddressCreateUpdateDTO address = AddressCreateUpdateDTO.builder().state("CA").street("222 Alta Ave").city("Santa Monica").zipcode("90402").latitude(34.025070).longitude(-118.507700).build();
-        groomerUpdateDTO.addAddress(address);
+        groomerUpdateDTO.setAddress(address);
 
         groomerUpdateDTO.addCareService(CareServiceUpdateDTO.builder().name("Overnight").build());
 
         // @formatter:on
         // When
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.put("/groomers/profile")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.put("/groomers/create-profile")
                 .header("token", GROOMER_TOKEN)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -121,7 +123,7 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
         assertThat(groomerDTO.getUuid()).isNotNull();
         assertThat(groomerDTO.getFirstName()).isNotNull().isEqualTo("Folau");
         assertThat(groomerDTO.getLastName()).isNotNull().isEqualTo("Kaveinga");
-        assertThat(groomerDTO.getDescription()).isNotNull().isEqualTo("test description");
+        assertThat(groomerDTO.getDescription()).isNotNull().isEqualTo("Test description");
         assertThat(groomerDTO.getAddresses()).isNotNull();
         assertThat(groomerDTO.getAddresses().size()).isEqualTo(2);
         assertThat(groomerDTO.getCareServices()).isNotNull();

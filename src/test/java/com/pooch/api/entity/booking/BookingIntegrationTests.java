@@ -28,17 +28,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.ParentCreateUpdateDTO;
+import com.pooch.api.dto.BookingCareServiceDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.PoochCreateDTO;
 import com.pooch.api.dto.VaccineCreateDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
+import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentDAO;
 import com.pooch.api.entity.pooch.FoodSchedule;
 import com.pooch.api.entity.pooch.Gender;
+import com.pooch.api.entity.pooch.PoochSize;
 import com.pooch.api.entity.pooch.Training;
 import com.pooch.api.entity.role.Authority;
+import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.ObjectUtils;
@@ -65,6 +69,9 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
 
     @MockBean
     private JwtTokenService            jwtTokenService;
+
+    @MockBean
+    private StripePaymentIntentService stripePaymentIntentService;
 
     @Autowired
     private GroomerDAO                 petSitterDAO;
@@ -109,7 +116,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
     @Test
     void itShouldMakeBooking_valid() throws Exception {
         // Given
-        BookingCreateDTO petCareCreateDTO = new BookingCreateDTO();
+        BookingCreateDTO bookingCreateDTO = new BookingCreateDTO();
 
         /**
          * Pet Parent
@@ -118,14 +125,34 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
 
         ParentCreateUpdateDTO petParentDTO = entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
 
-        petCareCreateDTO.setParent(petParentDTO);
+        bookingCreateDTO.setParent(petParentDTO);
+
+        bookingCreateDTO.setAgreedToContracts(true);
+
+        bookingCreateDTO.setPaymentIntentId("test-paymentintent-id");
 
         /**
          * Pet Sitter
          */
         Groomer groomer = testEntityGeneratorService.getDBGroomer();
 
-        petCareCreateDTO.setGroomerUuid(groomer.getUuid());
+        bookingCreateDTO.setGroomerUuid(groomer.getUuid());
+
+        // @formatter:off
+
+        CareService careService= testEntityGeneratorService.getDBCareService(groomer);
+        
+        bookingCreateDTO.addService(BookingCareServiceDTO.builder()
+                .size(PoochSize.medium)
+                .uuid(careService.getUuid())
+                .count(2)
+                .build());
+        
+        // @formatter:on
+        
+        com.stripe.model.PaymentIntent paymentIntent = new com.stripe.model.PaymentIntent();
+        paymentIntent.setStatus("succeeded");
+        Mockito.when(stripePaymentIntentService.getById(Mockito.anyString())).thenReturn(paymentIntent);
 
         /**
          * Pets
@@ -147,14 +174,14 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
             petCreateDTOs.add(petCreateDTO);
         }
 
-        petCareCreateDTO.setPooches(petCreateDTOs);
+        bookingCreateDTO.setPooches(petCreateDTOs);
         // When
 
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/bookings/book")
                 .header("token", TEST_PETPARENT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(ObjectUtils.toJson(petCareCreateDTO));
+                .content(ObjectUtils.toJson(bookingCreateDTO));
 
         MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 

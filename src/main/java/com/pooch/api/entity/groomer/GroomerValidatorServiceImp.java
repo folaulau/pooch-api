@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -99,7 +100,15 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
             error.addError(new ApiSubError("Invalid Address", "address", "address", ""));
         }
 
+        Set<CareServiceUpdateDTO> careServices = groomerCreateProfileDTO.getCareServices();
+
+        if (careServices == null || careServices.size() <= 0) {
+            error.addSubError("careServices is required");
+        }
+
         if (error.hasErrors()) {
+            error.setMessage(ApiError.DEFAULT_MSG);
+            error.setStatus(HttpStatus.BAD_REQUEST);
             throw new ApiException(error);
         }
 
@@ -126,7 +135,15 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
 
         ApiError error = new ApiError();
 
+        Set<CareServiceUpdateDTO> careServices = groomerCreateListingDTO.getCareServices();
+
+        if (careServices == null || careServices.size() <= 0) {
+            error.addSubError("careServices is required");
+        }
+
         if (error.hasErrors()) {
+            error.setMessage(ApiError.DEFAULT_MSG);
+            error.setStatus(HttpStatus.BAD_REQUEST);
             throw new ApiException(error);
         }
 

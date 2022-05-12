@@ -12,6 +12,6 @@ public interface PoochSize {
     List<String> sizes  = Arrays.asList(small, medium, large);
 
     static boolean isValidSize(String value) {
-        return value != null && sizes.contains(value);
+        return value != null && sizes.contains(value.toLowerCase());
     }
 }

@@ -51,15 +51,15 @@ public class GroomerRestController {
         return new ResponseEntity<>(authenticationResponseDTO, OK);
     }
 
-    @Operation(summary = "Update Profile", description = "update profile")
-    @PutMapping(value = "/profile")
-    public ResponseEntity<GroomerDTO> update(@RequestHeader(name = "token", required = true) String token, @RequestBody GroomerUpdateDTO groomerUpdateDTO) {
-        log.info("groomerUpdateDTO={}", ObjectUtils.toJson(groomerUpdateDTO));
-
-        GroomerDTO groomerDTO = groomerService.updateProfile(groomerUpdateDTO);
-
-        return new ResponseEntity<>(groomerDTO, OK);
-    }
+//    @Operation(summary = "Update Profile", description = "update profile")
+//    @PutMapping(value = "/profile")
+//    public ResponseEntity<GroomerDTO> update(@RequestHeader(name = "token", required = true) String token, @RequestBody GroomerUpdateDTO groomerUpdateDTO) {
+//        log.info("groomerUpdateDTO={}", ObjectUtils.toJson(groomerUpdateDTO));
+//
+//        GroomerDTO groomerDTO = groomerService.updateProfile(groomerUpdateDTO);
+//
+//        return new ResponseEntity<>(groomerDTO, OK);
+//    }
 
     @Operation(summary = "Create Profile", description = "create profile")
     @PutMapping(value = "/create-profile")

@@ -58,4 +58,10 @@ public class CareServiceDAOImp implements CareServiceDAO {
 
         return true;
     }
+
+    @Override
+    public Optional<CareService> findByUuid(String uuid) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
