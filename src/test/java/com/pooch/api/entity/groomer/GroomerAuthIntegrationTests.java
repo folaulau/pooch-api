@@ -2,18 +2,14 @@ package com.pooch.api.entity.groomer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-import javax.servlet.Filter;
 import javax.transaction.Transactional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -21,23 +17,16 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
-import com.pooch.api.entity.parent.ParentIntegrationTests;
-import com.pooch.api.entity.role.Authority;
+import com.pooch.api.library.aws.secretsmanager.XApiKey;
 import com.pooch.api.library.firebase.FirebaseAuthResponse;
 import com.pooch.api.library.firebase.FirebaseRestClient;
-import com.pooch.api.security.jwt.JwtPayload;
-import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
-import com.pooch.api.xapikey.XApiKeys;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,6 +42,10 @@ public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
 
     @Captor
     private ArgumentCaptor<String> tokenCaptor;
+
+    @Autowired
+    @Qualifier(value = "xApiKey")
+    private XApiKey                xApiKey;
 
     @Autowired
     private FirebaseRestClient     firebaseRestClient;
@@ -73,7 +66,7 @@ public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
         // @formatter:on
         // When
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/groomers/authenticate")
-                .header("x-api-key", XApiKeys.POOCHFOLIO_WEB)
+                .header("x-api-key", xApiKey.getMobileXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));
@@ -107,7 +100,7 @@ public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
         // @formatter:on
         // When
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/groomers/authenticate")
-                .header("x-api-key", XApiKeys.POOCHFOLIO_WEB)
+                .header("x-api-key", xApiKey.getWebXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));
@@ -131,7 +124,7 @@ public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
         authenticatorDTO.setToken(authResponse.getIdToken());
 
         requestBuilder = MockMvcRequestBuilders.post("/groomers/authenticate")
-                .header("x-api-key", XApiKeys.POOCHFOLIO_WEB)
+                .header("x-api-key", xApiKey.getWebXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));

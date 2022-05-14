@@ -6,10 +6,9 @@ import javax.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -20,18 +19,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.UserRecord;
-import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
+import com.pooch.api.library.aws.secretsmanager.XApiKey;
 import com.pooch.api.library.firebase.FirebaseAuthResponse;
-import com.pooch.api.library.firebase.FirebaseAuthService;
 import com.pooch.api.library.firebase.FirebaseRestClient;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
-import com.pooch.api.xapikey.XApiKeys;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,6 +42,10 @@ public class ParentAuthIntegrationTests extends IntegrationTestConfiguration {
 
     @Captor
     private ArgumentCaptor<String> tokenCaptor;
+
+    @Autowired
+    @Qualifier(value = "xApiKey")
+    private XApiKey                xApiKey;
 
     @Autowired
     private FirebaseRestClient     firebaseRestClient;
@@ -67,7 +66,7 @@ public class ParentAuthIntegrationTests extends IntegrationTestConfiguration {
         // @formatter:on
         // When
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/parents/authenticate")
-                .header("x-api-key", XApiKeys.POOCHAPP_MOBILE)
+                .header("x-api-key", xApiKey.getMobileXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));
@@ -101,7 +100,7 @@ public class ParentAuthIntegrationTests extends IntegrationTestConfiguration {
         // @formatter:on
         // When
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/parents/authenticate")
-                .header("x-api-key", XApiKeys.POOCHAPP_MOBILE)
+                .header("x-api-key", xApiKey.getMobileXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));
@@ -125,7 +124,7 @@ public class ParentAuthIntegrationTests extends IntegrationTestConfiguration {
         authenticatorDTO.setToken(authResponse.getIdToken());
 
         requestBuilder = MockMvcRequestBuilders.post("/parents/authenticate")
-                .header("x-api-key", XApiKeys.POOCHAPP_MOBILE)
+                .header("x-api-key", xApiKey.getUtilityXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));

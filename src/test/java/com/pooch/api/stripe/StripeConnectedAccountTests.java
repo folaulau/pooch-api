@@ -41,13 +41,13 @@ import com.pooch.api.dto.PaymentIntentDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
+import com.pooch.api.library.aws.secretsmanager.XApiKey;
 import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
-import com.pooch.api.xapikey.XApiKeys;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Account;
@@ -74,6 +74,10 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
 
     @MockBean
     private JwtTokenService            jwtTokenService;
+
+    @Autowired
+    @Qualifier(value = "xApiKey")
+    private XApiKey                    xApiKey;
 
     @Captor
     private ArgumentCaptor<String>     tokenCaptor;
@@ -167,7 +171,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
         PaymentIntentCreateDTO paymentIntentCreateDTO = PaymentIntentCreateDTO.builder().amount(245D).groomerUuid(activeGroomer.getUuid()).build();
 
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent")
-                .header("x-api-key", XApiKeys.POOCHAPP_MOBILE)
+                .header("x-api-key", xApiKey.getMobileXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(paymentIntentCreateDTO));
