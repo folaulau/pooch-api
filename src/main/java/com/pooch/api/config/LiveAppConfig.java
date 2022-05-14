@@ -140,6 +140,11 @@ public class LiveAppConfig {
         return queue;
     }
 
+    @Bean(name = "xApiKey")
+    public XApiKey xApiKeySecrets() {
+        return awsSecretsManagerService.getXApiKeys();
+    }
+
     @Bean
     public RestHighLevelClient restHighLevelClient() {
         log.info("configuring elasticsearch");

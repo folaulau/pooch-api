@@ -25,6 +25,7 @@ import org.springframework.context.annotation.PropertySource;
 import com.pooch.api.library.aws.secretsmanager.FirebaseSecrets;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.aws.secretsmanager.TwilioSecrets;
+import com.pooch.api.library.aws.secretsmanager.XApiKey;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -106,6 +107,11 @@ public class LocalAppConfig {
         twilioSecrets.setAuthToken(twilioAuthToken);
         twilioSecrets.setSmsSender(twilioSMSSender);
         return twilioSecrets;
+    }
+
+    @Bean(name = "xApiKey")
+    public XApiKey xApiKeySecrets(@Value("${web.x.api.key}") String webXApiKey, @Value("${mobile.x.api.key}") String mobileXApiKey, @Value("${utility.x.api.key}") String utilityXApiKey) {
+        return new XApiKey(webXApiKey, mobileXApiKey, utilityXApiKey);
     }
 
     /* ================== datasource =============== */

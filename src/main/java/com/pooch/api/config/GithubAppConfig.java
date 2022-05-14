@@ -44,6 +44,7 @@ import com.pooch.api.library.aws.secretsmanager.AwsSecretsManagerService;
 import com.pooch.api.library.aws.secretsmanager.FirebaseSecrets;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.aws.secretsmanager.TwilioSecrets;
+import com.pooch.api.library.aws.secretsmanager.XApiKey;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -196,6 +197,11 @@ public class GithubAppConfig {
     @Bean(name = "twilioSecrets")
     public TwilioSecrets twilioSecrets() {
         return awsSecretsManagerService.getTwilioSecrets();
+    }
+
+    @Bean(name = "xApiKey")
+    public XApiKey xApiKeySecrets() {
+        return awsSecretsManagerService.getXApiKeys();
     }
 
     // @Bean(name = "stripeApiSecretKey")

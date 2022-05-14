@@ -33,6 +33,9 @@ public class AwsSecretsManagerServiceImp implements AwsSecretsManagerService {
     @Value("${elasticsearch.secret.name}")
     private String            elasticsearchSecretName;
 
+    @Value("${xapikey.secret.name}")
+    private String            xApiKeySecretName;
+
     @Autowired
     private AWSSecretsManager awsSecretsManager;
 
@@ -194,6 +197,38 @@ public class AwsSecretsManagerServiceImp implements AwsSecretsManagerService {
             log.info("secret binary secret data");
             binarySecretData = getSecretValueResponse.getSecretBinary();
             return ElasticsearchSecrets.fromJson(binarySecretData.toString());
+        }
+    }
+
+    @Override
+    public XApiKey getXApiKeys() {
+        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
+        getSecretValueRequest.setSecretId(xApiKeySecretName);
+
+        GetSecretValueResult getSecretValueResponse = null;
+        try {
+            getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
+        } catch (Exception e) {
+            log.error("Failed to get values for sercret {}, msg:{}", elasticsearchSecretName, e.getMessage(), e);
+        }
+
+        if (getSecretValueResponse == null) {
+            return null;
+        }
+
+        ByteBuffer binarySecretData;
+        String secret;
+        // Decrypted secret using the associated KMS CMK
+        // Depending on whether the secret was a string or binary, one of these fields
+        // will be populated
+        if (getSecretValueResponse.getSecretString() != null) {
+            log.info("secret string");
+            secret = getSecretValueResponse.getSecretString();
+            return XApiKey.fromJson(secret);
+        } else {
+            log.info("secret binary secret data");
+            binarySecretData = getSecretValueResponse.getSecretBinary();
+            return XApiKey.fromJson(binarySecretData.toString());
         }
     }
 }

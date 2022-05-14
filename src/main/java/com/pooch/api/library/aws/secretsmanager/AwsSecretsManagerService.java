@@ -11,4 +11,6 @@ public interface AwsSecretsManagerService {
     public FirebaseSecrets getFirebaseSecrets();
 
     public ElasticsearchSecrets getElasticsearchSecrets();
+    
+    public XApiKey getXApiKeys();
 }
