@@ -109,6 +109,7 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
         RequestBuilder requestBuilder = MockMvcRequestBuilders.put("/groomers/create-profile")
                 .header("token", GROOMER_TOKEN)
                 .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(groomerUpdateDTO));
 

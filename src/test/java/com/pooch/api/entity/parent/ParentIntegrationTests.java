@@ -107,6 +107,7 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
                 .file(firstFile)
                 .file(secondFile)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
+                .characterEncoding("utf-8")
                 .header("token", PARENT_TOKEN);
 
         MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();

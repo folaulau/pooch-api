@@ -180,6 +180,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/bookings/book")
                 .header("token", TEST_PETPARENT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(bookingCreateDTO));
 

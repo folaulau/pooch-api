@@ -178,6 +178,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent")
                 .header("x-api-key", xApiKey.getMobileXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(paymentIntentCreateDTO));
 
@@ -257,6 +258,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent")
                 .header("x-api-key", xApiKey.getMobileXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(paymentIntentQuestUpdateDTO));
 

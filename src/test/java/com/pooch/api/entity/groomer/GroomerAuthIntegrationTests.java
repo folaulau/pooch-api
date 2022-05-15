@@ -68,6 +68,7 @@ public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/groomers/authenticate")
                 .header("x-api-key", xApiKey.getMobileXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));
 
@@ -102,6 +103,7 @@ public class GroomerAuthIntegrationTests extends IntegrationTestConfiguration {
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/groomers/authenticate")
                 .header("x-api-key", xApiKey.getWebXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(authenticatorDTO));
 

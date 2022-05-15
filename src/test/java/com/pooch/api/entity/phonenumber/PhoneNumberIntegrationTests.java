@@ -76,6 +76,7 @@ public class PhoneNumberIntegrationTests extends IntegrationTestConfiguration {
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/phonenumbers/request-verification")
                 .header("x-api-key", "test-token")
                 .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(phoneNumberRequestVerificationDTO));
 
@@ -114,6 +115,7 @@ public class PhoneNumberIntegrationTests extends IntegrationTestConfiguration {
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/phonenumbers/request-verification")
                 .header("x-api-key", "test-token")
                 .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ObjectUtils.toJson(phoneNumberRequestVerificationDTO));
 
