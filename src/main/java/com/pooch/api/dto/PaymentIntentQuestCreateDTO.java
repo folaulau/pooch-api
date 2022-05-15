@@ -14,12 +14,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
-public class PaymentIntentCreateDTO implements Serializable {
+public class PaymentIntentQuestCreateDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private String            groomerUuid;
 
     private Double            amount;
+
+    private String            paymentIntentId;
 
 }

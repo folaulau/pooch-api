@@ -18,12 +18,16 @@ public class PaymentIntentDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String            groomerUuid;
-
     private String            clientSecret;
 
     private String            id;
 
-    private Double            amount;
+    private Double            bookingFee;
+    
+    private Double            bookingCost;
+    
+    private Double            stripeFee;
+    
+    private Double            totalAmount;
 
 }

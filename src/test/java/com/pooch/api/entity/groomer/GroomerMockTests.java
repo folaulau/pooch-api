@@ -126,4 +126,11 @@ class GroomerMockTests {
         assertThat(mainAddress.get().equals(add1)).isTrue();
 
     }
+    
+    @Test
+    void test_paymentintent_key_initial() {
+        String paymentIntentId = "pi_3Kzc5SCRM62QoG6s0nGsO2fl";
+
+        assertThat(paymentIntentId.substring(0, 3)).isEqualToIgnoringCase("pi_");
+    }
 }

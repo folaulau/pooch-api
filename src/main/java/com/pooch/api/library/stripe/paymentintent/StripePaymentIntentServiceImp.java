@@ -1,27 +1,29 @@
 package com.pooch.api.library.stripe.paymentintent;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.math.RoundingMode;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import com.pooch.api.dto.PaymentIntentCreateDTO;
 import com.pooch.api.dto.PaymentIntentDTO;
+import com.pooch.api.dto.PaymentIntentQuestCreateDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.exception.ApiException;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
+import com.pooch.api.library.stripe.StripeMetadataService;
 import com.pooch.api.utils.MathUtils;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.PaymentIntentCollection;
-import com.stripe.net.RequestOptions;
-
+import com.stripe.param.CustomerCreateParams;
+import com.stripe.param.PaymentIntentCreateParams;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -34,6 +36,9 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
     @Autowired
     private StripePaymentIntentValidatorService stripePaymentIntentValidatorService;
+
+    @Value("${spring.profiles.active}")
+    private String                              env;
 
     @Override
     public PaymentIntent getById(String paymentIntentId) {
@@ -85,55 +90,148 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     }
 
     @Override
-    public PaymentIntent create(String accountId, BigDecimal amount) {
+    public PaymentIntentDTO createQuestPaymentIntent(PaymentIntentQuestCreateDTO paymentIntentCreateDTO) {
         Stripe.apiKey = stripeSecrets.getSecretKey();
+ 
+        Groomer groomer = stripePaymentIntentValidatorService.validateCreateQuestPaymentIntent(paymentIntentCreateDTO);
 
-        log.info("create({}, {})", accountId, amount);
-        List<String> paymentMethodTypes = new ArrayList<>();
-        paymentMethodTypes.add("card");
+        //@formatter:off
+        CustomerCreateParams customerParams = CustomerCreateParams.builder()
+                .setMetadata(Map.of(StripeMetadataService.env,env))
+                .setName("pooch parent").build();
+        //@formatter:on
 
-        long applicationFeeAmount = 10 * 100;
+        Customer customer = null;
+
+        try {
+            customer = Customer.create(customerParams);
+        } catch (Exception e) {
+            log.warn("StripeException, customer, msg={}", e.getMessage());
+        }
+
+        // $10 booking fee
+        double bookingFee = 10;
+        long bookingFeeAsCents = (long) (bookingFee * 100);
         
-        Map<String, Object> params = new HashMap<>();
-        params.put("payment_method_types", paymentMethodTypes);
-        params.put("amount", amount.longValue() * 100);
-        params.put("currency", "usd");
-        params.put("application_fee_amount", applicationFeeAmount);
+        double bookingCost = paymentIntentCreateDTO.getAmount().doubleValue();
         
-        Map<String, Object> transferDataParams = new HashMap<>();
-        transferDataParams.put("destination", accountId);
-        params.put("transfer_data", transferDataParams);
+        bookingCost = MathUtils.getTwoDecimalPlaces(bookingCost);
+        
+        double chargeAmount = bookingCost + bookingFee;
+        long chargeAmountAsCents = (long) (chargeAmount * 100);
+        // 2.9% of chargeAmount + 30 cents
+        double stripeFee = MathUtils.getTwoDecimalPlaces(((2.9 / 100) * chargeAmount) + .3);
+        long stripeFeeAsCents = (long) (stripeFee * 100);
+        double totalCharge = chargeAmount + stripeFee;
+        long totalChargeAsCents = chargeAmountAsCents + stripeFeeAsCents;
+
+        log.info("createQuestPaymentIntent -> bookingFee={}, bookingCost={}, chargeAmount={}, stripeFee={}, totalCharge={}", bookingFee, bookingCost, chargeAmount, stripeFee, totalCharge);
+        log.info("createQuestPaymentIntent -> bookingFeeAsCents={}c, stripeFeeAsCents={}c, stripeFeeAmount={}c, totalChargeAsCents={}c", bookingFeeAsCents, chargeAmountAsCents, stripeFeeAsCents,
+                totalChargeAsCents);
+
+        //@formatter:off
+        com.stripe.param.PaymentIntentCreateParams.Builder builder = PaymentIntentCreateParams.builder()
+                .addPaymentMethodType("card")
+                .setAmount(totalChargeAsCents)
+                .setCurrency("usd")
+                .putMetadata(StripeMetadataService.env, env)
+                .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid())
+                .setSetupFutureUsage(PaymentIntentCreateParams.SetupFutureUsage.OFF_SESSION)
+                .setTransferGroup("group-" + UUID.randomUUID().toString());
+        // @formatter:on
+
+        if (customer != null) {
+            builder.setCustomer(customer.getId());
+        }
+
+        PaymentIntentCreateParams createParams = builder.build();
 
         PaymentIntent paymentIntent = null;
 
         try {
-            paymentIntent = PaymentIntent.create(params);
+            paymentIntent = PaymentIntent.create(createParams);
             System.out.println(paymentIntent.toJson());
         } catch (StripeException e) {
             log.warn("StripeException, msg={}", e.getMessage());
-            throw new ApiException(e.getMessage(), "StripeException, msg="+e.getMessage());
+            throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
         }
-
-        return paymentIntent;
-    }
-
-    @Override
-    public PaymentIntentDTO processNewPaymentIntent(PaymentIntentCreateDTO paymentIntentCreateDTO) {
-        Groomer groomer = stripePaymentIntentValidatorService.validateProcessNewPaymentIntent(paymentIntentCreateDTO);
-        // remember to remove acct_1KtIhI2ELI6szoyV and poochfolio is ready
-        // use groomer's connected account id
         
-        String acountId = "acct_1Kvuna2E8yUfNXhV";// Lucy Mullins
-        PaymentIntent paymentIntent = create(acountId, BigDecimal.valueOf(paymentIntentCreateDTO.getAmount()));
-
+        double stripeAmount = BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+        
+        // @formatter:off
         PaymentIntentDTO paymentIntentDTO = PaymentIntentDTO.builder()
-                .amount((double)(paymentIntent.getAmount() / 100))
+                .totalAmount(stripeAmount)
+                .bookingCost(bookingCost)
+                .stripeFee(stripeFee)
+                .bookingFee(bookingFee)
                 .clientSecret(paymentIntent.getClientSecret())
-                .groomerUuid(groomer.getUuid())
                 .id(paymentIntent.getId())
                 .build();
+        // @formatter:off
         
         return paymentIntentDTO;
     }
 
+    @Override
+    public PaymentIntentDTO updateQuestPaymentIntent(PaymentIntentQuestCreateDTO paymentIntentQuestUpdateDTO) {
+        Stripe.apiKey = stripeSecrets.getSecretKey();
+        
+        Groomer groomer = stripePaymentIntentValidatorService.validateUpdateQuestPaymentIntent(paymentIntentQuestUpdateDTO);
+
+        PaymentIntent paymentIntent = null;
+
+        // $10 booking fee
+        double bookingFee = 10;
+        long bookingFeeAsCents = (long) (bookingFee * 100);
+        
+        double bookingCost = paymentIntentQuestUpdateDTO.getAmount().doubleValue();
+        
+        bookingCost = MathUtils.getTwoDecimalPlaces(bookingCost);
+        
+        double chargeAmount = bookingCost + bookingFee;
+        long chargeAmountAsCents = (long) (chargeAmount * 100);
+        // 2.9% of chargeAmount + 30 cents
+        double stripeFee = MathUtils.getTwoDecimalPlaces(((2.9 / 100) * chargeAmount) + .3);
+        long stripeFeeAsCents = (long) (stripeFee * 100);
+        double totalCharge = chargeAmount + stripeFee;
+        long totalChargeAsCents = chargeAmountAsCents + stripeFeeAsCents;
+
+        log.info("updateQuestPaymentIntent -> bookingFee={}, chargeAmount={}, stripeFee={}, totalCharge={}", bookingFee, chargeAmount, stripeFee, totalCharge);
+        log.info("updateQuestPaymentIntent -> bookingFeeAsCents={}c, stripeFeeAsCents={}c, stripeFeeAmount={}c, totalChargeAsCents={}c", bookingFeeAsCents, chargeAmountAsCents, stripeFeeAsCents,
+                totalChargeAsCents);
+
+        try {
+            paymentIntent = PaymentIntent.retrieve(paymentIntentQuestUpdateDTO.getPaymentIntentId());
+            System.out.println(paymentIntent.toJson());
+
+            // @formatter:off
+            com.stripe.param.PaymentIntentUpdateParams updateParams = com.stripe.param.PaymentIntentUpdateParams.builder()
+                    .setAmount(totalChargeAsCents)
+                    .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid())
+                    .build();
+            // @formatter:on
+
+            paymentIntent = paymentIntent.update(updateParams);
+
+        } catch (StripeException e) {
+            log.warn("StripeException, msg={}", e.getMessage());
+            throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
+        }
+
+        double stripeAmount = BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+        
+        // @formatter:off
+
+        PaymentIntentDTO paymentIntentDTO = PaymentIntentDTO.builder()
+                .totalAmount(stripeAmount)
+                .bookingCost(bookingCost)
+                .stripeFee(stripeFee)
+                .bookingFee(bookingFee)
+                .clientSecret(paymentIntent.getClientSecret())
+                .id(paymentIntent.getId())
+                .build();
+        // @formatter:on
+        
+        return paymentIntentDTO;
+    }
 }
