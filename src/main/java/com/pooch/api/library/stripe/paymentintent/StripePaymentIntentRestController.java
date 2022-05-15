@@ -3,6 +3,7 @@ package com.pooch.api.library.stripe.paymentintent;
 import static org.springframework.http.HttpStatus.OK;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -33,7 +34,7 @@ public class StripePaymentIntentRestController {
     @Autowired
     private XApiKeyService             xApiKeyService;
 
-    @Operation(summary = "Get Stripe Payment Intent", description = "get stripe payment intent")
+    @Operation(summary = "Get Stripe Payment Intent", description = "get stripe payment intent<br>stripe fee: 2.9% + 30c per payment")
     @PostMapping(value = "/stripe/paymentintent")
     public ResponseEntity<PaymentIntentDTO> createPaymentIntent(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @RequestBody PaymentIntentQuestCreateDTO paymentIntentCreateDTO) {
         log.info("createPaymentIntent={}", ObjectUtils.toJson(paymentIntentCreateDTO));
