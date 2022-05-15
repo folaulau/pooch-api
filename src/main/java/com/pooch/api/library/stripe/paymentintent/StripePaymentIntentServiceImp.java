@@ -39,6 +39,9 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
     @Value("${spring.profiles.active}")
     private String                              env;
+    
+    @Value("${booking.fee:10}")
+    private Double                              bookingFee;
 
     @Override
     public PaymentIntent getById(String paymentIntentId) {
@@ -110,20 +113,23 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
         }
 
         // $10 booking fee
-        double bookingFee = 10;
-        long bookingFeeAsCents = (long) (bookingFee * 100);
+        long bookingFeeAsCents = BigDecimal.valueOf(bookingFee).multiply(BigDecimal.valueOf(100)).longValue();
         
         double bookingCost = paymentIntentCreateDTO.getAmount().doubleValue();
         
         bookingCost = MathUtils.getTwoDecimalPlaces(bookingCost);
         
         double chargeAmount = bookingCost + bookingFee;
-        long chargeAmountAsCents = (long) (chargeAmount * 100);
+        long chargeAmountAsCents = BigDecimal.valueOf(chargeAmount).multiply(BigDecimal.valueOf(100)).longValue();
         // 2.9% of chargeAmount + 30 cents
-        double stripeFee = MathUtils.getTwoDecimalPlaces(((2.9 / 100) * chargeAmount) + .3);
-        long stripeFeeAsCents = (long) (stripeFee * 100);
+        double stripeFee = BigDecimal.valueOf(2.9)
+                .divide(BigDecimal.valueOf(100))
+                .multiply(BigDecimal.valueOf(chargeAmount))
+                .add(BigDecimal.valueOf(0.3)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+        
+        long stripeFeeAsCents = BigDecimal.valueOf(stripeFee).multiply(BigDecimal.valueOf(100)).longValue();
         double totalCharge = chargeAmount + stripeFee;
-        long totalChargeAsCents = chargeAmountAsCents + stripeFeeAsCents;
+        long totalChargeAsCents = BigDecimal.valueOf(totalCharge).multiply(BigDecimal.valueOf(100)).longValue();
 
         log.info("createQuestPaymentIntent -> bookingFee={}, bookingCost={}, chargeAmount={}, stripeFee={}, totalCharge={}", bookingFee, bookingCost, chargeAmount, stripeFee, totalCharge);
         log.info("createQuestPaymentIntent -> bookingFeeAsCents={}c, stripeFeeAsCents={}c, stripeFeeAmount={}c, totalChargeAsCents={}c", bookingFeeAsCents, chargeAmountAsCents, stripeFeeAsCents,
@@ -181,20 +187,23 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
         PaymentIntent paymentIntent = null;
 
         // $10 booking fee
-        double bookingFee = 10;
-        long bookingFeeAsCents = (long) (bookingFee * 100);
+        long bookingFeeAsCents = BigDecimal.valueOf(bookingFee).multiply(BigDecimal.valueOf(100)).longValue();
         
         double bookingCost = paymentIntentQuestUpdateDTO.getAmount().doubleValue();
         
         bookingCost = MathUtils.getTwoDecimalPlaces(bookingCost);
         
         double chargeAmount = bookingCost + bookingFee;
-        long chargeAmountAsCents = (long) (chargeAmount * 100);
+        long chargeAmountAsCents = BigDecimal.valueOf(chargeAmount).multiply(BigDecimal.valueOf(100)).longValue();
         // 2.9% of chargeAmount + 30 cents
-        double stripeFee = MathUtils.getTwoDecimalPlaces(((2.9 / 100) * chargeAmount) + .3);
-        long stripeFeeAsCents = (long) (stripeFee * 100);
+        double stripeFee = BigDecimal.valueOf(2.9)
+                .divide(BigDecimal.valueOf(100))
+                .multiply(BigDecimal.valueOf(chargeAmount))
+                .add(BigDecimal.valueOf(0.3)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+        
+        long stripeFeeAsCents = BigDecimal.valueOf(stripeFee).multiply(BigDecimal.valueOf(100)).longValue();
         double totalCharge = chargeAmount + stripeFee;
-        long totalChargeAsCents = chargeAmountAsCents + stripeFeeAsCents;
+        long totalChargeAsCents = BigDecimal.valueOf(totalCharge).multiply(BigDecimal.valueOf(100)).longValue();
 
         log.info("updateQuestPaymentIntent -> bookingFee={}, chargeAmount={}, stripeFee={}, totalCharge={}", bookingFee, chargeAmount, stripeFee, totalCharge);
         log.info("updateQuestPaymentIntent -> bookingFeeAsCents={}c, stripeFeeAsCents={}c, stripeFeeAmount={}c, totalChargeAsCents={}c", bookingFeeAsCents, chargeAmountAsCents, stripeFeeAsCents,
@@ -213,6 +222,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
             paymentIntent = paymentIntent.update(updateParams);
 
+            System.out.println(paymentIntent.toJson());
         } catch (StripeException e) {
             log.warn("StripeException, msg={}", e.getMessage());
             throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());

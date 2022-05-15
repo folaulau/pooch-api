@@ -159,8 +159,11 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
 
         Groomer activeGroomer = testEntityGeneratorService.getActiveDBGroomer();
 
-        // @formatter:on
-        PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder().amount(245D).groomerUuid(activeGroomer.getUuid()).build();
+        // @formatter:off
+        PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder()
+                .amount(245D)
+                .groomerUuid(activeGroomer.getUuid())
+                .build();
 
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent")
                 .header("x-api-key", xApiKey.getMobileXApiKey())
@@ -170,7 +173,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
 
         MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
-        // @formatter:off
+        // @formatter:on
         String contentAsString = result.getResponse().getContentAsString();
 
         PaymentIntentDTO paymentIntentDTO = objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
@@ -178,29 +181,35 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
         assertThat(paymentIntentDTO).isNotNull();
         assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
         assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
+        assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(7.7);
+        assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(10.0);
         assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(245);
+        assertThat(paymentIntentDTO.getTotalAmount()).isNotNull().isEqualTo(262.7);
         assertThat(paymentIntentDTO.getId()).isNotNull();
     }
-    
+
     @Test
     void itShouldUpdateQuestPaymentIntent() throws Exception {
 
         Groomer activeGroomer = testEntityGeneratorService.getActiveDBGroomer();
 
-        // @formatter:on
-        PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder().amount(245D).groomerUuid(activeGroomer.getUuid()).build();
+        // @formatter:off
+        PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder()
+                .amount(245D)
+                .groomerUuid(activeGroomer.getUuid())
+                .build();
 
         PaymentIntentDTO paymentIntentDTO = stripePaymentIntentService.createQuestPaymentIntent(paymentIntentCreateDTO);
 
         assertThat(paymentIntentDTO).isNotNull();
         assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
         assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
-        assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(7.69);
+        assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(7.7);
         assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(10.0);
         assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(245);
-        assertThat(paymentIntentDTO.getTotalAmount()).isNotNull().isEqualTo(262.69);
+        assertThat(paymentIntentDTO.getTotalAmount()).isNotNull().isEqualTo(262.7);
         assertThat(paymentIntentDTO.getId()).isNotNull();
-        
+
         PaymentIntentQuestCreateDTO paymentIntentQuestUpdateDTO = PaymentIntentQuestCreateDTO.builder()
                 .paymentIntentId(paymentIntentDTO.getId())
                 .groomerUuid(activeGroomer.getUuid())
@@ -215,7 +224,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
 
         MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
-        // @formatter:off
+        // @formatter:on
         String contentAsString = result.getResponse().getContentAsString();
 
         paymentIntentDTO = objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
@@ -226,7 +235,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
         assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(8.28);
         assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(10.0);
         assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(265);
-        assertThat(paymentIntentDTO.getTotalAmount()).isNotNull().isEqualTo(283.27);
+        assertThat(paymentIntentDTO.getTotalAmount()).isNotNull().isEqualTo(283.28);
         assertThat(paymentIntentDTO.getId()).isNotNull();
     }
 
