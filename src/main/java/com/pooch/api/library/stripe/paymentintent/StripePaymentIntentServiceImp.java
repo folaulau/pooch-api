@@ -3,6 +3,7 @@ package com.pooch.api.library.stripe.paymentintent;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -22,9 +23,11 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.PaymentIntentCollection;
+import com.stripe.model.Transfer;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.PaymentIntentUpdateParams;
+import com.stripe.param.TransferCreateParams;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -146,6 +149,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
                 .setAmount(totalChargeAsCents)
                 .setCurrency("usd")
                 .putMetadata(StripeMetadataService.env, env)
+                .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_COST, bookingCost+"")
                 .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid())
                 .setTransferGroup("group-" + UUID.randomUUID().toString());
         // @formatter:on
@@ -226,6 +230,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
       
             com.stripe.param.PaymentIntentUpdateParams.Builder builder = com.stripe.param.PaymentIntentUpdateParams.builder()
                     .setAmount(totalChargeAsCents)
+                    .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_COST, bookingCost+"")
                     .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid());
             
             if (paymentIntentQuestUpdateDTO.getSavePaymentMethodForFutureUse() != null && paymentIntentQuestUpdateDTO.getSavePaymentMethodForFutureUse()) {
@@ -259,5 +264,50 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
         // @formatter:on
 
         return paymentIntentDTO;
+    }
+
+    @Override
+    public boolean transferFundsToGroomer(PaymentIntent pi, Groomer groomer) {
+        Stripe.apiKey = stripeSecrets.getSecretKey();
+
+        PaymentIntent paymentIntent = null;
+
+        try {
+            paymentIntent = PaymentIntent.retrieve(pi.getId());
+
+            String transferGroup = paymentIntent.getTransferGroup();
+
+            BigDecimal bookingCost = new BigDecimal(paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_COST));
+
+            List<com.stripe.model.Charge> charges = paymentIntent.getCharges().getData();
+
+            com.stripe.model.Charge charge = charges.get(charges.size() - 1);
+
+            /**
+             * make sure TransferGroup is the same from the payment intent
+             */
+            TransferCreateParams transferParams = TransferCreateParams.builder()
+                    .setAmount(bookingCost.multiply(BigDecimal.valueOf(100)).longValue())
+                    .setCurrency("usd")
+                    .setDestination(groomer.getStripeConnectedAccountId())
+
+                    // https://stripe.com/docs/connect/charges-transfers#transfer-availability
+                    .setSourceTransaction(charge.getId())
+                    .setTransferGroup(transferGroup)
+                    .build();
+
+            System.out.println("transferParams: " + transferParams.toMap().toString());
+
+            Transfer transfer = Transfer.create(transferParams);
+
+            System.out.println("transfer: " + transfer.toJson());
+
+        } catch (StripeException e) {
+            log.warn("StripeException - transferFundsToGroomer, msg={}", e.getMessage());
+
+            return false;
+        }
+
+        return false;
     }
 }

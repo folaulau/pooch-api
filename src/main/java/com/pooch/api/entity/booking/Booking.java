@@ -95,6 +95,10 @@ public class Booking implements Serializable {
     @Column(name = "status")
     private BookingStatus        status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "stripe_funds_status", nullable = true)
+    private BookingStripeStatus  stripeFundsStatus;
+
     @Column(name = "pick_up_date_time", nullable = true)
     private LocalDateTime        pickUpDateTime;
 
@@ -115,8 +119,8 @@ public class Booking implements Serializable {
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
-    @Column(name = "request_as_json")
-    private String               requestAsJson;
+    @Column(name = "debugging_notes")
+    private String               debuggingNotes;
 
     @Column(name = "deleted", nullable = false)
     private boolean              deleted;
@@ -134,6 +138,19 @@ public class Booking implements Serializable {
             this.pooches = new HashSet<>();
         }
         this.pooches.add(pooch);
+    }
+
+    public void addDebuggingNote(String note) {
+        StringBuilder notes = new StringBuilder(this.debuggingNotes);
+
+        StringBuilder newNote = new StringBuilder();
+        newNote.append("Timestamp: " + LocalDateTime.now().toString() + "\n");
+        newNote.append("note: " + note + "\n");
+
+        notes.append(newNote);
+
+        this.debuggingNotes = notes.toString();
+
     }
 
     @PrePersist

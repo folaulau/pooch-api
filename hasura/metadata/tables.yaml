@@ -99,6 +99,7 @@
       permission:
         columns:
           - created_at
+          - debugging_notes
           - deleted
           - drop_off_date_time
           - end_date_time
@@ -113,9 +114,9 @@
           - payment_method_type
           - payment_method_uuid
           - pick_up_date_time
-          - request_as_json
           - start_date_time
           - status
+          - stripe_funds_status
           - stripe_payment_intent_id
           - stripe_payment_method_id
           - updated_at
@@ -126,28 +127,29 @@
     - role: parent
       permission:
         columns:
+          - created_at
+          - debugging_notes
+          - deleted
+          - drop_off_date_time
+          - end_date_time
           - groomer_id
           - id
           - parent_id
-          - payment_method_id
-          - deleted
           - payment_method_bank
           - payment_method_brand
+          - payment_method_id
           - payment_method_last4
           - payment_method_name
           - payment_method_type
           - payment_method_uuid
-          - status
-          - stripe_payment_intent_id
-          - stripe_payment_method_id
-          - uuid
-          - request_as_json
-          - created_at
-          - drop_off_date_time
-          - end_date_time
           - pick_up_date_time
           - start_date_time
+          - status
+          - stripe_funds_status
+          - stripe_payment_intent_id
+          - stripe_payment_method_id
           - updated_at
+          - uuid
         filter:
           parent_id:
             _eq: x-Hasura-parent-id

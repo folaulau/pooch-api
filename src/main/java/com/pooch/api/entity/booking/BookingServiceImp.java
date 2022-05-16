@@ -118,12 +118,33 @@ public class BookingServiceImp implements BookingService {
 
         booking.setGroomer(groomer);
 
+        if (groomer.isStripeReady()) {
+
+            boolean transferred = stripePaymentIntentService.transferFundsToGroomer(paymentIntent, groomer);
+
+            if (transferred) {
+                booking.setStatus(BookingStatus.Booked);
+                booking.setStripeFundsStatus(BookingStripeStatus.FUNDS_IN_GROOMER_ACCOUNT);
+            } else {
+
+                booking.setStatus(BookingStatus.Pending_Groomer_Approval);
+                booking.setStripeFundsStatus(BookingStripeStatus.FUNDS_IN_POOCH_ACCOUNT);
+            }
+
+        } else {
+
+            booking.setStatus(BookingStatus.Pending_Groomer_Approval);
+
+            booking.setStripeFundsStatus(BookingStripeStatus.FUNDS_IN_POOCH_ACCOUNT);
+        }
+
         booking = addPoochesToBooking(booking, bookingCreateDTO.getPooches());
 
         log.info("booking={}", ObjectUtils.toJson(booking));
-
-        booking.setRequestAsJson(ObjectUtils.toJson(bookingCreateDTO));
-
+        
+        booking.addDebuggingNote("booking: "+ObjectUtils.toJson(booking));
+        booking.addDebuggingNote("bookingCreateDTO: "+ObjectUtils.toJson(bookingCreateDTO));
+        
         booking = bookingDAO.save(booking);
 
         return entityDTOMapper.mapBookingToBookingDTO(booking);
