@@ -141,7 +141,7 @@ public class Booking implements Serializable {
     }
 
     public void addDebuggingNote(String note) {
-        StringBuilder notes = new StringBuilder(this.debuggingNotes);
+        StringBuilder notes = new StringBuilder((this.debuggingNotes != null) ? this.debuggingNotes : "");
 
         StringBuilder newNote = new StringBuilder();
         newNote.append("Timestamp: " + LocalDateTime.now().toString() + "\n");
