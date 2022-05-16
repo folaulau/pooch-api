@@ -22,6 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
@@ -31,6 +32,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
@@ -43,6 +45,7 @@ import com.pooch.api.entity.DatabaseTableNames;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.parent.Parent;
+import com.pooch.api.entity.paymentmethod.PaymentMethod;
 import com.pooch.api.entity.pooch.FoodSchedule;
 import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.pooch.vaccine.Vaccine;
@@ -78,9 +81,9 @@ public class Booking implements Serializable {
     @JoinColumn(name = "parent_id")
     private Parent            parent;
 
-    // @JsonIgnoreProperties(value = {"expenses", "scrubbedData"})
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH})
-    @JoinTable(name = "booking_pooches", joinColumns = @JoinColumn(name = "booking_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "pooch_id", referencedColumnName = "id"))
+    @JsonIgnoreProperties(value = {"bookings"})
+    @ManyToMany(cascade = {CascadeType.DETACH})
+    @JoinTable(name = "booking_pooches", joinColumns = @JoinColumn(name = "booking_id"), inverseJoinColumns = @JoinColumn(name = "pooch_id"))
     private Set<Pooch>        pooches;
 
     @ManyToOne(cascade = CascadeType.DETACH)
@@ -91,10 +94,10 @@ public class Booking implements Serializable {
     @Column(name = "status")
     private BookingStatus     status;
 
-    @Column(name = "pick_up_date_time", nullable = false)
+    @Column(name = "pick_up_date_time", nullable = true)
     private LocalDateTime     pickUpDateTime;
 
-    @Column(name = "drop_off_date_time", nullable = false)
+    @Column(name = "drop_off_date_time", nullable = true)
     private LocalDateTime     dropOffDateTime;
 
     @Column(name = "start_date_time", nullable = false)
@@ -102,6 +105,19 @@ public class Booking implements Serializable {
 
     @Column(name = "end_date_time", nullable = false)
     private LocalDateTime     endDateTime;
+
+    @Column(name = "stripe_payment_intent_id", nullable = true)
+    private String            stripePaymentIntentId;
+
+    @JsonIgnoreProperties(value = {"parent"})
+    @ManyToOne(cascade = CascadeType.DETACH)
+    @JoinColumn(name = "payment_method_id")
+    private PaymentMethod     paymentMethod;
+
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
+    @Column(name = "request_as_json")
+    private String            requestAsJson;
 
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;

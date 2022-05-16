@@ -1,5 +1,6 @@
 package com.pooch.api.entity.booking;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
@@ -79,6 +80,18 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
             throw new ApiException(ApiError.DEFAULT_MSG, "Please agree to contracts", "agreedToContracts is null");
         }
 
+        LocalDateTime startDateTime = bookingCreateDTO.getStartDateTime();
+
+        if (startDateTime == null) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime is required");
+        }
+
+        LocalDateTime endDateTime = bookingCreateDTO.getEndDateTime();
+
+        if (endDateTime == null) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "endDateTime is required");
+        }
+
         /**
          * Pets
          */
@@ -141,6 +154,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
         com.stripe.model.PaymentIntent paymentIntent = stripePaymentIntentService.getById(paymentIntentId);
 
         if (paymentIntent == null) {
+            log.info("paymentIntent is null");
             throw new ApiException(ApiError.DEFAULT_MSG, "PaymentIntent not found for id=" + paymentIntentId);
         }
 

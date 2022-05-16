@@ -113,6 +113,9 @@ public class Parent implements Serializable {
     // @JoinColumn(name = "address_id")
     private Address           address;
 
+    @Column(name = "stripe_customer_id", nullable = true)
+    private String            stripeCustomerId;
+
     @JsonIgnoreProperties(value = {"parents"})
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "parent_roles", joinColumns = {@JoinColumn(name = "parent_id")}, inverseJoinColumns = {@JoinColumn(name = "role_id")})

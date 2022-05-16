@@ -52,6 +52,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
         try {
             paymentIntent = PaymentIntent.retrieve(paymentIntentId);
+            log.info("paymentIntent={}",paymentIntent.toJson());
         } catch (StripeException e) {
             log.warn("StripeException, msg={}, userMessage={}, stripeErrorMessage={}", e.getLocalizedMessage(), e.getUserMessage(), e.getStripeError().getMessage());
         }

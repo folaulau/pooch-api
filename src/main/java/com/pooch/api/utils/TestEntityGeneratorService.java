@@ -1,14 +1,19 @@
 package com.pooch.api.utils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-
 import com.pooch.api.entity.address.Address;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import com.pooch.api.entity.groomer.Groomer;
@@ -27,11 +32,23 @@ import com.pooch.api.entity.pooch.Training;
 import com.pooch.api.entity.pooch.vaccine.Vaccine;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
+import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
+import com.pooch.api.library.stripe.StripeMetadataService;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.CustomerCreateParams;
+import com.stripe.param.CustomerUpdateParams;
+import com.stripe.param.PaymentIntentCreateParams;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Only for testing
  */
 @Repository
+@Slf4j
 public class TestEntityGeneratorService {
 
     @Autowired
@@ -45,6 +62,19 @@ public class TestEntityGeneratorService {
 
     @Autowired
     private CareServiceRepository careServiceRepository;
+
+    @Autowired
+    @Qualifier(value = "stripeSecrets")
+    private StripeSecrets         stripeSecrets;
+
+    @Value("${booking.fee:10}")
+    private Double                bookingFee;
+
+    @Autowired
+    private StripeTokenService    stripeTokenService;
+
+    @Value("${spring.profiles.active}")
+    private String                env;
 
     public Groomer getDBGroomer() {
         Groomer petSitter = getGroomer();
@@ -338,5 +368,134 @@ public class TestEntityGeneratorService {
         pooch.setTraining(Training.Medium);
         pooch.setWeight(RandomGeneratorUtils.getDoubleWithin(1.0, 30.0));
         return pooch;
+    }
+
+    public PaymentIntent createPaymentIntent(Double amount, String customerId, String paymentMethodId) {
+        Stripe.apiKey = stripeSecrets.getSecretKey();
+
+        List<String> paymentMethodTypes = new ArrayList<>();
+        paymentMethodTypes.add("card");
+
+        // $10 booking fee
+        long bookingFeeAsCents = BigDecimal.valueOf(bookingFee).multiply(BigDecimal.valueOf(100)).longValue();
+
+        double bookingCost = amount;
+
+        bookingCost = MathUtils.getTwoDecimalPlaces(bookingCost);
+
+        double chargeAmount = bookingCost + bookingFee;
+        long chargeAmountAsCents = BigDecimal.valueOf(chargeAmount).multiply(BigDecimal.valueOf(100)).longValue();
+        // 2.9% of chargeAmount + 30 cents
+        double stripeFee = BigDecimal.valueOf(2.9)
+                .divide(BigDecimal.valueOf(100))
+                .multiply(BigDecimal.valueOf(chargeAmount))
+                .add(BigDecimal.valueOf(0.3))
+                .setScale(2, RoundingMode.HALF_EVEN)
+                .doubleValue();
+
+        long stripeFeeAsCents = BigDecimal.valueOf(stripeFee).multiply(BigDecimal.valueOf(100)).longValue();
+        double totalCharge = chargeAmount + stripeFee;
+        long totalChargeAsCents = BigDecimal.valueOf(totalCharge).multiply(BigDecimal.valueOf(100)).longValue();
+
+        // String customerId = "cus_Lgyk8DhX8TytPQ";
+
+        // @formatter:off
+ 
+
+        PaymentIntentCreateParams createParams = PaymentIntentCreateParams.builder()
+                .addPaymentMethodType("card")
+                .setAmount(totalChargeAsCents)
+                .setCurrency("usd")
+                .setSetupFutureUsage(PaymentIntentCreateParams.SetupFutureUsage.OFF_SESSION)
+                .setCustomer(customerId)
+                .setPaymentMethod(paymentMethodId)
+                .setConfirm(true)
+                .setTransferGroup("group-" + UUID.randomUUID().toString())
+                .build();
+        // @formatter:on
+
+        PaymentIntent paymentIntent = null;
+
+        try {
+            paymentIntent = PaymentIntent.create(createParams);
+            log.info("paymentIntent={}", paymentIntent.toJson());
+        } catch (StripeException e) {
+            log.warn("StripeException, msg={}", e.getMessage());
+        }
+
+        return paymentIntent;
+    }
+
+    public com.stripe.model.Customer createCustomer() {
+        return createCustomer(null);
+    }
+
+    public com.stripe.model.Customer createCustomer(Parent parent) {
+        return createCustomer(parent, false);
+    }
+
+    public com.stripe.model.Customer createCustomer(Parent parent, boolean addPaymentMethod) {
+        Stripe.apiKey = stripeSecrets.getSecretKey();
+        
+        //@formatter:off
+        
+        CustomerCreateParams.Builder builder = CustomerCreateParams.builder()
+                .setMetadata(Map.of(StripeMetadataService.env,env))
+                .setName("pooch parent");
+        
+        if(parent!=null) {
+            builder.setName(parent.getFullName()); 
+            builder.setEmail(parent.getEmail());
+        }
+        
+        CustomerCreateParams customerParams = builder.build();
+        //@formatter:on
+
+        Customer customer = null;
+
+        try {
+            customer = Customer.create(customerParams);
+            log.info("customer={}", customer.toJson());
+        } catch (Exception e) {
+            log.warn("StripeException, customer, msg={}", e.getMessage());
+        }
+
+        if (addPaymentMethod) {
+            addPaymentMethodToCustomer(customer);
+        }
+
+        return customer;
+    }
+
+    public String addPaymentMethodToCustomer(String customerId) {
+        com.stripe.model.Customer customer = null;
+        try {
+            customer = Customer.retrieve(customerId);
+        } catch (Exception e) {
+            log.warn("StripeException, customer, msg={}", e.getMessage());
+        }
+        return addPaymentMethodToCustomer(customer);
+    }
+
+    public String addPaymentMethodToCustomer(com.stripe.model.Customer customer) {
+        Stripe.apiKey = stripeSecrets.getSecretKey();
+        
+        StripeToken token = stripeTokenService.getCreditCardTokenFromStripe(null);
+        //@formatter:off
+        
+        CustomerUpdateParams.Builder builder = CustomerUpdateParams.builder()
+                .setSource(token.getToken());
+   
+        
+        CustomerUpdateParams customerParams = builder.build();
+        //@formatter:on
+
+        try {
+            customer = customer.update(customerParams);
+        } catch (Exception e) {
+            log.warn("StripeException, customer, msg={}", e.getMessage());
+        }
+
+        return token.getPaymentMethodId();
     }
 }

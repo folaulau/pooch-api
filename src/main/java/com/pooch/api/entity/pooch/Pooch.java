@@ -24,6 +24,7 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
@@ -38,11 +39,13 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.elastic.repo.AddressES;
 import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.entity.DatabaseTableNames;
+import com.pooch.api.entity.booking.Booking;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.pooch.vaccine.Vaccine;
 
@@ -115,6 +118,10 @@ public class Pooch implements Serializable {
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "parent_id")
     private Parent            parent;
+
+    @JsonIgnoreProperties(value = {"pooches"})
+    @ManyToMany(mappedBy = "pooches")
+    private Set<Booking>      bookings;
 
     @Column(name = "deleted", nullable = false)
     private boolean           deleted;

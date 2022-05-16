@@ -27,4 +27,6 @@ public class BookingDTO implements Serializable {
 
     private GroomerDTO        groomer;
 
+    private PaymentMethodDTO  paymentMethod;
+
 }

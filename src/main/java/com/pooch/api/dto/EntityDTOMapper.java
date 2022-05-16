@@ -18,6 +18,7 @@ import org.mapstruct.ReportingPolicy;
 
 import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.entity.address.Address;
+import com.pooch.api.entity.booking.Booking;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
@@ -97,4 +98,10 @@ public interface EntityDTOMapper {
 
     @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "addresses", ignore = true)})
     void patchGroomerWithGroomerCreateListingDTO(GroomerCreateListingDTO groomerCreateListingDTO, @MappingTarget Groomer groomer);
+
+    @Mappings({@Mapping(target = "pooches", ignore = true), @Mapping(target = "parent", ignore = true)})
+    Booking mapBookingCreateDTOToBooking(BookingCreateDTO bookingCreateDTO);
+
+    BookingDTO mapBookingToBookingDTO(Booking booking);
+
 }

@@ -48,6 +48,7 @@ import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
+import com.stripe.model.PaymentIntent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,9 +70,6 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
 
     @MockBean
     private JwtTokenService            jwtTokenService;
-
-    @MockBean
-    private StripePaymentIntentService stripePaymentIntentService;
 
     @Autowired
     private GroomerDAO                 petSitterDAO;
@@ -118,10 +116,21 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
         // Given
         BookingCreateDTO bookingCreateDTO = new BookingCreateDTO();
 
+        bookingCreateDTO.setStartDateTime(LocalDateTime.now().plusDays(1));
+        bookingCreateDTO.setEndDateTime(LocalDateTime.now().plusDays(3));
+
         /**
          * Pet Parent
          */
         Parent petParent = testEntityGeneratorService.getDBParent();
+
+        Double bookingCost = RandomGeneratorUtils.getDoubleWithin(20, 300);
+
+        com.stripe.model.Customer customer = testEntityGeneratorService.createCustomer(petParent);
+
+        String paymentMethodId = testEntityGeneratorService.addPaymentMethodToCustomer(customer);
+
+        com.stripe.model.PaymentIntent paymentIntent = testEntityGeneratorService.createPaymentIntent(bookingCost, customer.getId(), paymentMethodId);
 
         ParentCreateUpdateDTO petParentDTO = entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
 
@@ -129,7 +138,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
 
         bookingCreateDTO.setAgreedToContracts(true);
 
-        bookingCreateDTO.setPaymentIntentId("test-paymentintent-id");
+        bookingCreateDTO.setPaymentIntentId(paymentIntent.getId());
 
         /**
          * Pet Sitter
@@ -149,16 +158,16 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
                 .build());
         
         // @formatter:on
-        
-        com.stripe.model.PaymentIntent paymentIntent = new com.stripe.model.PaymentIntent();
-        paymentIntent.setStatus("succeeded");
-        Mockito.when(stripePaymentIntentService.getById(Mockito.anyString())).thenReturn(paymentIntent);
+
+        // com.stripe.model.PaymentIntent paymentIntent = new com.stripe.model.PaymentIntent();
+        // paymentIntent.setStatus("succeeded");
+        // Mockito.when(stripePaymentIntentService.getById(Mockito.anyString())).thenReturn(paymentIntent);
 
         /**
          * Pets
          */
         Set<PoochCreateDTO> petCreateDTOs = new HashSet<>();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 1; i++) {
             PoochCreateDTO petCreateDTO = new PoochCreateDTO();
             petCreateDTO.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 36)));
             petCreateDTO.setBreed("Bulldog");

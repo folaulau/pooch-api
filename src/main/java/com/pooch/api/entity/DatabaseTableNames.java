@@ -13,4 +13,5 @@ public interface DatabaseTableNames {
     String S3File                  = "s3file";
     String CareServiceCategory     = "care_service_category";
     String Review                  = "review";
+    String Payment_Method          = "payment_method";
 }

@@ -83,6 +83,9 @@
     - name: parent
       using:
         foreign_key_constraint_on: parent_id
+    - name: payment_method
+      using:
+        foreign_key_constraint_on: payment_method_id
   array_relationships:
     - name: booking_pooches
       using:
@@ -95,36 +98,42 @@
     - role: groomer
       permission:
         columns:
+          - created_at
+          - deleted
+          - drop_off_date_time
+          - end_date_time
           - groomer_id
           - id
           - parent_id
-          - deleted
-          - status
-          - uuid
-          - created_at
-          - drop_off_date_time
-          - end_date_time
+          - payment_method_id
           - pick_up_date_time
+          - request_as_json
           - start_date_time
+          - status
+          - stripe_payment_intent_id
           - updated_at
+          - uuid
         filter:
           groomer_id:
             _eq: x-Hasura-groomer-id
     - role: parent
       permission:
         columns:
+          - created_at
+          - deleted
+          - drop_off_date_time
+          - end_date_time
           - groomer_id
           - id
           - parent_id
-          - deleted
-          - status
-          - uuid
-          - created_at
-          - drop_off_date_time
-          - end_date_time
+          - payment_method_id
           - pick_up_date_time
+          - request_as_json
           - start_date_time
+          - status
+          - stripe_payment_intent_id
           - updated_at
+          - uuid
         filter:
           parent_id:
             _eq: x-Hasura-parent-id
@@ -432,6 +441,13 @@
           table:
             schema: public
             name: parent_roles
+    - name: payment_methods
+      using:
+        foreign_key_constraint_on:
+          column: parent_id
+          table:
+            schema: public
+            name: payment_method
     - name: pooches
       using:
         foreign_key_constraint_on:
@@ -450,19 +466,20 @@
     - role: parent
       permission:
         columns:
-          - id
-          - phone_number
+          - created_at
           - deleted
+          - email
           - email_temp
           - email_verified
-          - phone_number_verified
-          - email
           - full_name
-          - status
-          - uuid
+          - id
+          - phone_number
+          - phone_number_verified
           - rating
-          - created_at
+          - status
+          - stripe_customer_id
           - updated_at
+          - uuid
         filter:
           id:
             _eq: x-Hasura-parent-id
@@ -476,6 +493,42 @@
     - name: role
       using:
         foreign_key_constraint_on: role_id
+- table:
+    schema: public
+    name: payment_method
+  object_relationships:
+    - name: parent
+      using:
+        foreign_key_constraint_on: parent_id
+  array_relationships:
+    - name: bookings
+      using:
+        foreign_key_constraint_on:
+          column: payment_method_id
+          table:
+            schema: public
+            name: booking
+  select_permissions:
+    - role: groomer
+      permission:
+        columns:
+          - expiration_month
+          - expiration_year
+          - id
+          - parent_id
+          - deleted
+          - brand
+          - last4
+          - name
+          - source_token
+          - stripe_id
+          - type
+          - uuid
+          - created_at
+          - updated_at
+        filter:
+          parent_id:
+            _eq: x-Hasura-parent-id
 - table:
     schema: public
     name: phone_number_verification

@@ -6,4 +6,6 @@ public interface BookingDAO {
 
     Optional<Booking> getByUuid(String uuid);
 
+    Booking save(Booking booking);
+
 }

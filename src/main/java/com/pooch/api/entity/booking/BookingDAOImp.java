@@ -19,4 +19,9 @@ public class BookingDAOImp implements BookingDAO {
         // TODO Auto-generated method stub
         return bookingRepository.findByUuid(uuid);
     }
+
+    @Override
+    public Booking save(Booking booking) {
+        return bookingRepository.saveAndFlush(booking);
+    }
 }
