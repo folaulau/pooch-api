@@ -19,8 +19,10 @@ import org.mapstruct.ReportingPolicy;
 import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.booking.Booking;
+import com.pooch.api.entity.booking.BookingPaymentMethod;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
+import com.pooch.api.entity.paymentmethod.PaymentMethod;
 import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
 import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.s3file.S3File;
@@ -103,5 +105,7 @@ public interface EntityDTOMapper {
     Booking mapBookingCreateDTOToBooking(BookingCreateDTO bookingCreateDTO);
 
     BookingDTO mapBookingToBookingDTO(Booking booking);
+
+    BookingPaymentMethod mapPaymentMethodToBookingPaymentMethod(PaymentMethod paymentMethod);
 
 }

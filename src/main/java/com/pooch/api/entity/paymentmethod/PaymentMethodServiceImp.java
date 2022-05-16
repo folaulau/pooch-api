@@ -201,8 +201,33 @@ public class PaymentMethodServiceImp implements PaymentMethodService {
             paymentMethod.setExpirationYear(card.getExpYear());
             paymentMethod.setStripeId(stripePaymentMethod.getId());
             paymentMethod.setType(stripePaymentMethod.getType());
-            
+
             paymentMethod = this.create(paymentMethod);
+
+        } catch (Exception e) {
+            log.warn("Exception, msg={}", e.getLocalizedMessage());
+        }
+
+        log.info("paymentMethod={}", ObjectUtils.toJson(paymentMethod));
+
+        return paymentMethod;
+    }
+
+    @Override
+    public PaymentMethod mapStripePaymentMethodToPaymentMethod(com.stripe.model.PaymentMethod stripePaymentMethod) {
+
+        PaymentMethod paymentMethod = null;
+
+        com.stripe.model.PaymentMethod.Card card = stripePaymentMethod.getCard();
+
+        try {
+            paymentMethod = new PaymentMethod();
+            paymentMethod.setBrand(card.getBrand());
+            paymentMethod.setLast4(card.getLast4());
+            paymentMethod.setExpirationMonth(card.getExpMonth());
+            paymentMethod.setExpirationYear(card.getExpYear());
+            paymentMethod.setStripeId(stripePaymentMethod.getId());
+            paymentMethod.setType(stripePaymentMethod.getType());
 
         } catch (Exception e) {
             log.warn("Exception, msg={}", e.getLocalizedMessage());

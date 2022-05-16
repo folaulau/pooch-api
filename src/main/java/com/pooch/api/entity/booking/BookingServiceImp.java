@@ -88,9 +88,9 @@ public class BookingServiceImp implements BookingService {
         log.info("paymentIntent={}", paymentIntent.toJson());
         parent.setStripeCustomerId(paymentIntent.getCustomer());
 
-        Optional<PaymentMethod> optPaymentMethod = paymentMethodDAO.getByParentIdAndStripeId(parent.getId(), paymentIntent.getPaymentMethod());
-
         com.stripe.model.PaymentMethod stripePaymentMethod = stripePaymentMethodService.getById(paymentIntent.getPaymentMethod());
+
+        Optional<PaymentMethod> optPaymentMethod = paymentMethodDAO.getByParentIdAndStripeId(parent.getId(), paymentIntent.getPaymentMethod());
 
         PaymentMethod paymentMethod = null;
 
@@ -99,10 +99,15 @@ public class BookingServiceImp implements BookingService {
         if (optPaymentMethod.isPresent()) {
             paymentMethod = optPaymentMethod.get();
         } else {
-            paymentMethod = paymentMethodService.add(parent, stripePaymentMethod);
+            if (paymentIntent.getSetupFutureUsage() != null && paymentIntent.getSetupFutureUsage().equalsIgnoreCase("off_session")) {
+                paymentMethod = paymentMethodService.add(parent, stripePaymentMethod);
+            } else {
+                paymentMethod = paymentMethodService.mapStripePaymentMethodToPaymentMethod(stripePaymentMethod);
+            }
+
         }
 
-        booking.setPaymentMethod(paymentMethod);
+        booking.setPaymentMethod(entityDTOMapper.mapPaymentMethodToBookingPaymentMethod(paymentMethod));
 
         // log.info("paymentMethod={}", ObjectUtils.toJson(paymentMethod));
 
@@ -117,7 +122,7 @@ public class BookingServiceImp implements BookingService {
         booking = addPoochesToBooking(booking, bookingCreateDTO.getPooches());
 
         log.info("booking={}", ObjectUtils.toJson(booking));
-        
+
         booking.setRequestAsJson(ObjectUtils.toJson(bookingCreateDTO));
 
         booking = bookingDAO.save(booking);

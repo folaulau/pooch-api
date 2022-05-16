@@ -26,6 +26,8 @@ public interface PaymentMethodService {
     // PaymentMethod add(Parent parent, com.stripe.model.PaymentMethod stripePaymentMethod);
 
     PaymentMethod add(Parent parent, com.stripe.model.PaymentMethod stripePaymentMethod);
+    
+    PaymentMethod mapStripePaymentMethodToPaymentMethod(com.stripe.model.PaymentMethod stripePaymentMethod);
 
     // PaymentMethod add(Parent parent, String stripePaymentMethodId);
 }

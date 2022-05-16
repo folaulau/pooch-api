@@ -172,6 +172,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
         // @formatter:off
         PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder()
                 .amount(bookingCost)
+                .savePaymentMethodForFutureUse(true)
                 .groomerUuid(activeGroomer.getUuid())
                 .build();
 
@@ -208,6 +209,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
         assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
         assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
         assertThat(paymentIntentDTO.getTotalAmount()).isNotNull().isEqualTo(totalCharge);
+        assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
         assertThat(paymentIntentDTO.getId()).isNotNull();
     }
 

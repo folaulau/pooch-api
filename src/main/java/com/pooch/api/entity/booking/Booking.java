@@ -12,6 +12,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -67,68 +68,66 @@ import lombok.NoArgsConstructor;
 @Table(name = DatabaseTableNames.Booking, indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
 public class Booking implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long    serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, updatable = false, unique = true)
-    private Long              id;
+    private Long                 id;
 
     @Column(name = "uuid", unique = true, nullable = false, updatable = false)
-    private String            uuid;
+    private String               uuid;
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "parent_id")
-    private Parent            parent;
+    private Parent               parent;
 
     @JsonIgnoreProperties(value = {"bookings"})
     @ManyToMany(cascade = {CascadeType.DETACH})
     @JoinTable(name = "booking_pooches", joinColumns = @JoinColumn(name = "booking_id"), inverseJoinColumns = @JoinColumn(name = "pooch_id"))
-    private Set<Pooch>        pooches;
+    private Set<Pooch>           pooches;
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "groomer_id")
-    private Groomer           groomer;
+    private Groomer              groomer;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private BookingStatus     status;
+    private BookingStatus        status;
 
     @Column(name = "pick_up_date_time", nullable = true)
-    private LocalDateTime     pickUpDateTime;
+    private LocalDateTime        pickUpDateTime;
 
     @Column(name = "drop_off_date_time", nullable = true)
-    private LocalDateTime     dropOffDateTime;
+    private LocalDateTime        dropOffDateTime;
 
     @Column(name = "start_date_time", nullable = false)
-    private LocalDateTime     startDateTime;
+    private LocalDateTime        startDateTime;
 
     @Column(name = "end_date_time", nullable = false)
-    private LocalDateTime     endDateTime;
+    private LocalDateTime        endDateTime;
 
     @Column(name = "stripe_payment_intent_id", nullable = true)
-    private String            stripePaymentIntentId;
+    private String               stripePaymentIntentId;
 
-    @JsonIgnoreProperties(value = {"parent"})
-    @ManyToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name = "payment_method_id")
-    private PaymentMethod     paymentMethod;
+    @Embedded
+    private BookingPaymentMethod paymentMethod;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     @Column(name = "request_as_json")
-    private String            requestAsJson;
+    private String               requestAsJson;
 
     @Column(name = "deleted", nullable = false)
-    private boolean           deleted;
+    private boolean              deleted;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime     createdAt;
+    private LocalDateTime        createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime     updatedAt;
+    private LocalDateTime        updatedAt;
 
     public void addPooch(Pooch pooch) {
         if (this.pooches == null) {

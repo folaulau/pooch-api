@@ -23,11 +23,14 @@ public class PaymentIntentDTO implements Serializable {
     private String            id;
 
     private Double            bookingFee;
-    
+
     private Double            bookingCost;
-    
+
     private Double            stripeFee;
-    
+
     private Double            totalAmount;
+
+    // for paymentMethod to use in future
+    private String            setupFutureUsage;
 
 }

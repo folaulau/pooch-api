@@ -24,4 +24,6 @@ public class PaymentIntentQuestCreateDTO implements Serializable {
 
     private String            paymentIntentId;
 
+    private Boolean           savePaymentMethodForFutureUse;
+
 }
