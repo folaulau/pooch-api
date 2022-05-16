@@ -104,7 +104,6 @@ public class BookingServiceImp implements BookingService {
             } else {
                 paymentMethod = paymentMethodService.mapStripePaymentMethodToPaymentMethod(stripePaymentMethod);
             }
-
         }
 
         booking.setPaymentMethod(entityDTOMapper.mapPaymentMethodToBookingPaymentMethod(paymentMethod));

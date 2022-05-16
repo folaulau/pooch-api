@@ -106,6 +106,7 @@ public interface EntityDTOMapper {
 
     BookingDTO mapBookingToBookingDTO(Booking booking);
 
+    @Mappings({@Mapping(target = "stripePaymentMethodId", source = "stripeId")})
     BookingPaymentMethod mapPaymentMethodToBookingPaymentMethod(PaymentMethod paymentMethod);
 
 }
