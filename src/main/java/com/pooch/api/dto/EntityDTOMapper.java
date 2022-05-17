@@ -19,6 +19,7 @@ import org.mapstruct.ReportingPolicy;
 import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.booking.Booking;
+import com.pooch.api.entity.booking.BookingCostDetails;
 import com.pooch.api.entity.booking.BookingPaymentMethod;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
@@ -108,5 +109,7 @@ public interface EntityDTOMapper {
 
     @Mappings({@Mapping(target = "stripePaymentMethodId", source = "stripeId")})
     BookingPaymentMethod mapPaymentMethodToBookingPaymentMethod(PaymentMethod paymentMethod);
+
+    PaymentIntentDTO mapBookingCostDetailsToPaymentIntentDTO(BookingCostDetails costDetails);
 
 }

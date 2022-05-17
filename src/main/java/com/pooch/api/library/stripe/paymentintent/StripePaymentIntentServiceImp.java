@@ -11,8 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.PaymentIntentDTO;
 import com.pooch.api.dto.PaymentIntentQuestCreateDTO;
+import com.pooch.api.entity.booking.BookingCalculatorService;
+import com.pooch.api.entity.booking.BookingCostDetails;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.exception.ApiException;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
@@ -47,6 +51,12 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
     @Value("${booking.fee:10}")
     private Double                              bookingFee;
+
+    @Autowired
+    private BookingCalculatorService            bookingCalculatorService;
+
+    @Autowired
+    private EntityDTOMapper                     entityDTOMapper;
 
     @Override
     public PaymentIntent getById(String paymentIntentId) {
@@ -118,30 +128,9 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
             log.warn("StripeException, customer, msg={}", e.getMessage());
         }
 
-        // $10 booking fee
-        long bookingFeeAsCents = BigDecimal.valueOf(bookingFee).multiply(BigDecimal.valueOf(100)).longValue();
+        BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer, paymentIntentCreateDTO.getAmount());
 
-        double bookingCost = paymentIntentCreateDTO.getAmount().doubleValue();
-
-        bookingCost = MathUtils.getTwoDecimalPlaces(bookingCost);
-
-        double chargeAmount = bookingCost + bookingFee;
-        long chargeAmountAsCents = BigDecimal.valueOf(chargeAmount).multiply(BigDecimal.valueOf(100)).longValue();
-        // 2.9% of chargeAmount + 30 cents
-        double stripeFee = BigDecimal.valueOf(2.9)
-                .divide(BigDecimal.valueOf(100))
-                .multiply(BigDecimal.valueOf(chargeAmount))
-                .add(BigDecimal.valueOf(0.3))
-                .setScale(2, RoundingMode.HALF_EVEN)
-                .doubleValue();
-
-        long stripeFeeAsCents = BigDecimal.valueOf(stripeFee).multiply(BigDecimal.valueOf(100)).longValue();
-        double totalCharge = chargeAmount + stripeFee;
-        long totalChargeAsCents = BigDecimal.valueOf(totalCharge).multiply(BigDecimal.valueOf(100)).longValue();
-
-        log.info("createQuestPaymentIntent -> bookingFee={}, bookingCost={}, chargeAmount={}, stripeFee={}, totalCharge={}", bookingFee, bookingCost, chargeAmount, stripeFee, totalCharge);
-        log.info("createQuestPaymentIntent -> bookingFeeAsCents={}c, stripeFeeAsCents={}c, stripeFeeAmount={}c, totalChargeAsCents={}c", bookingFeeAsCents, chargeAmountAsCents, stripeFeeAsCents,
-                totalChargeAsCents);
+        long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount()).multiply(BigDecimal.valueOf(100)).longValue();
 
         //@formatter:off
         com.stripe.param.PaymentIntentCreateParams.Builder builder = PaymentIntentCreateParams.builder()
@@ -149,8 +138,11 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
                 .setAmount(totalChargeAsCents)
                 .setCurrency("usd")
                 .putMetadata(StripeMetadataService.env, env)
-                .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_COST, bookingCost+"")
                 .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid())
+                .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_TOTAL_AT_CHECKOUT, costDetails.getTotalChargeNowAmount()+"")
+                .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_TOTAL_AT_DROPOFF, costDetails.getTotalChargeAtDropOffAmount()+"")
+                .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_COST, costDetails.getBookingCost()+"")
+                .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_STRIPE_FEE, costDetails.getStripeFee()+"")
                 .setTransferGroup("group-" + UUID.randomUUID().toString());
         // @formatter:on
 
@@ -174,53 +166,28 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
             throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
         }
 
-        double stripeAmount = BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+        double stripeChargeAmount = BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
 
-        // @formatter:off
-        PaymentIntentDTO paymentIntentDTO = PaymentIntentDTO.builder()
-                .totalAmount(stripeAmount)
-                .bookingCost(bookingCost)
-                .stripeFee(stripeFee)
-                .bookingFee(bookingFee)
-                .clientSecret(paymentIntent.getClientSecret())
-                .id(paymentIntent.getId())
-                .setupFutureUsage(paymentIntent.getSetupFutureUsage())
-                .build();
-        // @formatter:off
-        
+        PaymentIntentDTO paymentIntentDTO = entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
+        paymentIntentDTO.setId(paymentIntent.getId());
+        paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
+        paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
+        paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
+
         return paymentIntentDTO;
     }
 
     @Override
     public PaymentIntentDTO updateQuestPaymentIntent(PaymentIntentQuestCreateDTO paymentIntentQuestUpdateDTO) {
         Stripe.apiKey = stripeSecrets.getSecretKey();
-        
+
         Groomer groomer = stripePaymentIntentValidatorService.validateUpdateQuestPaymentIntent(paymentIntentQuestUpdateDTO);
 
+        BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer, paymentIntentQuestUpdateDTO.getAmount());
+
+        long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount()).multiply(BigDecimal.valueOf(100)).longValue();
+
         PaymentIntent paymentIntent = null;
-
-        // $10 booking fee
-        long bookingFeeAsCents = BigDecimal.valueOf(bookingFee).multiply(BigDecimal.valueOf(100)).longValue();
-        
-        double bookingCost = paymentIntentQuestUpdateDTO.getAmount().doubleValue();
-        
-        bookingCost = MathUtils.getTwoDecimalPlaces(bookingCost);
-        
-        double chargeAmount = bookingCost + bookingFee;
-        long chargeAmountAsCents = BigDecimal.valueOf(chargeAmount).multiply(BigDecimal.valueOf(100)).longValue();
-        // 2.9% of chargeAmount + 30 cents
-        double stripeFee = BigDecimal.valueOf(2.9)
-                .divide(BigDecimal.valueOf(100))
-                .multiply(BigDecimal.valueOf(chargeAmount))
-                .add(BigDecimal.valueOf(0.3)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-        
-        long stripeFeeAsCents = BigDecimal.valueOf(stripeFee).multiply(BigDecimal.valueOf(100)).longValue();
-        double totalCharge = chargeAmount + stripeFee;
-        long totalChargeAsCents = BigDecimal.valueOf(totalCharge).multiply(BigDecimal.valueOf(100)).longValue();
-
-        log.info("updateQuestPaymentIntent -> bookingFee={}, chargeAmount={}, stripeFee={}, totalCharge={}", bookingFee, chargeAmount, stripeFee, totalCharge);
-        log.info("updateQuestPaymentIntent -> bookingFeeAsCents={}c, stripeFeeAsCents={}c, stripeFeeAmount={}c, totalChargeAsCents={}c", bookingFeeAsCents, chargeAmountAsCents, stripeFeeAsCents,
-                totalChargeAsCents);
 
         try {
             paymentIntent = PaymentIntent.retrieve(paymentIntentQuestUpdateDTO.getPaymentIntentId());
@@ -230,8 +197,11 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
       
             com.stripe.param.PaymentIntentUpdateParams.Builder builder = com.stripe.param.PaymentIntentUpdateParams.builder()
                     .setAmount(totalChargeAsCents)
-                    .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_COST, bookingCost+"")
-                    .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid());
+                    .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid())
+                    .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_TOTAL_AT_CHECKOUT, costDetails.getTotalChargeNowAmount()+"")
+                    .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_TOTAL_AT_DROPOFF, costDetails.getTotalChargeAtDropOffAmount()+"")
+                    .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_COST, costDetails.getBookingCost()+"")
+                    .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_STRIPE_FEE, costDetails.getStripeFee()+"");
             
             if (paymentIntentQuestUpdateDTO.getSavePaymentMethodForFutureUse() != null && paymentIntentQuestUpdateDTO.getSavePaymentMethodForFutureUse()) {
                 builder.setSetupFutureUsage(PaymentIntentUpdateParams.SetupFutureUsage.OFF_SESSION);
@@ -248,20 +218,13 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
             throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
         }
 
-        double stripeAmount = BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+        double stripeChargeAmount = BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
 
-        // @formatter:off
-
-        PaymentIntentDTO paymentIntentDTO = PaymentIntentDTO.builder()
-                .totalAmount(stripeAmount)
-                .bookingCost(bookingCost)
-                .stripeFee(stripeFee)
-                .bookingFee(bookingFee)
-                .clientSecret(paymentIntent.getClientSecret())
-                .setupFutureUsage(paymentIntent.getSetupFutureUsage())
-                .id(paymentIntent.getId())
-                .build();
-        // @formatter:on
+        PaymentIntentDTO paymentIntentDTO = entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
+        paymentIntentDTO.setId(paymentIntent.getId());
+        paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
+        paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
+        paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
 
         return paymentIntentDTO;
     }

@@ -262,12 +262,27 @@ public class Groomer implements Serializable {
         /**
          * by default set to true
          */
-        this.instantBooking = true;
-        this.listing = false;
+      
+        if (this.instantBooking == null) {
+            this.instantBooking = false;
+        }
+        
+        if (this.listing == null) {
+            this.listing = false;
+        }
 
-        this.stripeDetailsSubmitted = false;
-        this.stripeChargesEnabled = false;
-        this.stripePayoutsEnabled = false;
+        if (this.stripeDetailsSubmitted == null) {
+            this.stripeDetailsSubmitted = false;
+        }
+
+        if (this.stripeChargesEnabled == null) {
+            this.stripeChargesEnabled = false;
+        }
+
+        if (this.stripePayoutsEnabled == null) {
+            this.stripePayoutsEnabled = false;
+        }
+
     }
 
     @PreUpdate

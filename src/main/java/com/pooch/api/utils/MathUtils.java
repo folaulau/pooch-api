@@ -49,16 +49,16 @@ public interface MathUtils {
 
     // Get Two Decimal String
     public static BigDecimal getStrTwoDecimalPlaces(String value) {
-        return new BigDecimal(value).setScale(2, RoundingMode.HALF_EVEN);
+        return new BigDecimal(value).setScale(2, RoundingMode.CEILING);
     }
 
     // Get Two Decimal Double
     public static Double getTwoDecimalPlaces(Double value) {
-        return new BigDecimal(value).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+        return new BigDecimal(value).setScale(2, RoundingMode.CEILING).doubleValue();
     }
 
     public static String getTwoDecimalPlacesAsString(Double value) {
-        double amount = new BigDecimal(value).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+        double amount = new BigDecimal(value).setScale(2, RoundingMode.CEILING).doubleValue();
         DecimalFormat df = new DecimalFormat("#0.00");
         return df.format(amount);
     }
@@ -69,6 +69,6 @@ public interface MathUtils {
     }
 
     public static Float getTwoDecimalPlacesAsFloat(Double value) {
-        return new BigDecimal(value).setScale(2, RoundingMode.HALF_EVEN).floatValue();
+        return new BigDecimal(value).setScale(2, RoundingMode.CEILING).floatValue();
     }
 }

@@ -86,6 +86,15 @@ public class TestEntityGeneratorService {
         return petSitterRepository.saveAndFlush(petSitter);
     }
 
+    public Groomer getStripeReadyDBGroomer() {
+        Groomer groomer = getActiveGroomer();
+        groomer.setStripePayoutsEnabled(true);
+        groomer.setStripeChargesEnabled(true);
+        groomer.setStripeDetailsSubmitted(true);
+
+        return petSitterRepository.saveAndFlush(groomer);
+    }
+
     public Groomer getGroomer() {
 
         Groomer groomer = new Groomer();
@@ -436,7 +445,7 @@ public class TestEntityGeneratorService {
 
     public com.stripe.model.Customer createCustomer(Parent parent, boolean addPaymentMethod) {
         Stripe.apiKey = stripeSecrets.getSecretKey();
-        
+
         //@formatter:off
         
         CustomerCreateParams.Builder builder = CustomerCreateParams.builder()
@@ -479,7 +488,7 @@ public class TestEntityGeneratorService {
 
     public String addPaymentMethodToCustomer(com.stripe.model.Customer customer) {
         Stripe.apiKey = stripeSecrets.getSecretKey();
-        
+
         StripeToken token = stripeTokenService.getCreditCardTokenFromStripe(null);
         //@formatter:off
         

@@ -1,9 +1,8 @@
-package com.pooch.api.dto;
+package com.pooch.api.entity.booking;
 
 import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,13 +13,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
-public class PaymentIntentDTO implements Serializable {
+public class BookingCostDetails implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    private String            clientSecret;
-
-    private String            id;
 
     /**
      * cost of the booking
@@ -46,8 +41,5 @@ public class PaymentIntentDTO implements Serializable {
      * amount charge at drop off depending on Groomer's Stripe status
      */
     private Double            totalChargeAtDropOffAmount;
-
-    // for paymentMethod to use in future
-    private String            setupFutureUsage;
 
 }

@@ -163,7 +163,59 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
     }
 
     @Test
-    void itShouldCreateQuestPaymentIntent() throws Exception {
+    void itShouldCreateQuestPaymentIntent_with_stripe_ready_groomer() throws Exception {
+
+        Groomer activeGroomer = testEntityGeneratorService.getStripeReadyDBGroomer();
+
+        double bookingCost = 245D;
+
+        // @formatter:off
+        PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder()
+                .amount(bookingCost)
+                .savePaymentMethodForFutureUse(true)
+                .groomerUuid(activeGroomer.getUuid())
+                .build();
+
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent")
+                .header("x-api-key", xApiKey.getMobileXApiKey())
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectUtils.toJson(paymentIntentCreateDTO));
+
+        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        // @formatter:on
+        String contentAsString = result.getResponse().getContentAsString();
+
+        PaymentIntentDTO paymentIntentDTO = objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
+
+        double chargeAmount = bookingCost;
+
+        // 2.9% of chargeAmount + 30 cents
+        double stripeFee = BigDecimal.valueOf(2.9)
+                .divide(BigDecimal.valueOf(100))
+                .multiply(BigDecimal.valueOf(chargeAmount))
+                .add(BigDecimal.valueOf(0.3))
+                .setScale(2, RoundingMode.CEILING)
+                .doubleValue();
+
+        double totalCharge = bookingCost + bookingFee + stripeFee;
+
+        assertThat(paymentIntentDTO).isNotNull();
+        assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
+        assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
+        assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
+        assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
+        assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
+        assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
+        assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(0);
+        assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
+        assertThat(paymentIntentDTO.getId()).isNotNull();
+    }
+
+    @Test
+    void itShouldCreateQuestPaymentIntent_with_stripe_not_ready_groomer() throws Exception {
 
         Groomer activeGroomer = testEntityGeneratorService.getActiveDBGroomer();
 
@@ -190,17 +242,10 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
 
         PaymentIntentDTO paymentIntentDTO = objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
 
-        double chargeAmount = bookingCost + bookingFee;
-
         // 2.9% of chargeAmount + 30 cents
-        double stripeFee = BigDecimal.valueOf(2.9)
-                .divide(BigDecimal.valueOf(100))
-                .multiply(BigDecimal.valueOf(chargeAmount))
-                .add(BigDecimal.valueOf(0.3))
-                .setScale(2, RoundingMode.HALF_EVEN)
-                .doubleValue();
+        double stripeFee = 0;
 
-        double totalCharge = bookingCost + bookingFee + stripeFee;
+        double totalCharge = bookingFee;
 
         assertThat(paymentIntentDTO).isNotNull();
         assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
@@ -208,15 +253,16 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
         assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
         assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
         assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-        assertThat(paymentIntentDTO.getTotalAmount()).isNotNull().isEqualTo(totalCharge);
+        assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
+        assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(bookingCost);
         assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
         assertThat(paymentIntentDTO.getId()).isNotNull();
     }
 
     @Test
-    void itShouldUpdateQuestPaymentIntent() throws Exception {
+    void itShouldUpdateQuestPaymentIntent_with_stripe_ready_groomer() throws Exception {
 
-        Groomer activeGroomer = testEntityGeneratorService.getActiveDBGroomer();
+        Groomer activeGroomer = testEntityGeneratorService.getStripeReadyDBGroomer();
 
         double bookingCost = 245D;
 
@@ -224,30 +270,31 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
         PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder()
                 .amount(bookingCost)
                 .groomerUuid(activeGroomer.getUuid())
+                .savePaymentMethodForFutureUse(true)
                 .build();
 
         PaymentIntentDTO paymentIntentDTO = stripePaymentIntentService.createQuestPaymentIntent(paymentIntentCreateDTO);
 
-        double chargeAmount = bookingCost + bookingFee;
-
         // 2.9% of chargeAmount + 30 cents
         double stripeFee = BigDecimal.valueOf(2.9)
                 .divide(BigDecimal.valueOf(100))
-                .multiply(BigDecimal.valueOf(chargeAmount))
+                .multiply(BigDecimal.valueOf(bookingCost))
                 .add(BigDecimal.valueOf(0.3))
-                .setScale(2, RoundingMode.HALF_EVEN)
+                .setScale(2, RoundingMode.CEILING)
                 .doubleValue();
 
         double totalCharge = bookingCost + bookingFee + stripeFee;
         
         assertThat(paymentIntentDTO).isNotNull();
-        assertThat(paymentIntentDTO.getId()).isNotNull();
         assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
         assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
         assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
         assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
         assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-        assertThat(paymentIntentDTO.getTotalAmount()).isNotNull().isEqualTo(totalCharge);
+        assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
+        assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(0);
+        assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
+        assertThat(paymentIntentDTO.getId()).isNotNull();
 
         bookingCost = (bookingCost+20);
         
@@ -271,21 +318,102 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
 
         paymentIntentDTO = objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
 
-        chargeAmount = bookingCost + bookingFee;
-
         // 2.9% of chargeAmount + 30 cents
-        stripeFee = BigDecimal.valueOf(2.9).divide(BigDecimal.valueOf(100)).multiply(BigDecimal.valueOf(chargeAmount)).add(BigDecimal.valueOf(0.3)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+        stripeFee = BigDecimal.valueOf(2.9).divide(BigDecimal.valueOf(100)).multiply(BigDecimal.valueOf(bookingCost)).add(BigDecimal.valueOf(0.3)).setScale(2, RoundingMode.CEILING).doubleValue();
 
         totalCharge = bookingCost + bookingFee + stripeFee;
 
         assertThat(paymentIntentDTO).isNotNull();
-        assertThat(paymentIntentDTO.getId()).isNotNull();
         assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
         assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
         assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
         assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
         assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-        assertThat(paymentIntentDTO.getTotalAmount()).isNotNull().isEqualTo(totalCharge);
+        assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
+        assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(0);
+        assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
+        assertThat(paymentIntentDTO.getId()).isNotNull();
+    }
+
+    @Test
+    void itShouldUpdateQuestPaymentIntent_with_stripe_not_ready_groomer() throws Exception {
+
+        Groomer activeGroomer = testEntityGeneratorService.getActiveDBGroomer();
+
+        double bookingCost = 245D;
+
+        // @formatter:off
+        PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder()
+                .amount(bookingCost)
+                .savePaymentMethodForFutureUse(true)
+                .groomerUuid(activeGroomer.getUuid())
+                .build();
+
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent")
+                .header("x-api-key", xApiKey.getMobileXApiKey())
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectUtils.toJson(paymentIntentCreateDTO));
+
+        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        // @formatter:on
+        String contentAsString = result.getResponse().getContentAsString();
+
+        PaymentIntentDTO paymentIntentDTO = objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
+
+        // 2.9% of chargeAmount + 30 cents
+        double stripeFee = 0;
+
+        double totalCharge = bookingFee;
+
+        assertThat(paymentIntentDTO).isNotNull();
+        assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
+        assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
+        assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
+        assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
+        assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
+        assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
+        assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(bookingCost);
+        assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
+        assertThat(paymentIntentDTO.getId()).isNotNull();
+
+        PaymentIntentQuestCreateDTO paymentIntentQuestUpdateDTO = PaymentIntentQuestCreateDTO.builder()
+                .paymentIntentId(paymentIntentDTO.getId())
+                .groomerUuid(activeGroomer.getUuid())
+                .amount(bookingCost)
+                .build();
+
+        requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent")
+                .header("x-api-key", xApiKey.getMobileXApiKey())
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectUtils.toJson(paymentIntentQuestUpdateDTO));
+
+        result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        // @formatter:on
+        contentAsString = result.getResponse().getContentAsString();
+
+        paymentIntentDTO = objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
+
+        // 2.9% of chargeAmount + 30 cents
+        stripeFee = 0;
+
+        totalCharge = bookingFee;
+
+        assertThat(paymentIntentDTO).isNotNull();
+        assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
+        assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
+        assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
+        assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
+        assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
+        assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
+        assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(bookingCost);
+        assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
+        assertThat(paymentIntentDTO.getId()).isNotNull();
     }
 
 }
