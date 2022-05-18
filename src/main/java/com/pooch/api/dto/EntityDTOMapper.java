@@ -112,7 +112,7 @@ public interface EntityDTOMapper {
 
     PaymentIntentDTO mapBookingCostDetailsToPaymentIntentDTO(BookingCostDetails costDetails);
 
-    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address.id", ignore = true), @Mapping(target = "address.uuid", ignore = true)})
+    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
     void patchParentWithParentUpdateDTO(ParentUpdateDTO parentUpdateDTO, @MappingTarget Parent parent);
 
 

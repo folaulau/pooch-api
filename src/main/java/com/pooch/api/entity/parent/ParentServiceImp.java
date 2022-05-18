@@ -16,6 +16,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserRecord;
+import com.pooch.api.dto.AddressCreateUpdateDTO;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.EntityDTOMapper;
@@ -23,6 +24,7 @@ import com.pooch.api.dto.ParentDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.dto.PoochDTO;
 import com.pooch.api.dto.S3FileDTO;
+import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.pooch.PoochDAO;
@@ -202,18 +204,37 @@ public class ParentServiceImp implements ParentService {
 
         Parent parent = parentValidatorService.validateUpdateProfile(parentUpdateDTO);
 
+        log.info("parent={}", ObjectUtils.toJson(parent));
+
         entityDTOMapper.patchParentWithParentUpdateDTO(parentUpdateDTO, parent);
+
+        log.info("parent1={}", ObjectUtils.toJson(parent));
+
+        AddressCreateUpdateDTO addressCreateUpdateDTO = parentUpdateDTO.getAddress();
+
+        if (addressCreateUpdateDTO != null) {
+            Address address = parent.getAddress();
+            
+            if(address == null) {
+                address = new Address();
+            }
+            
+            entityDTOMapper.patchAddressWithAddressCreateUpdateDTO(addressCreateUpdateDTO, address);
+            
+            address.setParent(parent);
+            parent.setAddress(address);
+        }
 
         parent = parentDAO.save(parent);
 
         ParentDTO parentDTO = entityDTOMapper.mapPetParentToPetParentDTO(parent);
 
         List<PoochDTO> pooches = poochService.updatePooches(parent, parentUpdateDTO.getPooches());
-        
-        log.info("pooches={}",ObjectUtils.toJson(pooches));
-        
+
+        log.info("pooches={}", ObjectUtils.toJson(pooches));
+
         parentDTO.setPooches(pooches);
-        
+
         return parentDTO;
     }
 
