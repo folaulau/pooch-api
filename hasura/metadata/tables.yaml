@@ -488,7 +488,6 @@
           - id
           - phone_number
           - phone_number_verified
-          - rating
           - status
           - stripe_customer_id
           - updated_at

@@ -75,12 +75,6 @@ public class Parent implements Serializable {
     @Column(name = "full_name")
     private String            fullName;
 
-    /**
-     * 5 star rating
-     */
-    @Column(name = "rating")
-    private Double            rating;
-
     @NotEmpty
     @Column(name = "email", unique = true)
     private String            email;
