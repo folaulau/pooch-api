@@ -35,10 +35,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.pooch.api.IntegrationTestConfiguration;
+import com.pooch.api.dto.AddressCreateUpdateDTO;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
+import com.pooch.api.dto.CareServiceUpdateDTO;
+import com.pooch.api.dto.GroomerCreateProfileDTO;
 import com.pooch.api.dto.GroomerDTO;
 import com.pooch.api.dto.GroomerUpdateDTO;
+import com.pooch.api.dto.ParentCreateUpdateDTO;
+import com.pooch.api.dto.ParentDTO;
+import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.dto.S3FileDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.role.Authority;
@@ -118,6 +124,64 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
 
         assertThat(S3FileDTOs).isNotNull();
         assertThat(S3FileDTOs.size()).isNotNull().isGreaterThan(0);
+
+    }
+    
+    @Transactional
+    @Test
+    void itShouldUpdateJustProfile_valid() throws Exception {
+        System.out.println("itShouldUpdateProfile_valid");
+        // Given
+        Parent parent = testEntityGeneratorService.getDBParent();
+        
+        // @formatter:off
+        AddressCreateUpdateDTO address = AddressCreateUpdateDTO.builder()
+                .state("CA")
+                .street("222 Alta Ave")
+                .city("Santa Monica")
+                .zipcode("90402")
+                .latitude(34.025070)
+                .longitude(-118.507700).build();
+        
+        ParentUpdateDTO parentUpdateDTO = ParentUpdateDTO.builder()
+                .uuid(parent.getUuid())
+                .countryCode(1)
+                .phoneNumber(3109944731L)
+                .fullName("Folau Kaveinga")
+                .address(address)
+                .build();
+
+        
+        // When
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.put("/parents/profile")
+                .header("token", PARENT_TOKEN)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectUtils.toJson(parentUpdateDTO));
+
+        // @formatter:on
+        
+        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        String contentAsString = result.getResponse().getContentAsString();
+
+        ParentDTO parentDTO = objectMapper.readValue(contentAsString, new TypeReference<ParentDTO>() {});
+
+        assertThat(parentDTO).isNotNull();
+        assertThat(parentDTO.getId()).isNotNull().isGreaterThan(0);
+        assertThat(parentDTO.getUuid()).isNotNull();
+        assertThat(parentDTO.getFullName()).isNotNull().isEqualTo("Folau Kaveinga");
+        assertThat(parentDTO.getUuid()).isNotNull();
+        assertThat(parentDTO.getPhoneNumber()).isNotNull().isEqualTo(3109944731L);
+        assertThat(parentDTO.getCountryCode()).isNotNull().isEqualTo(1);
+        assertThat(parentDTO.getAddress()).isNotNull();
+        assertThat(parentDTO.getAddress().getId()).isNotNull();
+        assertThat(parentDTO.getAddress().getStreet()).isNotNull().isEqualTo("222 Alta Ave");
+        assertThat(parentDTO.getAddress().getCity()).isNotNull().isEqualTo("Santa Monica");
+        assertThat(parentDTO.getAddress().getZipcode()).isNotNull().isEqualTo("90402");
+        assertThat(parentDTO.getAddress().getState()).isNotNull().isEqualTo("CA");
+        
 
     }
 

@@ -25,6 +25,7 @@ import org.hibernate.annotations.Where;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
+import com.pooch.api.entity.parent.ParentStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -48,7 +49,15 @@ public class ParentDTO implements Serializable {
 
     private Boolean           emailVerified;
 
-    private String            phoneNumber;
+    private boolean           emailTemp;
+
+    private ParentStatus      status;
+
+    private Integer           countryCode;
+
+    private Long              phoneNumber;
+
+    private Double            rating;
 
     private Boolean           phoneNumberVerified;
 
@@ -56,6 +65,8 @@ public class ParentDTO implements Serializable {
 
     private LocalDateTime     lastUpdatedAt;
 
-    private List<PoochDTO>     pooches;
+    private AddressDTO        address;
+
+    private List<PoochDTO>    pooches;
 
 }
