@@ -4,7 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.Filter;
@@ -45,8 +49,14 @@ import com.pooch.api.dto.GroomerUpdateDTO;
 import com.pooch.api.dto.ParentCreateUpdateDTO;
 import com.pooch.api.dto.ParentDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
+import com.pooch.api.dto.PoochCreateUpdateDTO;
 import com.pooch.api.dto.S3FileDTO;
+import com.pooch.api.dto.VaccineCreateDTO;
+import com.pooch.api.dto.VaccineDTO;
 import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.pooch.FoodSchedule;
+import com.pooch.api.entity.pooch.Gender;
+import com.pooch.api.entity.pooch.Training;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.library.firebase.FirebaseAuthResponse;
 import com.pooch.api.library.firebase.FirebaseAuthService;
@@ -126,14 +136,14 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
         assertThat(S3FileDTOs.size()).isNotNull().isGreaterThan(0);
 
     }
-    
+
     @Transactional
     @Test
     void itShouldUpdateJustProfile_valid() throws Exception {
         System.out.println("itShouldUpdateProfile_valid");
         // Given
         Parent parent = testEntityGeneratorService.getDBParent();
-        
+
         // @formatter:off
         AddressCreateUpdateDTO address = AddressCreateUpdateDTO.builder()
                 .state("CA")
@@ -161,7 +171,7 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
                 .content(ObjectUtils.toJson(parentUpdateDTO));
 
         // @formatter:on
-        
+
         MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
         String contentAsString = result.getResponse().getContentAsString();
@@ -181,7 +191,80 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
         assertThat(parentDTO.getAddress().getCity()).isNotNull().isEqualTo("Santa Monica");
         assertThat(parentDTO.getAddress().getZipcode()).isNotNull().isEqualTo("90402");
         assertThat(parentDTO.getAddress().getState()).isNotNull().isEqualTo("CA");
+
+    }
+
+    @Transactional
+    @Test
+    void itShouldUpdatePooches_valid() throws Exception {
+        System.out.println("itShouldUpdatePooches_valid");
+        // Given
+        Parent parent = testEntityGeneratorService.getDBParent();
+
+        // @formatter:off
+        ParentUpdateDTO parentUpdateDTO = ParentUpdateDTO.builder()
+                .uuid(parent.getUuid())
+                .build();
         
+        PoochCreateUpdateDTO pooch = PoochCreateUpdateDTO.builder()
+                .gender(Gender.Female)
+                .dob(LocalDate.now().minusYears(2))
+                .fullName("Simpa")
+                .training(Training.Low)
+                .spayed(true)
+                .build();
+        
+        pooch.addFoodSchedule(FoodSchedule.Morning);
+        pooch.addFoodSchedule(FoodSchedule.Night);
+        
+        pooch.addVaccine(VaccineCreateDTO.builder()
+                .name("vitamin")
+                .expireDate(LocalDateTime.now().plusMonths(3))
+                .build());
+        
+        parentUpdateDTO.addPooch(pooch);        
+        // When
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.put("/parents/profile")
+                .header("token", PARENT_TOKEN)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectUtils.toJson(parentUpdateDTO));
+
+        // @formatter:on
+
+        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        String contentAsString = result.getResponse().getContentAsString();
+
+        ParentDTO parentDTO = objectMapper.readValue(contentAsString, new TypeReference<ParentDTO>() {});
+
+        assertThat(parentDTO).isNotNull();
+        assertThat(parentDTO.getId()).isNotNull().isGreaterThan(0);
+        assertThat(parentDTO.getUuid()).isNotNull();
+        assertThat(parentDTO.getPooches()).isNotNull();
+        assertThat(parentDTO.getPooches().size()).isNotNull().isGreaterThan(0);
+
+        assertThat(parentDTO.getPooches().get(0)).isNotNull();
+        assertThat(parentDTO.getPooches().get(0).getId()).isNotNull().isGreaterThan(0);
+        assertThat(parentDTO.getPooches().get(0).getFullName()).isNotNull().isEqualTo("Simpa");
+        assertThat(parentDTO.getPooches().get(0).getSpayed()).isNotNull().isTrue();
+        assertThat(parentDTO.getPooches().get(0).getFoodSchedule()).isNotNull().isEqualTo(Arrays.asList(FoodSchedule.Night, FoodSchedule.Morning));
+
+        Set<VaccineDTO> vaccines = parentDTO.getPooches().get(0).getVaccines();
+
+        assertThat(vaccines).isNotNull();
+        assertThat(vaccines.size()).isGreaterThan(0);
+
+        for (VaccineDTO vaccineDTO : vaccines) {
+            assertThat(vaccineDTO).isNotNull();
+            assertThat(vaccineDTO.getId()).isNotNull().isGreaterThan(0);
+            assertThat(vaccineDTO.getExpireDate()).isNotNull();
+            assertThat(vaccineDTO.getName()).isNotNull().isEqualTo("vitamin");
+        }
+
+        assertThat(parentDTO.getPooches().get(0).getGender()).isNotNull().isEqualTo(Gender.Female);
+        assertThat(parentDTO.getPooches().get(0).getTraining()).isNotNull().isEqualTo(Training.Low);
 
     }
 

@@ -53,7 +53,7 @@ public class ParentValidatorServiceImp implements ParentValidatorService {
 
         Long phoneNumber = parentUpdateDTO.getPhoneNumber();
 
-        if (phoneNumber == null || !phonePattern.matcher("" + phoneNumber).matches()) {
+        if (phoneNumber != null && !phonePattern.matcher("" + phoneNumber).matches()) {
             throw new ApiException("Invalid Phone Number", "Phone number must a valid 10 digit number");
         }
 

@@ -10,9 +10,11 @@ import com.pooch.api.entity.pooch.Gender;
 import com.pooch.api.entity.pooch.Training;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

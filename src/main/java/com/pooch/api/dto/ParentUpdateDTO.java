@@ -2,6 +2,7 @@ package com.pooch.api.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -51,4 +52,10 @@ public class ParentUpdateDTO implements Serializable {
 
     private Set<PoochCreateUpdateDTO> pooches;
 
+    public void addPooch(PoochCreateUpdateDTO pooch) {
+        if (this.pooches == null) {
+            this.pooches = new HashSet<>();
+        }
+        this.pooches.add(pooch);
+    }
 }

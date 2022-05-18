@@ -209,10 +209,12 @@ public class ParentServiceImp implements ParentService {
         ParentDTO parentDTO = entityDTOMapper.mapPetParentToPetParentDTO(parent);
 
         List<PoochDTO> pooches = poochService.updatePooches(parent, parentUpdateDTO.getPooches());
-
+        
+        log.info("pooches={}",ObjectUtils.toJson(pooches));
+        
         parentDTO.setPooches(pooches);
         
-        return entityDTOMapper.mapPetParentToPetParentDTO(parent);
+        return parentDTO;
     }
 
 }
