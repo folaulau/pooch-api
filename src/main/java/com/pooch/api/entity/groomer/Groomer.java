@@ -24,6 +24,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -195,21 +196,14 @@ public class Groomer implements Serializable {
     private LocalDateTime       updatedAt;
 
     @JsonIgnoreProperties(value = {"groomer"})
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "groomer")
-    private Set<Address>        addresses;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "groomer")
+    private Address             address;
 
     public void addRole(Role role) {
         if (this.roles == null) {
             this.roles = new HashSet<>();
         }
         this.roles.add(role);
-    }
-
-    public void addAddress(Address address) {
-        if (this.addresses == null) {
-            this.addresses = new HashSet<>();
-        }
-        this.addresses.add(address);
     }
 
     public String getRoleAsString() {
@@ -221,16 +215,6 @@ public class Groomer implements Serializable {
 
     public boolean isAllowedToLogin() {
         return GroomerStatus.isAllowedToLogin(status);
-    }
-
-    public Optional<Address> getMainAddress() {
-        if (this.addresses == null || this.addresses.size() == 0) {
-            return Optional.empty();
-        }
-        if (this.addresses.size() == 1) {
-            return this.addresses.stream().findFirst();
-        }
-        return this.addresses.stream().sorted((add1, add2) -> add1.getId().compareTo(add2.getId())).findFirst();
     }
 
     public String getFullName() {

@@ -206,26 +206,26 @@ public class GroomerServiceImp implements GroomerService {
 
         entityDTOMapper.patchGroomerWithGroomerCreateProfileDTO(groomerCreateProfileDTO, groomer);
 
-        Set<Address> addresses = groomer.getAddresses();
-
         AddressCreateUpdateDTO addressDTO = groomerCreateProfileDTO.getAddress();
 
         if (addressDTO != null) {
             String addressUuid = addressDTO.getUuid();
 
-            Address address = null;
+            Address address = groomer.getAddress();
+            
+            if(address == null) {
+                address = new Address();
+            }
+            
             if (addressUuid != null && !addressUuid.trim().isEmpty()) {
-                address = addresses.stream().filter(addr -> addr.getUuid().equalsIgnoreCase(addressUuid)).findFirst().get();
                 entityDTOMapper.patchAddressWithAddressCreateUpdateDTO(addressDTO, address);
-                address.setGroomer(groomer);
             } else {
                 address = entityDTOMapper.mapAddressCreateUpdateDTOToAddress(addressDTO);
-                address.setGroomer(groomer);
-                addresses.add(address);
             }
+            
+            address.setGroomer(groomer);
+            groomer.setAddress(address);
         }
-
-        groomer.setAddresses(addresses);
 
         groomer.setSignUpStatus(GroomerSignUpStatus.PROFILE_CREATED);
 
@@ -274,11 +274,11 @@ public class GroomerServiceImp implements GroomerService {
             });
         }
 
-        log.info("careServicesToRemove={}",ObjectUtils.toJson(careServicesToRemove)); 
-        
+        log.info("careServicesToRemove={}", ObjectUtils.toJson(careServicesToRemove));
+
         List<GroomerServiceCategory> careServiceTypes = groomerServiceTypeService.getTopServiceTypes(4L);
-        
-        log.info("careServiceTypes={}",ObjectUtils.toJson(careServiceTypes)); 
+
+        log.info("careServiceTypes={}", ObjectUtils.toJson(careServiceTypes));
 
         Set<Long> careServiceIdsToRemove = dbCareServices.stream().filter(cs -> {
             if (careServicesToRemove.contains(cs.getId()) && canRemoveTopCareService(careServiceTypes, cs)) {
@@ -287,8 +287,8 @@ public class GroomerServiceImp implements GroomerService {
                 return false;
             }
         }).map(cs -> cs.getId()).collect(Collectors.toSet());
-        
-        log.info("careServiceIdsToRemove={}",ObjectUtils.toJson(careServiceIdsToRemove));        
+
+        log.info("careServiceIdsToRemove={}", ObjectUtils.toJson(careServiceIdsToRemove));
         /**
          * delete careServices that are not passed
          */
@@ -303,9 +303,8 @@ public class GroomerServiceImp implements GroomerService {
                 return true;
             }
         }).collect(Collectors.toSet());
-        
 
-        log.info("savedSareServices={}",ObjectUtils.toJson(savedSareServices));
+        log.info("savedSareServices={}", ObjectUtils.toJson(savedSareServices));
 
         groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(savedSareServices));
 
@@ -399,106 +398,6 @@ public class GroomerServiceImp implements GroomerService {
         }).collect(Collectors.toSet());
 
         groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(savedSareServices));
-
-        /**
-         * notify groomer of profile update only if status==ACTIVE
-         */
-
-        applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
-
-        groomerAuditService.audit(savedGroomer);
-
-        return groomerDTO;
-    }
-
-    /**
-     * Update all or nothing at all
-     */
-    @Deprecated
-    @Transactional
-    @Override
-    public GroomerDTO updateProfile(GroomerUpdateDTO groomerUpdateDTO) {
-        Groomer groomer = groomerValidatorService.validateUpdateProfile(groomerUpdateDTO);
-
-        entityDTOMapper.patchGroomerWithGroomerUpdateDTO(groomerUpdateDTO, groomer);
-
-        Long oldPhoneNumber = groomer.getPhoneNumber();
-
-        Long newPhoneNumber = groomerUpdateDTO.getPhoneNumber();
-
-        log.info("new phone={}, old phone={}", newPhoneNumber, oldPhoneNumber);
-
-        /**
-         * Update addresses
-         */
-
-        Set<Address> addresses = groomer.getAddresses();
-
-        Set<AddressCreateUpdateDTO> addressDTOs = groomerUpdateDTO.getAddresses();
-
-        if (addressDTOs != null) {
-            addressDTOs.stream().forEach(addressCreateUpdateDTO -> {
-                String addressUuid = addressCreateUpdateDTO.getUuid();
-
-                Address address = null;
-                if (addressUuid != null && !addressUuid.trim().isEmpty()) {
-                    address = addresses.stream().filter(addr -> addr.getUuid().equalsIgnoreCase(addressUuid)).findFirst().get();
-                    entityDTOMapper.patchAddressWithAddressCreateUpdateDTO(addressCreateUpdateDTO, address);
-                    address.setGroomer(groomer);
-                } else {
-                    address = entityDTOMapper.mapAddressCreateUpdateDTOToAddress(addressCreateUpdateDTO);
-                    address.setGroomer(groomer);
-                    addresses.add(address);
-                }
-
-            });
-        }
-
-        groomer.setAddresses(addresses);
-
-        Groomer savedGroomer = groomerDAO.save(groomer);
-
-        GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(groomer);
-
-        /**
-         * Update careServices
-         */
-
-        Set<CareService> careServices = careServiceDAO.findByGroomerId(groomer.getId()).orElse(new HashSet<>());
-
-        Set<CareServiceUpdateDTO> careServicesDTOs = groomerUpdateDTO.getCareServices();
-
-        if (null != careServicesDTOs) {
-            careServicesDTOs.stream().forEach(careServicesDTO -> {
-
-                String careServiceUuid = careServicesDTO.getUuid();
-
-                CareService careService = null;
-
-                if (careServiceUuid != null && !careServiceUuid.trim().isEmpty()) {
-                    careService = careServiceDAO.getByUuid(careServicesDTO.getUuid()).get();
-                    entityDTOMapper.patchCareServiceWithCareServiceUpdateDTO(careServicesDTO, careService);
-                } else {
-                    careService = entityDTOMapper.mapCareServiceUpdateDTOToCareService(careServicesDTO);
-                }
-
-                careService.setGroomer(savedGroomer);
-
-                CareService savedCareService = careServiceDAO.save(careService);
-
-                /**
-                 * remove stale CareService
-                 */
-                careServices.stream().filter(cs -> cs.getId().equals(savedCareService.getId())).findFirst().ifPresent(cs -> {
-                    log.info("remove state cs");
-                    careServices.remove(cs);
-                });
-
-                careServices.add(savedCareService);
-            });
-        }
-
-        groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(careServices));
 
         /**
          * notify groomer of profile update only if status==ACTIVE

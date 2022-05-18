@@ -71,7 +71,7 @@ public class GroomerDTO implements Serializable {
 
     private LocalDateTime       updatedAt;
 
-    private List<AddressDTO>    addresses;
+    private AddressDTO          address;
 
     public void addCareService(CareServiceDTO careServiceDTO) {
         if (this.careServices == null) {

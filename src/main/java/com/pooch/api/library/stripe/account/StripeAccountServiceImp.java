@@ -42,10 +42,8 @@ public class StripeAccountServiceImp implements StripeAccountService {
     public Account create(Groomer groomer) {
         Stripe.apiKey = stripeSecrets.getSecretKey();
 
-        Optional<Address> optAddress = groomer.getMainAddress();
-
-        Address address = optAddress.get();
-
+        Address address = groomer.getAddress();
+        
         // @formatter:off
 
         Map<String,String> metadata = new HashMap<>();

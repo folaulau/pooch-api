@@ -120,8 +120,7 @@ public class TestEntityGeneratorService {
         groomer.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
         groomer.addRole(new Role(Authority.groomer));
 
-        groomer.addAddress(getAddress());
-
+        groomer.setAddress(getAddress());
         return groomer;
     }
 
@@ -150,8 +149,8 @@ public class TestEntityGeneratorService {
         groomer.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
         groomer.addRole(new Role(Authority.groomer));
 
-        groomer.addAddress(getAddress());
-
+        groomer.setAddress(getAddress());
+        
         return groomer;
     }
 

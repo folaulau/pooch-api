@@ -91,7 +91,7 @@ public class GroomerES implements Serializable {
 
     /** address */
     @Field(type = FieldType.Nested)
-    private List<AddressES>     addresses;
+    private AddressES           address;
 
     @Field(type = FieldType.Nested)
     private List<CareServiceES> careServices;
@@ -102,35 +102,50 @@ public class GroomerES implements Serializable {
     @Field
     private boolean             deleted;
 
-    public void populateGeoPoints() {
-        if (addresses == null || addresses.size() == 0) {
+    public void setAddress(AddressES address) {
+        if (address == null) {
             return;
         }
 
-        addresses.forEach(address -> {
-            address.populateGeoPoint();
-        });
+        this.address = address;
+
+        this.address.populateGeoPoint();
     }
 
-    public void addAddress(AddressES address) {
-        if (this.addresses == null) {
-            this.addresses = new ArrayList<>();
-        }
-        this.addresses.add(address);
-    }
+    // public void populateGeoPoints() {
+    // if (addresses == null || addresses.size() == 0) {
+    // return;
+    // }
+    //
+    // addresses.forEach(address -> {
+    // address.populateGeoPoint();
+    // });
+    // }
+    // public void addAddress(AddressES address) {
+    // if (this.addresses == null) {
+    // this.addresses = new ArrayList<>();
+    // }
+    // this.addresses.add(address);
+    // }
+    //
+    // public void filterOutUnreachableLocations(GeoPoint searchLocation, int radius) {
+    // if (this.addresses != null) {
+    // this.addresses = this.addresses.stream().filter(address -> {
+    //
+    // Double distanceFromSearch = address.calculateDistanceFromSearch(searchLocation);
+    //
+    // if (distanceFromSearch == null || distanceFromSearch < 0 || distanceFromSearch < radius) {
+    // return true;
+    // }
+    //
+    // return false;
+    // }).collect(Collectors.toList());
+    // }
+    // }
 
-    public void filterOutUnreachableLocations(GeoPoint searchLocation, int radius) {
-        if (this.addresses != null) {
-            this.addresses = this.addresses.stream().filter(address -> {
-
-                Double distanceFromSearch = address.calculateDistanceFromSearch(searchLocation);
-
-                if (distanceFromSearch == null || distanceFromSearch < 0 || distanceFromSearch < radius) {
-                    return true;
-                }
-
-                return false;
-            }).collect(Collectors.toList());
+    public void calculateDistanceFromSearch(GeoPoint searchLocation, int radius) {
+        if (this.address != null) {
+            this.address.calculateDistanceFromSearch(searchLocation);
         }
     }
 

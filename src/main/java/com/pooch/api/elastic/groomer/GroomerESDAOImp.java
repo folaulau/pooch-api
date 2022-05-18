@@ -87,8 +87,8 @@ public class GroomerESDAOImp implements GroomerESDAO {
     @Override
     public void save(GroomerES groomerES) {
         log.info("groomerES={}", ObjectUtils.toJson(groomerES));
-        
-        groomerES.populateGeoPoints();
+
+        // groomerES.populateGeoPoints();
 
         groomerES = groomerESRepository.save(groomerES);
 
@@ -124,10 +124,10 @@ public class GroomerESDAOImp implements GroomerESDAO {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
         // termQuery is case sensitive
-        boolQuery.filter(QueryBuilders.termsQuery("status.keyword", GroomerStatus.ACTIVE.name(),GroomerStatus.PENDING_STRIPE.name(),GroomerStatus.PENDING_APPROVAL.name()));
+        boolQuery.filter(QueryBuilders.termsQuery("status.keyword", GroomerStatus.ACTIVE.name(), GroomerStatus.PENDING_STRIPE.name(), GroomerStatus.PENDING_APPROVAL.name()));
 
-        boolQuery.filter(QueryBuilders.nestedQuery("addresses",
-                QueryBuilders.geoDistanceQuery("addresses.location").point(latitude, longitude).distance(radius, DistanceUnit.MILES).geoDistance(GeoDistance.ARC), ScoreMode.None));
+        boolQuery.filter(QueryBuilders.nestedQuery("address",
+                QueryBuilders.geoDistanceQuery("address.location").point(latitude, longitude).distance(radius, DistanceUnit.MILES).geoDistance(GeoDistance.ARC), ScoreMode.None));
 
         /**
          * CareServices
@@ -193,8 +193,8 @@ public class GroomerESDAOImp implements GroomerESDAO {
     }
 
     private void addGeoLocationSorting(SearchSourceBuilder searchSourceBuilder, Double lat, Double lon, int radius) {
-        searchSourceBuilder.sort(new GeoDistanceSortBuilder("addresses.location", lat, lon).order(SortOrder.ASC)
-                .setNestedSort(new NestedSortBuilder("addresses").setFilter(QueryBuilders.geoDistanceQuery("addresses.location").point(lat, lon).distance(radius, DistanceUnit.MILES))));
+        searchSourceBuilder.sort(new GeoDistanceSortBuilder("address.location", lat, lon).order(SortOrder.ASC)
+                .setNestedSort(new NestedSortBuilder("address").setFilter(QueryBuilders.geoDistanceQuery("address.location").point(lat, lon).distance(radius, DistanceUnit.MILES))));
     }
 
     private void addRatingSorting(SearchSourceBuilder searchSourceBuilder) {
@@ -251,8 +251,9 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
                 GroomerES obj = ObjectUtils.getObjectMapper().readValue(searchHit.getSourceAsString(), new TypeReference<GroomerES>() {});
                 // log.info("obj={}", ObjectUtils.toJson(obj));
+                obj.calculateDistanceFromSearch(searchLocation, radius);
 
-                obj.filterOutUnreachableLocations(searchLocation, radius);
+                // obj.filterOutUnreachableLocations(searchLocation, radius);
 
                 searchResults.add(obj);
             } catch (IOException e) {

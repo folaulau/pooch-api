@@ -73,7 +73,7 @@ class GroomerMockTests {
         AddressES address = new AddressES();
         address.setLatitude(34.043148);
         address.setLongitude(-118.4750169);
-        groomer.addAddress(address);
+        groomer.setAddress(address);
         /**
          * 3408 Pearl St, Santa Monica, CA 90405<br>
          * lat: 34.0251161, -118.4517642<br>
@@ -85,7 +85,7 @@ class GroomerMockTests {
         address = new AddressES();
         address.setLatitude(34.0251161);
         address.setLongitude(-118.4517642);
-        groomer.addAddress(address);
+        groomer.setAddress(address);
 
         /**
          * 12107 Palms Blvd, Los Angeles, CA 90066<br>
@@ -98,33 +98,11 @@ class GroomerMockTests {
         address = new AddressES();
         address.setLatitude(34.0124107);
         address.setLongitude(-118.4355353);
-        groomer.addAddress(address);
+        groomer.setAddress(address);
 
-        groomer.filterOutUnreachableLocations(new GeoPoint(34.043148, -118.4750169), 3);
+        groomer.calculateDistanceFromSearch(new GeoPoint(34.043148, -118.4750169), 3);
 
         System.out.println("groomer: " + ObjectUtils.toJson(groomer));
-    }
-
-    @Test
-    void test_main_address_to_be_first_on_list() {
-
-        Groomer groomer = new Groomer();
-
-        Address add1 = generatorService.getAddress();
-        add1.setId(1L);
-
-        groomer.addAddress(add1);
-
-        Address add2 = generatorService.getAddress();
-        add2.setId(2L);
-
-        groomer.addAddress(add2);
-
-        Optional<Address> mainAddress = groomer.getMainAddress();
-
-        assertThat(mainAddress.isPresent()).isTrue();
-        assertThat(mainAddress.get().equals(add1)).isTrue();
-
     }
     
     @Test

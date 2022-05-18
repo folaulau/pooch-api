@@ -18,7 +18,7 @@ import com.pooch.api.dto.CustomSort;
 import com.pooch.api.dto.GroomerCreateListingDTO;
 import com.pooch.api.dto.GroomerCreateProfileDTO;
 import com.pooch.api.dto.GroomerSearchParamsDTO;
-import com.pooch.api.dto.GroomerUpdateDTO;
+import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.address.AddressDAO;
 import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
 import com.pooch.api.entity.groomer.careservice.type.GroomerServiceTypeService;
@@ -187,141 +187,143 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
         return groomer;
     }
 
-    @Override
-    public Groomer validateUpdateProfile(GroomerUpdateDTO groomerUpdateDTO) {
-
-        log.info("groomerUpdateDTO={}", ObjectUtils.toJson(groomerUpdateDTO));
-
-        String uuid = groomerUpdateDTO.getUuid();
-
-        if (uuid == null || uuid.isEmpty()) {
-            throw new ApiException(ApiError.DEFAULT_MSG, "uuid is empty. uuid=" + uuid);
-        }
-
-        Optional<Groomer> optGroomer = groomerDAO.getByUuid(uuid);
-
-        if (!optGroomer.isPresent()) {
-            throw new ApiException(ApiError.DEFAULT_MSG, "Groomer not found for uuid=" + uuid);
-        }
-
-        Groomer groomer = optGroomer.get();
-        //
-        // Optional.ofNullable(groomerUpdateDTO.getEmail()).ifPresent(email -> {
-        // if (!email.trim().equalsIgnoreCase(groomer.getEmail())) {
-        // if (groomerDAO.existEmail(email)) {
-        // log.debug("email is taken");
-        // throw new ApiException("Email is taken");
-        // }
-        // }
-        // });
-
-        if (groomer.getStatus().equals(GroomerStatus.SIGNING_UP)) {
-            GroomerSignUpStatus signUpStatus = Optional.ofNullable(groomerUpdateDTO.getSignUpStatus())
-                    .orElseThrow(() -> new ApiException(ApiError.DEFAULT_MSG, "signUpStatus is required", "status=" + Arrays.asList(GroomerSignUpStatus.values())));
-
-        }
-
-        Set<CareServiceUpdateDTO> careServicesDTOs = groomerUpdateDTO.getCareServices();
-
-        if (careServicesDTOs != null) {
-            Set<String> serviceNames = new HashSet<>();
-
-            for (CareServiceUpdateDTO careServiceUpdateDTO : careServicesDTOs) {
-
-                final String serviceName = careServiceUpdateDTO.getName();
-
-                /**
-                 * validate service name
-                 */
-                if (serviceName == null || serviceName.isBlank()) {
-                    throw new ApiException("Service name is required", "serviceName=" + serviceName);
-                }
-
-                if (groomerServiceTypeService.getByName(serviceName) == null) {
-                    throw new ApiException("Invalid service name", "service name=" + serviceName, "valid serviceNames=" + GroomerServiceTypeServiceImp.dict.values(),
-                            "care service name is case sensitive");
-                }
-
-                if (serviceNames.contains(serviceName)) {
-                    throw new ApiException(serviceName + " is a duplicate", "serviceName=" + serviceName);
-                }
-
-                /**
-                 * validate prices
-                 */
-                if (careServiceUpdateDTO.isServiceSmall()) {
-                    Double smallPrice = careServiceUpdateDTO.getSmallPrice();
-                    /**
-                     * assume 10 million must be a mistake
-                     */
-                    if (smallPrice == null || smallPrice <= -1 || smallPrice >= 10000000) {
-                        throw new ApiException(serviceName + ", smallPrice is valid", "smallPrice=" + smallPrice);
-                    }
-                }
-
-                if (careServiceUpdateDTO.isServiceMedium()) {
-                    Double mediumPrice = careServiceUpdateDTO.getSmallPrice();
-                    /**
-                     * assume 10 million must be a mistake
-                     */
-                    if (mediumPrice == null || mediumPrice <= -1 || mediumPrice >= 10000000) {
-                        throw new ApiException(serviceName + ", mediumPrice is valid", "mediumPrice=" + mediumPrice);
-                    }
-                }
-
-                if (careServiceUpdateDTO.isServiceLarge()) {
-                    Double largePrice = careServiceUpdateDTO.getSmallPrice();
-                    /**
-                     * assume 10 million must be a mistake
-                     */
-                    if (largePrice == null || largePrice <= -1 || largePrice >= 10000000) {
-                        throw new ApiException(serviceName + ", largePrice is valid", "largePrice=" + largePrice);
-                    }
-                }
-
-                /**
-                 * validate updating existing care service
-                 */
-                Optional.ofNullable(careServiceUpdateDTO.getUuid()).ifPresent(careServiceUuid -> {
-                    if (!careServiceDAO.existByUuidAndGroomer(careServiceUuid, groomer.getId())) {
-                        throw new ApiException(ApiError.DEFAULT_MSG, "uuid not found for this care service", "make sure you pass the correct uuid for careService");
-                    }
-                });
-
-                serviceNames.add(serviceName);
-            }
-        }
-
-        Set<AddressCreateUpdateDTO> addressDTOs = groomerUpdateDTO.getAddresses();
-
-        if (addressDTOs != null) {
-            for (AddressCreateUpdateDTO addressDTO : addressDTOs) {
-                Double latitude = addressDTO.getLatitude();
-
-                if (latitude == null) {
-                    log.info("Latitude is required");
-                    throw new ApiException("Address is invalid", "Latitude is required");
-                }
-                Double longitude = addressDTO.getLongitude();
-
-                if (longitude == null) {
-                    log.info("Longitude is required");
-                    throw new ApiException("Address is invalid", "Longitude is required");
-                }
-                String addressUuid = addressDTO.getUuid();
-                if (addressUuid != null && !addressUuid.isEmpty()) {
-
-                    groomer.getAddresses()
-                            .stream()
-                            .filter(addr -> addr.getUuid().equalsIgnoreCase(addressUuid))
-                            .findFirst()
-                            .orElseThrow(() -> new ApiException("Address not found", "uuid=" + addressDTO.getUuid() + " not found", "address may not belong to this user"));
-                }
-            }
-        }
-
-        return groomer;
-    }
+//    @Override
+//    public Groomer validateUpdateProfile(GroomerUpdateDTO groomerUpdateDTO) {
+//
+//        log.info("groomerUpdateDTO={}", ObjectUtils.toJson(groomerUpdateDTO));
+//
+//        String uuid = groomerUpdateDTO.getUuid();
+//
+//        if (uuid == null || uuid.isEmpty()) {
+//            throw new ApiException(ApiError.DEFAULT_MSG, "uuid is empty. uuid=" + uuid);
+//        }
+//
+//        Optional<Groomer> optGroomer = groomerDAO.getByUuid(uuid);
+//
+//        if (!optGroomer.isPresent()) {
+//            throw new ApiException(ApiError.DEFAULT_MSG, "Groomer not found for uuid=" + uuid);
+//        }
+//
+//        Groomer groomer = optGroomer.get();
+//        //
+//        // Optional.ofNullable(groomerUpdateDTO.getEmail()).ifPresent(email -> {
+//        // if (!email.trim().equalsIgnoreCase(groomer.getEmail())) {
+//        // if (groomerDAO.existEmail(email)) {
+//        // log.debug("email is taken");
+//        // throw new ApiException("Email is taken");
+//        // }
+//        // }
+//        // });
+//
+//        if (groomer.getStatus().equals(GroomerStatus.SIGNING_UP)) {
+//            GroomerSignUpStatus signUpStatus = Optional.ofNullable(groomerUpdateDTO.getSignUpStatus())
+//                    .orElseThrow(() -> new ApiException(ApiError.DEFAULT_MSG, "signUpStatus is required", "status=" + Arrays.asList(GroomerSignUpStatus.values())));
+//
+//        }
+//
+//        Set<CareServiceUpdateDTO> careServicesDTOs = groomerUpdateDTO.getCareServices();
+//
+//        if (careServicesDTOs != null) {
+//            Set<String> serviceNames = new HashSet<>();
+//
+//            for (CareServiceUpdateDTO careServiceUpdateDTO : careServicesDTOs) {
+//
+//                final String serviceName = careServiceUpdateDTO.getName();
+//
+//                /**
+//                 * validate service name
+//                 */
+//                if (serviceName == null || serviceName.isBlank()) {
+//                    throw new ApiException("Service name is required", "serviceName=" + serviceName);
+//                }
+//
+//                if (groomerServiceTypeService.getByName(serviceName) == null) {
+//                    throw new ApiException("Invalid service name", "service name=" + serviceName, "valid serviceNames=" + GroomerServiceTypeServiceImp.dict.values(),
+//                            "care service name is case sensitive");
+//                }
+//
+//                if (serviceNames.contains(serviceName)) {
+//                    throw new ApiException(serviceName + " is a duplicate", "serviceName=" + serviceName);
+//                }
+//
+//                /**
+//                 * validate prices
+//                 */
+//                if (careServiceUpdateDTO.isServiceSmall()) {
+//                    Double smallPrice = careServiceUpdateDTO.getSmallPrice();
+//                    /**
+//                     * assume 10 million must be a mistake
+//                     */
+//                    if (smallPrice == null || smallPrice <= -1 || smallPrice >= 10000000) {
+//                        throw new ApiException(serviceName + ", smallPrice is valid", "smallPrice=" + smallPrice);
+//                    }
+//                }
+//
+//                if (careServiceUpdateDTO.isServiceMedium()) {
+//                    Double mediumPrice = careServiceUpdateDTO.getSmallPrice();
+//                    /**
+//                     * assume 10 million must be a mistake
+//                     */
+//                    if (mediumPrice == null || mediumPrice <= -1 || mediumPrice >= 10000000) {
+//                        throw new ApiException(serviceName + ", mediumPrice is valid", "mediumPrice=" + mediumPrice);
+//                    }
+//                }
+//
+//                if (careServiceUpdateDTO.isServiceLarge()) {
+//                    Double largePrice = careServiceUpdateDTO.getSmallPrice();
+//                    /**
+//                     * assume 10 million must be a mistake
+//                     */
+//                    if (largePrice == null || largePrice <= -1 || largePrice >= 10000000) {
+//                        throw new ApiException(serviceName + ", largePrice is valid", "largePrice=" + largePrice);
+//                    }
+//                }
+//
+//                /**
+//                 * validate updating existing care service
+//                 */
+//                Optional.ofNullable(careServiceUpdateDTO.getUuid()).ifPresent(careServiceUuid -> {
+//                    if (!careServiceDAO.existByUuidAndGroomer(careServiceUuid, groomer.getId())) {
+//                        throw new ApiException(ApiError.DEFAULT_MSG, "uuid not found for this care service", "make sure you pass the correct uuid for careService");
+//                    }
+//                });
+//
+//                serviceNames.add(serviceName);
+//            }
+//        }
+//
+//        AddressCreateUpdateDTO addressDTO = groomerUpdateDTO.getAddress();
+//
+//        if (addressDTO != null) {
+//            Double latitude = addressDTO.getLatitude();
+//
+//            if (latitude == null) {
+//                log.info("Latitude is required");
+//                throw new ApiException("Address is invalid", "Latitude is required");
+//            }
+//            Double longitude = addressDTO.getLongitude();
+//
+//            if (longitude == null) {
+//                log.info("Longitude is required");
+//                throw new ApiException("Address is invalid", "Longitude is required");
+//            }
+//            String addressUuid = addressDTO.getUuid();
+//            if (addressUuid != null && !addressUuid.isEmpty()) {
+//
+//                Address address = groomer.getAddress();
+//
+//                if (address == null) {
+//                    throw new ApiException("Address not found", "Groomer does not have an existing address", "address uuid does not belong to groomer");
+//                }
+//
+//                if (!address.getUuid().equalsIgnoreCase(addressUuid)) {
+//                    throw new ApiException("Address not found", "uuid=" + addressDTO.getUuid() + " not found", "address may not belong to this user");
+//                }
+//            }
+//        }
+//
+//        return groomer;
+//    }
 
     @Override
     public Groomer validateUploadProfileImages(String uuid, List<MultipartFile> images) {

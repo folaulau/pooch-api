@@ -34,7 +34,6 @@ import com.pooch.api.dto.CareServiceUpdateDTO;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.GroomerCreateProfileDTO;
 import com.pooch.api.dto.GroomerDTO;
-import com.pooch.api.dto.GroomerUpdateDTO;
 import com.pooch.api.entity.parent.ParentIntegrationTests;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.library.firebase.FirebaseAuthResponse;
@@ -125,8 +124,7 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
         assertThat(groomerDTO.getFirstName()).isNotNull().isEqualTo("Folau");
         assertThat(groomerDTO.getLastName()).isNotNull().isEqualTo("Kaveinga");
         assertThat(groomerDTO.getDescription()).isNotNull().isEqualTo("Test description");
-        assertThat(groomerDTO.getAddresses()).isNotNull();
-        assertThat(groomerDTO.getAddresses().size()).isEqualTo(2);
+        assertThat(groomerDTO.getAddress()).isNotNull();
         assertThat(groomerDTO.getCareServices()).isNotNull();
         assertThat(groomerDTO.getCareServices().size()).isEqualTo(1);
 

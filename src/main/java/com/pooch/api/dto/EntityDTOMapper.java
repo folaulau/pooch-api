@@ -54,8 +54,8 @@ public interface EntityDTOMapper {
 
     GroomerDTO mapGroomerToGroomerDTO(Groomer groomer);
 
-    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "addresses", ignore = true)})
-    void patchGroomerWithGroomerUpdateDTO(GroomerUpdateDTO groomerUpdateDTO, @MappingTarget Groomer groomer);
+//    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
+//    void patchGroomerWithGroomerUpdateDTO(GroomerUpdateDTO groomerUpdateDTO, @MappingTarget Groomer groomer);
 
     AuthenticationResponseDTO mapGroomerToAuthenticationResponse(Groomer groomer);
 
@@ -96,10 +96,10 @@ public interface EntityDTOMapper {
 
     ReviewDTO mapReviewToReviewDTO(Review review);
 
-    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "addresses", ignore = true)})
+    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
     void patchGroomerWithGroomerCreateProfileDTO(GroomerCreateProfileDTO groomerCreateProfileDTO, @MappingTarget Groomer groomer);
 
-    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "addresses", ignore = true)})
+    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
     void patchGroomerWithGroomerCreateListingDTO(GroomerCreateListingDTO groomerCreateListingDTO, @MappingTarget Groomer groomer);
 
     @Mappings({@Mapping(target = "pooches", ignore = true), @Mapping(target = "parent", ignore = true)})

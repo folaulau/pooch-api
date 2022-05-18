@@ -2,8 +2,6 @@ package com.pooch.api.entity.parent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -35,36 +33,21 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.UserRecord;
-import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.AddressCreateUpdateDTO;
-import com.pooch.api.dto.AuthenticationResponseDTO;
-import com.pooch.api.dto.AuthenticatorDTO;
-import com.pooch.api.dto.CareServiceUpdateDTO;
-import com.pooch.api.dto.GroomerCreateProfileDTO;
-import com.pooch.api.dto.GroomerDTO;
-import com.pooch.api.dto.GroomerUpdateDTO;
-import com.pooch.api.dto.ParentCreateUpdateDTO;
 import com.pooch.api.dto.ParentDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.dto.PoochCreateUpdateDTO;
 import com.pooch.api.dto.S3FileDTO;
 import com.pooch.api.dto.VaccineCreateDTO;
 import com.pooch.api.dto.VaccineDTO;
-import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.pooch.FoodSchedule;
 import com.pooch.api.entity.pooch.Gender;
 import com.pooch.api.entity.pooch.Training;
 import com.pooch.api.entity.role.Authority;
-import com.pooch.api.library.firebase.FirebaseAuthResponse;
-import com.pooch.api.library.firebase.FirebaseAuthService;
-import com.pooch.api.library.firebase.FirebaseRestClient;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.ObjectUtils;
-import com.pooch.api.utils.RandomGeneratorUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
 
 import lombok.extern.slf4j.Slf4j;

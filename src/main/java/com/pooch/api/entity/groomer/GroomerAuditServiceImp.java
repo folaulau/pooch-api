@@ -44,7 +44,7 @@ public class GroomerAuditServiceImp implements GroomerAuditService {
     public Groomer audit(Groomer groomer) {
 
         // check for sign up flow
-        boolean isReadyToActivate = checkForAddresses(groomer) && checkForServices(groomer) && checkForDocuments(groomer);
+        boolean isReadyToActivate = checkForAddress(groomer) && checkForServices(groomer) && checkForDocuments(groomer);
 
         // check status
         if (isReadyToActivate) {
@@ -70,9 +70,9 @@ public class GroomerAuditServiceImp implements GroomerAuditService {
         return careServices.size() > 0;
     }
 
-    private boolean checkForAddresses(Groomer groomer) {
-        Set<Address> addresses = groomer.getAddresses();
-        return (addresses != null && addresses.size() > 0);
+    private boolean checkForAddress(Groomer groomer) {
+        Address address = groomer.getAddress();
+        return (address != null);
     }
 
 }

@@ -118,11 +118,10 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
         address.setStreet("1043 Franklin St");
         address.setLatitude(34.043148);
         address.setLongitude(-118.4750169);
-        groomer.setAddresses(null);
-        groomer.addAddress(entityDTOMapper.mapAddressToAddressEs(address));
+        groomer.setAddress(null);
+        groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
         groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
-        groomer.populateGeoPoints();
         groomer.setStatus(GroomerStatus.ACTIVE);
         groomer = groomerESRepository.save(groomer);
         groomers.add(groomer);
@@ -140,11 +139,10 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
         address.setStreet("1116 Stanford St");
         address.setLatitude(34.0400821);
         address.setLongitude(-118.475029);
-        groomer.setAddresses(null);
-        groomer.addAddress(entityDTOMapper.mapAddressToAddressEs(address));
+        groomer.setAddress(null);
+        groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
         groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
-        groomer.populateGeoPoints();
         groomer.setStatus(GroomerStatus.ACTIVE);
         groomer = groomerESRepository.save(groomer);
         groomers.add(groomer);
@@ -170,11 +168,10 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
         address.setStreet("3408 Pearl St");
         address.setLatitude(34.0251161);
         address.setLongitude(-118.4517642);
-        groomer.setAddresses(null);
-        groomer.addAddress(entityDTOMapper.mapAddressToAddressEs(address));
+        groomer.setAddress(null);
+        groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
         groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
-        groomer.populateGeoPoints();
         groomer.setStatus(GroomerStatus.ACTIVE);
         groomer = groomerESRepository.save(groomer);
         groomers.add(groomer);
@@ -220,11 +217,9 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
         address.setStreet("1043 Franklin St");
         address.setLatitude(34.043148);
         address.setLongitude(-118.4750169);
-        groomer.setAddresses(null);
-        groomer.addAddress(entityDTOMapper.mapAddressToAddressEs(address));
+        groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
         groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
-        groomer.populateGeoPoints();
         groomer.setStatus(GroomerStatus.ACTIVE);
         groomer = groomerESRepository.save(groomer);
         groomers.add(groomer);
@@ -242,11 +237,9 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
         address.setStreet("1116 Stanford St");
         address.setLatitude(34.0400821);
         address.setLongitude(-118.475029);
-        groomer.setAddresses(null);
-        groomer.addAddress(entityDTOMapper.mapAddressToAddressEs(address));
+        groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
         groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
-        groomer.populateGeoPoints();
         groomer.setStatus(GroomerStatus.ACTIVE);
         groomer = groomerESRepository.save(groomer);
         groomers.add(groomer);
@@ -268,11 +261,9 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
         address.setStreet("3408 Pearl St");
         address.setLatitude(34.0251161);
         address.setLongitude(-118.4517642);
-        groomer.setAddresses(null);
-        groomer.addAddress(entityDTOMapper.mapAddressToAddressEs(address));
+        groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
         groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
-        groomer.populateGeoPoints();
         groomer.setStatus(GroomerStatus.ACTIVE);
         groomer = groomerESRepository.save(groomer);
         groomers.add(groomer);

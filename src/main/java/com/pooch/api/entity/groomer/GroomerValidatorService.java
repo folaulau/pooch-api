@@ -7,11 +7,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pooch.api.dto.GroomerCreateListingDTO;
 import com.pooch.api.dto.GroomerCreateProfileDTO;
 import com.pooch.api.dto.GroomerSearchParamsDTO;
-import com.pooch.api.dto.GroomerUpdateDTO;
 
 public interface GroomerValidatorService {
 
-    Groomer validateUpdateProfile(GroomerUpdateDTO petSitterUpdateDTO);
+//    Groomer validateUpdateProfile(GroomerUpdateDTO petSitterUpdateDTO);
 
     Groomer validateUploadProfileImages(String uuid, List<MultipartFile> images);
 
