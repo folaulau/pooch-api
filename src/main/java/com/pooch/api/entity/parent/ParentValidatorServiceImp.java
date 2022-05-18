@@ -2,6 +2,7 @@ package com.pooch.api.entity.parent;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.exception.ApiException;
+import com.pooch.api.exception.ApiSubError;
 import com.pooch.api.utils.FileValidatorUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ParentValidatorServiceImp implements ParentValidatorService {
 
     @Autowired
-    private ParentDAO parentDAO;
+    private ParentDAO      parentDAO;
+
+    private static Pattern phonePattern = Pattern.compile("^\\d{10}$");
 
     @Override
     public Parent validateUploadProfileImages(String uuid, List<MultipartFile> images) {
@@ -41,8 +45,12 @@ public class ParentValidatorServiceImp implements ParentValidatorService {
 
         Parent parent = parentDAO.getByUuid(uuid).orElseThrow(() -> new ApiException("Unable to update profile", "Parent not found for uuid=" + uuid));
 
-        
-            
+        Long phoneNumber = parentUpdateDTO.getPhoneNumber();
+
+        if (phoneNumber == null || !phonePattern.matcher("" + phoneNumber).matches()) {
+            throw new ApiException("Invalid Phone Number", "Phone number must a valid 10 digit number");
+        }
+
         return parent;
     }
 
