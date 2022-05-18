@@ -176,7 +176,7 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
         assertThat(parentDTO.getPhoneNumber()).isNotNull().isEqualTo(3109944731L);
         assertThat(parentDTO.getCountryCode()).isNotNull().isEqualTo(1);
         assertThat(parentDTO.getAddress()).isNotNull();
-        assertThat(parentDTO.getAddress().getId()).isNotNull();
+        assertThat(parentDTO.getAddress().getId()).isNotNull().isGreaterThan(0);
         assertThat(parentDTO.getAddress().getStreet()).isNotNull().isEqualTo("222 Alta Ave");
         assertThat(parentDTO.getAddress().getCity()).isNotNull().isEqualTo("Santa Monica");
         assertThat(parentDTO.getAddress().getZipcode()).isNotNull().isEqualTo("90402");
