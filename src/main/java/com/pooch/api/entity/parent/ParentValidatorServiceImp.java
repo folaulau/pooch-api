@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.exception.ApiException;
 import com.pooch.api.utils.FileValidatorUtils;
 
@@ -31,6 +32,18 @@ public class ParentValidatorServiceImp implements ParentValidatorService {
         FileValidatorUtils.validateUploadImages(images);
 
         return optParent.get();
+    }
+
+    @Override
+    public Parent validateUpdateProfile(ParentUpdateDTO parentUpdateDTO) {
+
+        String uuid = parentUpdateDTO.getUuid();
+
+        Parent parent = parentDAO.getByUuid(uuid).orElseThrow(() -> new ApiException("Unable to update profile", "Parent not found for uuid=" + uuid));
+
+        
+            
+        return parent;
     }
 
 }

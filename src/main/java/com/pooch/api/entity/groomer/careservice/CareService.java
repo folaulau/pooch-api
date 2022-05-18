@@ -33,6 +33,7 @@ import com.pooch.api.elastic.repo.AddressES;
 import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.entity.DatabaseTableNames;
 import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.utils.MathUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -110,6 +111,27 @@ public class CareService implements Serializable {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime     updatedAt;
+
+    public void setSmallPrice(Double smallPrice) {
+        if (smallPrice == null) {
+            return;
+        }
+        this.smallPrice = MathUtils.getTwoDecimalPlaces(smallPrice);
+    }
+
+    public void setMediumPrice(Double mediumPrice) {
+        if (mediumPrice == null) {
+            return;
+        }
+        this.mediumPrice = MathUtils.getTwoDecimalPlaces(mediumPrice);
+    }
+
+    public void setLargePrice(Double largePrice) {
+        if (largePrice == null) {
+            return;
+        }
+        this.largePrice = MathUtils.getTwoDecimalPlaces(largePrice);
+    }
 
     @PrePersist
     private void preCreate() {

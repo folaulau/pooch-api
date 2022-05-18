@@ -95,6 +95,8 @@ public class Parent implements Serializable {
     @Column(name = "email_temp")
     private boolean           emailTemp;
 
+    @Column(name = "country_code")
+    private Integer           countryCode;
     /**
      * assume all phone numbers are US numbers for now.
      */

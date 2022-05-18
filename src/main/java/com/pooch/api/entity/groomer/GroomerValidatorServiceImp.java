@@ -141,6 +141,43 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
             error.addSubError("careServices is required");
         }
 
+        for (CareServiceUpdateDTO careService : careServices) {
+            if (careService == null) {
+                error.addSubError("careService is empty");
+                break;
+            }
+
+            String name = careService.getName();
+
+            if (name == null || name.isEmpty()) {
+                error.addSubError("service name is emtpy");
+            }
+
+            if (careService.isServiceSmall() && careService.getSmallPrice() == null) {
+                error.addSubError("serviceSmall is turned on but smallPrice is not specified");
+            }
+
+            if (careService.getSmallPrice() < 0 || careService.getSmallPrice() > 10000) {
+                error.addSubError("smallPrice is invalid");
+            }
+
+            if (careService.isServiceMedium() && careService.getMediumPrice() == null) {
+                error.addSubError("serviceMedium is turned on but mediumPrice is not specified");
+            }
+
+            if (careService.getMediumPrice() < 0 || careService.getMediumPrice() > 10000) {
+                error.addSubError("mediumPrice is invalid");
+            }
+
+            if (careService.isServiceLarge() && careService.getLargePrice() == null) {
+                error.addSubError("serviceLarge is turned on but largePrice is not specified");
+            }
+
+            if (careService.getLargePrice() < 0 || careService.getLargePrice() > 10000) {
+                error.addSubError("largePrice is invalid");
+            }
+        }
+
         if (error.hasErrors()) {
             error.setMessage(ApiError.DEFAULT_MSG);
             error.setStatus(HttpStatus.BAD_REQUEST);

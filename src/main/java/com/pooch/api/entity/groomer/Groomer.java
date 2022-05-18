@@ -104,6 +104,9 @@ public class Groomer implements Serializable {
     @Column(name = "email_temp")
     private boolean             emailTemp;
 
+    @Column(name = "country_code")
+    private Integer             countryCode;
+
     @Column(name = "phone_number")
     private Long                phoneNumber;
 
@@ -262,11 +265,11 @@ public class Groomer implements Serializable {
         /**
          * by default set to true
          */
-      
+
         if (this.instantBooking == null) {
             this.instantBooking = false;
         }
-        
+
         if (this.listing == null) {
             this.listing = false;
         }

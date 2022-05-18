@@ -40,9 +40,9 @@ public class ParentUpdateDTO implements Serializable {
 
     private String                 fullName;
 
-    private String                 email;
+    private Integer                countryCode;
 
-    private String                 phoneNumber;
+    private Long                   phoneNumber;
 
     private AddressCreateUpdateDTO address;
 

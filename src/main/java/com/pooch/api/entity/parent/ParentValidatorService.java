@@ -4,7 +4,11 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.pooch.api.dto.ParentUpdateDTO;
+
 public interface ParentValidatorService {
 
     Parent validateUploadProfileImages(String uuid, List<MultipartFile> images);
+
+    Parent validateUpdateProfile(ParentUpdateDTO parentUpdateDTO);
 }

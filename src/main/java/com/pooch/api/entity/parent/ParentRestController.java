@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
+import com.pooch.api.dto.ParentDTO;
+import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.dto.S3FileDTO;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.xapikey.XApiKeyService;
@@ -60,6 +63,17 @@ public class ParentRestController {
         List<S3FileDTO> s3FileDTOs = parentService.uploadProfileImages(uuid, images);
 
         return new ResponseEntity<>(s3FileDTOs, OK);
+    }
+    
+
+    @Operation(summary = "Update Profile", description = "update profile")
+    @PutMapping(value = "profile")
+    public ResponseEntity<ParentDTO> updateProfile(@RequestHeader(name = "token", required = true) String token, @RequestBody ParentUpdateDTO parentUpdateDTO) {
+        log.info("parentUpdateDTO={}", ObjectUtils.toJson(parentUpdateDTO));
+
+        ParentDTO parentDTO = parentService.updateProfile(parentUpdateDTO);
+
+        return new ResponseEntity<>(parentDTO, OK);
     }
 
     @Operation(summary = "Sign Out", description = "sign out")

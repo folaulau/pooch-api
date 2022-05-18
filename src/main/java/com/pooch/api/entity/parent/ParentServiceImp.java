@@ -18,6 +18,8 @@ import com.google.firebase.auth.UserRecord;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.EntityDTOMapper;
+import com.pooch.api.dto.ParentDTO;
+import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.dto.S3FileDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.role.Authority;
@@ -185,6 +187,18 @@ public class ParentServiceImp implements ParentService {
     @Override
     public void signOut(String token) {
         // TODO Auto-generated method stub
+    }
+
+    @Override
+    public ParentDTO updateProfile(ParentUpdateDTO parentUpdateDTO) {
+
+        Parent parent = parentValidatorService.validateUpdateProfile(parentUpdateDTO);
+
+        entityDTOMapper.patchParentWithParentUpdateDTO(parentUpdateDTO, parent);
+        
+        parent = parentDAO.save(parent);
+
+        return entityDTOMapper.mapPetParentToPetParentDTO(parent);
     }
 
 }
