@@ -196,7 +196,6 @@ public class TestEntityGeneratorService {
         petParent.setEmailVerified(false);
         petParent.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));
         petParent.setPhoneNumberVerified(false);
-        petParent.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
         petParent.addRole(new Role(Authority.parent));
 
         petParent.setAddress(getAddress());
