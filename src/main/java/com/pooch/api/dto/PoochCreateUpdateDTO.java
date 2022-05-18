@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PoochCreateDTO implements Serializable {
+public class PoochCreateUpdateDTO implements Serializable {
 
     /**
      * 
@@ -27,7 +27,7 @@ public class PoochCreateDTO implements Serializable {
 
     private String                fullName;
 
-    private String                 breed;
+    private String                breed;
 
     private Gender                gender;
 

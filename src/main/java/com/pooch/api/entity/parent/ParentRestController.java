@@ -67,7 +67,7 @@ public class ParentRestController {
     
 
     @Operation(summary = "Update Profile", description = "update profile")
-    @PutMapping(value = "profile")
+    @PutMapping(value = "/profile")
     public ResponseEntity<ParentDTO> updateProfile(@RequestHeader(name = "token", required = true) String token, @RequestBody ParentUpdateDTO parentUpdateDTO) {
         log.info("parentUpdateDTO={}", ObjectUtils.toJson(parentUpdateDTO));
 

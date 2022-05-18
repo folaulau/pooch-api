@@ -2,6 +2,8 @@ package com.pooch.api.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -53,5 +55,7 @@ public class ParentDTO implements Serializable {
     private LocalDateTime     createdAt;
 
     private LocalDateTime     lastUpdatedAt;
+
+    private List<PoochDTO>     pooches;
 
 }

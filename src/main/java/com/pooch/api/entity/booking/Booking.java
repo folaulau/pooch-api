@@ -82,7 +82,7 @@ public class Booking implements Serializable {
     @JoinColumn(name = "parent_id")
     private Parent               parent;
 
-    @JsonIgnoreProperties(value = {"bookings"})
+    @JsonIgnoreProperties(value = {"bookings", "parent"})
     @ManyToMany(cascade = {CascadeType.DETACH})
     @JoinTable(name = "booking_pooches", joinColumns = @JoinColumn(name = "booking_id"), inverseJoinColumns = @JoinColumn(name = "pooch_id"))
     private Set<Pooch>           pooches;

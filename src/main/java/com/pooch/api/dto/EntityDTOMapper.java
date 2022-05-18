@@ -31,12 +31,12 @@ import com.pooch.api.entity.s3file.S3File;
 @Mapper(componentModel = "spring", nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EntityDTOMapper {
 
-    Pooch mapPoochCreateDTOToPooch(PoochCreateDTO poochCreateDTO);
+    Pooch mapPoochCreateDTOToPooch(PoochCreateUpdateDTO poochCreateDTO);
 
     PoochDTO mapPoochToPoochDTO(Pooch pooch);
 
     @Mappings({@Mapping(target = "uuid", ignore = true)})
-    Pooch patchPet(PoochCreateDTO petCreateDTO, @MappingTarget Pooch pet);
+    Pooch patchPet(PoochCreateUpdateDTO petCreateDTO, @MappingTarget Pooch pet);
 
     PhoneNumberVerificationDTO mapPhoneNumberVerificationToPhoneNumberVerificationDTO(PhoneNumberVerification phoneNumberVerification);
 

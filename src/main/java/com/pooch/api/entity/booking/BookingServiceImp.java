@@ -11,7 +11,7 @@ import com.pooch.api.dto.ParentCreateUpdateDTO;
 import com.pooch.api.dto.BookingCancelDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.BookingDTO;
-import com.pooch.api.dto.PoochCreateDTO;
+import com.pooch.api.dto.PoochCreateUpdateDTO;
 import com.pooch.api.dto.PoochDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
@@ -150,10 +150,10 @@ public class BookingServiceImp implements BookingService {
         return entityDTOMapper.mapBookingToBookingDTO(booking);
     }
 
-    private Booking addPoochesToBooking(Booking booking, Set<PoochCreateDTO> poochCreateDTOs) {
+    private Booking addPoochesToBooking(Booking booking, Set<PoochCreateUpdateDTO> poochCreateDTOs) {
         if (poochCreateDTOs != null) {
 
-            for (PoochCreateDTO petCreateDTO : poochCreateDTOs) {
+            for (PoochCreateUpdateDTO petCreateDTO : poochCreateDTOs) {
                 String uuid = petCreateDTO.getUuid();
 
                 Pooch pooch = null;

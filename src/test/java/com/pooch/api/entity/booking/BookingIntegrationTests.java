@@ -30,7 +30,7 @@ import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.ParentCreateUpdateDTO;
 import com.pooch.api.dto.BookingCareServiceDTO;
 import com.pooch.api.dto.BookingCreateDTO;
-import com.pooch.api.dto.PoochCreateDTO;
+import com.pooch.api.dto.PoochCreateUpdateDTO;
 import com.pooch.api.dto.VaccineCreateDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
@@ -166,9 +166,9 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
         /**
          * Pets
          */
-        Set<PoochCreateDTO> petCreateDTOs = new HashSet<>();
+        Set<PoochCreateUpdateDTO> petCreateDTOs = new HashSet<>();
         for (int i = 0; i < 1; i++) {
-            PoochCreateDTO petCreateDTO = new PoochCreateDTO();
+            PoochCreateUpdateDTO petCreateDTO = new PoochCreateUpdateDTO();
             petCreateDTO.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 36)));
             petCreateDTO.setBreed("Bulldog");
             petCreateDTO.setFullName(RandomGeneratorUtils.getRandomFullName());

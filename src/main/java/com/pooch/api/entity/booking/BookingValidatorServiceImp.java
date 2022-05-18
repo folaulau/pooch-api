@@ -11,7 +11,7 @@ import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.BookingCancelDTO;
 import com.pooch.api.dto.BookingCareServiceDTO;
 import com.pooch.api.dto.BookingCreateDTO;
-import com.pooch.api.dto.PoochCreateDTO;
+import com.pooch.api.dto.PoochCreateUpdateDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.dto.GroomerUuidDTO;
 import com.pooch.api.dto.ParentCreateUpdateDTO;
@@ -95,13 +95,13 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
         /**
          * Pets
          */
-        Set<PoochCreateDTO> petCreateDTOs = bookingCreateDTO.getPooches();
+        Set<PoochCreateUpdateDTO> petCreateDTOs = bookingCreateDTO.getPooches();
 
         if (petCreateDTOs == null || petCreateDTOs.size() <= 0) {
             throw new ApiException(ApiError.DEFAULT_MSG, "Add a pooch", "pooches are empty");
         }
 
-        for (PoochCreateDTO petCreateDTO : petCreateDTOs) {
+        for (PoochCreateUpdateDTO petCreateDTO : petCreateDTOs) {
             String uuid = petCreateDTO.getUuid();
 
             if (uuid != null && !uuid.trim().isEmpty()) {

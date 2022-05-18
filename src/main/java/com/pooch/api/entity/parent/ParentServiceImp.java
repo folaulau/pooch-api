@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,12 @@ import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.ParentDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
+import com.pooch.api.dto.PoochDTO;
 import com.pooch.api.dto.S3FileDTO;
 import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.pooch.Pooch;
+import com.pooch.api.entity.pooch.PoochDAO;
+import com.pooch.api.entity.pooch.PoochService;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
 import com.pooch.api.entity.s3file.FileType;
@@ -62,6 +67,9 @@ public class ParentServiceImp implements ParentService {
 
     @Autowired
     private EntityDTOMapper        entityDTOMapper;
+
+    @Autowired
+    private PoochService           poochService;
 
     /**
      * Sign up or sign in<br>
@@ -195,9 +203,15 @@ public class ParentServiceImp implements ParentService {
         Parent parent = parentValidatorService.validateUpdateProfile(parentUpdateDTO);
 
         entityDTOMapper.patchParentWithParentUpdateDTO(parentUpdateDTO, parent);
-        
+
         parent = parentDAO.save(parent);
 
+        ParentDTO parentDTO = entityDTOMapper.mapPetParentToPetParentDTO(parent);
+
+        List<PoochDTO> pooches = poochService.updatePooches(parent, parentUpdateDTO.getPooches());
+
+        parentDTO.setPooches(pooches);
+        
         return entityDTOMapper.mapPetParentToPetParentDTO(parent);
     }
 

@@ -26,7 +26,7 @@ public class BookingCreateDTO implements Serializable {
 
     private ParentCreateUpdateDTO      parent;
 
-    private Set<PoochCreateDTO>        pooches;
+    private Set<PoochCreateUpdateDTO>        pooches;
 
     private Set<BookingCareServiceDTO> services;
 
