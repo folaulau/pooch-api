@@ -21,6 +21,7 @@ import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.exception.ApiException;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.stripe.StripeMetadataService;
+import com.pooch.api.library.stripe.customer.StripeCustomerService;
 import com.pooch.api.utils.MathUtils;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -58,6 +59,9 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     @Autowired
     private EntityDTOMapper                     entityDTOMapper;
 
+    @Autowired
+    private StripeCustomerService               stripeCustomerService;
+
     @Override
     public PaymentIntent getById(String paymentIntentId) {
 
@@ -69,7 +73,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
             paymentIntent = PaymentIntent.retrieve(paymentIntentId);
             log.info("paymentIntent={}", paymentIntent.toJson());
         } catch (StripeException e) {
-            log.warn("StripeException, msg={}, userMessage={}, stripeErrorMessage={}", e.getLocalizedMessage(), e.getUserMessage(), e.getStripeError().getMessage());
+            log.warn("StripeException - getById, msg={}, userMessage={}, stripeErrorMessage={}", e.getLocalizedMessage(), e.getUserMessage(), e.getStripeError().getMessage());
         }
 
         return paymentIntent;
@@ -102,7 +106,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
         try {
             paymentIntentCollection = PaymentIntent.list(params);
         } catch (StripeException e) {
-            log.warn("getPaymentIntentsByCustomerId, StripeException, localMessage={}, userMessage={}", e.getLocalizedMessage(), e.getUserMessage());
+            log.warn("StripeException - getPaymentIntentsByCustomerId, StripeException, localMessage={}, userMessage={}", e.getLocalizedMessage(), e.getUserMessage());
         }
 
         return paymentIntentCollection;
@@ -114,19 +118,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
         Groomer groomer = stripePaymentIntentValidatorService.validateCreateQuestPaymentIntent(paymentIntentCreateDTO);
 
-        //@formatter:off
-        CustomerCreateParams customerParams = CustomerCreateParams.builder()
-                .setMetadata(Map.of(StripeMetadataService.env,env))
-                .setName("pooch parent").build();
-        //@formatter:on
-
-        Customer customer = null;
-
-        try {
-            customer = Customer.create(customerParams);
-        } catch (Exception e) {
-            log.warn("StripeException, customer, msg={}", e.getMessage());
-        }
+        Customer customer = stripeCustomerService.createPlaceHolderCustomer();
 
         BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer, paymentIntentCreateDTO.getAmount());
 
@@ -139,10 +131,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
                 .setCurrency("usd")
                 .putMetadata(StripeMetadataService.env, env)
                 .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid())
-                .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_TOTAL_AT_CHECKOUT, costDetails.getTotalChargeNowAmount()+"")
-                .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_TOTAL_AT_DROPOFF, costDetails.getTotalChargeAtDropOffAmount()+"")
-                .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_COST, costDetails.getBookingCost()+"")
-                .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_STRIPE_FEE, costDetails.getStripeFee()+"")
+                .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS, costDetails.toJson())
                 .setTransferGroup("group-" + UUID.randomUUID().toString());
         // @formatter:on
 
@@ -162,7 +151,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
             paymentIntent = PaymentIntent.create(createParams);
             System.out.println(paymentIntent.toJson());
         } catch (StripeException e) {
-            log.warn("StripeException, msg={}", e.getMessage());
+            log.warn("StripeException - createQuestPaymentIntent, msg={}", e.getMessage());
             throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
         }
 
@@ -198,10 +187,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
             com.stripe.param.PaymentIntentUpdateParams.Builder builder = com.stripe.param.PaymentIntentUpdateParams.builder()
                     .setAmount(totalChargeAsCents)
                     .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid())
-                    .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_TOTAL_AT_CHECKOUT, costDetails.getTotalChargeNowAmount()+"")
-                    .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_TOTAL_AT_DROPOFF, costDetails.getTotalChargeAtDropOffAmount()+"")
-                    .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_COST, costDetails.getBookingCost()+"")
-                    .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_STRIPE_FEE, costDetails.getStripeFee()+"");
+                    .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS, costDetails.toJson());
             
             if (paymentIntentQuestUpdateDTO.getSavePaymentMethodForFutureUse() != null && paymentIntentQuestUpdateDTO.getSavePaymentMethodForFutureUse()) {
                 builder.setSetupFutureUsage(PaymentIntentUpdateParams.SetupFutureUsage.OFF_SESSION);
@@ -214,7 +200,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
             System.out.println(paymentIntent.toJson());
         } catch (StripeException e) {
-            log.warn("StripeException, msg={}", e.getMessage());
+            log.warn("StripeException - updateQuestPaymentIntent, msg={}", e.getMessage());
             throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
         }
 
@@ -240,7 +226,9 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
             String transferGroup = paymentIntent.getTransferGroup();
 
-            BigDecimal bookingCost = new BigDecimal(paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_COST));
+            BookingCostDetails costDetails = BookingCostDetails.fromJson(paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
+
+            BigDecimal bookingCost = BigDecimal.valueOf(costDetails.getBookingCost());
 
             List<com.stripe.model.Charge> charges = paymentIntent.getCharges().getData();
 

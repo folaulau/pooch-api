@@ -142,7 +142,8 @@ public class GroomerServiceImp implements GroomerService {
 
             groomer.setUuid(uuid);
             groomer.addRole(new Role(Authority.groomer));
-
+            groomer.setAddress(new Address());          
+            
             String email = userRecord.getEmail();
 
             if (email == null || email.isEmpty()) {

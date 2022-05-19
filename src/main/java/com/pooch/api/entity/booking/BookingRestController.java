@@ -37,7 +37,7 @@ public class BookingRestController {
     public ResponseEntity<BookingDTO> book(@RequestHeader(name = "token", required = true) String token, @RequestBody BookingCreateDTO bookingCreateDTO) {
         log.info("book");
 
-        BookingDTO bookingDTO = bookingService.bookAsQuest(bookingCreateDTO);
+        BookingDTO bookingDTO = bookingService.book(bookingCreateDTO);
 
         return new ResponseEntity<>(bookingDTO, OK);
     }

@@ -104,7 +104,7 @@ public class StripeAccountServiceImp implements StripeAccountService {
             account = com.stripe.model.Account.create(params);
             System.out.println("account=" + account.toJson());
         } catch (StripeException e) {
-            log.warn("StripeException, msg={}", e.getLocalizedMessage());
+            log.warn("StripeException - create, msg={}", e.getLocalizedMessage());
             e.printStackTrace();
         }
 
@@ -121,7 +121,7 @@ public class StripeAccountServiceImp implements StripeAccountService {
             account = com.stripe.model.Account.retrieve(AccountRetrieveParams.builder().build(), requestOptions);
             System.out.println("account=" + account.toJson());
         } catch (StripeException e) {
-            log.warn("StripeException, msg={}", e.getLocalizedMessage());
+            log.warn("StripeException - getById, msg={}", e.getLocalizedMessage());
             e.printStackTrace();
         }
 
@@ -156,7 +156,8 @@ public class StripeAccountServiceImp implements StripeAccountService {
             accountLink = AccountLink.create(params);
 
             System.out.println("accountLink=" + accountLink.toJson());
-        } catch (Exception e) {
+        } catch (StripeException e) {
+            log.warn("StripeException - getByAccountId, msg={}", e.getLocalizedMessage());
             e.printStackTrace();
         }
         return accountLink;

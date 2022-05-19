@@ -6,7 +6,7 @@ import com.pooch.api.dto.BookingDTO;
 
 public interface BookingService {
 
-    BookingDTO bookAsQuest(BookingCreateDTO petCareCreateDTO);
+    BookingDTO book(BookingCreateDTO petCareCreateDTO);
 
     BookingDTO cancel(BookingCancelDTO bookingCancelDTO);
 }

@@ -38,6 +38,7 @@ import com.pooch.api.exception.ApiException;
 import com.pooch.api.library.aws.s3.AwsS3Service;
 import com.pooch.api.library.aws.s3.AwsUploadResponse;
 import com.pooch.api.library.firebase.FirebaseAuthService;
+import com.pooch.api.library.stripe.customer.StripeCustomerService;
 import com.pooch.api.security.AuthenticationService;
 import com.pooch.api.utils.FileUtils;
 import com.pooch.api.utils.ObjectUtils;
@@ -73,6 +74,9 @@ public class ParentServiceImp implements ParentService {
     @Autowired
     private PoochService           poochService;
 
+    @Autowired
+    private StripeCustomerService  stripeCustomerService;
+
     /**
      * Sign up or sign in<br>
      * if user already in db sign in, else sign up<br>
@@ -106,6 +110,7 @@ public class ParentServiceImp implements ParentService {
             petParent = new Parent();
             petParent.setUuid(userRecord.getUid());
             petParent.addRole(new Role(Authority.parent));
+            petParent.setAddress(new Address());
             petParent.setStatus(ParentStatus.ACTIVE);
 
             String email = userRecord.getEmail();
@@ -214,13 +219,13 @@ public class ParentServiceImp implements ParentService {
 
         if (addressCreateUpdateDTO != null) {
             Address address = parent.getAddress();
-            
-            if(address == null) {
+
+            if (address == null) {
                 address = new Address();
             }
-            
+
             entityDTOMapper.patchAddressWithAddressCreateUpdateDTO(addressCreateUpdateDTO, address);
-            
+
             address.setParent(parent);
             parent.setAddress(address);
         }

@@ -14,4 +14,5 @@ public interface DatabaseTableNames {
     String CareServiceCategory     = "care_service_category";
     String Review                  = "review";
     String Payment_Method          = "payment_method";
+    String Transaction          = "transaction";
 }

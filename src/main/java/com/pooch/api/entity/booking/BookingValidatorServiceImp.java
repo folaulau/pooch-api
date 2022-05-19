@@ -161,6 +161,10 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
         if (!paymentIntent.getStatus().equalsIgnoreCase("succeeded")) {
             throw new ApiException(ApiError.DEFAULT_MSG, "Payment has not been made", "payment status=" + paymentIntent.getStatus());
         }
+
+        if (parent.getStripeCustomerId() != null && !parent.getStripeCustomerId().equalsIgnoreCase(paymentIntent.getCustomer())) {
+            throw new ApiException(ApiError.DEFAULT_MSG, "You are charging a different parent", "parent stripeCustomerId is not the same as the customerId of the paymentIntent");
+        }
     }
 
     @Override

@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.pooch.api.entity.address.Address;
+import com.pooch.api.entity.booking.BookingCostDetails;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -407,8 +409,15 @@ public class TestEntityGeneratorService {
         // String customerId = "cus_Lgyk8DhX8TytPQ";
 
         // @formatter:off
- 
-
+        
+        BookingCostDetails costDetails = BookingCostDetails.builder()
+                .bookingCost(bookingCost)
+                .bookingFee(bookingFee)
+                .totalChargeNowAmount(totalCharge)
+                .totalChargeAtDropOffAmount(0D)
+                .stripeFee(stripeFee)
+                .build();
+        
         PaymentIntentCreateParams createParams = PaymentIntentCreateParams.builder()
                 .addPaymentMethodType("card")
                 .setAmount(totalChargeAsCents)
@@ -416,6 +425,8 @@ public class TestEntityGeneratorService {
                 .setSetupFutureUsage(PaymentIntentCreateParams.SetupFutureUsage.OFF_SESSION)
                 .setCustomer(customerId)
                 .setPaymentMethod(paymentMethodId)
+                .putMetadata(StripeMetadataService.env, env)
+                .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS, costDetails.toJson())
                 .setConfirm(true)
                 .setTransferGroup("group-" + UUID.randomUUID().toString())
                 .build();

@@ -2,6 +2,7 @@ package com.pooch.api.entity.parent;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -149,6 +150,10 @@ public class Parent implements Serializable {
     private void preCreate() {
         if (this.status == null) {
             this.status = ParentStatus.ACTIVE;
+        }
+
+        if (uuid == null) {
+            this.uuid = "parent-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
         }
     }
 

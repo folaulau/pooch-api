@@ -91,6 +91,13 @@
           table:
             schema: public
             name: booking_pooches
+    - name: transactions
+      using:
+        foreign_key_constraint_on:
+          column: booking_id
+          table:
+            schema: public
+            name: transaction
   select_permissions:
     - role: groomer
       permission:
@@ -766,6 +773,66 @@
         filter:
           parent_id:
             _eq: x-Hasura-parent-id
+- table:
+    schema: public
+    name: transaction
+  object_relationships:
+    - name: booking
+      using:
+        foreign_key_constraint_on: booking_id
+  select_permissions:
+    - role: groomer
+      permission:
+        columns:
+          - booking_id
+          - cancel_user_id
+          - id
+          - deleted
+          - cancel_user_type
+          - description
+          - type
+          - uuid
+          - amount
+          - booking_cost
+          - booking_fee
+          - non_refunded_amount
+          - refunded_amount
+          - stripe_fee
+          - total_charge_at_drop_off_amount
+          - total_charge_now_amount
+          - created_at
+          - updated_at
+        filter:
+          booking:
+            groomer_id:
+              _eq: x-Hasura-groomer-id
+        allow_aggregations: true
+    - role: parent
+      permission:
+        columns:
+          - booking_id
+          - cancel_user_id
+          - id
+          - deleted
+          - cancel_user_type
+          - description
+          - type
+          - uuid
+          - amount
+          - booking_cost
+          - booking_fee
+          - non_refunded_amount
+          - refunded_amount
+          - stripe_fee
+          - total_charge_at_drop_off_amount
+          - total_charge_now_amount
+          - created_at
+          - updated_at
+        filter:
+          booking:
+            parent_id:
+              _eq: x-Hasura-parent-id
+        allow_aggregations: true
 - table:
     schema: public
     name: vaccine

@@ -13,6 +13,7 @@ import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.BookingDTO;
 import com.pooch.api.dto.PoochCreateUpdateDTO;
 import com.pooch.api.dto.PoochDTO;
+import com.pooch.api.entity.booking.transaction.TransactionService;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.parent.Parent;
@@ -23,6 +24,8 @@ import com.pooch.api.entity.paymentmethod.PaymentMethodDAO;
 import com.pooch.api.entity.paymentmethod.PaymentMethodService;
 import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.pooch.PoochDAO;
+import com.pooch.api.library.stripe.StripeMetadataService;
+import com.pooch.api.library.stripe.customer.StripeCustomerService;
 import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
 import com.pooch.api.library.stripe.paymentmethod.StripePaymentMethodService;
 import com.pooch.api.utils.ObjectUtils;
@@ -64,10 +67,16 @@ public class BookingServiceImp implements BookingService {
     private ParentService              parentService;
 
     @Autowired
+    private StripeCustomerService      stripeCustomerService;
+
+    @Autowired
     private StripePaymentMethodService stripePaymentMethodService;
 
+    @Autowired
+    private TransactionService         transactionService;
+
     @Override
-    public BookingDTO bookAsQuest(BookingCreateDTO bookingCreateDTO) {
+    public BookingDTO book(BookingCreateDTO bookingCreateDTO) {
         bookingValidatorService.validateBook(bookingCreateDTO);
 
         Booking booking = entityDTOMapper.mapBookingCreateDTOToBooking(bookingCreateDTO);
@@ -86,7 +95,14 @@ public class BookingServiceImp implements BookingService {
         com.stripe.model.PaymentIntent paymentIntent = stripePaymentIntentService.getById(bookingCreateDTO.getPaymentIntentId());
 
         log.info("paymentIntent={}", paymentIntent.toJson());
-        parent.setStripeCustomerId(paymentIntent.getCustomer());
+
+        if (parent.getStripeCustomerId() == null) {
+
+            parent.setStripeCustomerId(paymentIntent.getCustomer());
+
+            stripeCustomerService.updateParentDetails(parent);
+
+        }
 
         com.stripe.model.PaymentMethod stripePaymentMethod = stripePaymentMethodService.getById(paymentIntent.getPaymentMethod());
 
@@ -141,11 +157,15 @@ public class BookingServiceImp implements BookingService {
         booking = addPoochesToBooking(booking, bookingCreateDTO.getPooches());
 
         log.info("booking={}", ObjectUtils.toJson(booking));
-        
-        booking.addDebuggingNote("booking: "+ObjectUtils.toJson(booking));
-        booking.addDebuggingNote("bookingCreateDTO: "+ObjectUtils.toJson(bookingCreateDTO));
-        
+
+        booking.addDebuggingNote("booking: " + ObjectUtils.toJson(booking));
+        booking.addDebuggingNote("bookingCreateDTO: " + ObjectUtils.toJson(bookingCreateDTO));
+
         booking = bookingDAO.save(booking);
+
+        BookingCostDetails costDetails = BookingCostDetails.fromJson(paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
+
+        transactionService.addBookingInitialPayment(booking, costDetails);
 
         return entityDTOMapper.mapBookingToBookingDTO(booking);
     }

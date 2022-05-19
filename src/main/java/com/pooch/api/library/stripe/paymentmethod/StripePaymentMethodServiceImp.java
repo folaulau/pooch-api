@@ -27,7 +27,7 @@ public class StripePaymentMethodServiceImp implements StripePaymentMethodService
         try {
             paymentMethod = PaymentMethod.retrieve(id);
         } catch (StripeException e) {
-            log.warn("StripeException, msg={}", e.getMessage());
+            log.warn("StripeException - getById, msg={}", e.getMessage());
         }
 
         return paymentMethod;
