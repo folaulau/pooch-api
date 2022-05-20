@@ -4,14 +4,18 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
-
+import com.pooch.api.dto.EntityDTOMapper;
+import com.pooch.api.dto.PaymentMethodCreateDTO;
+import com.pooch.api.dto.PaymentMethodDTO;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentDAO;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
 import com.pooch.api.library.stripe.customer.StripeCustomerService;
 import com.pooch.api.library.stripe.paymentmethod.StripePaymentMethodService;
+import com.pooch.api.library.stripe.setupintent.StripeSetupIntentService;
 import com.pooch.api.utils.ObjectUtils;
 import com.stripe.model.Customer;
 import com.stripe.param.PaymentMethodCreateParams;
@@ -33,15 +37,16 @@ public class PaymentMethodServiceImp implements PaymentMethodService {
 
   @Autowired
   private StripePaymentMethodService stripePaymentMethodService;
-  //
-  // @Autowired
-  // private ParentDAO parentDAO;
 
-  // @Autowired
-  // private CardService cardService;
-  //
-  // @Autowired
-  // private StripePaymentMethodService stripePaymentMethodService;
+  @Autowired
+  private StripeSetupIntentService stripeSetupIntentService;
+
+  @Autowired
+  private PaymentMethodValidatorService paymentMethodValidatorService;
+
+  @Autowired
+  private EntityDTOMapper entityDTOMapper;
+
 
   @Override
   public PaymentMethod create(PaymentMethod paymentMethod) {
@@ -168,6 +173,24 @@ public class PaymentMethodServiceImp implements PaymentMethodService {
     log.info("paymentMethod={}", ObjectUtils.toJson(paymentMethod));
 
     return paymentMethod;
+  }
+
+  @Override
+  public PaymentMethodDTO add(String parentUuid, PaymentMethodCreateDTO paymentMethodCreateDTO) {
+
+    Pair<Parent, com.stripe.model.SetupIntent> pair = paymentMethodValidatorService
+        .validateAddNewPaymentMethod(parentUuid, paymentMethodCreateDTO);
+
+    Parent parent = pair.getFirst();
+    com.stripe.model.SetupIntent setupIntent = pair.getSecond();
+
+
+    com.stripe.model.PaymentMethod stripePaymentMethod =
+        stripePaymentMethodService.getById(setupIntent.getPaymentMethod());
+
+    PaymentMethod paymentMethod = add(parent, stripePaymentMethod);
+
+    return entityDTOMapper.mapPaymentMethodToPaymentMethod(paymentMethod);
   }
 
 

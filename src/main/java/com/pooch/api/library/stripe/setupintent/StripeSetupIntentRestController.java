@@ -49,18 +49,18 @@ public class StripeSetupIntentRestController {
     return new ResponseEntity<>(setupIntentDTO, OK);
   }
 
-  @Operation(summary = "Confirm Stripe Setup Intent to add a Payment Method",
-      description = "After confirming the setupIntent, the paymentMethod will be saved")
-  @PostMapping(value = "/stripe/setupintent/confirm")
-  public ResponseEntity<SetupIntentDTO> confirmSetupContent(
-      @RequestHeader(name = "token", required = true) String token,
-      @RequestBody SetupIntentConfirmDTO setupIntentConfirmDTO) {
-    log.info("createSetupIntent={}", ObjectUtils.toJson(setupIntentConfirmDTO));
-
-    SetupIntentDTO setupIntentDTO =
-        stripeSetupIntentService.confirmSetupIntent(setupIntentConfirmDTO);
-
-    return new ResponseEntity<>(setupIntentDTO, OK);
-  }
+//  @Operation(summary = "Confirm Stripe Setup Intent to add a Payment Method",
+//      description = "After confirming the setupIntent, the paymentMethod will be saved")
+//  @PostMapping(value = "/stripe/setupintent/confirm")
+//  public ResponseEntity<SetupIntentDTO> confirmSetupContent(
+//      @RequestHeader(name = "token", required = true) String token,
+//      @RequestBody SetupIntentConfirmDTO setupIntentConfirmDTO) {
+//    log.info("createSetupIntent={}", ObjectUtils.toJson(setupIntentConfirmDTO));
+//
+//    SetupIntentDTO setupIntentDTO =
+//        stripeSetupIntentService.confirmSetupIntent(setupIntentConfirmDTO);
+//
+//    return new ResponseEntity<>(setupIntentDTO, OK);
+//  }
 
 }

@@ -22,7 +22,10 @@ import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.ParentDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
+import com.pooch.api.dto.PaymentMethodCreateDTO;
+import com.pooch.api.dto.PaymentMethodDTO;
 import com.pooch.api.dto.S3FileDTO;
+import com.pooch.api.entity.paymentmethod.PaymentMethodService;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.xapikey.XApiKeyService;
 
@@ -36,53 +39,76 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/parents")
 public class ParentRestController {
 
-    @Autowired
-    private ParentService  parentService;
+  @Autowired
+  private ParentService parentService;
 
-    @Autowired
-    private XApiKeyService xApiKeyService;
+  @Autowired
+  private PaymentMethodService paymentMethodService;
 
-    @Operation(summary = "Authenticate", description = "sign up or sign in")
-    @PostMapping(value = "/authenticate")
-    public ResponseEntity<AuthenticationResponseDTO> authenticate(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @RequestBody AuthenticatorDTO authenticatorDTO) {
-        // log.info("authenticate={}", ObjectUtils.toJson(authenticatorDTO));
+  @Autowired
+  private XApiKeyService xApiKeyService;
 
-        xApiKeyService.validateForPoochAppMobile(xApiKey);
+  @Operation(summary = "Authenticate", description = "sign up or sign in")
+  @PostMapping(value = "/authenticate")
+  public ResponseEntity<AuthenticationResponseDTO> authenticate(
+      @RequestHeader(name = "x-api-key", required = true) String xApiKey,
+      @RequestBody AuthenticatorDTO authenticatorDTO) {
+    // log.info("authenticate={}", ObjectUtils.toJson(authenticatorDTO));
 
-        AuthenticationResponseDTO authenticationResponseDTO = parentService.authenticate(authenticatorDTO);
+    xApiKeyService.validateForPoochAppMobile(xApiKey);
 
-        return new ResponseEntity<>(authenticationResponseDTO, OK);
-    }
+    AuthenticationResponseDTO authenticationResponseDTO =
+        parentService.authenticate(authenticatorDTO);
 
-    @Operation(summary = "Upload Profile Images", description = "upload profile images")
-    @PostMapping(value = "/{uuid}/profile/images", consumes = {"multipart/form-data"})
-    public ResponseEntity<List<S3FileDTO>> uploadProfileImages(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
-            @RequestParam(name = "images") List<MultipartFile> images) {
-        log.info("uploadProfileImages, uuid={}", uuid);
+    return new ResponseEntity<>(authenticationResponseDTO, OK);
+  }
 
-        List<S3FileDTO> s3FileDTOs = parentService.uploadProfileImages(uuid, images);
+  @Operation(summary = "Upload Profile Images", description = "upload profile images")
+  @PostMapping(value = "/{uuid}/profile/images", consumes = {"multipart/form-data"})
+  public ResponseEntity<List<S3FileDTO>> uploadProfileImages(
+      @RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
+      @RequestParam(name = "images") List<MultipartFile> images) {
+    log.info("uploadProfileImages, uuid={}", uuid);
 
-        return new ResponseEntity<>(s3FileDTOs, OK);
-    }
-    
+    List<S3FileDTO> s3FileDTOs = parentService.uploadProfileImages(uuid, images);
 
-    @Operation(summary = "Update Profile", description = "update profile")
-    @PutMapping(value = "/profile")
-    public ResponseEntity<ParentDTO> updateProfile(@RequestHeader(name = "token", required = true) String token, @RequestBody ParentUpdateDTO parentUpdateDTO) {
-        log.info("parentUpdateDTO={}", ObjectUtils.toJson(parentUpdateDTO));
+    return new ResponseEntity<>(s3FileDTOs, OK);
+  }
 
-        ParentDTO parentDTO = parentService.updateProfile(parentUpdateDTO);
 
-        return new ResponseEntity<>(parentDTO, OK);
-    }
+  @Operation(summary = "Update Profile", description = "update profile")
+  @PutMapping(value = "/profile")
+  public ResponseEntity<ParentDTO> updateProfile(
+      @RequestHeader(name = "token", required = true) String token,
+      @RequestBody ParentUpdateDTO parentUpdateDTO) {
+    log.info("parentUpdateDTO={}", ObjectUtils.toJson(parentUpdateDTO));
 
-    @Operation(summary = "Sign Out", description = "sign out")
-    @DeleteMapping(value = "/signout")
-    public ResponseEntity<ApiDefaultResponseDTO> signOut(@RequestHeader(name = "token", required = true) String token) {
-        log.info("signOut={}", token);
+    ParentDTO parentDTO = parentService.updateProfile(parentUpdateDTO);
 
-        parentService.signOut(token);
+    return new ResponseEntity<>(parentDTO, OK);
+  }
 
-        return new ResponseEntity<>(new ApiDefaultResponseDTO(ApiDefaultResponseDTO.SUCCESS), OK);
-    }
+  @Operation(summary = "Sign Out", description = "sign out")
+  @DeleteMapping(value = "/signout")
+  public ResponseEntity<ApiDefaultResponseDTO> signOut(
+      @RequestHeader(name = "token", required = true) String token) {
+    log.info("signOut={}", token);
+
+    parentService.signOut(token);
+
+    return new ResponseEntity<>(new ApiDefaultResponseDTO(ApiDefaultResponseDTO.SUCCESS), OK);
+  }
+
+  @Operation(summary = "Add PaymentMethod", description = "Add PaymentMethod with setupIntent")
+  @PostMapping(value = "/{uuid}/paymentmethod")
+  public ResponseEntity<PaymentMethodDTO> addPaymentMethod(
+      @RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
+      @RequestBody PaymentMethodCreateDTO paymentMethodCreateDTO) {
+    log.info("addPaymentMethod={}", ObjectUtils.toJson(paymentMethodCreateDTO));
+
+
+    PaymentMethodDTO paymentMethodDTO = paymentMethodService.add(uuid, paymentMethodCreateDTO);
+
+    return new ResponseEntity<>(paymentMethodDTO, OK);
+  }
 }

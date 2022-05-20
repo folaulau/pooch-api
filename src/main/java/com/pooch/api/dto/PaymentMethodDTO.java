@@ -4,7 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.persistence.Column;
-
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -22,28 +23,29 @@ import lombok.ToString;
 @NoArgsConstructor
 public class PaymentMethodDTO {
 
-    private Long          id;
+  private Long id;
 
-    private String        type;
+  /**
+   * card, bank
+   */
+  private String type;
 
-    private String        uid;
+  private String uuid;
 
-    private String        name;
+  private String name;
 
-    private String        last4;
+  private String last4;
 
-    private int           position;
+  private String brand;
 
-    private String        brand;
+  private Long expirationMonth;
 
-    private LocalDateTime createdAt;
+  private Long expirationYear;
 
-    private LocalDateTime updatedAt;
+  private boolean deleted;
 
-    private boolean       deleted;
+  private LocalDateTime createdAt;
 
-    private String        sourceToken;
-
-    private String        paymentGatewayId;
+  private LocalDateTime updatedAt;
 
 }

@@ -47,10 +47,6 @@ public class StripeSetupIntentServiceImp implements StripeSetupIntentService {
   private StripePaymentMethodService stripePaymentMethodService;
 
 
-  @Autowired
-  private PaymentMethodService paymentMethodService;
-
-
   /**
    * SetupIntent to add a payment method
    */
@@ -91,17 +87,12 @@ public class StripeSetupIntentServiceImp implements StripeSetupIntentService {
 
 
   @Override
-  public SetupIntentDTO confirmSetupIntent(SetupIntentConfirmDTO setupIntentConfirmDTO) {
-
+  public SetupIntent verifyForAddPaymentMethod(String id) {
     Stripe.apiKey = stripeSecrets.getSecretKey();
-
-    Parent parent =
-        stripeSetupIntentValidatorService.validateConfirmSetupIntent(setupIntentConfirmDTO);
-
 
     SetupIntent setupIntent = null;
     try {
-      setupIntent = SetupIntent.retrieve(setupIntentConfirmDTO.getSetupIntentId());
+      setupIntent = SetupIntent.retrieve(id);
 
       log.info("setupIntent={}", setupIntent.toJson());
     } catch (StripeException e) {
@@ -110,20 +101,49 @@ public class StripeSetupIntentServiceImp implements StripeSetupIntentService {
       throw new ApiException(e.getMessage());
     }
 
-
+    //
     if (Arrays.asList("canceled").contains(setupIntent.getStatus())) {
       throw new ApiException(ApiError.DEFAULT_MSG, "status=" + setupIntent.getStatus());
     }
 
-    PaymentMethod pm = stripePaymentMethodService.getById(setupIntent.getPaymentMethod());
-
-    com.pooch.api.entity.paymentmethod.PaymentMethod paymentMethod =
-        paymentMethodService.add(parent, pm);
-
-    return SetupIntentDTO.builder().paymentUuid(paymentMethod.getUuid())
-        .clientSecret(setupIntent.getClientSecret()).id(setupIntent.getId())
-        .status(setupIntent.getStatus()).build();
+    return setupIntent;
   }
+
+//
+//  @Override
+//  public SetupIntentDTO confirmSetupIntent(SetupIntentConfirmDTO setupIntentConfirmDTO) {
+//
+//    Stripe.apiKey = stripeSecrets.getSecretKey();
+//
+//    Parent parent =
+//        stripeSetupIntentValidatorService.validateConfirmSetupIntent(setupIntentConfirmDTO);
+//
+//
+//    SetupIntent setupIntent = null;
+//    try {
+//      setupIntent = SetupIntent.retrieve(setupIntentConfirmDTO.getSetupIntentId());
+//
+//      log.info("setupIntent={}", setupIntent.toJson());
+//    } catch (StripeException e) {
+//      log.warn("StripeException - create, localMessage={}, userMessage={}", e.getLocalizedMessage(),
+//          e.getUserMessage());
+//      throw new ApiException(e.getMessage());
+//    }
+//
+//
+//    if (Arrays.asList("canceled").contains(setupIntent.getStatus())) {
+//      throw new ApiException(ApiError.DEFAULT_MSG, "status=" + setupIntent.getStatus());
+//    }
+//
+//    PaymentMethod pm = stripePaymentMethodService.getById(setupIntent.getPaymentMethod());
+//
+//    com.pooch.api.entity.paymentmethod.PaymentMethod paymentMethod =
+//        paymentMethodService.add(parent, pm);
+//
+//    return SetupIntentDTO.builder().paymentUuid(paymentMethod.getUuid())
+//        .clientSecret(setupIntent.getClientSecret()).id(setupIntent.getId())
+//        .status(setupIntent.getStatus()).build();
+//  }
 
 
 }

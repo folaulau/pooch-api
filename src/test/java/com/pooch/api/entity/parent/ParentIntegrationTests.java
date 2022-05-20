@@ -37,14 +37,21 @@ import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.AddressCreateUpdateDTO;
 import com.pooch.api.dto.ParentDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
+import com.pooch.api.dto.PaymentMethodCreateDTO;
+import com.pooch.api.dto.PaymentMethodDTO;
 import com.pooch.api.dto.PoochCreateUpdateDTO;
 import com.pooch.api.dto.S3FileDTO;
+import com.pooch.api.dto.SetupIntentCreateDTO;
+import com.pooch.api.dto.SetupIntentDTO;
 import com.pooch.api.dto.VaccineCreateDTO;
 import com.pooch.api.dto.VaccineDTO;
+import com.pooch.api.entity.paymentmethod.PaymentMethod;
+import com.pooch.api.entity.paymentmethod.PaymentMethodDAO;
 import com.pooch.api.entity.pooch.FoodSchedule;
 import com.pooch.api.entity.pooch.Gender;
 import com.pooch.api.entity.pooch.Training;
 import com.pooch.api.entity.role.Authority;
+import com.pooch.api.library.stripe.setupintent.StripeSetupIntentService;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.ObjectUtils;
@@ -56,78 +63,89 @@ import lombok.extern.slf4j.Slf4j;
 @AutoConfigureMockMvc
 public class ParentIntegrationTests extends IntegrationTestConfiguration {
 
-    @Autowired
-    private MockMvc                    mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @Resource
-    private WebApplicationContext      webApplicationContext;
+  @Resource
+  private WebApplicationContext webApplicationContext;
 
-    @Autowired
-    private ObjectMapper               objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    @Autowired
-    private Filter                     springSecurityFilterChain;
+  @Autowired
+  private Filter springSecurityFilterChain;
 
-    @MockBean
-    private JwtTokenService            jwtTokenService;
 
-    @Captor
-    private ArgumentCaptor<String>     tokenCaptor;
+  @Autowired
+  private PaymentMethodDAO paymentMethodDAO;
 
-    private String                     PARENT_TOKEN = "PARENT_TOKEN";
-    private String                     PARENT_UUID  = "PARENT_UUID";
+  @MockBean
+  private JwtTokenService jwtTokenService;
 
-    @Autowired
-    private TestEntityGeneratorService testEntityGeneratorService;
 
-    @BeforeEach
-    public void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).addFilters(springSecurityFilterChain).build();
+  @Autowired
+  private StripeSetupIntentService stripeSetupIntentService;
 
-        JwtPayload groomerJwtPayload = new JwtPayload();
-        groomerJwtPayload.setUuid(PARENT_UUID);
-        groomerJwtPayload.setRole(Authority.parent.name());
+  @Captor
+  private ArgumentCaptor<String> tokenCaptor;
 
-        Mockito.when(jwtTokenService.getPayloadByToken(PARENT_TOKEN)).thenReturn(groomerJwtPayload);
-    }
+  private String PARENT_TOKEN = "PARENT_TOKEN";
+  private String PARENT_UUID = "PARENT_UUID";
 
-    @Transactional
-    @Test
-    void itShouldUploadProfileImages_valid() throws Exception {
-        // Given
-        Parent parent = testEntityGeneratorService.getDBParent();
+  @Autowired
+  private TestEntityGeneratorService testEntityGeneratorService;
 
-        // @formatter:on
-        // When
-        MockMultipartFile firstFile = new MockMultipartFile("images", "note1.png", MediaType.TEXT_PLAIN_VALUE, "Hello, World!1".getBytes());
-        MockMultipartFile secondFile = new MockMultipartFile("images", "note2.png", MediaType.TEXT_PLAIN_VALUE, "Hello, World!2".getBytes());
+  @BeforeEach
+  public void setUp() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+        .addFilters(springSecurityFilterChain).build();
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.multipart("/parents/" + parent.getUuid() + "/profile/images")
-                .file(firstFile)
-                .file(secondFile)
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .characterEncoding("utf-8")
-                .header("token", PARENT_TOKEN);
+    JwtPayload groomerJwtPayload = new JwtPayload();
+    groomerJwtPayload.setUuid(PARENT_UUID);
+    groomerJwtPayload.setRole(Authority.parent.name());
 
-        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+    Mockito.when(jwtTokenService.getPayloadByToken(PARENT_TOKEN)).thenReturn(groomerJwtPayload);
+  }
 
-        String contentAsString = result.getResponse().getContentAsString();
+  @Transactional
+  @Test
+  void itShouldUploadProfileImages_valid() throws Exception {
+    // Given
+    Parent parent = testEntityGeneratorService.getDBParent();
 
-        List<S3FileDTO> S3FileDTOs = objectMapper.readValue(contentAsString, new TypeReference<List<S3FileDTO>>() {});
+    // @formatter:on
+    // When
+    MockMultipartFile firstFile = new MockMultipartFile("images", "note1.png",
+        MediaType.TEXT_PLAIN_VALUE, "Hello, World!1".getBytes());
+    MockMultipartFile secondFile = new MockMultipartFile("images", "note2.png",
+        MediaType.TEXT_PLAIN_VALUE, "Hello, World!2".getBytes());
 
-        assertThat(S3FileDTOs).isNotNull();
-        assertThat(S3FileDTOs.size()).isNotNull().isGreaterThan(0);
+    RequestBuilder requestBuilder =
+        MockMvcRequestBuilders.multipart("/parents/" + parent.getUuid() + "/profile/images")
+            .file(firstFile).file(secondFile).contentType(MediaType.MULTIPART_FORM_DATA)
+            .characterEncoding("utf-8").header("token", PARENT_TOKEN);
 
-    }
+    MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
-    @Transactional
-    @Test
-    void itShouldUpdateJustProfile_valid() throws Exception {
-        System.out.println("itShouldUpdateProfile_valid");
-        // Given
-        Parent parent = testEntityGeneratorService.getDBParent();
+    String contentAsString = result.getResponse().getContentAsString();
 
-        // @formatter:off
+    List<S3FileDTO> S3FileDTOs =
+        objectMapper.readValue(contentAsString, new TypeReference<List<S3FileDTO>>() {});
+
+    assertThat(S3FileDTOs).isNotNull();
+    assertThat(S3FileDTOs.size()).isNotNull().isGreaterThan(0);
+
+  }
+
+  @Transactional
+  @Test
+  void itShouldUpdateJustProfile_valid() throws Exception {
+    System.out.println("itShouldUpdateProfile_valid");
+    // Given
+    Parent parent = testEntityGeneratorService.getDBParent();
+
+    // @formatter:off
         AddressCreateUpdateDTO address = AddressCreateUpdateDTO.builder()
                 .state("CA")
                 .street("222 Alta Ave")
@@ -155,36 +173,38 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
 
         // @formatter:on
 
-        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+    MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
-        String contentAsString = result.getResponse().getContentAsString();
+    String contentAsString = result.getResponse().getContentAsString();
 
-        ParentDTO parentDTO = objectMapper.readValue(contentAsString, new TypeReference<ParentDTO>() {});
+    ParentDTO parentDTO =
+        objectMapper.readValue(contentAsString, new TypeReference<ParentDTO>() {});
 
-        assertThat(parentDTO).isNotNull();
-        assertThat(parentDTO.getId()).isNotNull().isGreaterThan(0);
-        assertThat(parentDTO.getUuid()).isNotNull();
-        assertThat(parentDTO.getFullName()).isNotNull().isEqualTo("Folau Kaveinga");
-        assertThat(parentDTO.getUuid()).isNotNull();
-        assertThat(parentDTO.getPhoneNumber()).isNotNull().isEqualTo(3109944731L);
-        assertThat(parentDTO.getCountryCode()).isNotNull().isEqualTo(1);
-        assertThat(parentDTO.getAddress()).isNotNull();
-        assertThat(parentDTO.getAddress().getId()).isNotNull().isGreaterThan(0);
-        assertThat(parentDTO.getAddress().getStreet()).isNotNull().isEqualTo("222 Alta Ave");
-        assertThat(parentDTO.getAddress().getCity()).isNotNull().isEqualTo("Santa Monica");
-        assertThat(parentDTO.getAddress().getZipcode()).isNotNull().isEqualTo("90402");
-        assertThat(parentDTO.getAddress().getState()).isNotNull().isEqualTo("CA");
+    assertThat(parentDTO).isNotNull();
+    assertThat(parentDTO.getId()).isNotNull().isGreaterThan(0);
+    assertThat(parentDTO.getUuid()).isNotNull();
+    assertThat(parentDTO.getFullName()).isNotNull().isEqualTo("Folau Kaveinga");
+    assertThat(parentDTO.getUuid()).isNotNull();
+    assertThat(parentDTO.getPhoneNumber()).isNotNull().isEqualTo(3109944731L);
+    assertThat(parentDTO.getCountryCode()).isNotNull().isEqualTo(1);
+    assertThat(parentDTO.getAddress()).isNotNull();
+    assertThat(parentDTO.getAddress().getId()).isNotNull().isGreaterThan(0);
+    assertThat(parentDTO.getAddress().getStreet()).isNotNull().isEqualTo("222 Alta Ave");
+    assertThat(parentDTO.getAddress().getCity()).isNotNull().isEqualTo("Santa Monica");
+    assertThat(parentDTO.getAddress().getZipcode()).isNotNull().isEqualTo("90402");
+    assertThat(parentDTO.getAddress().getState()).isNotNull().isEqualTo("CA");
 
-    }
+  }
 
-    @Transactional
-    @Test
-    void itShouldUpdatePooches_valid() throws Exception {
-        System.out.println("itShouldUpdatePooches_valid");
-        // Given
-        Parent parent = testEntityGeneratorService.getDBParent();
+  @Transactional
+  @Test
+  void itShouldUpdatePooches_valid() throws Exception {
+    System.out.println("itShouldUpdatePooches_valid");
+    // Given
+    Parent parent = testEntityGeneratorService.getDBParent();
 
-        // @formatter:off
+    // @formatter:off
         ParentUpdateDTO parentUpdateDTO = ParentUpdateDTO.builder()
                 .uuid(parent.getUuid())
                 .build();
@@ -216,40 +236,101 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
 
         // @formatter:on
 
-        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+    MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
-        String contentAsString = result.getResponse().getContentAsString();
+    String contentAsString = result.getResponse().getContentAsString();
 
-        ParentDTO parentDTO = objectMapper.readValue(contentAsString, new TypeReference<ParentDTO>() {});
+    ParentDTO parentDTO =
+        objectMapper.readValue(contentAsString, new TypeReference<ParentDTO>() {});
 
-        assertThat(parentDTO).isNotNull();
-        assertThat(parentDTO.getId()).isNotNull().isGreaterThan(0);
-        assertThat(parentDTO.getUuid()).isNotNull();
-        assertThat(parentDTO.getPooches()).isNotNull();
-        assertThat(parentDTO.getPooches().size()).isNotNull().isGreaterThan(0);
+    assertThat(parentDTO).isNotNull();
+    assertThat(parentDTO.getId()).isNotNull().isGreaterThan(0);
+    assertThat(parentDTO.getUuid()).isNotNull();
+    assertThat(parentDTO.getPooches()).isNotNull();
+    assertThat(parentDTO.getPooches().size()).isNotNull().isGreaterThan(0);
 
-        assertThat(parentDTO.getPooches().get(0)).isNotNull();
-        assertThat(parentDTO.getPooches().get(0).getId()).isNotNull().isGreaterThan(0);
-        assertThat(parentDTO.getPooches().get(0).getFullName()).isNotNull().isEqualTo("Simpa");
-        assertThat(parentDTO.getPooches().get(0).getSpayed()).isNotNull().isTrue();
-        
-        //Arrays.asList(FoodSchedule.Night, FoodSchedule.Morning)
-        assertThat(parentDTO.getPooches().get(0).getFoodSchedule()).isNotNull().contains(FoodSchedule.Morning, FoodSchedule.Night);
-        Set<VaccineDTO> vaccines = parentDTO.getPooches().get(0).getVaccines();
+    assertThat(parentDTO.getPooches().get(0)).isNotNull();
+    assertThat(parentDTO.getPooches().get(0).getId()).isNotNull().isGreaterThan(0);
+    assertThat(parentDTO.getPooches().get(0).getFullName()).isNotNull().isEqualTo("Simpa");
+    assertThat(parentDTO.getPooches().get(0).getSpayed()).isNotNull().isTrue();
 
-        assertThat(vaccines).isNotNull();
-        assertThat(vaccines.size()).isGreaterThan(0);
+    // Arrays.asList(FoodSchedule.Night, FoodSchedule.Morning)
+    assertThat(parentDTO.getPooches().get(0).getFoodSchedule()).isNotNull()
+        .contains(FoodSchedule.Morning, FoodSchedule.Night);
+    Set<VaccineDTO> vaccines = parentDTO.getPooches().get(0).getVaccines();
 
-        for (VaccineDTO vaccineDTO : vaccines) {
-            assertThat(vaccineDTO).isNotNull();
-            assertThat(vaccineDTO.getId()).isNotNull().isGreaterThan(0);
-            assertThat(vaccineDTO.getExpireDate()).isNotNull();
-            assertThat(vaccineDTO.getName()).isNotNull().isEqualTo("vitamin");
-        }
+    assertThat(vaccines).isNotNull();
+    assertThat(vaccines.size()).isGreaterThan(0);
 
-        assertThat(parentDTO.getPooches().get(0).getGender()).isNotNull().isEqualTo(Gender.Female);
-        assertThat(parentDTO.getPooches().get(0).getTraining()).isNotNull().isEqualTo(Training.Low);
-
+    for (VaccineDTO vaccineDTO : vaccines) {
+      assertThat(vaccineDTO).isNotNull();
+      assertThat(vaccineDTO.getId()).isNotNull().isGreaterThan(0);
+      assertThat(vaccineDTO.getExpireDate()).isNotNull();
+      assertThat(vaccineDTO.getName()).isNotNull().isEqualTo("vitamin");
     }
+
+    assertThat(parentDTO.getPooches().get(0).getGender()).isNotNull().isEqualTo(Gender.Female);
+    assertThat(parentDTO.getPooches().get(0).getTraining()).isNotNull().isEqualTo(Training.Low);
+
+  }
+
+  @Transactional
+  @Test
+  void itShouldAddPaymentMethod_valid() throws Exception {
+
+    Parent parent = testEntityGeneratorService.getDBParentWithStripeCustomer();
+
+    SetupIntentCreateDTO setupIntentCreateDTO =
+        SetupIntentCreateDTO.builder().parentUuid(parent.getUuid()).build();
+
+    String paymentMethodId = testEntityGeneratorService.getPaymentMethod("Folau Kaveinga");
+
+    SetupIntentDTO setupIntentDTO = stripeSetupIntentService.create(setupIntentCreateDTO);
+
+    com.stripe.model.SetupIntent setupIntent = testEntityGeneratorService
+        .addPaymentMethodAndConfirmSetupIntent(setupIntentDTO.getId(), paymentMethodId);
+
+    log.info("setupIntent={}", setupIntent.toJson());
+
+    // @formatter:off
+    PaymentMethodCreateDTO paymentMethodCreateDTO = PaymentMethodCreateDTO.builder().setupIntentId(setupIntent.getId()).build();
+    
+    // When
+    RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/parents/"+parent.getUuid()+"/paymentmethod")
+            .header("token", PARENT_TOKEN)
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding("utf-8")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(ObjectUtils.toJson(paymentMethodCreateDTO));
+
+    // @formatter:on
+
+    MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+    String contentAsString = result.getResponse().getContentAsString();
+
+    PaymentMethodDTO paymentMethodDTO =
+        objectMapper.readValue(contentAsString, new TypeReference<PaymentMethodDTO>() {});
+
+
+    log.info("paymentMethod={}", ObjectUtils.toJson(paymentMethodDTO));
+
+    assertThat(paymentMethodDTO).isNotNull();
+    assertThat(paymentMethodDTO.getUuid()).isNotNull();
+    assertThat(paymentMethodDTO.getId()).isNotNull();
+
+
+    List<PaymentMethod> paymentMethods = paymentMethodDAO.findByParentId(parent.getId());
+
+    log.info("paymentMethods={}", ObjectUtils.toJson(paymentMethods));
+
+    boolean present = paymentMethods.stream()
+        .filter(pm -> pm.getUuid().equalsIgnoreCase(paymentMethodDTO.getUuid())).findFirst()
+        .isPresent();
+
+    assertThat(present).isTrue();
+  }
 
 }

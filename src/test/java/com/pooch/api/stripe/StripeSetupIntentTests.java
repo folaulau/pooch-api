@@ -39,6 +39,8 @@ import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.PaymentIntentDTO;
 import com.pooch.api.dto.PaymentIntentParentCreateDTO;
 import com.pooch.api.dto.PaymentIntentQuestCreateDTO;
+import com.pooch.api.dto.PaymentMethodCreateDTO;
+import com.pooch.api.dto.PaymentMethodDTO;
 import com.pooch.api.dto.SetupIntentConfirmDTO;
 import com.pooch.api.dto.SetupIntentCreateDTO;
 import com.pooch.api.dto.SetupIntentDTO;
@@ -46,6 +48,7 @@ import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.paymentmethod.PaymentMethod;
 import com.pooch.api.entity.paymentmethod.PaymentMethodDAO;
+import com.pooch.api.entity.paymentmethod.PaymentMethodService;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.aws.secretsmanager.XApiKey;
@@ -104,6 +107,10 @@ class StripeSetupIntentTests extends IntegrationTestConfiguration {
   @Autowired
   private StripeSetupIntentService stripeSetupIntentService;
 
+
+  @Autowired
+  private PaymentMethodService paymentMethodService;
+
   @Value("${booking.fee:10}")
   private Double bookingFee;
 
@@ -120,43 +127,38 @@ class StripeSetupIntentTests extends IntegrationTestConfiguration {
   }
 
   @Test
-  void itShouldAdd_paymentMethod() throws Exception {
+  void itShouldCreateSetupIntent() throws Exception {
 
     Parent parent = testEntityGeneratorService.getDBParentWithStripeCustomer();
 
-    SetupIntentCreateDTO setupIntentCreateDTO =
-        SetupIntentCreateDTO.builder().parentUuid(parent.getUuid()).build();
+    // @formatter:off
 
-    String paymentMethodId = testEntityGeneratorService.getPaymentMethod("Folau Kaveinga");
+    RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/setupintent")
+            .header("token", PARENT_TOKEN)
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding("utf-8")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(ObjectUtils.toJson(SetupIntentCreateDTO.builder()
+                .parentUuid(parent.getUuid())
+                .build()));
 
-    SetupIntentDTO setupIntentDTO = stripeSetupIntentService.create(setupIntentCreateDTO);
+    // @formatter:on
 
-    com.stripe.model.SetupIntent setupIntent = testEntityGeneratorService
-        .addPaymentMethodAndConfirmSetupIntent(setupIntentDTO.getId(), paymentMethodId);
+    MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
-    log.info("setupIntent={}", setupIntent.toJson());
+    String contentAsString = result.getResponse().getContentAsString();
 
-    SetupIntentDTO updatedSetupIntentDTO =
-        stripeSetupIntentService.confirmSetupIntent(SetupIntentConfirmDTO.builder()
-            .parentUuid(parent.getUuid()).setupIntentId(setupIntent.getId()).build());
+    SetupIntentDTO setupIntentDTO =
+        objectMapper.readValue(contentAsString, new TypeReference<SetupIntentDTO>() {});
 
-    log.info("updatedSetupIntentDTO={}", ObjectUtils.toJson(updatedSetupIntentDTO));
+//    SetupIntentDTO setupIntentDTO = stripeSetupIntentService.create(setupIntentCreateDTO);
 
-    assertThat(updatedSetupIntentDTO).isNotNull();
-    assertThat(updatedSetupIntentDTO.getPaymentUuid()).isNotNull();
-    assertThat(updatedSetupIntentDTO.getId()).isNotNull();
-    assertThat(updatedSetupIntentDTO.getStatus()).isNotNull().isEqualTo("succeeded");
+    assertThat(setupIntentDTO).isNotNull();
+    assertThat(setupIntentDTO.getClientSecret()).isNotNull();
+    assertThat(setupIntentDTO.getId()).isNotNull();
+    assertThat(setupIntentDTO.getStatus()).isNotNull().isEqualTo("requires_payment_method");
 
-
-    List<PaymentMethod> paymentMethods = paymentMethodDAO.findByParentId(parent.getId());
-
-    log.info("paymentMethods={}", ObjectUtils.toJson(paymentMethods));
-
-    boolean present = paymentMethods.stream()
-        .filter(pm -> pm.getUuid().equalsIgnoreCase(updatedSetupIntentDTO.getPaymentUuid()))
-        .findFirst().isPresent();
-
-    assertThat(present).isTrue();
 
   }
 
