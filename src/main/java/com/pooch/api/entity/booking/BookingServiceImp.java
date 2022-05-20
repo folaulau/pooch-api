@@ -98,13 +98,15 @@ public class BookingServiceImp implements BookingService {
 
         if (parent.getStripeCustomerId() == null) {
 
-            parent.setStripeCustomerId(paymentIntent.getCustomer());
+            com.stripe.model.Customer customer = stripeCustomerService.createParentDetails(parent);
+            
+            log.info("new customer={}", customer.toJson())   ;      
+            parent.setStripeCustomerId(customer.getId());
 
-            stripeCustomerService.updateParentDetails(parent);
+        } else {
 
+            com.stripe.model.Customer customer = stripeCustomerService.updateParentDetails(parent);
         }
-
-        com.stripe.model.PaymentMethod stripePaymentMethod = stripePaymentMethodService.getById(paymentIntent.getPaymentMethod());
 
         Optional<PaymentMethod> optPaymentMethod = paymentMethodDAO.getByParentIdAndStripeId(parent.getId(), paymentIntent.getPaymentMethod());
 
@@ -115,6 +117,9 @@ public class BookingServiceImp implements BookingService {
         if (optPaymentMethod.isPresent()) {
             paymentMethod = optPaymentMethod.get();
         } else {
+
+            com.stripe.model.PaymentMethod stripePaymentMethod = stripePaymentMethodService.getById(paymentIntent.getPaymentMethod());
+
             if (paymentIntent.getSetupFutureUsage() != null && paymentIntent.getSetupFutureUsage().equalsIgnoreCase("off_session")) {
                 paymentMethod = paymentMethodService.add(parent, stripePaymentMethod);
             } else {

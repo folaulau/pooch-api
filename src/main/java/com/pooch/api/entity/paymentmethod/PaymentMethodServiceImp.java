@@ -10,7 +10,11 @@ import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentDAO;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
+import com.pooch.api.library.stripe.customer.StripeCustomerService;
+import com.pooch.api.library.stripe.paymentmethod.StripePaymentMethodService;
 import com.pooch.api.utils.ObjectUtils;
+import com.stripe.model.Customer;
+import com.stripe.param.PaymentMethodCreateParams;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +26,13 @@ import lombok.extern.slf4j.Slf4j;
 public class PaymentMethodServiceImp implements PaymentMethodService {
 
     @Autowired
-    private PaymentMethodDAO paymentMethodDAO;
+    private PaymentMethodDAO           paymentMethodDAO;
+
+    @Autowired
+    private StripeCustomerService      stripeCustomerService;
+
+    @Autowired
+    private StripePaymentMethodService stripePaymentMethodService;
     //
     // @Autowired
     // private ParentDAO parentDAO;
@@ -184,28 +194,44 @@ public class PaymentMethodServiceImp implements PaymentMethodService {
         return null;
     }
 
+    /**
+     * add paymentMethod to Stripe<br>
+     * add paymentMethod to DB<br>
+     */
     @Override
     public PaymentMethod add(Parent parent, com.stripe.model.PaymentMethod stripePaymentMethod) {
         log.info("stripePaymentMethod={}", ObjectUtils.toJson(stripePaymentMethod));
 
+        if (stripePaymentMethod.getCustomer() == null) {
+
+            stripePaymentMethod = stripePaymentMethodService.attachToCustomer(stripePaymentMethod.getId(), parent.getStripeCustomerId());
+
+            log.info("updated stripePaymentMethod={}", stripePaymentMethod.toJson());
+        }
+
         PaymentMethod paymentMethod = null;
 
-        com.stripe.model.PaymentMethod.Card card = stripePaymentMethod.getCard();
+        if (stripePaymentMethod.getType().equalsIgnoreCase(PaymentMethodCreateParams.Type.CARD.name())) {
 
-        try {
-            paymentMethod = new PaymentMethod();
-            paymentMethod.setBrand(card.getBrand());
-            paymentMethod.setParent(parent);
-            paymentMethod.setLast4(card.getLast4());
-            paymentMethod.setExpirationMonth(card.getExpMonth());
-            paymentMethod.setExpirationYear(card.getExpYear());
-            paymentMethod.setStripeId(stripePaymentMethod.getId());
-            paymentMethod.setType(stripePaymentMethod.getType());
+            com.stripe.model.PaymentMethod.Card card = stripePaymentMethod.getCard();
 
-            paymentMethod = this.create(paymentMethod);
+            try {
+                paymentMethod = new PaymentMethod();
+                paymentMethod.setBrand(card.getBrand());
+                paymentMethod.setParent(parent);
+                paymentMethod.setLast4(card.getLast4());
+                paymentMethod.setExpirationMonth(card.getExpMonth());
+                paymentMethod.setExpirationYear(card.getExpYear());
+                paymentMethod.setStripeId(stripePaymentMethod.getId());
+                paymentMethod.setType(stripePaymentMethod.getType());
 
-        } catch (Exception e) {
-            log.warn("Exception, msg={}", e.getLocalizedMessage());
+                paymentMethod = this.create(paymentMethod);
+
+            } catch (Exception e) {
+                log.warn("Exception, msg={}", e.getLocalizedMessage());
+            }
+        } else {
+            log.warn("Stripe PaymentMethod type not found. stripePaymentMethod={}", stripePaymentMethod.toJson());
         }
 
         log.info("paymentMethod={}", ObjectUtils.toJson(paymentMethod));

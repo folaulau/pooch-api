@@ -152,7 +152,7 @@ public class TestEntityGeneratorService {
         groomer.addRole(new Role(Authority.groomer));
 
         groomer.setAddress(getAddress());
-        
+
         return groomer;
     }
 
@@ -379,7 +379,11 @@ public class TestEntityGeneratorService {
         return pooch;
     }
 
-    public PaymentIntent createPaymentIntent(Double amount, String customerId, String paymentMethodId) {
+    public PaymentIntent createAndConfirmPaymentIntent(Double amount, String paymentMethodId) {
+        return createAndConfirmPaymentIntent(amount, paymentMethodId, null);
+    }
+
+    public PaymentIntent createAndConfirmPaymentIntent(Double amount, String paymentMethodId, String customerId) {
         Stripe.apiKey = stripeSecrets.getSecretKey();
 
         List<String> paymentMethodTypes = new ArrayList<>();
@@ -418,19 +422,27 @@ public class TestEntityGeneratorService {
                 .stripeFee(stripeFee)
                 .build();
         
-        PaymentIntentCreateParams createParams = PaymentIntentCreateParams.builder()
+        PaymentIntentCreateParams.Builder builder =
+        PaymentIntentCreateParams.builder()
                 .addPaymentMethodType("card")
                 .setAmount(totalChargeAsCents)
                 .setCurrency("usd")
                 .setSetupFutureUsage(PaymentIntentCreateParams.SetupFutureUsage.OFF_SESSION)
-                .setCustomer(customerId)
-                .setPaymentMethod(paymentMethodId)
                 .putMetadata(StripeMetadataService.env, env)
                 .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS, costDetails.toJson())
                 .setConfirm(true)
-                .setTransferGroup("group-" + UUID.randomUUID().toString())
-                .build();
+                .setTransferGroup("group-" + UUID.randomUUID().toString());
         // @formatter:on
+
+        if (customerId != null) {
+            builder.setCustomer(customerId);
+        }
+
+        if (paymentMethodId != null) {
+            builder.setPaymentMethod(paymentMethodId);
+        }
+
+        PaymentIntentCreateParams createParams = builder.build();
 
         PaymentIntent paymentIntent = null;
 
@@ -515,5 +527,12 @@ public class TestEntityGeneratorService {
         }
 
         return token.getPaymentMethodId();
+    }
+
+    public String getPaymentMethod(String name) {
+        com.stripe.model.PaymentMethod paymentMethod = stripeTokenService.getCardPaymentMethod();
+
+        log.info("paymentMethod={}", paymentMethod.toJson());
+        return paymentMethod.getId();
     }
 }

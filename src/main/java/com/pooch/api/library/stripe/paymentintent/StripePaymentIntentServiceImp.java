@@ -118,7 +118,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
         Groomer groomer = stripePaymentIntentValidatorService.validateCreateQuestPaymentIntent(paymentIntentCreateDTO);
 
-        Customer customer = stripeCustomerService.createPlaceHolderCustomer();
+//        Customer customer = stripeCustomerService.createPlaceHolderCustomer();
 
         BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer, paymentIntentCreateDTO.getAmount());
 
@@ -135,9 +135,9 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
                 .setTransferGroup("group-" + UUID.randomUUID().toString());
         // @formatter:on
 
-        if (customer != null) {
-            builder.setCustomer(customer.getId());
-        }
+//        if (customer != null) {
+//            builder.setCustomer(customer.getId());
+//        }
 
         if (paymentIntentCreateDTO.getSavePaymentMethodForFutureUse() != null && paymentIntentCreateDTO.getSavePaymentMethodForFutureUse()) {
             builder.setSetupFutureUsage(PaymentIntentCreateParams.SetupFutureUsage.OFF_SESSION);

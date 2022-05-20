@@ -232,8 +232,9 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
         assertThat(parentDTO.getPooches().get(0).getId()).isNotNull().isGreaterThan(0);
         assertThat(parentDTO.getPooches().get(0).getFullName()).isNotNull().isEqualTo("Simpa");
         assertThat(parentDTO.getPooches().get(0).getSpayed()).isNotNull().isTrue();
-        assertThat(parentDTO.getPooches().get(0).getFoodSchedule()).isNotNull().isEqualTo(Arrays.asList(FoodSchedule.Night, FoodSchedule.Morning));
-
+        
+        //Arrays.asList(FoodSchedule.Night, FoodSchedule.Morning)
+        assertThat(parentDTO.getPooches().get(0).getFoodSchedule()).isNotNull().contains(FoodSchedule.Morning, FoodSchedule.Night);
         Set<VaccineDTO> vaccines = parentDTO.getPooches().get(0).getVaccines();
 
         assertThat(vaccines).isNotNull();

@@ -22,8 +22,10 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.BankAccount;
 import com.stripe.model.Customer;
+import com.stripe.model.PaymentMethod;
 import com.stripe.model.Token;
 import com.stripe.net.RequestOptions;
+import com.stripe.param.PaymentMethodCreateParams;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -288,5 +290,33 @@ public class StripeTokenService {
         } catch (StripeException e) {
             log.error(e.getLocalizedMessage(), e);
         }
+    }
+
+    public PaymentMethod getCardPaymentMethod() {
+        Stripe.apiKey = stripeSecrets.getSecretKey();
+
+        PaymentMethodCreateParams.Builder builder = PaymentMethodCreateParams.builder();
+
+        int currentYr = LocalDate.now().getYear();
+        int futureYr = currentYr + 20;
+        
+        builder.setType(PaymentMethodCreateParams.Type.CARD);
+        builder.setCard(PaymentMethodCreateParams.CardDetails.builder()
+                .setCvc(RandomGeneratorUtils.getLongWithin(100, 999)+"")
+                .setExpMonth(RandomGeneratorUtils.getLongWithin(1, 11))
+                .setNumber(creditCards.get(RandomGeneratorUtils.getIntegerWithin(0, creditCards.size() - 1)))
+                .setExpYear(RandomGeneratorUtils.getLongWithin(currentYr, futureYr))
+                .build());
+
+        PaymentMethodCreateParams createParams = builder.build();
+        PaymentMethod paymentMethod = null;
+        
+        try {
+            paymentMethod = PaymentMethod.create(createParams);
+        } catch (StripeException e) {
+            log.error(e.getLocalizedMessage(), e);
+        }
+
+        return paymentMethod;
     }
 }

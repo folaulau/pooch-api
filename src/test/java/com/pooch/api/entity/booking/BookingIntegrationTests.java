@@ -130,7 +130,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
 
         String paymentMethodId = testEntityGeneratorService.addPaymentMethodToCustomer(customer);
 
-        com.stripe.model.PaymentIntent paymentIntent = testEntityGeneratorService.createPaymentIntent(bookingCost, customer.getId(), paymentMethodId);
+        com.stripe.model.PaymentIntent paymentIntent = testEntityGeneratorService.createAndConfirmPaymentIntent(bookingCost, paymentMethodId, customer.getId());
 
         ParentCreateUpdateDTO petParentDTO = entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
 
@@ -200,5 +200,97 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
         // --verify
         // --assert
 
+    }
+
+    @Transactional
+    @Test
+    void itShouldMakeBooking_without_customer_valid() throws Exception {
+        // Given
+        BookingCreateDTO bookingCreateDTO = new BookingCreateDTO();
+
+        bookingCreateDTO.setStartDateTime(LocalDateTime.now().plusDays(1));
+        bookingCreateDTO.setEndDateTime(LocalDateTime.now().plusDays(3));
+
+        /**
+         * Pet Parent
+         */
+        Parent petParent = testEntityGeneratorService.getDBParent();
+
+        Double bookingCost = RandomGeneratorUtils.getDoubleWithin(20, 300);
+
+        // com.stripe.model.Customer customer = testEntityGeneratorService.createCustomer(petParent);
+
+        String paymentMethodId = testEntityGeneratorService.getPaymentMethod(petParent.getFullName());
+
+        System.out.println("paymentMethodId=" + paymentMethodId);
+
+        com.stripe.model.PaymentIntent paymentIntent = testEntityGeneratorService.createAndConfirmPaymentIntent(bookingCost, paymentMethodId);
+
+        System.out.println("paymentIntent=" + paymentIntent.toJson());
+
+        ParentCreateUpdateDTO petParentDTO = entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
+
+        bookingCreateDTO.setParent(petParentDTO);
+
+        bookingCreateDTO.setAgreedToContracts(true);
+
+        bookingCreateDTO.setPaymentIntentId(paymentIntent.getId());
+
+        /**
+         * Pet Sitter
+         */
+        Groomer groomer = testEntityGeneratorService.getDBGroomer();
+
+        bookingCreateDTO.setGroomerUuid(groomer.getUuid());
+
+        // @formatter:off
+
+        CareService careService= testEntityGeneratorService.getDBCareService(groomer);
+        
+        bookingCreateDTO.addService(BookingCareServiceDTO.builder()
+                .size(PoochSize.medium)
+                .uuid(careService.getUuid())
+                .count(2)
+                .build());
+        
+        // @formatter:on
+
+        // com.stripe.model.PaymentIntent paymentIntent = new com.stripe.model.PaymentIntent();
+        // paymentIntent.setStatus("succeeded");
+        // Mockito.when(stripePaymentIntentService.getById(Mockito.anyString())).thenReturn(paymentIntent);
+
+        /**
+         * Pets
+         */
+        Set<PoochCreateUpdateDTO> petCreateDTOs = new HashSet<>();
+        for (int i = 0; i < 1; i++) {
+            PoochCreateUpdateDTO petCreateDTO = new PoochCreateUpdateDTO();
+            petCreateDTO.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 36)));
+            petCreateDTO.setBreed("Bulldog");
+            petCreateDTO.setFullName(RandomGeneratorUtils.getRandomFullName());
+            petCreateDTO.setGender(Gender.Female);
+            petCreateDTO.setSpayed(true);
+            petCreateDTO.setTraining(Training.Medium);
+            petCreateDTO.setWeight(15D);
+            petCreateDTO.addFoodSchedule(FoodSchedule.Morning);
+            petCreateDTO.addFoodSchedule(FoodSchedule.Night);
+            petCreateDTO.addVaccine(new VaccineCreateDTO(LocalDateTime.now().plusMonths(2), "vac1"));
+            petCreateDTO.addVaccine(new VaccineCreateDTO(LocalDateTime.now().plusMonths(6), "vac2"));
+            petCreateDTOs.add(petCreateDTO);
+        }
+
+        bookingCreateDTO.setPooches(petCreateDTOs);
+        // When
+
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/bookings/book")
+                .header("token", TEST_PETPARENT_TOKEN)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectUtils.toJson(bookingCreateDTO));
+
+        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        String contentAsString = result.getResponse().getContentAsString();
     }
 }
