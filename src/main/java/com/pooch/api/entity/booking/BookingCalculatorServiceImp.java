@@ -56,8 +56,8 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
         costDetails.setBookingCost(bookingCost);
         costDetails.setBookingFee(bookingFee);
         costDetails.setStripeFee(stripeFee);
-        costDetails.setTotalChargeNowAmount(totalChargeToday);
-        costDetails.setTotalChargeAtDropOffAmount(totalChargeAtDropOff);
+        costDetails.setTotalChargeAtBooking(totalChargeToday);
+        costDetails.setTotalChargeAtDropOff(totalChargeAtDropOff);
         
         log.info("groomer={}",ObjectUtils.toJson(groomer));
         

@@ -154,8 +154,8 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
     assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
     assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
     assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
-    assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(0);
+    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
+    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(0);
     assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
     assertThat(paymentIntentDTO.getId()).isNotNull();
   }
@@ -200,8 +200,8 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
     assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
     assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
     assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
-    assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(bookingCost);
+    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
+    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(bookingCost);
     assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
     assertThat(paymentIntentDTO.getId()).isNotNull();
   }
@@ -238,8 +238,8 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
         assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
         assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
         assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-        assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
-        assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(0);
+        assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
+        assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(0);
         assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
         assertThat(paymentIntentDTO.getId()).isNotNull();
 
@@ -279,8 +279,8 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
     assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
     assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
     assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
-    assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(0);
+    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
+    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(0);
     assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
     assertThat(paymentIntentDTO.getId()).isNotNull();
   }
@@ -325,8 +325,8 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
     assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
     assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
     assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
-    assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(bookingCost);
+    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
+    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(bookingCost);
     assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
     assertThat(paymentIntentDTO.getId()).isNotNull();
 
@@ -359,8 +359,8 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
     assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
     assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
     assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
-    assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(bookingCost);
+    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
+    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(bookingCost);
     assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
     assertThat(paymentIntentDTO.getId()).isNotNull();
   }
@@ -415,8 +415,8 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
     assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
     assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
     assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
-    assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(0);
+    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
+    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(0);
     assertThat(paymentIntentDTO.getId()).isNotNull();
   }
 
@@ -470,8 +470,8 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
     assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
     assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
     assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
-    assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(0);
+    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
+    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(0);
     assertThat(paymentIntentDTO.getId()).isNotNull();
 
 
@@ -519,8 +519,8 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
     assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
     assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
     assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
-    assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(0);
+    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
+    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(0);
     assertThat(paymentIntentDTO.getId()).isNotNull();
     assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
   }

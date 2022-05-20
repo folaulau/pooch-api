@@ -40,12 +40,12 @@ public class PaymentIntentDTO implements Serializable {
     /**
      * amount charge now depending on Groomer's Stripe status
      */
-    private Double            totalChargeNowAmount;
+    private Double            totalChargeAtBooking;
 
     /**
      * amount charge at drop off depending on Groomer's Stripe status
      */
-    private Double            totalChargeAtDropOffAmount;
+    private Double            totalChargeAtDropOff;
 
     // for paymentMethod to use in future
     private String            setupFutureUsage;

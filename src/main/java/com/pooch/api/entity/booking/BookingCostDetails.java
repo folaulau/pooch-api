@@ -20,50 +20,56 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 public class BookingCostDetails implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * cost of the booking
-     */
-    private Double            bookingCost;
+  /**
+   * cost of the booking
+   */
+  private Double bookingCost;
 
-    /**
-     * Pooch fee
-     */
-    private Double            bookingFee;
+  /**
+   * Pooch fee
+   */
+  private Double bookingFee;
 
-    /**
-     * stripe fee on charge
-     */
-    private Double            stripeFee;
+  /**
+   * stripe fee on charge
+   */
+  private Double stripeFee;
 
-    /**
-     * amount charge now depending on Groomer's Stripe status
-     */
-    private Double            totalChargeNowAmount;
+  /**
+   * amount charge now depending on Groomer's Stripe status
+   */
+  private Double totalChargeAtBooking;
 
-    /**
-     * amount charge at drop off depending on Groomer's Stripe status
-     */
-    private Double            totalChargeAtDropOffAmount;
+  /**
+   * amount charge at drop off depending on Groomer's Stripe status
+   */
+  private Double totalChargeAtDropOff;
 
-    public String toJson() {
-        return ObjectUtils.toJson(this);
+  /**
+   * total cost of booking
+   */
+  private Double totalAmount;
+
+  public String toJson() {
+    return ObjectUtils.toJson(this);
+  }
+
+  public static BookingCostDetails fromJson(String json) {
+    if (json == null || json.trim().isEmpty()) {
+      return null;
     }
 
-    public static BookingCostDetails fromJson(String json) {
-        if (json == null || json.trim().isEmpty()) {
-            return null;
-        }
-        
-        try {
-            return ObjectUtils.getObjectMapper().readValue(json, new TypeReference<BookingCostDetails>() {});
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        return null;
+    try {
+      return ObjectUtils.getObjectMapper().readValue(json,
+          new TypeReference<BookingCostDetails>() {});
+    } catch (JsonProcessingException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
+
+    return null;
+  }
 
 }

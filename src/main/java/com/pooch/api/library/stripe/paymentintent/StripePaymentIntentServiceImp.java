@@ -137,7 +137,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer,
         paymentIntentCreateDTO.getAmount());
 
-    long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount())
+    long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeAtBooking())
         .multiply(BigDecimal.valueOf(100)).longValue();
 
     //@formatter:off
@@ -179,7 +179,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     PaymentIntentDTO paymentIntentDTO =
         entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
     paymentIntentDTO.setId(paymentIntent.getId());
-    paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
+    paymentIntentDTO.setTotalChargeAtBooking(stripeChargeAmount);
     paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
     paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
 
@@ -197,7 +197,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer,
         paymentIntentQuestUpdateDTO.getAmount());
 
-    long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount())
+    long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeAtBooking())
         .multiply(BigDecimal.valueOf(100)).longValue();
 
     PaymentIntent paymentIntent = null;
@@ -235,7 +235,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     PaymentIntentDTO paymentIntentDTO =
         entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
     paymentIntentDTO.setId(paymentIntent.getId());
-    paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
+    paymentIntentDTO.setTotalChargeAtBooking(stripeChargeAmount);
     paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
     paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
 
@@ -306,7 +306,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer,
         paymentIntentParentDTO.getAmount());
 
-    long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount())
+    long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeAtBooking())
         .multiply(BigDecimal.valueOf(100)).longValue();
 
     //@formatter:off
@@ -354,7 +354,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     PaymentIntentDTO paymentIntentDTO =
         entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
     paymentIntentDTO.setId(paymentIntent.getId());
-    paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
+    paymentIntentDTO.setTotalChargeAtBooking(stripeChargeAmount);
     paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
     paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
 
@@ -378,7 +378,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer,
         paymentIntentParentDTO.getAmount());
 
-    long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount())
+    long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeAtBooking())
         .multiply(BigDecimal.valueOf(100)).longValue();
 
     PaymentIntent paymentIntent = null;
@@ -425,7 +425,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     PaymentIntentDTO paymentIntentDTO =
         entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
     paymentIntentDTO.setId(paymentIntent.getId());
-    paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
+    paymentIntentDTO.setTotalChargeAtBooking(stripeChargeAmount);
     paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
     paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
 

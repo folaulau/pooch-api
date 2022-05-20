@@ -86,13 +86,13 @@ public final class RandomGeneratorUtils {
     }
 
     public static String getRandomEmail() {
-        // TODO Auto-generated method stub
-        return getRandomEmail(getRandomFirstname() + getRandomLastname());
+      // TODO Auto-generated method stub
+      return getRandomEmail("folaudev+");
     }
 
     public static String getRandomEmail(String name) {
-        // TODO Auto-generated method stub
-        return getRandomEmail(name, "@gmail.com");
+      // TODO Auto-generated method stub
+      return getRandomEmail(name, "@gmail.com");
     }
 
     public static String getRandomEmail(String name, String domain) {
@@ -104,7 +104,7 @@ public final class RandomGeneratorUtils {
             email.append(name);
         }
 
-        email.append(getIntegerWithin(0, Integer.MAX_VALUE - (2 * 4)));
+        email.append(getIntegerWithin(1, Integer.MAX_VALUE - (2 * 4)));
 
         if (null == domain || domain.trim().length() == 0) {
             email.append("@gmail.com");

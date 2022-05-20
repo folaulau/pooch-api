@@ -116,7 +116,7 @@ public class TestEntityGeneratorService {
     groomer.setFirstName(firstName);
     String lastName = RandomGeneratorUtils.getRandomLastname();
     groomer.setLastName(lastName);
-    groomer.setEmail((firstName + "" + lastName).toLowerCase() + "@gmail.com");
+    groomer.setEmail(RandomGeneratorUtils.getRandomEmail());
     groomer.setEmailVerified(false);
     groomer.setBusinessName((firstName + " " + lastName).toLowerCase());
     groomer.setNumberOfOccupancy(RandomGeneratorUtils.getLongWithin(2L, 100L));
@@ -145,7 +145,7 @@ public class TestEntityGeneratorService {
     groomer.setFirstName(firstName);
     String lastName = RandomGeneratorUtils.getRandomLastname();
     groomer.setLastName(lastName);
-    groomer.setEmail((firstName + "" + lastName).toLowerCase() + "@gmail.com");
+    groomer.setEmail(RandomGeneratorUtils.getRandomEmail());
     groomer.setEmailVerified(false);
     groomer.setBusinessName((firstName + " " + lastName).toLowerCase());
     groomer.setNumberOfOccupancy(RandomGeneratorUtils.getLongWithin(2L, 100L));
@@ -209,7 +209,7 @@ public class TestEntityGeneratorService {
     String firstName = RandomGeneratorUtils.getRandomFirstname();
     String lastName = RandomGeneratorUtils.getRandomLastname();
     petParent.setFullName(firstName + " " + lastName);
-    petParent.setEmail((firstName + "" + lastName).toLowerCase() + "@gmail.com");
+    petParent.setEmail(RandomGeneratorUtils.getRandomEmail());
     petParent.setEmailVerified(false);
     petParent.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));
     petParent.setPhoneNumberVerified(false);
@@ -435,8 +435,8 @@ public class TestEntityGeneratorService {
         BookingCostDetails costDetails = BookingCostDetails.builder()
                 .bookingCost(bookingCost)
                 .bookingFee(bookingFee)
-                .totalChargeNowAmount(totalCharge)
-                .totalChargeAtDropOffAmount(0D)
+                .totalChargeAtBooking(totalCharge)
+                .totalChargeAtDropOff(0D)
                 .stripeFee(stripeFee)
                 .build();
         

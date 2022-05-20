@@ -43,97 +43,99 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 @DynamicUpdate
 @Entity
-@SQLDelete(sql = "UPDATE " + DatabaseTableNames.Transaction + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
+@SQLDelete(sql = "UPDATE " + DatabaseTableNames.Transaction + " SET deleted = 'T' WHERE id = ?",
+    check = ResultCheckStyle.NONE)
 @Where(clause = "deleted = 'F'")
-@Table(name = DatabaseTableNames.Transaction, indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
+@Table(name = DatabaseTableNames.Transaction,
+    indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
 public class Transaction implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, updatable = false, unique = true)
-    private Long              id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id", nullable = false, updatable = false, unique = true)
+  private Long id;
 
-    @Column(name = "uuid", unique = true, nullable = false, updatable = false)
-    private String            uuid;
+  @Column(name = "uuid", unique = true, nullable = false, updatable = false)
+  private String uuid;
 
-    /**
-     * Check this enum for which fields belong to which type
-     */
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
-    private TransactionType   type;
+  /**
+   * Check this enum for which fields belong to which type
+   */
+  @Enumerated(EnumType.STRING)
+  @Column(name = "type", nullable = false)
+  private TransactionType type;
 
-    /**
-     * cost of the booking
-     */
-    @Column(name = "booking_cost")
-    private Double            bookingCost;
+  /**
+   * cost of the booking
+   */
+  @Column(name = "booking_cost")
+  private Double bookingCost;
 
-    /**
-     * Pooch fee
-     */
-    @Column(name = "booking_fee")
-    private Double            bookingFee;
+  /**
+   * Pooch fee
+   */
+  @Column(name = "booking_fee")
+  private Double bookingFee;
 
-    /**
-     * stripe fee on charge
-     */
-    @Column(name = "stripe_fee")
-    private Double            stripeFee;
+  /**
+   * stripe fee on charge
+   */
+  @Column(name = "stripe_fee")
+  private Double stripeFee;
 
-    /**
-     * amount charge now depending on Groomer's Stripe status
-     */
-    @Column(name = "total_charge_now_amount")
-    private Double            totalChargeNowAmount;
+  /**
+   * amount charge now depending on Groomer's Stripe status
+   */
+  @Column(name = "total_charge_at_booking")
+  private Double totalChargeAtBooking;
 
-    /**
-     * amount charge at drop off depending on Groomer's Stripe status
-     */
-    @Column(name = "total_charge_at_drop_off_amount")
-    private Double            totalChargeAtDropOffAmount;
+  /**
+   * amount charge at drop off depending on Groomer's Stripe status
+   */
+  @Column(name = "total_charge_at_drop_off")
+  private Double totalChargeAtDropOff;
 
-    @Column(name = "description", nullable = true)
-    private String            description;
+  @Column(name = "description", nullable = true)
+  private String description;
 
-    @Column(name = "amount", nullable = true)
-    private Double            amount;
+  @Column(name = "amount", nullable = true)
+  private Double amount;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "cancel_user_type", nullable = true)
-    private UserType          cancelUserType;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "cancel_user_type", nullable = true)
+  private UserType cancelUserType;
 
-    @Column(name = "cancel_user_id", nullable = true)
-    private Long              cancelUserId;
+  @Column(name = "cancel_user_id", nullable = true)
+  private Long cancelUserId;
 
-    @Column(name = "refunded_amount", nullable = true)
-    private Double            refundedAmount;
+  @Column(name = "refunded_amount", nullable = true)
+  private Double refundedAmount;
 
-    @Column(name = "non_refunded_amount", nullable = true)
-    private Double            nonRefundedAmount;
+  @Column(name = "non_refunded_amount", nullable = true)
+  private Double nonRefundedAmount;
 
-    @ManyToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name = "booking_id")
-    private Booking           booking;
+  @ManyToOne(cascade = CascadeType.DETACH)
+  @JoinColumn(name = "booking_id")
+  private Booking booking;
 
-    @Column(name = "deleted", nullable = false)
-    private boolean           deleted;
+  @Column(name = "deleted", nullable = false)
+  private boolean deleted;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime     createdAt;
+  @CreationTimestamp
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime     updatedAt;
+  @UpdateTimestamp
+  @Column(name = "updated_at", nullable = false)
+  private LocalDateTime updatedAt;
 
 
-    @PrePersist
-    private void preCreate() {
-        if (this.uuid == null || this.uuid.isEmpty()) {
-            this.uuid = "transaction-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
-        }
+  @PrePersist
+  private void preCreate() {
+    if (this.uuid == null || this.uuid.isEmpty()) {
+      this.uuid = "transaction-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
     }
+  }
 }

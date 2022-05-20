@@ -64,9 +64,6 @@ public class BookingServiceImp implements BookingService {
     private PaymentMethodDAO           paymentMethodDAO;
 
     @Autowired
-    private ParentService              parentService;
-
-    @Autowired
     private StripeCustomerService      stripeCustomerService;
 
     @Autowired
@@ -105,7 +102,7 @@ public class BookingServiceImp implements BookingService {
 
         } else {
 
-            com.stripe.model.Customer customer = stripeCustomerService.updateParentDetails(parent);
+            stripeCustomerService.updateParentDetails(parent);
         }
 
         Optional<PaymentMethod> optPaymentMethod = paymentMethodDAO.getByParentIdAndStripeId(parent.getId(), paymentIntent.getPaymentMethod());
@@ -145,32 +142,27 @@ public class BookingServiceImp implements BookingService {
 
             if (transferred) {
                 booking.setStatus(BookingStatus.Booked);
-                booking.setStripeFundsStatus(BookingStripeStatus.FUNDS_IN_GROOMER_ACCOUNT);
             } else {
-
                 booking.setStatus(BookingStatus.Pending_Groomer_Approval);
-                booking.setStripeFundsStatus(BookingStripeStatus.FUNDS_IN_POOCH_ACCOUNT);
             }
 
         } else {
 
             booking.setStatus(BookingStatus.Pending_Groomer_Approval);
-
-            booking.setStripeFundsStatus(BookingStripeStatus.FUNDS_IN_POOCH_ACCOUNT);
         }
 
         booking = addPoochesToBooking(booking, bookingCreateDTO.getPooches());
 
         log.info("booking={}", ObjectUtils.toJson(booking));
 
-        booking.addDebuggingNote("booking: " + ObjectUtils.toJson(booking));
-        booking.addDebuggingNote("bookingCreateDTO: " + ObjectUtils.toJson(bookingCreateDTO));
-
         booking = bookingDAO.save(booking);
 
         BookingCostDetails costDetails = BookingCostDetails.fromJson(paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
 
         transactionService.addBookingInitialPayment(booking, costDetails);
+        
+        // 1. handle calendar
+        // 2. send notification
 
         return entityDTOMapper.mapBookingToBookingDTO(booking);
     }
