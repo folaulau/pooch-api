@@ -176,7 +176,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
                 .groomerUuid(activeGroomer.getUuid())
                 .build();
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
                 .header("x-api-key", xApiKey.getMobileXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
@@ -228,7 +228,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
                 .groomerUuid(activeGroomer.getUuid())
                 .build();
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
                 .header("x-api-key", xApiKey.getMobileXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
@@ -304,7 +304,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
                 .amount(bookingCost)
                 .build();
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
                 .header("x-api-key", xApiKey.getMobileXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
@@ -349,7 +349,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
                 .groomerUuid(activeGroomer.getUuid())
                 .build();
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
                 .header("x-api-key", xApiKey.getMobileXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
@@ -385,7 +385,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
                 .amount(bookingCost)
                 .build();
 
-        requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent")
+        requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
                 .header("x-api-key", xApiKey.getMobileXApiKey())
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")

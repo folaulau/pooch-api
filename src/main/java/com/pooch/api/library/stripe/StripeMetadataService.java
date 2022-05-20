@@ -16,6 +16,10 @@ public interface StripeMetadataService {
      */
     String PAYMENTINTENT_GROOMER_UUID    = "groomer_uuid";
 
+    String PAYMENT_PURPOSE    = "payment_purpose";
+
+    String PAYMENT_PURPOSE_BOOKING_INITIAL_PAYMENT    = "booking_initial_payment";
+
     // pooch parent uuid for paymentIntent
     String PAYMENTINTENT_PARENT_UUID     = "parent_uuid";
 

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.PaymentIntentDTO;
+import com.pooch.api.dto.PaymentIntentParentCreateDTO;
 import com.pooch.api.dto.PaymentIntentQuestCreateDTO;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.xapikey.XApiKeyService;
@@ -34,9 +35,9 @@ public class StripePaymentIntentRestController {
     @Autowired
     private XApiKeyService             xApiKeyService;
 
-    @Operation(summary = "Get Stripe Payment Intent", description = "get stripe payment intent<br>stripe fee: 2.9% + 30c per payment")
-    @PostMapping(value = "/stripe/paymentintent")
-    public ResponseEntity<PaymentIntentDTO> createPaymentIntent(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @RequestBody PaymentIntentQuestCreateDTO paymentIntentCreateDTO) {
+    @Operation(summary = "Get Stripe Payment Intent for initial booking payment", description = "This is for booking initial payment. amount represents the total cost of all of services that Pooch Parent is requesting.<br>Get stripe payment intent<br>stripe fee: 2.9% + 30c per payment")
+    @PostMapping(value = "/stripe/paymentintent/booking")
+    public ResponseEntity<PaymentIntentDTO> createPaymentIntentForBooking(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @RequestBody PaymentIntentQuestCreateDTO paymentIntentCreateDTO) {
         log.info("createPaymentIntent={}", ObjectUtils.toJson(paymentIntentCreateDTO));
 
         xApiKeyService.validate(xApiKey);
@@ -50,6 +51,25 @@ public class StripePaymentIntentRestController {
         } else {
             // update paymentIntent
             paymentIntent = stripePaymentIntentService.updateQuestPaymentIntent(paymentIntentCreateDTO);
+        }
+
+        return new ResponseEntity<>(paymentIntent, OK);
+    }
+    
+    @Operation(summary = "Get Stripe Parent Payment Intent for initial booking payment", description = "This is for booking initial payment. It's for Pooch parents that are authenticated. This endpoint allows parents to their existing payment methods to make payments with. amount represents the total cost of all of services that Pooch Parent is requesting. <br>Get stripe payment intent<br>stripe fee: 2.9% + 30c per payment")
+    @PostMapping(value = "/stripe/parent/paymentintent/booking")
+    public ResponseEntity<PaymentIntentDTO> createParentPaymentIntentForBooking(@RequestHeader(name = "token", required = true) String token, @RequestBody PaymentIntentParentCreateDTO paymentIntentParentDTO) {
+        log.info("createParentPaymentIntent={}", ObjectUtils.toJson(paymentIntentParentDTO));
+
+        String paymentIntentId = paymentIntentParentDTO.getPaymentIntentId();
+
+        PaymentIntentDTO paymentIntent = null;
+
+        if (paymentIntentId == null || paymentIntentId.trim().isEmpty()) {
+            paymentIntent = stripePaymentIntentService.createParentPaymentIntent(paymentIntentParentDTO);
+        } else {
+            // update paymentIntent
+            paymentIntent = stripePaymentIntentService.updateParentPaymentIntent(paymentIntentParentDTO);
         }
 
         return new ResponseEntity<>(paymentIntent, OK);

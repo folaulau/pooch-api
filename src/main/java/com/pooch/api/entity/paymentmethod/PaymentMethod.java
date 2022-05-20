@@ -18,6 +18,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.CreationTimestamp;
@@ -53,52 +55,53 @@ public class PaymentMethod implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long              id;
+    private Long id;
 
     /**
      * card, bank
      */
     @Column(name = "type", updatable = false, nullable = false)
-    private String            type;
+    private String type;
 
     @Column(name = "uuid", unique = true, updatable = false, nullable = false)
-    private String            uuid;
+    private String uuid;
 
     @Column(name = "name")
-    private String            name;
+    private String name;
 
     @Column(name = "last4")
-    private String            last4;
+    private String last4;
 
     @Column(name = "brand")
-    private String            brand;
+    private String brand;
 
     @Column(name = "source_token")
-    private String            sourceToken;
+    private String sourceToken;
 
     @Column(name = "stripe_id")
-    private String            stripeId;
+    private String stripeId;
 
     @Column(name = "expiration_month")
-    private Long              expirationMonth;
+    private Long expirationMonth;
 
     @Column(name = "expiration_year")
-    private Long              expirationYear;
+    private Long expirationYear;
 
     @Column(name = "deleted", nullable = false)
-    private boolean           deleted;
+    private boolean deleted;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime     createdAt;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime     updatedAt;
+    private LocalDateTime updatedAt;
 
+    @JsonIgnoreProperties(value = {"address", "roles"})
     @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id", nullable = false, updatable = false)
-    private Parent            parent;
+    private Parent parent;
 
     @Override
     public int hashCode() {

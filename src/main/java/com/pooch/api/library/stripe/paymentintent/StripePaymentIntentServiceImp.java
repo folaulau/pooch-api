@@ -7,13 +7,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.pooch.api.entity.parent.Parent;
+import com.pooch.api.entity.paymentmethod.PaymentMethod;
+import com.pooch.api.entity.paymentmethod.PaymentMethodDAO;
+import com.pooch.api.exception.ApiError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.PaymentIntentDTO;
+import com.pooch.api.dto.PaymentIntentParentCreateDTO;
 import com.pooch.api.dto.PaymentIntentQuestCreateDTO;
 import com.pooch.api.entity.booking.BookingCalculatorService;
 import com.pooch.api.entity.booking.BookingCostDetails;
@@ -42,25 +48,28 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
     @Autowired
     @Qualifier(value = "stripeSecrets")
-    private StripeSecrets                       stripeSecrets;
+    private StripeSecrets stripeSecrets;
 
     @Autowired
     private StripePaymentIntentValidatorService stripePaymentIntentValidatorService;
 
     @Value("${spring.profiles.active}")
-    private String                              env;
+    private String env;
 
     @Value("${booking.fee:10}")
-    private Double                              bookingFee;
+    private Double bookingFee;
 
     @Autowired
-    private BookingCalculatorService            bookingCalculatorService;
+    private BookingCalculatorService bookingCalculatorService;
 
     @Autowired
-    private EntityDTOMapper                     entityDTOMapper;
+    private EntityDTOMapper entityDTOMapper;
 
     @Autowired
-    private StripeCustomerService               stripeCustomerService;
+    private StripeCustomerService stripeCustomerService;
+
+    @Autowired
+    private PaymentMethodDAO paymentMethodDAO;
 
     @Override
     public PaymentIntent getById(String paymentIntentId) {
@@ -118,7 +127,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
         Groomer groomer = stripePaymentIntentValidatorService.validateCreateQuestPaymentIntent(paymentIntentCreateDTO);
 
-//        Customer customer = stripeCustomerService.createPlaceHolderCustomer();
+        // Customer customer = stripeCustomerService.createPlaceHolderCustomer();
 
         BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer, paymentIntentCreateDTO.getAmount());
 
@@ -130,14 +139,15 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
                 .setAmount(totalChargeAsCents)
                 .setCurrency("usd")
                 .putMetadata(StripeMetadataService.env, env)
+                .putMetadata(StripeMetadataService.PAYMENT_PURPOSE, StripeMetadataService.PAYMENT_PURPOSE_BOOKING_INITIAL_PAYMENT)
                 .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid())
                 .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS, costDetails.toJson())
                 .setTransferGroup("group-" + UUID.randomUUID().toString());
         // @formatter:on
 
-//        if (customer != null) {
-//            builder.setCustomer(customer.getId());
-//        }
+        // if (customer != null) {
+        // builder.setCustomer(customer.getId());
+        // }
 
         if (paymentIntentCreateDTO.getSavePaymentMethodForFutureUse() != null && paymentIntentCreateDTO.getSavePaymentMethodForFutureUse()) {
             builder.setSetupFutureUsage(PaymentIntentCreateParams.SetupFutureUsage.OFF_SESSION);
@@ -183,16 +193,17 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
             System.out.println(paymentIntent.toJson());
 
             // @formatter:off
-      
+
             com.stripe.param.PaymentIntentUpdateParams.Builder builder = com.stripe.param.PaymentIntentUpdateParams.builder()
                     .setAmount(totalChargeAsCents)
+                    .putMetadata(StripeMetadataService.PAYMENT_PURPOSE, StripeMetadataService.PAYMENT_PURPOSE_BOOKING_INITIAL_PAYMENT)
                     .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid())
                     .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS, costDetails.toJson());
-            
+
             if (paymentIntentQuestUpdateDTO.getSavePaymentMethodForFutureUse() != null && paymentIntentQuestUpdateDTO.getSavePaymentMethodForFutureUse()) {
                 builder.setSetupFutureUsage(PaymentIntentUpdateParams.SetupFutureUsage.OFF_SESSION);
             }
-            
+
             com.stripe.param.PaymentIntentUpdateParams updateParams = builder.build();
             // @formatter:on
 
@@ -260,5 +271,128 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
         }
 
         return false;
+    }
+
+    @Override
+    public PaymentIntentDTO createParentPaymentIntent(PaymentIntentParentCreateDTO paymentIntentParentDTO) {
+        Stripe.apiKey = stripeSecrets.getSecretKey();
+
+        Pair<Groomer, Parent> pair = stripePaymentIntentValidatorService.validateCreateParentPaymentIntent(paymentIntentParentDTO);
+
+        Groomer groomer = pair.getFirst();
+        Parent parent = pair.getSecond();
+
+        PaymentMethod paymentMethod = paymentMethodDAO.getByUuid(paymentIntentParentDTO.getPaymentMethodUuid()).orElse(null);
+
+        // Customer customer = stripeCustomerService.createPlaceHolderCustomer();
+
+        BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer, paymentIntentParentDTO.getAmount());
+
+        long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount()).multiply(BigDecimal.valueOf(100)).longValue();
+
+        //@formatter:off
+        com.stripe.param.PaymentIntentCreateParams.Builder builder = PaymentIntentCreateParams.builder()
+                .addPaymentMethodType("card")
+                .setAmount(totalChargeAsCents)
+                .setCurrency("usd")
+                .putMetadata(StripeMetadataService.env, env)
+                .putMetadata(StripeMetadataService.PAYMENT_PURPOSE, StripeMetadataService.PAYMENT_PURPOSE_BOOKING_INITIAL_PAYMENT)
+                .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid())
+                .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS, costDetails.toJson())
+                .setTransferGroup("group-" + UUID.randomUUID().toString());
+        // @formatter:on
+
+        // if (customer != null) {
+        // builder.setCustomer(customer.getId());
+        // }
+
+        if (paymentMethod != null && paymentMethod.getStripeId() != null && !paymentMethod.getStripeId().trim().isEmpty()) {
+            builder.setPaymentMethod(paymentMethod.getStripeId());
+        } else {
+            if (paymentIntentParentDTO.getSavePaymentMethodForFutureUse() != null && paymentIntentParentDTO.getSavePaymentMethodForFutureUse()) {
+                builder.setSetupFutureUsage(PaymentIntentCreateParams.SetupFutureUsage.OFF_SESSION);
+            }
+        }
+
+        PaymentIntentCreateParams createParams = builder.build();
+
+        PaymentIntent paymentIntent = null;
+
+        try {
+            paymentIntent = PaymentIntent.create(createParams);
+            System.out.println(paymentIntent.toJson());
+        } catch (StripeException e) {
+            log.warn("StripeException - createQuestPaymentIntent, msg={}", e.getMessage());
+            throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
+        }
+
+        double stripeChargeAmount = BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+
+        PaymentIntentDTO paymentIntentDTO = entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
+        paymentIntentDTO.setId(paymentIntent.getId());
+        paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
+        paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
+        paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
+
+        return paymentIntentDTO;
+    }
+
+    @Override
+    public PaymentIntentDTO updateParentPaymentIntent(PaymentIntentParentCreateDTO paymentIntentParentDTO) {
+        Stripe.apiKey = stripeSecrets.getSecretKey();
+
+        Pair<Groomer, Parent> pair = stripePaymentIntentValidatorService.validateUpdateParentPaymentIntent(paymentIntentParentDTO);
+
+        Groomer groomer = pair.getFirst();
+        Parent parent = pair.getSecond();
+
+        PaymentMethod paymentMethod = paymentMethodDAO.getByUuid(paymentIntentParentDTO.getPaymentMethodUuid()).orElse(null);
+
+        BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer, paymentIntentParentDTO.getAmount());
+
+        long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount()).multiply(BigDecimal.valueOf(100)).longValue();
+
+        PaymentIntent paymentIntent = null;
+
+        try {
+            paymentIntent = PaymentIntent.retrieve(paymentIntentParentDTO.getPaymentIntentId());
+            System.out.println(paymentIntent.toJson());
+
+            // @formatter:off
+
+            com.stripe.param.PaymentIntentUpdateParams.Builder builder = com.stripe.param.PaymentIntentUpdateParams.builder()
+                    .setAmount(totalChargeAsCents)
+                    .putMetadata(StripeMetadataService.PAYMENT_PURPOSE, StripeMetadataService.PAYMENT_PURPOSE_BOOKING_INITIAL_PAYMENT)
+                    .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid())
+                    .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS, costDetails.toJson());
+
+            if (paymentMethod != null && paymentMethod.getStripeId() != null && !paymentMethod.getStripeId().trim().isEmpty()) {
+                builder.setPaymentMethod(paymentMethod.getStripeId());
+            } else {
+                if (paymentIntentParentDTO.getSavePaymentMethodForFutureUse() != null && paymentIntentParentDTO.getSavePaymentMethodForFutureUse()) {
+                    builder.setSetupFutureUsage(PaymentIntentUpdateParams.SetupFutureUsage.OFF_SESSION);
+                }
+            }
+
+            com.stripe.param.PaymentIntentUpdateParams updateParams = builder.build();
+            // @formatter:on
+
+            paymentIntent = paymentIntent.update(updateParams);
+
+            System.out.println(paymentIntent.toJson());
+        } catch (StripeException e) {
+            log.warn("StripeException - updateQuestPaymentIntent, msg={}", e.getMessage());
+            throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
+        }
+
+        double stripeChargeAmount = BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+
+        PaymentIntentDTO paymentIntentDTO = entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
+        paymentIntentDTO.setId(paymentIntent.getId());
+        paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
+        paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
+        paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
+
+        return paymentIntentDTO;
     }
 }
