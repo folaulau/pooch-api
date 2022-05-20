@@ -298,13 +298,14 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
                 .putMetadata(StripeMetadataService.env, env)
                 .putMetadata(StripeMetadataService.PAYMENT_PURPOSE, StripeMetadataService.PAYMENT_PURPOSE_BOOKING_INITIAL_PAYMENT)
                 .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid())
+                .putMetadata(StripeMetadataService.PAYMENTINTENT_PARENT_UUID, parent.getUuid())
                 .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS, costDetails.toJson())
                 .setTransferGroup("group-" + UUID.randomUUID().toString());
         // @formatter:on
 
-        // if (customer != null) {
-        // builder.setCustomer(customer.getId());
-        // }
+        if (parent.getStripeCustomerId() != null) {
+          builder.setCustomer(parent.getStripeCustomerId());
+        }
 
         if (paymentMethod != null && paymentMethod.getStripeId() != null && !paymentMethod.getStripeId().trim().isEmpty()) {
             builder.setPaymentMethod(paymentMethod.getStripeId());
@@ -320,9 +321,9 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
         try {
             paymentIntent = PaymentIntent.create(createParams);
-            System.out.println(paymentIntent.toJson());
+            System.out.println("createParentPaymentIntent paymentIntent="+paymentIntent.toJson());
         } catch (StripeException e) {
-            log.warn("StripeException - createQuestPaymentIntent, msg={}", e.getMessage());
+            log.warn("StripeException - createParentPaymentIntent, msg={}", e.getMessage());
             throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
         }
 
@@ -364,8 +365,13 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
                     .setAmount(totalChargeAsCents)
                     .putMetadata(StripeMetadataService.PAYMENT_PURPOSE, StripeMetadataService.PAYMENT_PURPOSE_BOOKING_INITIAL_PAYMENT)
                     .putMetadata(StripeMetadataService.PAYMENTINTENT_GROOMER_UUID, groomer.getUuid())
+                    .putMetadata(StripeMetadataService.PAYMENTINTENT_PARENT_UUID, parent.getUuid())
                     .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS, costDetails.toJson());
 
+            if (parent.getStripeCustomerId() != null) {
+                builder.setCustomer(parent.getStripeCustomerId());
+            }
+            
             if (paymentMethod != null && paymentMethod.getStripeId() != null && !paymentMethod.getStripeId().trim().isEmpty()) {
                 builder.setPaymentMethod(paymentMethod.getStripeId());
             } else {
@@ -379,9 +385,9 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
             paymentIntent = paymentIntent.update(updateParams);
 
-            System.out.println(paymentIntent.toJson());
+            System.out.println("updateParentPaymentIntent paymentIntent="+paymentIntent.toJson());
         } catch (StripeException e) {
-            log.warn("StripeException - updateQuestPaymentIntent, msg={}", e.getMessage());
+            log.warn("StripeException - updateParentPaymentIntent, msg={}", e.getMessage());
             throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
         }
 
