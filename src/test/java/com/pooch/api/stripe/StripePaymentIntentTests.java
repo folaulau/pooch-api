@@ -477,7 +477,7 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
 
     // @formatter:off
 
-    bookingCost = 245D + 20;
+    bookingCost = 265D;
     
      paymentIntentCreateDTO = PaymentIntentParentCreateDTO.builder()
             .amount(bookingCost)
@@ -497,6 +497,11 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
 
      result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
+      contentAsString = result.getResponse().getContentAsString();
+
+      paymentIntentDTO =
+         objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
+     
     // @formatter:on
 
 
@@ -512,12 +517,12 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
     assertThat(paymentIntentDTO).isNotNull();
     assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
     assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
-    assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
     assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
     assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
     assertThat(paymentIntentDTO.getTotalChargeNowAmount()).isNotNull().isEqualTo(totalCharge);
     assertThat(paymentIntentDTO.getTotalChargeAtDropOffAmount()).isNotNull().isEqualTo(0);
     assertThat(paymentIntentDTO.getId()).isNotNull();
+    assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
   }
 
 }
