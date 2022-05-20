@@ -36,6 +36,7 @@ import com.pooch.api.entity.pooch.Training;
 import com.pooch.api.entity.pooch.vaccine.Vaccine;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.entity.role.Role;
+import com.pooch.api.exception.ApiException;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.stripe.StripeMetadataService;
 import com.pooch.api.library.stripe.paymentmethod.StripePaymentMethodService;
@@ -43,10 +44,11 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.PaymentIntent;
+import com.stripe.model.SetupIntent;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.CustomerUpdateParams;
 import com.stripe.param.PaymentIntentCreateParams;
-
+import com.stripe.param.SetupIntentUpdateParams;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -551,5 +553,33 @@ public class TestEntityGeneratorService {
     PaymentMethod pm = this.paymentMethodService.add(parent, paymentMethod);
 
     return pm;
+  }
+  
+  public SetupIntent addPaymentMethodAndConfirmSetupIntent(String setupIntentId, String paymentMethodId) {
+    
+    Stripe.apiKey = stripeSecrets.getSecretKey();
+    
+    SetupIntent setupIntent = null;
+    try {
+      setupIntent = SetupIntent.retrieve(setupIntentId);
+
+      log.info("setupIntent={}", setupIntent.toJson());
+      
+      setupIntent = setupIntent.update(SetupIntentUpdateParams.builder()
+          .setPaymentMethod(paymentMethodId)
+          .build());
+      
+      log.info("updated setupIntent={}", setupIntent.toJson());
+      
+      setupIntent = setupIntent.confirm();
+      
+      log.info("confirmed setupIntent={}", setupIntent.toJson());
+      
+    } catch (StripeException e) {
+      log.warn("StripeException - create, localMessage={}, userMessage={}", e.getLocalizedMessage(),
+          e.getUserMessage());
+    }
+    
+    return setupIntent;
   }
 }

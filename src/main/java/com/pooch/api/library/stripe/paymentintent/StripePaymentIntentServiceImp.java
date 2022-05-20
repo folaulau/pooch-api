@@ -46,94 +46,101 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StripePaymentIntentServiceImp implements StripePaymentIntentService {
 
-    @Autowired
-    @Qualifier(value = "stripeSecrets")
-    private StripeSecrets stripeSecrets;
+  @Autowired
+  @Qualifier(value = "stripeSecrets")
+  private StripeSecrets stripeSecrets;
 
-    @Autowired
-    private StripePaymentIntentValidatorService stripePaymentIntentValidatorService;
+  @Autowired
+  private StripePaymentIntentValidatorService stripePaymentIntentValidatorService;
 
-    @Value("${spring.profiles.active}")
-    private String env;
+  @Value("${spring.profiles.active}")
+  private String env;
 
-    @Value("${booking.fee:10}")
-    private Double bookingFee;
+  @Value("${booking.fee:10}")
+  private Double bookingFee;
 
-    @Autowired
-    private BookingCalculatorService bookingCalculatorService;
+  @Autowired
+  private BookingCalculatorService bookingCalculatorService;
 
-    @Autowired
-    private EntityDTOMapper entityDTOMapper;
+  @Autowired
+  private EntityDTOMapper entityDTOMapper;
 
-    @Autowired
-    private StripeCustomerService stripeCustomerService;
+  @Autowired
+  private StripeCustomerService stripeCustomerService;
 
-    @Autowired
-    private PaymentMethodDAO paymentMethodDAO;
+  @Autowired
+  private PaymentMethodDAO paymentMethodDAO;
 
-    @Override
-    public PaymentIntent getById(String paymentIntentId) {
+  @Override
+  public PaymentIntent getById(String paymentIntentId) {
 
-        Stripe.apiKey = stripeSecrets.getSecretKey();
+    Stripe.apiKey = stripeSecrets.getSecretKey();
 
-        PaymentIntent paymentIntent = null;
+    PaymentIntent paymentIntent = null;
 
-        try {
-            paymentIntent = PaymentIntent.retrieve(paymentIntentId);
-            log.info("paymentIntent={}", paymentIntent.toJson());
-        } catch (StripeException e) {
-            log.warn("StripeException - getById, msg={}, userMessage={}, stripeErrorMessage={}", e.getLocalizedMessage(), e.getUserMessage(), e.getStripeError().getMessage());
-        }
-
-        return paymentIntent;
+    try {
+      paymentIntent = PaymentIntent.retrieve(paymentIntentId);
+      log.info("paymentIntent={}", paymentIntent.toJson());
+    } catch (StripeException e) {
+      log.warn("StripeException - getById, msg={}, userMessage={}, stripeErrorMessage={}",
+          e.getLocalizedMessage(), e.getUserMessage(), e.getStripeError().getMessage());
     }
 
-    @Override
-    public PaymentIntentCollection getPaymentIntentsByCustomerId(String customerId, long limit, String startingAfter) {
+    return paymentIntent;
+  }
 
-        Stripe.apiKey = stripeSecrets.getSecretKey();
+  @Override
+  public PaymentIntentCollection getPaymentIntentsByCustomerId(String customerId, long limit,
+      String startingAfter) {
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("customer", customerId);
+    Stripe.apiKey = stripeSecrets.getSecretKey();
 
-        /**
-         * https://stripe.com/docs/api/invoices/list#list_invoices-limit<br/>
-         * default to 20
-         */
-        if (limit <= 0 || limit > 100) {
-            params.put("limit", 20);
-        } else {
-            params.put("limit", limit);
-        }
+    Map<String, Object> params = new HashMap<>();
+    params.put("customer", customerId);
 
-        if (null != startingAfter && startingAfter.length() > 0) {
-            params.put("starting_after", startingAfter);
-        }
-
-        PaymentIntentCollection paymentIntentCollection = null;
-
-        try {
-            paymentIntentCollection = PaymentIntent.list(params);
-        } catch (StripeException e) {
-            log.warn("StripeException - getPaymentIntentsByCustomerId, StripeException, localMessage={}, userMessage={}", e.getLocalizedMessage(), e.getUserMessage());
-        }
-
-        return paymentIntentCollection;
+    /**
+     * https://stripe.com/docs/api/invoices/list#list_invoices-limit<br/>
+     * default to 20
+     */
+    if (limit <= 0 || limit > 100) {
+      params.put("limit", 20);
+    } else {
+      params.put("limit", limit);
     }
 
-    @Override
-    public PaymentIntentDTO createQuestPaymentIntent(PaymentIntentQuestCreateDTO paymentIntentCreateDTO) {
-        Stripe.apiKey = stripeSecrets.getSecretKey();
+    if (null != startingAfter && startingAfter.length() > 0) {
+      params.put("starting_after", startingAfter);
+    }
 
-        Groomer groomer = stripePaymentIntentValidatorService.validateCreateQuestPaymentIntent(paymentIntentCreateDTO);
+    PaymentIntentCollection paymentIntentCollection = null;
 
-        // Customer customer = stripeCustomerService.createPlaceHolderCustomer();
+    try {
+      paymentIntentCollection = PaymentIntent.list(params);
+    } catch (StripeException e) {
+      log.warn("StripeException - getPaymentIntentsByCustomerId, localMessage={}, userMessage={}",
+          e.getLocalizedMessage(), e.getUserMessage());
+    }
 
-        BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer, paymentIntentCreateDTO.getAmount());
+    return paymentIntentCollection;
+  }
 
-        long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount()).multiply(BigDecimal.valueOf(100)).longValue();
+  @Override
+  public PaymentIntentDTO createQuestPaymentIntent(
+      PaymentIntentQuestCreateDTO paymentIntentCreateDTO) {
+    Stripe.apiKey = stripeSecrets.getSecretKey();
 
-        //@formatter:off
+    Groomer groomer = stripePaymentIntentValidatorService
+        .validateCreateQuestPaymentIntent(paymentIntentCreateDTO);
+
+    // Customer customer = stripeCustomerService.createPlaceHolderCustomer();
+
+    BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer,
+        paymentIntentCreateDTO.getAmount());
+
+    long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount())
+        .multiply(BigDecimal.valueOf(100)).longValue();
+
+    //@formatter:off
         com.stripe.param.PaymentIntentCreateParams.Builder builder = PaymentIntentCreateParams.builder()
                 .addPaymentMethodType("card")
                 .setAmount(totalChargeAsCents)
@@ -145,54 +152,61 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
                 .setTransferGroup("group-" + UUID.randomUUID().toString());
         // @formatter:on
 
-        // if (customer != null) {
-        // builder.setCustomer(customer.getId());
-        // }
+    // if (customer != null) {
+    // builder.setCustomer(customer.getId());
+    // }
 
-        if (paymentIntentCreateDTO.getSavePaymentMethodForFutureUse() != null && paymentIntentCreateDTO.getSavePaymentMethodForFutureUse()) {
-            builder.setSetupFutureUsage(PaymentIntentCreateParams.SetupFutureUsage.OFF_SESSION);
-        }
-
-        PaymentIntentCreateParams createParams = builder.build();
-
-        PaymentIntent paymentIntent = null;
-
-        try {
-            paymentIntent = PaymentIntent.create(createParams);
-            System.out.println(paymentIntent.toJson());
-        } catch (StripeException e) {
-            log.warn("StripeException - createQuestPaymentIntent, msg={}", e.getMessage());
-            throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
-        }
-
-        double stripeChargeAmount = BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-
-        PaymentIntentDTO paymentIntentDTO = entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
-        paymentIntentDTO.setId(paymentIntent.getId());
-        paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
-        paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
-        paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
-
-        return paymentIntentDTO;
+    if (paymentIntentCreateDTO.getSavePaymentMethodForFutureUse() != null
+        && paymentIntentCreateDTO.getSavePaymentMethodForFutureUse()) {
+      builder.setSetupFutureUsage(PaymentIntentCreateParams.SetupFutureUsage.OFF_SESSION);
     }
 
-    @Override
-    public PaymentIntentDTO updateQuestPaymentIntent(PaymentIntentQuestCreateDTO paymentIntentQuestUpdateDTO) {
-        Stripe.apiKey = stripeSecrets.getSecretKey();
+    PaymentIntentCreateParams createParams = builder.build();
 
-        Groomer groomer = stripePaymentIntentValidatorService.validateUpdateQuestPaymentIntent(paymentIntentQuestUpdateDTO);
+    PaymentIntent paymentIntent = null;
 
-        BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer, paymentIntentQuestUpdateDTO.getAmount());
+    try {
+      paymentIntent = PaymentIntent.create(createParams);
+      System.out.println(paymentIntent.toJson());
+    } catch (StripeException e) {
+      log.warn("StripeException - createQuestPaymentIntent, msg={}", e.getMessage());
+      throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
+    }
 
-        long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount()).multiply(BigDecimal.valueOf(100)).longValue();
+    double stripeChargeAmount = BigDecimal.valueOf(paymentIntent.getAmount())
+        .divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
 
-        PaymentIntent paymentIntent = null;
+    PaymentIntentDTO paymentIntentDTO =
+        entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
+    paymentIntentDTO.setId(paymentIntent.getId());
+    paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
+    paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
+    paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
 
-        try {
-            paymentIntent = PaymentIntent.retrieve(paymentIntentQuestUpdateDTO.getPaymentIntentId());
-            System.out.println(paymentIntent.toJson());
+    return paymentIntentDTO;
+  }
 
-            // @formatter:off
+  @Override
+  public PaymentIntentDTO updateQuestPaymentIntent(
+      PaymentIntentQuestCreateDTO paymentIntentQuestUpdateDTO) {
+    Stripe.apiKey = stripeSecrets.getSecretKey();
+
+    Groomer groomer = stripePaymentIntentValidatorService
+        .validateUpdateQuestPaymentIntent(paymentIntentQuestUpdateDTO);
+
+    BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer,
+        paymentIntentQuestUpdateDTO.getAmount());
+
+    long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount())
+        .multiply(BigDecimal.valueOf(100)).longValue();
+
+    PaymentIntent paymentIntent = null;
+
+    try {
+      paymentIntent = PaymentIntent.retrieve(paymentIntentQuestUpdateDTO.getPaymentIntentId());
+      System.out.println(paymentIntent.toJson());
+
+      // @formatter:off
 
             com.stripe.param.PaymentIntentUpdateParams.Builder builder = com.stripe.param.PaymentIntentUpdateParams.builder()
                     .setAmount(totalChargeAsCents)
@@ -207,90 +221,95 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
             com.stripe.param.PaymentIntentUpdateParams updateParams = builder.build();
             // @formatter:on
 
-            paymentIntent = paymentIntent.update(updateParams);
+      paymentIntent = paymentIntent.update(updateParams);
 
-            System.out.println(paymentIntent.toJson());
-        } catch (StripeException e) {
-            log.warn("StripeException - updateQuestPaymentIntent, msg={}", e.getMessage());
-            throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
-        }
-
-        double stripeChargeAmount = BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-
-        PaymentIntentDTO paymentIntentDTO = entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
-        paymentIntentDTO.setId(paymentIntent.getId());
-        paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
-        paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
-        paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
-
-        return paymentIntentDTO;
+      System.out.println(paymentIntent.toJson());
+    } catch (StripeException e) {
+      log.warn("StripeException - updateQuestPaymentIntent, msg={}", e.getMessage());
+      throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
     }
 
-    @Override
-    public boolean transferFundsToGroomer(PaymentIntent pi, Groomer groomer) {
-        Stripe.apiKey = stripeSecrets.getSecretKey();
+    double stripeChargeAmount = BigDecimal.valueOf(paymentIntent.getAmount())
+        .divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
 
-        PaymentIntent paymentIntent = null;
+    PaymentIntentDTO paymentIntentDTO =
+        entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
+    paymentIntentDTO.setId(paymentIntent.getId());
+    paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
+    paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
+    paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
 
-        try {
-            paymentIntent = PaymentIntent.retrieve(pi.getId());
+    return paymentIntentDTO;
+  }
 
-            String transferGroup = paymentIntent.getTransferGroup();
+  @Override
+  public boolean transferFundsToGroomer(PaymentIntent pi, Groomer groomer) {
+    Stripe.apiKey = stripeSecrets.getSecretKey();
 
-            BookingCostDetails costDetails = BookingCostDetails.fromJson(paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
+    PaymentIntent paymentIntent = null;
 
-            BigDecimal bookingCost = BigDecimal.valueOf(costDetails.getBookingCost());
+    try {
+      paymentIntent = PaymentIntent.retrieve(pi.getId());
 
-            List<com.stripe.model.Charge> charges = paymentIntent.getCharges().getData();
+      String transferGroup = paymentIntent.getTransferGroup();
 
-            com.stripe.model.Charge charge = charges.get(charges.size() - 1);
+      BookingCostDetails costDetails = BookingCostDetails.fromJson(
+          paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
 
-            /**
-             * make sure TransferGroup is the same from the payment intent
-             */
-            TransferCreateParams transferParams = TransferCreateParams.builder()
-                    .setAmount(bookingCost.multiply(BigDecimal.valueOf(100)).longValue())
-                    .setCurrency("usd")
-                    .setDestination(groomer.getStripeConnectedAccountId())
+      BigDecimal bookingCost = BigDecimal.valueOf(costDetails.getBookingCost());
 
-                    // https://stripe.com/docs/connect/charges-transfers#transfer-availability
-                    .setSourceTransaction(charge.getId())
-                    .setTransferGroup(transferGroup)
-                    .build();
+      List<com.stripe.model.Charge> charges = paymentIntent.getCharges().getData();
 
-            System.out.println("transferParams: " + transferParams.toMap().toString());
+      com.stripe.model.Charge charge = charges.get(charges.size() - 1);
 
-            Transfer transfer = Transfer.create(transferParams);
+      /**
+       * make sure TransferGroup is the same from the payment intent
+       */
+      TransferCreateParams transferParams = TransferCreateParams.builder()
+          .setAmount(bookingCost.multiply(BigDecimal.valueOf(100)).longValue()).setCurrency("usd")
+          .setDestination(groomer.getStripeConnectedAccountId())
 
-            System.out.println("transfer: " + transfer.toJson());
+          // https://stripe.com/docs/connect/charges-transfers#transfer-availability
+          .setSourceTransaction(charge.getId()).setTransferGroup(transferGroup).build();
 
-        } catch (StripeException e) {
-            log.warn("StripeException - transferFundsToGroomer, msg={}", e.getMessage());
+      System.out.println("transferParams: " + transferParams.toMap().toString());
 
-            return false;
-        }
+      Transfer transfer = Transfer.create(transferParams);
 
-        return false;
+      System.out.println("transfer: " + transfer.toJson());
+
+    } catch (StripeException e) {
+      log.warn("StripeException - transferFundsToGroomer, msg={}", e.getMessage());
+
+      return false;
     }
 
-    @Override
-    public PaymentIntentDTO createParentPaymentIntent(PaymentIntentParentCreateDTO paymentIntentParentDTO) {
-        Stripe.apiKey = stripeSecrets.getSecretKey();
+    return false;
+  }
 
-        Pair<Groomer, Parent> pair = stripePaymentIntentValidatorService.validateCreateParentPaymentIntent(paymentIntentParentDTO);
+  @Override
+  public PaymentIntentDTO createParentPaymentIntent(
+      PaymentIntentParentCreateDTO paymentIntentParentDTO) {
+    Stripe.apiKey = stripeSecrets.getSecretKey();
 
-        Groomer groomer = pair.getFirst();
-        Parent parent = pair.getSecond();
+    Pair<Groomer, Parent> pair = stripePaymentIntentValidatorService
+        .validateCreateParentPaymentIntent(paymentIntentParentDTO);
 
-        PaymentMethod paymentMethod = paymentMethodDAO.getByUuid(paymentIntentParentDTO.getPaymentMethodUuid()).orElse(null);
+    Groomer groomer = pair.getFirst();
+    Parent parent = pair.getSecond();
 
-        // Customer customer = stripeCustomerService.createPlaceHolderCustomer();
+    PaymentMethod paymentMethod =
+        paymentMethodDAO.getByUuid(paymentIntentParentDTO.getPaymentMethodUuid()).orElse(null);
 
-        BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer, paymentIntentParentDTO.getAmount());
+    // Customer customer = stripeCustomerService.createPlaceHolderCustomer();
 
-        long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount()).multiply(BigDecimal.valueOf(100)).longValue();
+    BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer,
+        paymentIntentParentDTO.getAmount());
 
-        //@formatter:off
+    long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount())
+        .multiply(BigDecimal.valueOf(100)).longValue();
+
+    //@formatter:off
         com.stripe.param.PaymentIntentCreateParams.Builder builder = PaymentIntentCreateParams.builder()
                 .addPaymentMethodType("card")
                 .setAmount(totalChargeAsCents)
@@ -303,63 +322,72 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
                 .setTransferGroup("group-" + UUID.randomUUID().toString());
         // @formatter:on
 
-        if (parent.getStripeCustomerId() != null) {
-          builder.setCustomer(parent.getStripeCustomerId());
-        }
-
-        if (paymentMethod != null && paymentMethod.getStripeId() != null && !paymentMethod.getStripeId().trim().isEmpty()) {
-            builder.setPaymentMethod(paymentMethod.getStripeId());
-        } else {
-            if (paymentIntentParentDTO.getSavePaymentMethodForFutureUse() != null && paymentIntentParentDTO.getSavePaymentMethodForFutureUse()) {
-                builder.setSetupFutureUsage(PaymentIntentCreateParams.SetupFutureUsage.OFF_SESSION);
-            }
-        }
-
-        PaymentIntentCreateParams createParams = builder.build();
-
-        PaymentIntent paymentIntent = null;
-
-        try {
-            paymentIntent = PaymentIntent.create(createParams);
-            System.out.println("createParentPaymentIntent paymentIntent="+paymentIntent.toJson());
-        } catch (StripeException e) {
-            log.warn("StripeException - createParentPaymentIntent, msg={}", e.getMessage());
-            throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
-        }
-
-        double stripeChargeAmount = BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-
-        PaymentIntentDTO paymentIntentDTO = entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
-        paymentIntentDTO.setId(paymentIntent.getId());
-        paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
-        paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
-        paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
-
-        return paymentIntentDTO;
+    if (parent.getStripeCustomerId() != null) {
+      builder.setCustomer(parent.getStripeCustomerId());
     }
 
-    @Override
-    public PaymentIntentDTO updateParentPaymentIntent(PaymentIntentParentCreateDTO paymentIntentParentDTO) {
-        Stripe.apiKey = stripeSecrets.getSecretKey();
+    if (paymentMethod != null && paymentMethod.getStripeId() != null
+        && !paymentMethod.getStripeId().trim().isEmpty()) {
+      builder.setPaymentMethod(paymentMethod.getStripeId());
+    } else {
+      if (paymentIntentParentDTO.getSavePaymentMethodForFutureUse() != null
+          && paymentIntentParentDTO.getSavePaymentMethodForFutureUse()) {
+        builder.setSetupFutureUsage(PaymentIntentCreateParams.SetupFutureUsage.OFF_SESSION);
+      }
+    }
 
-        Pair<Groomer, Parent> pair = stripePaymentIntentValidatorService.validateUpdateParentPaymentIntent(paymentIntentParentDTO);
+    PaymentIntentCreateParams createParams = builder.build();
 
-        Groomer groomer = pair.getFirst();
-        Parent parent = pair.getSecond();
+    PaymentIntent paymentIntent = null;
 
-        PaymentMethod paymentMethod = paymentMethodDAO.getByUuid(paymentIntentParentDTO.getPaymentMethodUuid()).orElse(null);
+    try {
+      paymentIntent = PaymentIntent.create(createParams);
+      System.out.println("createParentPaymentIntent paymentIntent=" + paymentIntent.toJson());
+    } catch (StripeException e) {
+      log.warn("StripeException - createParentPaymentIntent, msg={}", e.getMessage());
+      throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
+    }
 
-        BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer, paymentIntentParentDTO.getAmount());
+    double stripeChargeAmount = BigDecimal.valueOf(paymentIntent.getAmount())
+        .divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
 
-        long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount()).multiply(BigDecimal.valueOf(100)).longValue();
+    PaymentIntentDTO paymentIntentDTO =
+        entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
+    paymentIntentDTO.setId(paymentIntent.getId());
+    paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
+    paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
+    paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
 
-        PaymentIntent paymentIntent = null;
+    return paymentIntentDTO;
+  }
 
-        try {
-            paymentIntent = PaymentIntent.retrieve(paymentIntentParentDTO.getPaymentIntentId());
-            System.out.println(paymentIntent.toJson());
+  @Override
+  public PaymentIntentDTO updateParentPaymentIntent(
+      PaymentIntentParentCreateDTO paymentIntentParentDTO) {
+    Stripe.apiKey = stripeSecrets.getSecretKey();
 
-            // @formatter:off
+    Pair<Groomer, Parent> pair = stripePaymentIntentValidatorService
+        .validateUpdateParentPaymentIntent(paymentIntentParentDTO);
+
+    Groomer groomer = pair.getFirst();
+    Parent parent = pair.getSecond();
+
+    PaymentMethod paymentMethod =
+        paymentMethodDAO.getByUuid(paymentIntentParentDTO.getPaymentMethodUuid()).orElse(null);
+
+    BookingCostDetails costDetails = bookingCalculatorService.generatePaymentIntentDetails(groomer,
+        paymentIntentParentDTO.getAmount());
+
+    long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeNowAmount())
+        .multiply(BigDecimal.valueOf(100)).longValue();
+
+    PaymentIntent paymentIntent = null;
+
+    try {
+      paymentIntent = PaymentIntent.retrieve(paymentIntentParentDTO.getPaymentIntentId());
+      System.out.println(paymentIntent.toJson());
+
+      // @formatter:off
 
             com.stripe.param.PaymentIntentUpdateParams.Builder builder = com.stripe.param.PaymentIntentUpdateParams.builder()
                     .setAmount(totalChargeAsCents)
@@ -383,22 +411,24 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
             com.stripe.param.PaymentIntentUpdateParams updateParams = builder.build();
             // @formatter:on
 
-            paymentIntent = paymentIntent.update(updateParams);
+      paymentIntent = paymentIntent.update(updateParams);
 
-            System.out.println("updateParentPaymentIntent paymentIntent="+paymentIntent.toJson());
-        } catch (StripeException e) {
-            log.warn("StripeException - updateParentPaymentIntent, msg={}", e.getMessage());
-            throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
-        }
-
-        double stripeChargeAmount = BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-
-        PaymentIntentDTO paymentIntentDTO = entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
-        paymentIntentDTO.setId(paymentIntent.getId());
-        paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
-        paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
-        paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
-
-        return paymentIntentDTO;
+      System.out.println("updateParentPaymentIntent paymentIntent=" + paymentIntent.toJson());
+    } catch (StripeException e) {
+      log.warn("StripeException - updateParentPaymentIntent, msg={}", e.getMessage());
+      throw new ApiException(e.getMessage(), "StripeException, msg=" + e.getMessage());
     }
+
+    double stripeChargeAmount = BigDecimal.valueOf(paymentIntent.getAmount())
+        .divide(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+
+    PaymentIntentDTO paymentIntentDTO =
+        entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
+    paymentIntentDTO.setId(paymentIntent.getId());
+    paymentIntentDTO.setTotalChargeNowAmount(stripeChargeAmount);
+    paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
+    paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
+
+    return paymentIntentDTO;
+  }
 }

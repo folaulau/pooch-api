@@ -115,6 +115,6 @@ public interface EntityDTOMapper {
     @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
     void patchParentWithParentUpdateDTO(ParentUpdateDTO parentUpdateDTO, @MappingTarget Parent parent);
 
-
+    PaymentMethodDTO mapPaymentMethodToPaymentMethod(PaymentMethod paymentMethod);
 
 }

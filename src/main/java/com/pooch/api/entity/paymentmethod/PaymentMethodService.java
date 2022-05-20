@@ -17,7 +17,6 @@ public interface PaymentMethodService {
 
     List<PaymentMethod> getByParentUuid(String parentUuid);
 
-    List<PaymentMethod> add(String parentUuid, PaymentMethod paymentMethod);
 
     // List<PaymentMethod> remove(Long accountId, PaymentMethodDeleteDTO paymentMethodDeleteDTO);
 
