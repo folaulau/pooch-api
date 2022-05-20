@@ -132,6 +132,9 @@ public class StripeCustomerServiceImp implements StripeCustomerService {
  
         CustomerCreateParams.Builder builder = CustomerCreateParams.builder();
 
+        builder.setName(parent.getFullName());
+        builder.putMetadata(StripeMetadataService.env,env);
+
         // @formatter:on
 
         if (parent.getPhoneNumber() != null) {

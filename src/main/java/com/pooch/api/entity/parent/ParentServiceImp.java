@@ -150,6 +150,10 @@ public class ParentServiceImp implements ParentService {
 
             petParent.setPhoneNumber(phoneNumber);
 
+            com.stripe.model.Customer customer = stripeCustomerService.createParentDetails(petParent);
+
+            petParent.setStripeCustomerId(customer.getId());
+
             petParent = parentDAO.save(petParent);
         }
 

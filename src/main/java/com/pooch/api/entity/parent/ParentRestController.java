@@ -99,7 +99,8 @@ public class ParentRestController {
     return new ResponseEntity<>(new ApiDefaultResponseDTO(ApiDefaultResponseDTO.SUCCESS), OK);
   }
 
-  @Operation(summary = "Add PaymentMethod", description = "Add PaymentMethod with setupIntent")
+  @Operation(summary = "Add PaymentMethod",
+      description = "Add PaymentMethod with setupIntent. This endpoint assumes that the setupIntent has been added the PaymentMethod from the UI")
   @PostMapping(value = "/{uuid}/paymentmethod")
   public ResponseEntity<PaymentMethodDTO> addPaymentMethod(
       @RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
