@@ -412,8 +412,6 @@ public class TestEntityGeneratorService {
 
     double bookingCost = amount;
 
-    bookingCost = MathUtils.getTwoDecimalPlaces(bookingCost);
-
     double chargeAmount = bookingCost + bookingFee;
     long chargeAmountAsCents =
         BigDecimal.valueOf(chargeAmount).multiply(BigDecimal.valueOf(100)).longValue();

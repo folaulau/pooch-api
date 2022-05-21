@@ -133,16 +133,11 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
     Double bookingCost =
         MathUtils.getTwoDecimalPlaces(RandomGeneratorUtils.getDoubleWithin(20, 300));
 
-    // com.stripe.model.Customer customer = testEntityGeneratorService.createCustomer(petParent);
-
     String paymentMethodId = testEntityGeneratorService.getPaymentMethod(petParent.getFullName());
-
-    System.out.println("paymentMethodId=" + paymentMethodId);
 
     com.stripe.model.PaymentIntent paymentIntent =
         testEntityGeneratorService.createAndConfirmPaymentIntent(bookingCost, paymentMethodId);
 
-    System.out.println("paymentIntent=" + paymentIntent.toJson());
 
     ParentCreateUpdateDTO petParentDTO =
         entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
@@ -313,7 +308,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
 
     BookingDTO bookingDTO =
         objectMapper.readValue(contentAsString, new TypeReference<BookingDTO>() {});
-
+    
     assertThat(bookingDTO).isNotNull();
     assertThat(bookingDTO.getId()).isNotNull().isGreaterThan(0);
     assertThat(bookingDTO.getUuid()).isNotNull();
