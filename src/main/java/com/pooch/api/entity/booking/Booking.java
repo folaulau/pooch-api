@@ -113,7 +113,6 @@ public class Booking implements Serializable {
   @Column(name = "stripe_payment_intent_id", nullable = true)
   private String stripePaymentIntentId;
 
-
   @Column(name = "booking_cost")
   private Double bookingCost;
 
