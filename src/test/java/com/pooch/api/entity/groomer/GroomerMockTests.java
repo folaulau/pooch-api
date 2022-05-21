@@ -100,7 +100,7 @@ class GroomerMockTests {
         address.setLongitude(-118.4355353);
         groomer.setAddress(address);
 
-        groomer.calculateDistanceFromSearch(new GeoPoint(34.043148, -118.4750169), 3);
+        groomer.generateCalculatedValues(new GeoPoint(34.043148, -118.4750169), 3);
 
         System.out.println("groomer: " + ObjectUtils.toJson(groomer));
     }

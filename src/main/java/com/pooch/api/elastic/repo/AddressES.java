@@ -53,6 +53,9 @@ public class AddressES implements Serializable {
     @GeoPointField
     private GeoPoint          location;
 
+    /**
+     * calculated field based on search location
+     */
     @Transient
     private Double            distanceFromSearch;
 

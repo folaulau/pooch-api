@@ -184,9 +184,9 @@ public class LocalAppConfig {
         try {
             log.info("username={}, password={}", username, password);
 
-            // clusterNode = "dev-elastic.poochapp.net";
-            // clusterHttpType = "http";
-            // clusterHttpPort = 9200;
+//             clusterNode = "search-dev-es-pooch-api-x4vu7wl4j4bccdz6wn6abne5uu.us-west-2.es.amazonaws.com";
+//             clusterHttpType = "https";
+//             clusterHttpPort = 443;
 
             log.info("clusterNode={}, httpType={}", clusterNode, this.clusterHttpType);
 
@@ -202,7 +202,7 @@ public class LocalAppConfig {
       RestClientBuilder restClientBuilder =
           RestClient.builder(new HttpHost(clusterNode, clusterHttpPort, clusterHttpType));
 
-      restClientBuilder.setHttpClientConfigCallback(
+      restClientBuilder = restClientBuilder.setHttpClientConfigCallback(
           new RestClientBuilder.HttpClientConfigCallback() {
             @Override
             public HttpAsyncClientBuilder customizeHttpClient(
@@ -219,7 +219,7 @@ public class LocalAppConfig {
             }
           });
       log.info("HttpClientConfigCallback set!");
-      restClientBuilder.setRequestConfigCallback(
+      restClientBuilder = restClientBuilder.setRequestConfigCallback(
           new RestClientBuilder.RequestConfigCallback() {
 
             @Override

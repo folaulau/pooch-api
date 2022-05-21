@@ -230,7 +230,7 @@ public class Groomer implements Serializable {
             str.append(this.lastName);
         }
 
-        return null;
+        return str.toString();
     }
 
     public boolean isActive() {

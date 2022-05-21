@@ -251,7 +251,7 @@ public class GroomerESDAOImp implements GroomerESDAO {
 
                 GroomerES obj = ObjectUtils.getObjectMapper().readValue(searchHit.getSourceAsString(), new TypeReference<GroomerES>() {});
                 // log.info("obj={}", ObjectUtils.toJson(obj));
-                obj.calculateDistanceFromSearch(searchLocation, radius);
+                obj.generateCalculatedValues(searchLocation, radius);
 
                 // obj.filterOutUnreachableLocations(searchLocation, radius);
 

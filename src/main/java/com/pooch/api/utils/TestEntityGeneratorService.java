@@ -120,7 +120,7 @@ public class TestEntityGeneratorService {
     groomer.setEmailVerified(false);
     groomer.setBusinessName((firstName + " " + lastName).toLowerCase());
     groomer.setNumberOfOccupancy(RandomGeneratorUtils.getLongWithin(2L, 100L));
-    groomer.setChargePerMile(RandomGeneratorUtils.getDoubleWithin(1D, 3D));
+    groomer.setChargePerMile(MathUtils.getTwoDecimalPlaces(RandomGeneratorUtils.getDoubleWithin(2D, 20D)));
     groomer.setOfferedDropOff(true);
     groomer.setOfferedPickUp(true);
     groomer.setStatus(GroomerStatus.SIGNING_UP);

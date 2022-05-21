@@ -43,6 +43,7 @@ import javax.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -52,251 +53,400 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureMockMvc
 public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration {
 
-    @Autowired
-    private MockMvc                    mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @Resource
-    private WebApplicationContext      webApplicationContext;
+  @Resource
+  private WebApplicationContext webApplicationContext;
 
-    @Autowired
-    private ObjectMapper               objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    @Autowired
-    private Filter                     springSecurityFilterChain;
+  @Autowired
+  private Filter springSecurityFilterChain;
 
-    @MockBean
-    private JwtTokenService            jwtTokenService;
+  @MockBean
+  private JwtTokenService jwtTokenService;
 
-    @Autowired
-    private GroomerESRepository        groomerESRepository;
+  @Autowired
+  private GroomerESRepository groomerESRepository;
 
-    @Autowired
-    private GroomerService             groomerService;
+  @Autowired
+  private GroomerService groomerService;
 
-    @Captor
-    private ArgumentCaptor<String>     tokenCaptor;
+  @Captor
+  private ArgumentCaptor<String> tokenCaptor;
 
-    private String                     GROOMER_TOKEN = "GROOMER_TOKEN";
-    private String                     GROOMER_UUID  = "GROOMER_UUID";
+  private String GROOMER_TOKEN = "GROOMER_TOKEN";
+  private String GROOMER_UUID = "GROOMER_UUID";
 
-    @Autowired
-    private TestEntityGeneratorService testEntityGeneratorService;
-    @Autowired
-    private EntityDTOMapper            entityDTOMapper;
+  @Autowired
+  private TestEntityGeneratorService testEntityGeneratorService;
+  @Autowired
+  private EntityDTOMapper entityDTOMapper;
 
-    private List<GroomerES>            groomers      = null;
+  private List<GroomerES> groomers = null;
 
-    @BeforeEach
-    public void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).addFilters(springSecurityFilterChain).build();
+  @BeforeEach
+  public void setUp() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+        .addFilters(springSecurityFilterChain).build();
 
-        JwtPayload groomerJwtPayload = new JwtPayload();
-        groomerJwtPayload.setUuid(GROOMER_UUID);
-        groomerJwtPayload.setRole(Authority.groomer.name());
+    JwtPayload groomerJwtPayload = new JwtPayload();
+    groomerJwtPayload.setUuid(GROOMER_UUID);
+    groomerJwtPayload.setRole(Authority.groomer.name());
 
-        Mockito.when(jwtTokenService.getPayloadByToken(GROOMER_TOKEN)).thenReturn(groomerJwtPayload);
+    Mockito.when(jwtTokenService.getPayloadByToken(GROOMER_TOKEN)).thenReturn(groomerJwtPayload);
 
-        groomers = new ArrayList<>();
-    }
+    groomers = new ArrayList<>();
+  }
 
-    // @Disabled
-    @Transactional
-    @Test
-    void itShouldSearchWithFiltersRadius_valid() throws Exception {
+  // @Disabled
+  @Transactional
+  @Test
+  void itShouldSearchWithFiltersRadius_valid() throws Exception {
 
-        /**
-         * Groomer #1<br>
-         * 1043 Franklin St, Santa Monica, CA 90403<br>
-         * lat: 34.043148, long: -118.4750169<br>
-         */
-        GroomerES groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
+    /**
+     * Groomer #1<br>
+     * 1043 Franklin St, Santa Monica, CA 90403<br>
+     * lat: 34.043148, long: -118.4750169<br>
+     */
+    GroomerES groomer =
+        entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
 
-        Address address = new Address();
-        address.setCity("Santa Monica");
-        address.setState("CA");
-        address.setZipcode("90403");
-        address.setStreet("1043 Franklin St");
-        address.setLatitude(34.043148);
-        address.setLongitude(-118.4750169);
-        groomer.setAddress(null);
-        groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
+    Address address = new Address();
+    address.setCity("Santa Monica");
+    address.setState("CA");
+    address.setZipcode("90403");
+    address.setStreet("1043 Franklin St");
+    address.setLatitude(34.043148);
+    address.setLongitude(-118.4750169);
+    groomer.setAddress(null);
+    groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
-        groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
-        groomer.setStatus(GroomerStatus.ACTIVE);
-        groomer = groomerESRepository.save(groomer);
-        groomers.add(groomer);
-        /**
-         * Groomer #2<br>
-         * 1116 Stanford St, Santa Monica, CA 90403<br>
-         * lat: 34.0400821, -118.475029<br>
-         */
-        groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
+    groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
+    groomer.setStatus(GroomerStatus.ACTIVE);
+    groomer = groomerESRepository.save(groomer);
+    groomers.add(groomer);
+    /**
+     * Groomer #2<br>
+     * 1116 Stanford St, Santa Monica, CA 90403<br>
+     * lat: 34.0400821, -118.475029<br>
+     */
+    groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
 
-        address = new Address();
-        address.setCity("Santa Monica");
-        address.setState("CA");
-        address.setZipcode("90403");
-        address.setStreet("1116 Stanford St");
-        address.setLatitude(34.0400821);
-        address.setLongitude(-118.475029);
-        groomer.setAddress(null);
-        groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
+    address = new Address();
+    address.setCity("Santa Monica");
+    address.setState("CA");
+    address.setZipcode("90403");
+    address.setStreet("1116 Stanford St");
+    address.setLatitude(34.0400821);
+    address.setLongitude(-118.475029);
+    groomer.setAddress(null);
+    groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
-        groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
-        groomer.setStatus(GroomerStatus.ACTIVE);
-        groomer = groomerESRepository.save(groomer);
-        groomers.add(groomer);
-        
-        Thread.sleep(500);
+    groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
+    groomer.setStatus(GroomerStatus.ACTIVE);
+    groomer = groomerESRepository.save(groomer);
+    groomers.add(groomer);
 
-        System.out.println("groomer: " + ObjectUtils.toJson(groomer));
+    Thread.sleep(500);
 
-        double distanceFromMainGroomer = MathUtils.distance(34.043148, 34.0400821, -118.4750169, -118.475029);
-        System.out.println("distanceFromMainGroomer: " + distanceFromMainGroomer);
+    System.out.println("groomer: " + ObjectUtils.toJson(groomer));
 
-        /**
-         * Groomer #3<br>
-         * 3408 Pearl St, Santa Monica, CA 90405<br>
-         * lat: 34.0251161, -118.4517642<br>
-         */
-        groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
+    double distanceFromMainGroomer =
+        MathUtils.distance(34.043148, 34.0400821, -118.4750169, -118.475029);
+    System.out.println("distanceFromMainGroomer: " + distanceFromMainGroomer);
 
-        address = new Address();
-        address.setCity("Santa Monica");
-        address.setState("CA");
-        address.setZipcode("90405");
-        address.setStreet("3408 Pearl St");
-        address.setLatitude(34.0251161);
-        address.setLongitude(-118.4517642);
-        groomer.setAddress(null);
-        groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
+    /**
+     * Groomer #3<br>
+     * 3408 Pearl St, Santa Monica, CA 90405<br>
+     * lat: 34.0251161, -118.4517642<br>
+     */
+    groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
 
-        groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
-        groomer.setStatus(GroomerStatus.ACTIVE);
-        groomer = groomerESRepository.save(groomer);
-        groomers.add(groomer);
+    address = new Address();
+    address.setCity("Santa Monica");
+    address.setState("CA");
+    address.setZipcode("90405");
+    address.setStreet("3408 Pearl St");
+    address.setLatitude(34.0251161);
+    address.setLongitude(-118.4517642);
+    groomer.setAddress(null);
+    groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
-        Thread.sleep(1000);
+    groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
+    groomer.setStatus(GroomerStatus.ACTIVE);
+    groomer = groomerESRepository.save(groomer);
+    groomers.add(groomer);
 
-        distanceFromMainGroomer = MathUtils.distance(34.043148, 34.0251161, -118.4750169, -118.4517642);
-        System.out.println("distanceFromMainGroomer: " + distanceFromMainGroomer);
+    Thread.sleep(1000);
 
-        /**
-         * Use groomer #1 as starting point, lat: 34.043148, long: -118.4750169<br>
-         */
-        GroomerSearchParamsDTO filters = new GroomerSearchParamsDTO();
-        filters.setLatitude(34.043148);
-        filters.setLongitude(-118.4750169);
-        filters.setDistance(1);
+    distanceFromMainGroomer = MathUtils.distance(34.043148, 34.0251161, -118.4750169, -118.4517642);
+    System.out.println("distanceFromMainGroomer: " + distanceFromMainGroomer);
 
-        CustomPage<GroomerES> searchResult = groomerService.search(filters);
+    /**
+     * Use groomer #1 as starting point, lat: 34.043148, long: -118.4750169<br>
+     */
+    GroomerSearchParamsDTO filters = new GroomerSearchParamsDTO();
+    filters.setLatitude(34.043148);
+    filters.setLongitude(-118.4750169);
+    filters.setDistance(1);
 
-        System.out.println("search result");
-        System.out.println(searchResult.toString());
+    CustomPage<GroomerES> searchResult = groomerService.search(filters);
 
-        assertThat(searchResult).isNotNull();
-        // groomer 1 and 2
-        assertThat(searchResult.getTotalElements()).isGreaterThanOrEqualTo(2);
-    }
+    System.out.println("search result");
+    System.out.println(searchResult.toString());
 
-    @Transactional
-    @Test
-    void itShouldSearchWithFiltersRadiusAndDistance_valid() throws Exception {
+    assertThat(searchResult).isNotNull();
+    // groomer 1 and 2
+    assertThat(searchResult.getTotalElements()).isGreaterThanOrEqualTo(2);
+  }
 
-        /**
-         * Groomer #1<br>
-         * 1043 Franklin St, Santa Monica, CA 90403<br>
-         * lat: 34.043148, long: -118.4750169<br>
-         */
-        GroomerES groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
+  @Transactional
+  @Test
+  void itShouldSearchWithFiltersRadiusAndDistance_valid() throws Exception {
 
-        Address address = new Address();
-        address.setCity("Santa Monica");
-        address.setState("CA");
-        address.setZipcode("90403");
-        address.setStreet("1043 Franklin St");
-        address.setLatitude(34.043148);
-        address.setLongitude(-118.4750169);
-        groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
+    /**
+     * Groomer #1<br>
+     * 1043 Franklin St, Santa Monica, CA 90403<br>
+     * lat: 34.043148, long: -118.4750169<br>
+     */
+    GroomerES groomer =
+        entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
 
-        groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
-        groomer.setStatus(GroomerStatus.ACTIVE);
-        groomer = groomerESRepository.save(groomer);
-        groomers.add(groomer);
-        /**
-         * Groomer #2<br>
-         * 1116 Stanford St, Santa Monica, CA 90403<br>
-         * lat: 34.0400821, -118.475029<br>
-         */
-        groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
+    Address address = new Address();
+    address.setCity("Santa Monica");
+    address.setState("CA");
+    address.setZipcode("90403");
+    address.setStreet("1043 Franklin St");
+    address.setLatitude(34.043148);
+    address.setLongitude(-118.4750169);
+    groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
-        address = new Address();
-        address.setCity("Santa Monica");
-        address.setState("CA");
-        address.setZipcode("90403");
-        address.setStreet("1116 Stanford St");
-        address.setLatitude(34.0400821);
-        address.setLongitude(-118.475029);
-        groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
+    groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
+    groomer.setStatus(GroomerStatus.ACTIVE);
+    groomer = groomerESRepository.save(groomer);
+    groomers.add(groomer);
+    /**
+     * Groomer #2<br>
+     * 1116 Stanford St, Santa Monica, CA 90403<br>
+     * lat: 34.0400821, -118.475029<br>
+     */
+    groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
 
-        groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
-        groomer.setStatus(GroomerStatus.ACTIVE);
-        groomer = groomerESRepository.save(groomer);
-        groomers.add(groomer);
+    address = new Address();
+    address.setCity("Santa Monica");
+    address.setState("CA");
+    address.setZipcode("90403");
+    address.setStreet("1116 Stanford St");
+    address.setLatitude(34.0400821);
+    address.setLongitude(-118.475029);
+    groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
-        double distanceFromMainGroomer = MathUtils.distance(34.043148, 34.0400821, -118.4750169, -118.475029);
-        System.out.println("distanceFromMainGroomer: " + distanceFromMainGroomer);
+    groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
+    groomer.setStatus(GroomerStatus.ACTIVE);
+    groomer = groomerESRepository.save(groomer);
+    groomers.add(groomer);
 
-        /**
-         * Groomer #3<br>
-         * 3408 Pearl St, Santa Monica, CA 90405<br>
-         * lat: 34.0251161, -118.4517642<br>
-         */
-        groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
+    double distanceFromMainGroomer =
+        MathUtils.distance(34.043148, 34.0400821, -118.4750169, -118.475029);
+    System.out.println("distanceFromMainGroomer: " + distanceFromMainGroomer);
 
-        address = new Address();
-        address.setCity("Santa Monica");
-        address.setState("CA");
-        address.setZipcode("90405");
-        address.setStreet("3408 Pearl St");
-        address.setLatitude(34.0251161);
-        address.setLongitude(-118.4517642);
-        groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
+    /**
+     * Groomer #3<br>
+     * 3408 Pearl St, Santa Monica, CA 90405<br>
+     * lat: 34.0251161, -118.4517642<br>
+     */
+    groomer = entityDTOMapper.mapGroomerEntityToGroomerES(testEntityGeneratorService.getGroomer());
 
-        groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
-        groomer.setStatus(GroomerStatus.ACTIVE);
-        groomer = groomerESRepository.save(groomer);
-        groomers.add(groomer);
+    address = new Address();
+    address.setCity("Santa Monica");
+    address.setState("CA");
+    address.setZipcode("90405");
+    address.setStreet("3408 Pearl St");
+    address.setLatitude(34.0251161);
+    address.setLongitude(-118.4517642);
+    groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
 
-        Thread.sleep(1000);
+    groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
+    groomer.setStatus(GroomerStatus.ACTIVE);
+    groomer = groomerESRepository.save(groomer);
+    groomers.add(groomer);
 
-        distanceFromMainGroomer = MathUtils.distance(34.043148, 34.0251161, -118.4750169, -118.4517642);
-        System.out.println("distanceFromMainGroomer: " + distanceFromMainGroomer);
+    Thread.sleep(1000);
 
-        /**
-         * Use groomer #1 as starting point, lat: 34.043148, long: -118.4750169<br>
-         */
-        GroomerSearchParamsDTO filters = new GroomerSearchParamsDTO();
-        filters.setLatitude(34.043148);
-        filters.setLongitude(-118.4750169);
-        filters.setDistance(1);
-        filters.addSort(GroomerSearchSorting.rating.name());
-        filters.addSort(GroomerSearchSorting.distance.name());
+    distanceFromMainGroomer = MathUtils.distance(34.043148, 34.0251161, -118.4750169, -118.4517642);
+    System.out.println("distanceFromMainGroomer: " + distanceFromMainGroomer);
 
-        CustomPage<GroomerES> searchResult = groomerService.search(filters);
+    /**
+     * Use groomer #1 as starting point, lat: 34.043148, long: -118.4750169<br>
+     */
+    GroomerSearchParamsDTO filters = new GroomerSearchParamsDTO();
+    filters.setLatitude(34.043148);
+    filters.setLongitude(-118.4750169);
+    filters.setDistance(1);
+    filters.addSort(GroomerSearchSorting.rating.name());
+    filters.addSort(GroomerSearchSorting.distance.name());
 
-        System.out.println("search result");
-        System.out.println(searchResult.toString());
+    CustomPage<GroomerES> searchResult = groomerService.search(filters);
 
-        assertThat(searchResult).isNotNull();
-        // groomer 1 and 2
-        assertThat(searchResult.getTotalElements()).isGreaterThanOrEqualTo(2);
-    }
+    System.out.println("search result");
+    System.out.println(searchResult.toString());
 
-    @AfterEach
-    void cleanUp() {
-        groomers.stream().forEach(groomer -> {
-            groomerESRepository.deleteById(groomer.getId());
-        });
-    }
+    assertThat(searchResult).isNotNull();
+    // groomer 1 and 2
+    assertThat(searchResult.getTotalElements()).isGreaterThanOrEqualTo(2);
+  }
+
+
+  @Transactional
+  @Test
+  void itShouldSearch_dropoff_pickup_costs() throws Exception {
+
+    /**
+     * Groomer #1<br>
+     * 1043 Franklin St, Santa Monica, CA 90403<br>
+     * lat: 34.043148, long: -118.4750169<br>
+     */
+    Groomer groomerDB = testEntityGeneratorService.getGroomer();
+
+    System.out.println("name: " + groomerDB.getFullName());
+
+    double chargePerMile = 5D;
+
+    groomerDB.setChargePerMile(chargePerMile);
+
+    GroomerES groomer = entityDTOMapper.mapGroomerEntityToGroomerES(groomerDB);
+
+    Address address = new Address();
+    address.setCity("Santa Monica");
+    address.setState("CA");
+    address.setZipcode("90405");
+    address.setStreet("3408 Pearl St");
+    address.setLatitude(34.0251161);
+    address.setLongitude(-118.4517642);
+    groomer.setAddress(null);
+    groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
+
+    groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
+    groomer.setStatus(GroomerStatus.ACTIVE);
+    groomer = groomerESRepository.save(groomer);
+    groomers.add(groomer);
+
+
+    /**
+     * Use groomer #1 as starting point, lat: 34.043148, long: -118.4750169<br>
+     */
+    GroomerSearchParamsDTO filters = new GroomerSearchParamsDTO();
+    filters.setLatitude(34.043148);
+    filters.setLongitude(-118.4750169);
+    filters.setDistance(5);
+
+    CustomPage<GroomerES> searchResult = groomerService.search(filters);
+
+    System.out.println("search result");
+    System.out.println(searchResult.toString());
+
+    assertThat(searchResult).isNotNull();
+    // groomer 1 and 2
+    assertThat(searchResult.getTotalElements()).isGreaterThanOrEqualTo(1);
+
+    Optional<GroomerES> optGroomer = searchResult.getContent().stream()
+        .filter(grmrEs -> groomerDB.getUuid().equalsIgnoreCase(grmrEs.getUuid())).findFirst();
+    
+    assertThat(optGroomer.isPresent()).isTrue();
+    
+    GroomerES gromer = optGroomer.get();
+   
+    assertThat(gromer.getChargePerMile()).isEqualTo(chargePerMile);
+    
+    // distanceFromSearch 1.82
+    
+    assertThat(gromer.getDropOffCost()).isEqualTo(9.1);
+    assertThat(gromer.getPickUpCost()).isEqualTo(9.1);
+
+  }
+  
+  /**
+   * Groomer turned off pickup and dropoff<br>
+   * pickupCost = 0<br>
+   * dropoffCost = 0<br>
+   */
+  @Transactional
+  @Test
+  void itShouldSearch_with_disabled_dropoff_pickup() throws Exception {
+
+    /**
+     * Groomer #1<br>
+     * 1043 Franklin St, Santa Monica, CA 90403<br>
+     * lat: 34.043148, long: -118.4750169<br>
+     */
+    Groomer groomerDB = testEntityGeneratorService.getGroomer();
+
+    System.out.println("name: " + groomerDB.getFullName());
+
+    double chargePerMile = 5D;
+
+    groomerDB.setChargePerMile(chargePerMile);
+    groomerDB.setOfferedDropOff(false);
+    groomerDB.setOfferedPickUp(false);
+    
+    GroomerES groomer = entityDTOMapper.mapGroomerEntityToGroomerES(groomerDB);
+
+    Address address = new Address();
+    address.setCity("Santa Monica");
+    address.setState("CA");
+    address.setZipcode("90405");
+    address.setStreet("3408 Pearl St");
+    address.setLatitude(34.0251161);
+    address.setLongitude(-118.4517642);
+    groomer.setAddress(null);
+    groomer.setAddress(entityDTOMapper.mapAddressToAddressEs(address));
+
+    groomer.setId(RandomGeneratorUtils.getLongWithin(1000000, 100000000));
+    groomer.setStatus(GroomerStatus.ACTIVE);
+    groomer = groomerESRepository.save(groomer);
+    groomers.add(groomer);
+
+
+    /**
+     * Use groomer #1 as starting point, lat: 34.043148, long: -118.4750169<br>
+     */
+    GroomerSearchParamsDTO filters = new GroomerSearchParamsDTO();
+    filters.setLatitude(34.043148);
+    filters.setLongitude(-118.4750169);
+    filters.setDistance(5);
+
+    CustomPage<GroomerES> searchResult = groomerService.search(filters);
+
+    System.out.println("search result");
+    System.out.println(searchResult.toString());
+
+    assertThat(searchResult).isNotNull();
+    // groomer 1 and 2
+    assertThat(searchResult.getTotalElements()).isGreaterThanOrEqualTo(1);
+
+    Optional<GroomerES> optGroomer = searchResult.getContent().stream()
+        .filter(grmrEs -> groomerDB.getUuid().equalsIgnoreCase(grmrEs.getUuid())).findFirst();
+    
+    assertThat(optGroomer.isPresent()).isTrue();
+    
+    GroomerES gromer = optGroomer.get();
+   
+    assertThat(gromer.getChargePerMile()).isEqualTo(chargePerMile);
+    
+    // distanceFromSearch 1.82
+    
+    assertThat(gromer.getDropOffCost()).isNull();
+    assertThat(gromer.getPickUpCost()).isNull();
+
+  }
+
+  @AfterEach
+  void cleanUp() {
+    groomers.stream().forEach(groomer -> {
+      groomerESRepository.deleteById(groomer.getId());
+    });
+  }
 }
