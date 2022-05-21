@@ -153,6 +153,16 @@ public class Booking implements Serializable {
     this.pooches.add(pooch);
   }
 
+
+  public void populateBookingCostDetails(BookingCostDetails costDetails) {
+    this.setBookingCost(costDetails.getBookingCost());
+    this.setBookingFee(costDetails.getBookingFee());
+    this.setTotalAmount(costDetails.getTotalAmount());
+    this.setStripeFee(costDetails.getStripeFee());
+    this.setTotalChargeBooking(costDetails.getTotalChargeAtBooking());
+    this.setTotalChargeAtDropOff(costDetails.getTotalChargeAtDropOff());
+  }
+
   @PrePersist
   private void preCreate() {
     if (this.uuid == null || this.uuid.isEmpty()) {
@@ -160,5 +170,6 @@ public class Booking implements Serializable {
     }
 
   }
+
 
 }

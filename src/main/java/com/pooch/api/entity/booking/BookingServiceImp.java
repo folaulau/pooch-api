@@ -36,166 +36,176 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BookingServiceImp implements BookingService {
 
-    @Autowired
-    private BookingDAO                 bookingDAO;
+  @Autowired
+  private BookingDAO bookingDAO;
 
-    @Autowired
-    private EntityDTOMapper            entityDTOMapper;
+  @Autowired
+  private EntityDTOMapper entityDTOMapper;
 
-    @Autowired
-    private GroomerDAO                 groomerDAO;
+  @Autowired
+  private GroomerDAO groomerDAO;
 
-    @Autowired
-    private ParentDAO                  parentDAO;
+  @Autowired
+  private ParentDAO parentDAO;
 
-    @Autowired
-    private PoochDAO                   poochDAO;
+  @Autowired
+  private PoochDAO poochDAO;
 
-    @Autowired
-    private BookingValidatorService    bookingValidatorService;
+  @Autowired
+  private BookingValidatorService bookingValidatorService;
 
-    @Autowired
-    private StripePaymentIntentService stripePaymentIntentService;
+  @Autowired
+  private StripePaymentIntentService stripePaymentIntentService;
 
-    @Autowired
-    private PaymentMethodService       paymentMethodService;
+  @Autowired
+  private PaymentMethodService paymentMethodService;
 
-    @Autowired
-    private PaymentMethodDAO           paymentMethodDAO;
+  @Autowired
+  private PaymentMethodDAO paymentMethodDAO;
 
-    @Autowired
-    private StripeCustomerService      stripeCustomerService;
+  @Autowired
+  private StripeCustomerService stripeCustomerService;
 
-    @Autowired
-    private StripePaymentMethodService stripePaymentMethodService;
+  @Autowired
+  private StripePaymentMethodService stripePaymentMethodService;
 
-    @Autowired
-    private TransactionService         transactionService;
+  @Autowired
+  private TransactionService transactionService;
 
-    @Override
-    public BookingDTO book(BookingCreateDTO bookingCreateDTO) {
-        bookingValidatorService.validateBook(bookingCreateDTO);
+  @Override
+  public BookingDTO book(BookingCreateDTO bookingCreateDTO) {
+    bookingValidatorService.validateBook(bookingCreateDTO);
 
-        Booking booking = entityDTOMapper.mapBookingCreateDTOToBooking(bookingCreateDTO);
+    Booking booking = entityDTOMapper.mapBookingCreateDTOToBooking(bookingCreateDTO);
 
-        ParentCreateUpdateDTO parentCreateUpdateDTO = bookingCreateDTO.getParent();
+    ParentCreateUpdateDTO parentCreateUpdateDTO = bookingCreateDTO.getParent();
 
-        Parent parent = null;
+    Parent parent = null;
 
-        if (parentCreateUpdateDTO.getUuid() != null) {
-            parent = parentDAO.getByUuid(parentCreateUpdateDTO.getUuid()).get();
-            entityDTOMapper.patchParentWithNewParentUpdateDTO(parentCreateUpdateDTO, parent);
-        } else {
-            parent = entityDTOMapper.mapNewUpdateDTOToParent(parentCreateUpdateDTO);
-        }
-
-        com.stripe.model.PaymentIntent paymentIntent = stripePaymentIntentService.getById(bookingCreateDTO.getPaymentIntentId());
-
-        log.info("paymentIntent={}", paymentIntent.toJson());
-
-        if (parent.getStripeCustomerId() == null) {
-
-            com.stripe.model.Customer customer = stripeCustomerService.createParentDetails(parent);
-            
-            log.info("new customer={}", customer.toJson())   ;      
-            parent.setStripeCustomerId(customer.getId());
-
-        } else {
-
-            stripeCustomerService.updateParentDetails(parent);
-        }
-
-        Optional<PaymentMethod> optPaymentMethod = paymentMethodDAO.getByParentIdAndStripeId(parent.getId(), paymentIntent.getPaymentMethod());
-
-        PaymentMethod paymentMethod = null;
-
-        // log.info("stripePaymentMethod={}", stripePaymentMethod.toJson());
-
-        if (optPaymentMethod.isPresent()) {
-            paymentMethod = optPaymentMethod.get();
-        } else {
-
-            com.stripe.model.PaymentMethod stripePaymentMethod = stripePaymentMethodService.getById(paymentIntent.getPaymentMethod());
-
-            if (paymentIntent.getSetupFutureUsage() != null && paymentIntent.getSetupFutureUsage().equalsIgnoreCase("off_session")) {
-                paymentMethod = paymentMethodService.add(parent, stripePaymentMethod);
-            } else {
-                paymentMethod = paymentMethodService.mapStripePaymentMethodToPaymentMethod(stripePaymentMethod);
-            }
-        }
-
-        booking.setPaymentMethod(entityDTOMapper.mapPaymentMethodToBookingPaymentMethod(paymentMethod));
-
-        // log.info("paymentMethod={}", ObjectUtils.toJson(paymentMethod));
-
-        parent = parentDAO.save(parent);
-
-        booking.setParent(parent);
-
-        Groomer groomer = groomerDAO.getByUuid(bookingCreateDTO.getGroomerUuid()).get();
-
-        booking.setGroomer(groomer);
-
-        if (groomer.isStripeReady()) {
-
-            boolean transferred = stripePaymentIntentService.transferFundsToGroomer(paymentIntent, groomer);
-
-            if (transferred) {
-                booking.setStatus(BookingStatus.Booked);
-            } else {
-                booking.setStatus(BookingStatus.Pending_Groomer_Approval);
-            }
-
-        } else {
-
-            booking.setStatus(BookingStatus.Pending_Groomer_Approval);
-        }
-
-        booking = addPoochesToBooking(booking, bookingCreateDTO.getPooches());
-
-        log.info("booking={}", ObjectUtils.toJson(booking));
-
-        booking = bookingDAO.save(booking);
-
-        BookingCostDetails costDetails = BookingCostDetails.fromJson(paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
-
-        transactionService.addBookingInitialPayment(booking, costDetails);
-        
-        // 1. handle calendar
-        // 2. send notification
-
-        return entityDTOMapper.mapBookingToBookingDTO(booking);
+    if (parentCreateUpdateDTO.getUuid() != null) {
+      parent = parentDAO.getByUuid(parentCreateUpdateDTO.getUuid()).get();
+      entityDTOMapper.patchParentWithNewParentUpdateDTO(parentCreateUpdateDTO, parent);
+    } else {
+      parent = entityDTOMapper.mapNewUpdateDTOToParent(parentCreateUpdateDTO);
     }
 
-    private Booking addPoochesToBooking(Booking booking, Set<PoochCreateUpdateDTO> poochCreateDTOs) {
-        if (poochCreateDTOs != null) {
+    com.stripe.model.PaymentIntent paymentIntent =
+        stripePaymentIntentService.getById(bookingCreateDTO.getPaymentIntentId());
 
-            for (PoochCreateUpdateDTO petCreateDTO : poochCreateDTOs) {
-                String uuid = petCreateDTO.getUuid();
+    log.info("paymentIntent={}", paymentIntent.toJson());
 
-                Pooch pooch = null;
-                if (uuid == null) {
-                    pooch = entityDTOMapper.mapPoochCreateDTOToPooch(petCreateDTO);
-                    pooch.setParent(booking.getParent());
-                    pooch = poochDAO.save(pooch);
-                } else {
-                    pooch = poochDAO.getByUuid(uuid).get();
-                }
+    if (parent.getStripeCustomerId() == null) {
 
-                booking.addPooch(pooch);
+      com.stripe.model.Customer customer = stripeCustomerService.createParentDetails(parent);
 
-            }
+      log.info("new customer={}", customer.toJson());
+      parent.setStripeCustomerId(customer.getId());
 
+    } else {
+
+      stripeCustomerService.updateParentDetails(parent);
+    }
+
+    Optional<PaymentMethod> optPaymentMethod =
+        paymentMethodDAO.getByParentIdAndStripeId(parent.getId(), paymentIntent.getPaymentMethod());
+
+    PaymentMethod paymentMethod = null;
+
+    // log.info("stripePaymentMethod={}", stripePaymentMethod.toJson());
+
+    if (optPaymentMethod.isPresent()) {
+      paymentMethod = optPaymentMethod.get();
+    } else {
+
+      com.stripe.model.PaymentMethod stripePaymentMethod =
+          stripePaymentMethodService.getById(paymentIntent.getPaymentMethod());
+
+      if (paymentIntent.getSetupFutureUsage() != null
+          && paymentIntent.getSetupFutureUsage().equalsIgnoreCase("off_session")) {
+        paymentMethod = paymentMethodService.add(parent, stripePaymentMethod);
+      } else {
+        paymentMethod =
+            paymentMethodService.mapStripePaymentMethodToPaymentMethod(stripePaymentMethod);
+      }
+    }
+
+    booking.setPaymentMethod(entityDTOMapper.mapPaymentMethodToBookingPaymentMethod(paymentMethod));
+
+    // log.info("paymentMethod={}", ObjectUtils.toJson(paymentMethod));
+
+    parent = parentDAO.save(parent);
+
+    booking.setParent(parent);
+
+    Groomer groomer = groomerDAO.getByUuid(bookingCreateDTO.getGroomerUuid()).get();
+
+    booking.setGroomer(groomer);
+
+    if (groomer.isStripeReady()) {
+
+      boolean transferred =
+          stripePaymentIntentService.transferFundsToGroomer(paymentIntent, groomer);
+
+      if (transferred) {
+        booking.setStatus(BookingStatus.Booked);
+      } else {
+        booking.setStatus(BookingStatus.Pending_Groomer_Approval);
+      }
+
+    } else {
+
+      booking.setStatus(BookingStatus.Pending_Groomer_Approval);
+    }
+
+    booking = addPoochesToBooking(booking, bookingCreateDTO.getPooches());
+
+    log.info("booking={}", ObjectUtils.toJson(booking));
+
+
+    BookingCostDetails costDetails = BookingCostDetails.fromJson(
+        paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
+
+    booking.populateBookingCostDetails(costDetails);
+
+    booking = bookingDAO.save(booking);
+
+    transactionService.addBookingInitialPayment(booking, costDetails);
+
+    // 1. handle calendar
+    // 2. send notification
+
+    return entityDTOMapper.mapBookingToBookingDTO(booking);
+  }
+
+  private Booking addPoochesToBooking(Booking booking, Set<PoochCreateUpdateDTO> poochCreateDTOs) {
+    if (poochCreateDTOs != null) {
+
+      for (PoochCreateUpdateDTO petCreateDTO : poochCreateDTOs) {
+        String uuid = petCreateDTO.getUuid();
+
+        Pooch pooch = null;
+        if (uuid == null) {
+          pooch = entityDTOMapper.mapPoochCreateDTOToPooch(petCreateDTO);
+          pooch.setParent(booking.getParent());
+          pooch = poochDAO.save(pooch);
+        } else {
+          pooch = poochDAO.getByUuid(uuid).get();
         }
 
-        return booking;
+        booking.addPooch(pooch);
+
+      }
+
     }
 
-    @Override
-    public BookingDTO cancel(BookingCancelDTO bookingCancelDTO) {
-        Booking booking = bookingValidatorService.validateCancel(bookingCancelDTO);
+    return booking;
+  }
 
-        return null;
-    }
+  @Override
+  public BookingDTO cancel(BookingCancelDTO bookingCancelDTO) {
+    Booking booking = bookingValidatorService.validateCancel(bookingCancelDTO);
+
+    return null;
+  }
 
 }

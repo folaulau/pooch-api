@@ -42,7 +42,8 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
 
         double totalChargeToday = 0;
         double totalChargeAtDropOff = 0;
-
+        double totalAmount = 0;
+        
         if (groomer.isStripeReady()) {
             totalChargeToday = BigDecimal.valueOf(bookingCost).add(BigDecimal.valueOf(stripeFee)).add(BigDecimal.valueOf(bookingFee)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
             totalChargeAtDropOff = 0;
@@ -51,13 +52,15 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
             totalChargeAtDropOff = bookingCost;
             stripeFee = 0;
         }
-
+        
+        totalAmount = (totalChargeToday + totalChargeAtDropOff);
 
         costDetails.setBookingCost(bookingCost);
         costDetails.setBookingFee(bookingFee);
         costDetails.setStripeFee(stripeFee);
         costDetails.setTotalChargeAtBooking(totalChargeToday);
         costDetails.setTotalChargeAtDropOff(totalChargeAtDropOff);
+        costDetails.setTotalAmount(totalAmount);
         
         log.info("groomer={}",ObjectUtils.toJson(groomer));
         
