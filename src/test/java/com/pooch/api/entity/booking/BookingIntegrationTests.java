@@ -116,7 +116,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
   /**
    * First time parent makes a booking
    */
-  @Transactional
+//  @Transactional
   @Test
   void itShouldMakeBooking_first_time_valid() throws Exception {
     // Given

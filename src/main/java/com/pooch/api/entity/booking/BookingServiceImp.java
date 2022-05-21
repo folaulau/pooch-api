@@ -89,6 +89,8 @@ public class BookingServiceImp implements BookingService {
       parent = entityDTOMapper.mapNewUpdateDTOToParent(parentCreateUpdateDTO);
     }
 
+    booking.setStripePaymentIntentId(bookingCreateDTO.getPaymentIntentId());
+    
     com.stripe.model.PaymentIntent paymentIntent =
         stripePaymentIntentService.getById(bookingCreateDTO.getPaymentIntentId());
 
@@ -105,7 +107,8 @@ public class BookingServiceImp implements BookingService {
 
       stripeCustomerService.updateParentDetails(parent);
     }
-
+    
+    
     Optional<PaymentMethod> optPaymentMethod =
         paymentMethodDAO.getByParentIdAndStripeId(parent.getId(), paymentIntent.getPaymentMethod());
 

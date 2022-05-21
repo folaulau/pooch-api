@@ -53,7 +53,7 @@ public class BookingDTO implements Serializable {
 
   private Double totalAmount;
 
-  private Double totalChargeBooking;
+  private Double totalChargeAtBooking;
 
   private Double totalChargeAtDropOff;
 

@@ -126,7 +126,7 @@ public class Booking implements Serializable {
   private Double totalAmount;
 
   @Column(name = "total_charge_at_booking")
-  private Double totalChargeBooking;
+  private Double totalChargeAtBooking;
 
   @Column(name = "total_charge_at_drop_off")
   private Double totalChargeAtDropOff;
@@ -158,7 +158,7 @@ public class Booking implements Serializable {
     this.setBookingFee(costDetails.getBookingFee());
     this.setTotalAmount(costDetails.getTotalAmount());
     this.setStripeFee(costDetails.getStripeFee());
-    this.setTotalChargeBooking(costDetails.getTotalChargeAtBooking());
+    this.setTotalChargeAtBooking(costDetails.getTotalChargeAtBooking());
     this.setTotalChargeAtDropOff(costDetails.getTotalChargeAtDropOff());
   }
 

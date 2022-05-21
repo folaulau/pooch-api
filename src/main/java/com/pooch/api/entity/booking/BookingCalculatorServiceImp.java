@@ -64,8 +64,8 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
         
         log.info("groomer={}",ObjectUtils.toJson(groomer));
         
-        log.info("generatePaymentIntentDetails -> groomer.isStripeReady={}, bookingFee={}, bookingCost={}, totalChargeToday={}, stripeFee={}, totalChargeAtDropOff={}", groomer.isStripeReady(),  bookingFee, bookingCost, totalChargeToday, stripeFee,
-                totalChargeAtDropOff);
+        log.info("generatePaymentIntentDetails -> groomer.isStripeReady={}, bookingFee={}, bookingCost={}, totalChargeToday={}, stripeFee={}, totalChargeAtDropOff={}, totalAmount={}", groomer.isStripeReady(),  bookingFee, bookingCost, totalChargeToday, stripeFee,
+                totalChargeAtDropOff, totalAmount);
 
         return costDetails;
     }

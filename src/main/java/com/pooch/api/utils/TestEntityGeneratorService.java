@@ -407,24 +407,20 @@ public class TestEntityGeneratorService {
     paymentMethodTypes.add("card");
 
     // $10 booking fee
-    long bookingFeeAsCents =
-        BigDecimal.valueOf(bookingFee).multiply(BigDecimal.valueOf(100)).longValue();
-
     double bookingCost = amount;
 
     double chargeAmount = bookingCost + bookingFee;
-    long chargeAmountAsCents =
-        BigDecimal.valueOf(chargeAmount).multiply(BigDecimal.valueOf(100)).longValue();
     // 2.9% of chargeAmount + 30 cents
     double stripeFee = BigDecimal.valueOf(2.9).divide(BigDecimal.valueOf(100))
         .multiply(BigDecimal.valueOf(chargeAmount)).add(BigDecimal.valueOf(0.3))
         .setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-
-    long stripeFeeAsCents =
-        BigDecimal.valueOf(stripeFee).multiply(BigDecimal.valueOf(100)).longValue();
+    
     double totalCharge = chargeAmount + stripeFee;
+    
     long totalChargeAsCents =
         BigDecimal.valueOf(totalCharge).multiply(BigDecimal.valueOf(100)).longValue();
+    
+    Double totalAmount = totalCharge;
 
     // String customerId = "cus_Lgyk8DhX8TytPQ";
 
@@ -435,6 +431,7 @@ public class TestEntityGeneratorService {
                 .bookingFee(bookingFee)
                 .totalChargeAtBooking(totalCharge)
                 .totalChargeAtDropOff(0D)
+                .totalAmount(totalAmount)
                 .stripeFee(stripeFee)
                 .build();
         
