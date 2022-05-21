@@ -175,13 +175,13 @@ public class GroomerES implements Serializable {
 
     }
 
-    if (this.offeredDropOff) {
+    if (this.offeredDropOff != null && this.offeredDropOff) {
 
       this.dropOffCost = MathUtils.getTwoDecimalPlaces(distanceFromSearch * this.chargePerMile);
 
     }
 
-    if (this.offeredPickUp) {
+    if (this.offeredPickUp != null && this.offeredPickUp) {
 
       this.dropOffCost = MathUtils.getTwoDecimalPlaces(distanceFromSearch * this.chargePerMile);
       this.pickUpCost = MathUtils.getTwoDecimalPlaces(distanceFromSearch * this.chargePerMile);
