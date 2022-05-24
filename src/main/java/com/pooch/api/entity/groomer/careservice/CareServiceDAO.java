@@ -11,6 +11,8 @@ public interface CareServiceDAO {
     List<CareService> saveAll(Set<CareService> careServices);
 
     boolean existByUuidAndGroomer(String uuid, long groomerId);
+    
+    Optional<CareService> getByUuidAndGroomer(String uuid, long groomerId);
 
     Optional<CareService> getByUuid(String uuid);
 

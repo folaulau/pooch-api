@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -132,7 +133,12 @@ public class TestEntityGeneratorService {
 
     groomer.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
     groomer.addRole(new Role(Authority.groomer));
-
+    
+    LocalTime openTime = LocalTime.of(RandomGeneratorUtils.getIntegerWithin(7, 9) , 0);
+    groomer.setOpenTime(openTime);    
+    
+    groomer.setCloseTime(openTime.plusHours(8));
+    
     groomer.setAddress(getAddress());
     return groomer;
   }

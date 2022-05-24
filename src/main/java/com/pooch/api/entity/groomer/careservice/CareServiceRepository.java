@@ -10,4 +10,7 @@ public interface CareServiceRepository extends JpaRepository<CareService, Long> 
     Optional<Set<CareService>> findByGroomerId(Long groomerId);
 
     Optional<CareService> findByUuid(String uuid);
+    
+
+    Optional<CareService> findByUuidAndGroomerId(String uuid, Long groomerId);
 }

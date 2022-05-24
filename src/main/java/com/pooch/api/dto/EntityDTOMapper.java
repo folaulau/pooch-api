@@ -117,4 +117,6 @@ public interface EntityDTOMapper {
 
     PaymentMethodDTO mapPaymentMethodToPaymentMethod(PaymentMethod paymentMethod);
 
+    Pooch mapPoochBookingCreateDTOToPooch(PoochBookingCreateDTO petCreateDTO);
+
 }

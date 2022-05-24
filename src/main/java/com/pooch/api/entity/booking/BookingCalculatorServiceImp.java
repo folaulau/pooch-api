@@ -2,11 +2,13 @@ package com.pooch.api.entity.booking;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
+import java.time.LocalDateTime;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.utils.MathUtils;
 import com.pooch.api.utils.ObjectUtils;
 
@@ -68,6 +70,13 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
                 totalChargeAtDropOff, totalAmount);
 
         return costDetails;
+    }
+
+    @Override
+    public Double calculateBookingCareServicesCost(Groomer groomer, Set<CareService> careServices,
+        LocalDateTime startDateTime, LocalDateTime endDateTime) {
+      // TODO Auto-generated method stub
+      return null;
     }
 
 }

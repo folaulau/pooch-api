@@ -23,10 +23,7 @@ public class BookingCareServiceDTO implements Serializable {
     private String            uuid;
 
     /**
-     * PoochSize
+     * PoochSize, Small, Medium, or Large
      */
     private String            size;
-
-    private Integer           count;
-
 }

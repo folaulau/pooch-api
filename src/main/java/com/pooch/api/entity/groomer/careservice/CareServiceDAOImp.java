@@ -62,6 +62,12 @@ public class CareServiceDAOImp implements CareServiceDAO {
     @Override
     public Optional<CareService> findByUuid(String uuid) {
         // TODO Auto-generated method stub
-        return null;
+      return careServiceRepository.findByUuid(uuid);
+    }
+
+    @Override
+    public Optional<CareService> getByUuidAndGroomer(String uuid, long groomerId) {
+      // TODO Auto-generated method stub
+      return careServiceRepository.findByUuidAndGroomerId(uuid, groomerId);
     }
 }

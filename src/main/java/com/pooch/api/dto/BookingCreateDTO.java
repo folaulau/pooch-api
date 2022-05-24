@@ -26,9 +26,14 @@ public class BookingCreateDTO implements Serializable {
 
   private ParentCreateUpdateDTO parent;
 
-  private Set<PoochCreateUpdateDTO> pooches;
+//  private Set<PoochCreateUpdateDTO> pooches;
+  
+  private Set<PoochBookingCreateDTO> pooches;
 
-  private Set<BookingCareServiceDTO> careServices;
+//  /**
+//   * careServices apply to all pooch
+//   */
+//  private Set<BookingCareServiceDTO> careServices;
 
   /**
    * care services with prices
@@ -43,10 +48,14 @@ public class BookingCreateDTO implements Serializable {
 
   private Boolean agreedToContracts;
 
-  public void addService(BookingCareServiceDTO service) {
-    if (this.careServices == null) {
-      this.careServices = new HashSet<>();
-    }
-    this.careServices.add(service);
-  }
+  private Double pickUpCost;
+
+  private Double dropOffCost;
+
+//  public void addService(BookingCareServiceDTO service) {
+//    if (this.careServices == null) {
+//      this.careServices = new HashSet<>();
+//    }
+//    this.careServices.add(service);
+//  }
 }

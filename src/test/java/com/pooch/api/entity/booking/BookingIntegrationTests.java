@@ -30,6 +30,7 @@ import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.ParentCreateUpdateDTO;
 import com.pooch.api.dto.ParentDTO;
+import com.pooch.api.dto.PoochBookingCreateDTO;
 import com.pooch.api.dto.BookingCareServiceDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.BookingDTO;
@@ -116,7 +117,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
   /**
    * First time parent makes a booking
    */
-//  @Transactional
+  // @Transactional
   @Test
   void itShouldMakeBooking_first_time_valid() throws Exception {
     // Given
@@ -159,11 +160,10 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
 
         CareService careService= testEntityGeneratorService.getDBCareService(groomer);
         
-        bookingCreateDTO.addService(BookingCareServiceDTO.builder()
-                .size(PoochSize.medium)
-                .uuid(careService.getUuid())
-                .count(2)
-                .build());
+//        bookingCreateDTO.addService(BookingCareServiceDTO.builder()
+//                .size(PoochSize.medium)
+//                .uuid(careService.getUuid())
+//                .build());
         
         // @formatter:on
 
@@ -174,9 +174,9 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
     /**
      * Pets
      */
-    Set<PoochCreateUpdateDTO> petCreateDTOs = new HashSet<>();
+    Set<PoochBookingCreateDTO> petCreateDTOs = new HashSet<>();
     for (int i = 0; i < 1; i++) {
-      PoochCreateUpdateDTO petCreateDTO = new PoochCreateUpdateDTO();
+      PoochBookingCreateDTO petCreateDTO = new PoochBookingCreateDTO();
       petCreateDTO.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 36)));
       petCreateDTO.setBreed("Bulldog");
       petCreateDTO.setFullName(RandomGeneratorUtils.getRandomFullName());
@@ -188,6 +188,9 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
       petCreateDTO.addFoodSchedule(FoodSchedule.Night);
       petCreateDTO.addVaccine(new VaccineCreateDTO(LocalDateTime.now().plusMonths(2), "vac1"));
       petCreateDTO.addVaccine(new VaccineCreateDTO(LocalDateTime.now().plusMonths(6), "vac2"));
+      petCreateDTO.addService(BookingCareServiceDTO.builder().size(PoochSize.medium)
+          .uuid(careService.getUuid()).build());
+
       petCreateDTOs.add(petCreateDTO);
     }
 
@@ -260,12 +263,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
     // @formatter:off
 
         CareService careService= testEntityGeneratorService.getDBCareService(groomer);
-        
-        bookingCreateDTO.addService(BookingCareServiceDTO.builder()
-                .size(PoochSize.medium)
-                .uuid(careService.getUuid())
-                .count(2)
-                .build());
+      
         
         // @formatter:on
 
@@ -276,9 +274,9 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
     /**
      * Pets
      */
-    Set<PoochCreateUpdateDTO> petCreateDTOs = new HashSet<>();
+    Set<PoochBookingCreateDTO> petCreateDTOs = new HashSet<>();
     for (int i = 0; i < 1; i++) {
-      PoochCreateUpdateDTO petCreateDTO = new PoochCreateUpdateDTO();
+      PoochBookingCreateDTO petCreateDTO = new PoochBookingCreateDTO();
       petCreateDTO.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 36)));
       petCreateDTO.setBreed("Bulldog");
       petCreateDTO.setFullName(RandomGeneratorUtils.getRandomFullName());
@@ -290,6 +288,9 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
       petCreateDTO.addFoodSchedule(FoodSchedule.Night);
       petCreateDTO.addVaccine(new VaccineCreateDTO(LocalDateTime.now().plusMonths(2), "vac1"));
       petCreateDTO.addVaccine(new VaccineCreateDTO(LocalDateTime.now().plusMonths(6), "vac2"));
+      petCreateDTO.addService(BookingCareServiceDTO.builder().size(PoochSize.medium)
+          .uuid(careService.getUuid()).build());
+
       petCreateDTOs.add(petCreateDTO);
     }
 
@@ -308,13 +309,13 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
 
     BookingDTO bookingDTO =
         objectMapper.readValue(contentAsString, new TypeReference<BookingDTO>() {});
-    
+
     assertThat(bookingDTO).isNotNull();
     assertThat(bookingDTO.getId()).isNotNull().isGreaterThan(0);
     assertThat(bookingDTO.getUuid()).isNotNull();
     assertThat(bookingDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
 
   }
-  
-  
+
+
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.ParentCreateUpdateDTO;
+import com.pooch.api.dto.PoochBookingCreateDTO;
 import com.pooch.api.dto.BookingCancelDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.BookingDTO;
@@ -180,15 +181,15 @@ public class BookingServiceImp implements BookingService {
     return entityDTOMapper.mapBookingToBookingDTO(booking);
   }
 
-  private Booking addPoochesToBooking(Booking booking, Set<PoochCreateUpdateDTO> poochCreateDTOs) {
+  private Booking addPoochesToBooking(Booking booking, Set<PoochBookingCreateDTO> poochCreateDTOs) {
     if (poochCreateDTOs != null) {
 
-      for (PoochCreateUpdateDTO petCreateDTO : poochCreateDTOs) {
+      for (PoochBookingCreateDTO petCreateDTO : poochCreateDTOs) {
         String uuid = petCreateDTO.getUuid();
 
         Pooch pooch = null;
         if (uuid == null) {
-          pooch = entityDTOMapper.mapPoochCreateDTOToPooch(petCreateDTO);
+          pooch = entityDTOMapper.mapPoochBookingCreateDTOToPooch(petCreateDTO);
           pooch.setParent(booking.getParent());
           pooch = poochDAO.save(pooch);
         } else {
