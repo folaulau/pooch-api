@@ -25,6 +25,7 @@ import com.pooch.api.entity.pooch.PoochDAO;
 import com.pooch.api.entity.pooch.PoochSize;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
+import com.pooch.api.library.stripe.StripeMetadataService;
 import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
 import com.stripe.model.PaymentIntent;
 
@@ -114,8 +115,8 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
             }
         }
 
-        Set<BookingCareServiceDTO> services = bookingCreateDTO.getServices();
-
+        Set<BookingCareServiceDTO> services = bookingCreateDTO.getCareServices();
+        
         if (services == null || services.size() <= 0) {
             throw new ApiException(ApiError.DEFAULT_MSG, "Add a service", "services are empty");
         }
@@ -165,6 +166,11 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
         if (parent.getStripeCustomerId() != null && !parent.getStripeCustomerId().equalsIgnoreCase(paymentIntent.getCustomer())) {
             throw new ApiException(ApiError.DEFAULT_MSG, "You are charging a different parent", "parent stripeCustomerId is not the same as the customerId of the paymentIntent");
         }
+        
+        BookingCostDetails costDetails = BookingCostDetails.fromJson(
+            paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
+        
+        
     }
 
     @Override

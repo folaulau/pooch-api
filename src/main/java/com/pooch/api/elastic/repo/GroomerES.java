@@ -1,10 +1,11 @@
 package com.pooch.api.elastic.repo;
 
 import java.io.Serializable;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import javax.persistence.Column;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -104,6 +105,18 @@ public class GroomerES implements Serializable {
   @Field
   private GroomerStatus status;
 
+  /**
+   * Time Groomer's shop opens
+   */
+  private LocalTime openTime;
+
+  /**
+   * Time Groomer's shop closes
+   */
+  private LocalTime closeTime;
+  
+  private boolean stripeReady;
+
   /** address */
 
   /** address */
@@ -170,7 +183,7 @@ public class GroomerES implements Serializable {
     Double distanceFromSearch = 0D;
 
     if (this.address != null) {
-      
+
       distanceFromSearch = this.address.calculateDistanceFromSearch(searchLocation);
 
     }
