@@ -169,8 +169,8 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
         }
       }
 
-      Set<BookingCareServiceDTO> services = petCreateDTO.getCareServices();
-
+      Set<BookingCareServiceDTO> services = petCreateDTO.getRequestedCareServices();
+      
       if (services == null || services.size() <= 0) {
         throw new ApiException(ApiError.DEFAULT_MSG, "Add a service",
             "services are empty for pooch=" + petCreateDTO.getFullName());

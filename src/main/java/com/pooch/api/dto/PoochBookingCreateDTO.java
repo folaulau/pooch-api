@@ -47,7 +47,7 @@ public class PoochBookingCreateDTO implements Serializable {
 
   private Set<VaccineCreateDTO> vaccines;
 
-  private Set<BookingCareServiceDTO> careServices;
+  private Set<BookingCareServiceDTO> requestedCareServices;
 
   public void addFoodSchedule(FoodSchedule fSchedule) {
     if (foodSchedule == null) {
@@ -64,9 +64,9 @@ public class PoochBookingCreateDTO implements Serializable {
   }
 
   public void addService(BookingCareServiceDTO service) {
-    if (this.careServices == null) {
-      this.careServices = new HashSet<>();
+    if (this.requestedCareServices == null) {
+      this.requestedCareServices = new HashSet<>();
     }
-    this.careServices.add(service);
+    this.requestedCareServices.add(service);
   }
 }
