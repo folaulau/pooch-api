@@ -16,5 +16,7 @@ public interface S3FileDAO {
     List<S3File> getByGroomerId(Long groomerId);
 
     List<S3File> getByParentId(Long parentId);
+    
+    Optional<S3File> getGroomerProfileImage(Long groomerId);
 
 }

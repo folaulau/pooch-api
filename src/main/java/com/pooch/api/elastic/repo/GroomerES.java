@@ -45,6 +45,9 @@ public class GroomerES implements Serializable {
   private String lastName;
 
   @Field
+  private String profileImageUrl;
+
+  @Field
   private String businessName;
 
   @Field

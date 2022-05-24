@@ -3,6 +3,7 @@ package com.pooch.api.entity.groomer;
 import java.util.Optional;
 import java.util.Set;
 
+import com.pooch.api.entity.s3file.S3FileDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -38,6 +39,9 @@ public class GroomerEventHandlerImp implements GroomerEventHandler {
     @Autowired
     private GroomerESDAO          groomerESDAO;
 
+    @Autowired
+    private S3FileDAO s3FileDAO;
+
     @EventListener
     @Async
     @Override
@@ -64,6 +68,10 @@ public class GroomerEventHandlerImp implements GroomerEventHandler {
         } catch (Exception e) {
             log.warn("Exception, msg={}", e.getLocalizedMessage());
         }
+
+        s3FileDAO.getGroomerProfileImage(groomer.getId()).ifPresent(profileImage -> {
+            groomerES.setProfileImageUrl(profileImage.getUrl());
+        });
 
         groomerESDAO.save(groomerES);
     }

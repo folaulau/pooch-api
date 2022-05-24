@@ -11,5 +11,9 @@ public interface S3FileRepository extends JpaRepository<S3File, Long> {
     
    List<S3File> findByParentId(Long parentId);
    
+   List<S3File> findByParentIdAndFileType(Long parentId, FileType fileType);
+   
    List<S3File> findByGroomerId(Long groomerId);
+   
+   List<S3File> findByGroomerIdAndFileType(Long groomerId, FileType fileType);
 }

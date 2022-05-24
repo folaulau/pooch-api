@@ -54,4 +54,9 @@ public class S3FileDAOImp implements S3FileDAO {
     public List<S3File> getByParentId(Long parentId) {
         return s3FileRepository.findByParentId(parentId);
     }
+
+    @Override
+    public Optional<S3File> getGroomerProfileImage(Long groomerId) {
+        return s3FileRepository.findByGroomerIdAndFileType(groomerId, FileType.Profile_Image).stream().findFirst();
+    }
 }
