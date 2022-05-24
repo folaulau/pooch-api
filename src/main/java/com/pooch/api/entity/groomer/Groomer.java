@@ -254,7 +254,9 @@ public class Groomer implements Serializable {
   }
 
   public boolean isStripeReady() {
-    return this.stripeDetailsSubmitted && this.stripeChargesEnabled && this.stripePayoutsEnabled;
+    return (this.stripeDetailsSubmitted!=null && this.stripeDetailsSubmitted) 
+        && (this.stripeChargesEnabled!=null && this.stripeChargesEnabled) 
+        && (this.stripePayoutsEnabled!=null && this.stripePayoutsEnabled);
   }
 
   @PrePersist

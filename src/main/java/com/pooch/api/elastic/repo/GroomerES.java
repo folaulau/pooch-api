@@ -105,15 +105,15 @@ public class GroomerES implements Serializable {
   @Field
   private GroomerStatus status;
 
-  /**
-   * Time Groomer's shop opens
-   */
-  private LocalTime openTime;
-
-  /**
-   * Time Groomer's shop closes
-   */
-  private LocalTime closeTime;
+//  /**
+//   * Time Groomer's shop opens
+//   */
+//  private LocalTime openTime;
+//
+//  /**
+//   * Time Groomer's shop closes
+//   */
+//  private LocalTime closeTime;
   
   private boolean stripeReady;
 
