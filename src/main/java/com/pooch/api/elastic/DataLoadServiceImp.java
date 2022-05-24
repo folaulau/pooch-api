@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.pooch.api.entity.s3file.S3FileDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +39,9 @@ public class DataLoadServiceImp implements DataLoadService {
 
     @Autowired
     private EntityDTOMapper       entityDTOMapper;
+
+    @Autowired
+    private S3FileDAO s3FileDAO;
 
     @Autowired
     private ReviewDAO             reviewDAO;
@@ -84,6 +88,10 @@ public class DataLoadServiceImp implements DataLoadService {
                     }
 
                     groomer.setRating(reviewDAO.getRatingByGroomerId(groomer.getId()));
+
+                    s3FileDAO.getGroomerProfileImage(groomer.getId()).ifPresent(profileImage -> {
+                        groomerES.setProfileImageUrl(profileImage.getUrl());
+                    });
 
                     esGroomers.add(groomerES);
                 }
