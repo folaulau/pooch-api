@@ -338,101 +338,110 @@
     - role: anonymous
       permission:
         columns:
-          - id
-          - number_of_occupancy
-          - phone_number
+          - business_name
+          - charge_per_mile
+          - close_time
+          - country_code
+          - created_at
           - deleted
+          - description
+          - email
           - email_temp
           - email_verified
+          - first_name
+          - id
           - instant_booking
+          - last_name
           - listing
+          - number_of_occupancy
           - offered_drop_off
           - offered_pick_up
+          - open_time
+          - phone_number
           - phone_number_verified
-          - stripe_charges_enabled
-          - stripe_details_submitted
-          - stripe_payouts_enabled
-          - business_name
-          - email
-          - first_name
-          - last_name
+          - rating
           - sign_up_status
           - status
           - stripe_accept_card_payments
+          - stripe_charges_enabled
           - stripe_connected_account_id
-          - uuid
-          - charge_per_mile
-          - rating
-          - description
-          - created_at
+          - stripe_details_submitted
+          - stripe_payouts_enabled
           - updated_at
+          - uuid
         filter: {}
         limit: 1
     - role: groomer
       permission:
         columns:
-          - id
-          - number_of_occupancy
-          - phone_number
+          - business_name
+          - charge_per_mile
+          - close_time
+          - country_code
+          - created_at
           - deleted
+          - description
+          - email
           - email_temp
           - email_verified
+          - first_name
+          - id
           - instant_booking
+          - last_name
           - listing
+          - number_of_occupancy
           - offered_drop_off
           - offered_pick_up
+          - open_time
+          - phone_number
           - phone_number_verified
-          - stripe_charges_enabled
-          - stripe_details_submitted
-          - stripe_payouts_enabled
-          - business_name
-          - email
-          - first_name
-          - last_name
+          - rating
           - sign_up_status
           - status
           - stripe_accept_card_payments
+          - stripe_charges_enabled
           - stripe_connected_account_id
-          - uuid
-          - charge_per_mile
-          - rating
-          - description
-          - created_at
+          - stripe_details_submitted
+          - stripe_payouts_enabled
           - updated_at
+          - uuid
         filter:
           id:
             _eq: x-Hasura-groomer-id
     - role: parent
       permission:
         columns:
-          - id
-          - number_of_occupancy
-          - phone_number
+          - business_name
+          - charge_per_mile
+          - close_time
+          - country_code
+          - created_at
           - deleted
+          - description
+          - email
           - email_temp
           - email_verified
+          - first_name
+          - id
           - instant_booking
+          - last_name
           - listing
+          - number_of_occupancy
           - offered_drop_off
           - offered_pick_up
+          - open_time
+          - phone_number
           - phone_number_verified
-          - stripe_charges_enabled
-          - stripe_details_submitted
-          - stripe_payouts_enabled
-          - business_name
-          - email
-          - first_name
-          - last_name
+          - rating
           - sign_up_status
           - status
           - stripe_accept_card_payments
+          - stripe_charges_enabled
           - stripe_connected_account_id
-          - uuid
-          - charge_per_mile
-          - rating
-          - description
-          - created_at
+          - stripe_details_submitted
+          - stripe_payouts_enabled
           - updated_at
+          - uuid
         filter: {}
 - table:
     schema: public
