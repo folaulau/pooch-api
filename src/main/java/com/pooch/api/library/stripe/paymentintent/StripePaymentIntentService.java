@@ -12,9 +12,9 @@ public interface StripePaymentIntentService {
 
     PaymentIntent getById(String paymentIntentId);
 
-    PaymentIntentDTO createQuestPaymentIntent(PaymentIntentQuestCreateDTO paymentIntentCreateDTO);
+//    PaymentIntentDTO createQuestPaymentIntent(PaymentIntentQuestCreateDTO paymentIntentCreateDTO);
 
-    PaymentIntentDTO updateQuestPaymentIntent(PaymentIntentQuestCreateDTO paymentIntentQuestUpdateDTO);
+//    PaymentIntentDTO updateQuestPaymentIntent(PaymentIntentQuestCreateDTO paymentIntentQuestUpdateDTO);
 
     PaymentIntentCollection getPaymentIntentsByCustomerId(String customerId, long limit, String startingAfter);
 
