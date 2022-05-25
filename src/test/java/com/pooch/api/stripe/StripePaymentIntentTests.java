@@ -75,10 +75,6 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
   @MockBean
   private JwtTokenService jwtTokenService;
 
-  @Autowired
-  @Qualifier(value = "xApiKey")
-  private XApiKey xApiKey;
-
   @Captor
   private ArgumentCaptor<String> tokenCaptor;
 
@@ -110,101 +106,101 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
     Mockito.when(jwtTokenService.getPayloadByToken(PARENT_TOKEN)).thenReturn(groomerJwtPayload);
   }
 
-  @Test
-  void itShouldCreateQuestPaymentIntent_with_stripe_ready_groomer() throws Exception {
-
-    Groomer activeGroomer = testEntityGeneratorService.getStripeReadyDBGroomer();
-
-    double bookingCost = 245D;
-
-    // @formatter:off
-        PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder()
-                .amount(bookingCost)
-                .savePaymentMethodForFutureUse(true)
-                .groomerUuid(activeGroomer.getUuid())
-                .build();
-
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
-                .header("x-api-key", xApiKey.getMobileXApiKey())
-                .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(ObjectUtils.toJson(paymentIntentCreateDTO));
-
-        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-
-        // @formatter:on
-    String contentAsString = result.getResponse().getContentAsString();
-
-    PaymentIntentDTO paymentIntentDTO =
-        objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
-
-    double chargeAmount = bookingCost;
-
-    // 2.9% of chargeAmount + 30 cents
-    double stripeFee = BigDecimal.valueOf(2.9).divide(BigDecimal.valueOf(100))
-        .multiply(BigDecimal.valueOf(chargeAmount)).add(BigDecimal.valueOf(0.3))
-        .setScale(2, RoundingMode.CEILING).doubleValue();
-
-    double totalCharge = bookingCost + bookingFee + stripeFee;
-
-    assertThat(paymentIntentDTO).isNotNull();
-    assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
-    assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
-    assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
-    assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
-    assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
-    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(0);
-    assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
-    assertThat(paymentIntentDTO.getId()).isNotNull();
-  }
-
-  @Test
-  void itShouldCreateQuestPaymentIntent_with_stripe_not_ready_groomer() throws Exception {
-
-    Groomer activeGroomer = testEntityGeneratorService.getActiveDBGroomer();
-
-    double bookingCost = 245D;
-
-    // @formatter:off
-        PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder()
-                .amount(bookingCost)
-                .savePaymentMethodForFutureUse(true)
-                .groomerUuid(activeGroomer.getUuid())
-                .build();
-
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
-                .header("x-api-key", xApiKey.getMobileXApiKey())
-                .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(ObjectUtils.toJson(paymentIntentCreateDTO));
-
-        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-
-        // @formatter:on
-    String contentAsString = result.getResponse().getContentAsString();
-
-    PaymentIntentDTO paymentIntentDTO =
-        objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
-
-    // 2.9% of chargeAmount + 30 cents
-    double stripeFee = 0;
-
-    double totalCharge = bookingFee;
-
-    assertThat(paymentIntentDTO).isNotNull();
-    assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
-    assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
-    assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
-    assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
-    assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
-    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
-    assertThat(paymentIntentDTO.getId()).isNotNull();
-  }
+//  @Test
+//  void itShouldCreateQuestPaymentIntent_with_stripe_ready_groomer() throws Exception {
+//
+//    Groomer activeGroomer = testEntityGeneratorService.getStripeReadyDBGroomer();
+//
+//    double bookingCost = 245D;
+//
+//    // @formatter:off
+//        PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder()
+//                .amount(bookingCost)
+//                .savePaymentMethodForFutureUse(true)
+//                .groomerUuid(activeGroomer.getUuid())
+//                .build();
+//
+//        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
+//                .header("x-api-key", xApiKey.getMobileXApiKey())
+//                .accept(MediaType.APPLICATION_JSON)
+//                .characterEncoding("utf-8")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(ObjectUtils.toJson(paymentIntentCreateDTO));
+//
+//        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+//
+//        // @formatter:on
+//    String contentAsString = result.getResponse().getContentAsString();
+//
+//    PaymentIntentDTO paymentIntentDTO =
+//        objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
+//
+//    double chargeAmount = bookingCost;
+//
+//    // 2.9% of chargeAmount + 30 cents
+//    double stripeFee = BigDecimal.valueOf(2.9).divide(BigDecimal.valueOf(100))
+//        .multiply(BigDecimal.valueOf(chargeAmount)).add(BigDecimal.valueOf(0.3))
+//        .setScale(2, RoundingMode.CEILING).doubleValue();
+//
+//    double totalCharge = bookingCost + bookingFee + stripeFee;
+//
+//    assertThat(paymentIntentDTO).isNotNull();
+//    assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
+//    assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
+//    assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
+//    assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
+//    assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
+//    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
+//    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(0);
+//    assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
+//    assertThat(paymentIntentDTO.getId()).isNotNull();
+//  }
+//
+//  @Test
+//  void itShouldCreateQuestPaymentIntent_with_stripe_not_ready_groomer() throws Exception {
+//
+//    Groomer activeGroomer = testEntityGeneratorService.getActiveDBGroomer();
+//
+//    double bookingCost = 245D;
+//
+//    // @formatter:off
+//        PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder()
+//                .amount(bookingCost)
+//                .savePaymentMethodForFutureUse(true)
+//                .groomerUuid(activeGroomer.getUuid())
+//                .build();
+//
+//        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
+//                .header("x-api-key", xApiKey.getMobileXApiKey())
+//                .accept(MediaType.APPLICATION_JSON)
+//                .characterEncoding("utf-8")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(ObjectUtils.toJson(paymentIntentCreateDTO));
+//
+//        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+//
+//        // @formatter:on
+//    String contentAsString = result.getResponse().getContentAsString();
+//
+//    PaymentIntentDTO paymentIntentDTO =
+//        objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
+//
+//    // 2.9% of chargeAmount + 30 cents
+//    double stripeFee = 0;
+//
+//    double totalCharge = bookingFee;
+//
+//    assertThat(paymentIntentDTO).isNotNull();
+//    assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
+//    assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
+//    assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
+//    assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
+//    assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
+//    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
+//    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(bookingCost);
+//    assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
+//    assertThat(paymentIntentDTO.getId()).isNotNull();
+//  }
 
 //  @Test
 //  void itShouldUpdateQuestPaymentIntent_with_stripe_ready_groomer() throws Exception {
@@ -285,85 +281,85 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
 //    assertThat(paymentIntentDTO.getId()).isNotNull();
 //  }
 
-  @Test
-  void itShouldUpdateQuestPaymentIntent_with_stripe_not_ready_groomer() throws Exception {
-
-    Groomer activeGroomer = testEntityGeneratorService.getActiveDBGroomer();
-
-    double bookingCost = 245D;
-
-    // @formatter:off
-        PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder()
-                .amount(bookingCost)
-                .savePaymentMethodForFutureUse(true)
-                .groomerUuid(activeGroomer.getUuid())
-                .build();
-
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
-                .header("x-api-key", xApiKey.getMobileXApiKey())
-                .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(ObjectUtils.toJson(paymentIntentCreateDTO));
-
-        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-
-        // @formatter:on
-    String contentAsString = result.getResponse().getContentAsString();
-
-    PaymentIntentDTO paymentIntentDTO =
-        objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
-
-    // 2.9% of chargeAmount + 30 cents
-    double stripeFee = 0;
-
-    double totalCharge = bookingFee;
-
-    assertThat(paymentIntentDTO).isNotNull();
-    assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
-    assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
-    assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
-    assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
-    assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
-    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
-    assertThat(paymentIntentDTO.getId()).isNotNull();
-
-    PaymentIntentQuestCreateDTO paymentIntentQuestUpdateDTO =
-        PaymentIntentQuestCreateDTO.builder().paymentIntentId(paymentIntentDTO.getId())
-            .groomerUuid(activeGroomer.getUuid()).amount(bookingCost).build();
-
-    requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
-        .header("x-api-key", xApiKey.getMobileXApiKey()).accept(MediaType.APPLICATION_JSON)
-        .characterEncoding("utf-8").contentType(MediaType.APPLICATION_JSON)
-        .content(ObjectUtils.toJson(paymentIntentQuestUpdateDTO));
-
-    result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
-        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-
-    // @formatter:on
-    contentAsString = result.getResponse().getContentAsString();
-
-    paymentIntentDTO =
-        objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
-
-    // 2.9% of chargeAmount + 30 cents
-    stripeFee = 0;
-
-    totalCharge = bookingFee;
-
-    assertThat(paymentIntentDTO).isNotNull();
-    assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
-    assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
-    assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
-    assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
-    assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
-    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(bookingCost);
-    assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
-    assertThat(paymentIntentDTO.getId()).isNotNull();
-  }
+//  @Test
+//  void itShouldUpdateQuestPaymentIntent_with_stripe_not_ready_groomer() throws Exception {
+//
+//    Groomer activeGroomer = testEntityGeneratorService.getActiveDBGroomer();
+//
+//    double bookingCost = 245D;
+//
+//    // @formatter:off
+//        PaymentIntentQuestCreateDTO paymentIntentCreateDTO = PaymentIntentQuestCreateDTO.builder()
+//                .amount(bookingCost)
+//                .savePaymentMethodForFutureUse(true)
+//                .groomerUuid(activeGroomer.getUuid())
+//                .build();
+//
+//        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
+//                .header("x-api-key", xApiKey.getMobileXApiKey())
+//                .accept(MediaType.APPLICATION_JSON)
+//                .characterEncoding("utf-8")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(ObjectUtils.toJson(paymentIntentCreateDTO));
+//
+//        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+//
+//        // @formatter:on
+//    String contentAsString = result.getResponse().getContentAsString();
+//
+//    PaymentIntentDTO paymentIntentDTO =
+//        objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
+//
+//    // 2.9% of chargeAmount + 30 cents
+//    double stripeFee = 0;
+//
+//    double totalCharge = bookingFee;
+//
+//    assertThat(paymentIntentDTO).isNotNull();
+//    assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
+//    assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
+//    assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
+//    assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
+//    assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
+//    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
+//    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(bookingCost);
+//    assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
+//    assertThat(paymentIntentDTO.getId()).isNotNull();
+//
+//    PaymentIntentQuestCreateDTO paymentIntentQuestUpdateDTO =
+//        PaymentIntentQuestCreateDTO.builder().paymentIntentId(paymentIntentDTO.getId())
+//            .groomerUuid(activeGroomer.getUuid()).amount(bookingCost).build();
+//
+//    requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
+//        .header("x-api-key", xApiKey.getMobileXApiKey()).accept(MediaType.APPLICATION_JSON)
+//        .characterEncoding("utf-8").contentType(MediaType.APPLICATION_JSON)
+//        .content(ObjectUtils.toJson(paymentIntentQuestUpdateDTO));
+//
+//    result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+//        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+//
+//    // @formatter:on
+//    contentAsString = result.getResponse().getContentAsString();
+//
+//    paymentIntentDTO =
+//        objectMapper.readValue(contentAsString, new TypeReference<PaymentIntentDTO>() {});
+//
+//    // 2.9% of chargeAmount + 30 cents
+//    stripeFee = 0;
+//
+//    totalCharge = bookingFee;
+//
+//    assertThat(paymentIntentDTO).isNotNull();
+//    assertThat(paymentIntentDTO.getClientSecret()).isNotNull();
+//    assertThat(paymentIntentDTO.getClientSecret().length()).isGreaterThan(0);
+//    assertThat(paymentIntentDTO.getStripeFee()).isNotNull().isEqualTo(stripeFee);
+//    assertThat(paymentIntentDTO.getBookingFee()).isNotNull().isEqualTo(bookingFee);
+//    assertThat(paymentIntentDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
+//    assertThat(paymentIntentDTO.getTotalChargeAtBooking()).isNotNull().isEqualTo(totalCharge);
+//    assertThat(paymentIntentDTO.getTotalChargeAtDropOff()).isNotNull().isEqualTo(bookingCost);
+//    assertThat(paymentIntentDTO.getSetupFutureUsage()).isNotNull().isEqualTo("off_session");
+//    assertThat(paymentIntentDTO.getId()).isNotNull();
+//  }
 
   @Test
   void itShouldCreateParentPaymentIntent_with_stripe_ready_groomer() throws Exception {
@@ -385,7 +381,7 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
                 .paymentMethodUuid(pm.getUuid())
                 .build();
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/parent/paymentintent/booking")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
                 .header("token", PARENT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
@@ -440,7 +436,7 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
                 .paymentMethodUuid(pm.getUuid())
                 .build();
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/parent/paymentintent/booking")
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
                 .header("token", PARENT_TOKEN)
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
@@ -488,7 +484,7 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
             .paymentMethodUuid(pm.getUuid())
             .build();
 
-     requestBuilder = MockMvcRequestBuilders.post("/stripe/parent/paymentintent/booking")
+     requestBuilder = MockMvcRequestBuilders.post("/stripe/paymentintent/booking")
             .header("token", PARENT_TOKEN)
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding("utf-8")
