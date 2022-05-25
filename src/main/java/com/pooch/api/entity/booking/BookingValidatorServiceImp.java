@@ -59,14 +59,9 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
 
   @Override
   public void validateBook(BookingCreateDTO bookingCreateDTO) {
-    ParentCreateUpdateDTO parentCreateUpdateDTO = bookingCreateDTO.getParent();
 
-    if (parentCreateUpdateDTO == null) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "petParent is required");
-    }
-
-    String parentUuid = parentCreateUpdateDTO.getUuid();
-
+    String parentUuid = bookingCreateDTO.getParentUuid();
+    
     if (parentUuid == null || parentUuid.trim().isEmpty()) {
       throw new ApiException(ApiError.DEFAULT_MSG, "parent.uuid is required");
     }

@@ -24,16 +24,9 @@ public class BookingCreateDTO implements Serializable {
 
   private String paymentIntentId;
 
-  private ParentCreateUpdateDTO parent;
+  private String parentUuid;
 
-//  private Set<PoochCreateUpdateDTO> pooches;
-  
   private Set<PoochBookingCreateDTO> pooches;
-
-//  /**
-//   * careServices apply to all pooch
-//   */
-//  private Set<BookingCareServiceDTO> careServices;
 
   /**
    * care services with prices
@@ -52,10 +45,4 @@ public class BookingCreateDTO implements Serializable {
 
   private Double dropOffCost;
 
-//  public void addService(BookingCareServiceDTO service) {
-//    if (this.careServices == null) {
-//      this.careServices = new HashSet<>();
-//    }
-//    this.careServices.add(service);
-//  }
 }

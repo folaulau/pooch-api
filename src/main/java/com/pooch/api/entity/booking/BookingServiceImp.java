@@ -79,16 +79,7 @@ public class BookingServiceImp implements BookingService {
 
     Booking booking = entityDTOMapper.mapBookingCreateDTOToBooking(bookingCreateDTO);
 
-    ParentCreateUpdateDTO parentCreateUpdateDTO = bookingCreateDTO.getParent();
-
-    Parent parent = null;
-
-    if (parentCreateUpdateDTO.getUuid() != null) {
-      parent = parentDAO.getByUuid(parentCreateUpdateDTO.getUuid()).get();
-      entityDTOMapper.patchParentWithNewParentUpdateDTO(parentCreateUpdateDTO, parent);
-    } else {
-      parent = entityDTOMapper.mapNewUpdateDTOToParent(parentCreateUpdateDTO);
-    }
+    Parent parent = parentDAO.getByUuid(bookingCreateDTO.getParentUuid()).get();
 
     booking.setStripePaymentIntentId(bookingCreateDTO.getPaymentIntentId());
     
