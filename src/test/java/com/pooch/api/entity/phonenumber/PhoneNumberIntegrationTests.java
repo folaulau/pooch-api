@@ -9,6 +9,8 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import com.pooch.api.entity.parent.Parent;
+import com.pooch.api.utils.TestEntityGeneratorService;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -43,134 +45,115 @@ import lombok.extern.slf4j.Slf4j;
 @AutoConfigureMockMvc
 public class PhoneNumberIntegrationTests extends IntegrationTestConfiguration {
 
-    @Autowired
-    private MockMvc                                 mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper                            objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    @MockBean
-    private SmsService                              smsService;
+  @MockBean
+  private SmsService smsService;
 
-    @Autowired
-    private PhoneNumberVerificationRepository       phoneNumberVerificationRepository;
+  @Autowired
+  private PhoneNumberVerificationRepository phoneNumberVerificationRepository;
 
-    @Captor
-    private ArgumentCaptor<PhoneNumberVerification> phoneNumberVerificationCaptor;
+  @Autowired
+  private TestEntityGeneratorService testEntityGeneratorService;
 
-    @Transactional
-    @Test
-    void itShouldRequestPhoneNumberVerification_valid() throws Exception {
-        // Given
+  @Autowired
+  private PhoneNumberService phoneNumberService;
 
-        PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO = new PhoneNumberVerificationCreateDTO();
-        phoneNumberRequestVerificationDTO.setCountryCode(1);
+  @Captor
+  private ArgumentCaptor<PhoneNumberVerification> phoneNumberVerificationCaptor;
 
-        long phoneNumber = 3109934731L;
-        phoneNumberRequestVerificationDTO.setPhoneNumber(phoneNumber);
+  @Transactional
+  @Test
+  void itShouldRequestPhoneNumberVerification_valid() throws Exception {
+    // Given
 
-        Mockito.when(smsService.sendSMS(Mockito.anyInt(), Mockito.anyLong(), Mockito.anyString())).thenReturn("good");
+    Parent parent = testEntityGeneratorService.getDBParent();
 
-        // When
+    PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO =
+        new PhoneNumberVerificationCreateDTO();
+    phoneNumberRequestVerificationDTO.setCountryCode(1);
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/phonenumbers/request-verification")
-                .header("x-api-key", "test-token")
-                .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(ObjectUtils.toJson(phoneNumberRequestVerificationDTO));
+    long phoneNumber = 3109934731L;
+    phoneNumberRequestVerificationDTO.setPhoneNumber(phoneNumber);
 
-        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+    Mockito.when(smsService.sendSMS(Mockito.anyInt(), Mockito.anyLong(), Mockito.anyString()))
+        .thenReturn("good");
 
-        String contentAsString = result.getResponse().getContentAsString();
+    ApiDefaultResponseDTO dtoResponse =
+        phoneNumberService.requestVerification(parent, phoneNumberRequestVerificationDTO);
 
-        ApiDefaultResponseDTO dtoResponse = objectMapper.readValue(contentAsString, new TypeReference<ApiDefaultResponseDTO>() {});
-        // Then
 
-        log.info("dtoResponse={}", ObjectUtils.toJson(dtoResponse));
+    log.info("dtoResponse={}", ObjectUtils.toJson(dtoResponse));
 
-        assertThat(dtoResponse).isNotNull();
-        assertThat(dtoResponse.getMessage()).isNotNull();
+    assertThat(dtoResponse).isNotNull();
+    assertThat(dtoResponse.getMessage()).isNotNull();
 
-        // --verify
-        // --assert
+    // --verify
+    // --assert
 
+  }
+
+  @Transactional
+  @Test
+  void itShouldRequestPhoneNumberVerification_and_verifyWithCode() throws Exception {
+
+    Parent parent = testEntityGeneratorService.getDBParent();
+    // Given
+    int countryCode = 1;
+    PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO =
+        new PhoneNumberVerificationCreateDTO();
+    phoneNumberRequestVerificationDTO.setCountryCode(countryCode);
+
+    long phoneNumber = 3109934731L;
+    phoneNumberRequestVerificationDTO.setPhoneNumber(phoneNumber);
+
+    Mockito.when(smsService.sendSMS(Mockito.anyInt(), Mockito.anyLong(), Mockito.anyString()))
+        .thenReturn("good");
+
+    ApiDefaultResponseDTO dtoResponse =
+        phoneNumberService.requestVerification(parent, phoneNumberRequestVerificationDTO);
+    
+    // Then
+
+    log.info("dtoResponse={}", ObjectUtils.toJson(dtoResponse));
+
+    assertThat(dtoResponse).isNotNull();
+    assertThat(dtoResponse.getMessage()).isNotNull();
+
+    /**
+     * Verify with number
+     */
+
+    /**
+     * get the last row
+     */
+    Optional<PhoneNumberVerification> optVerification =
+        phoneNumberVerificationRepository.findFirstByOrderByIdDesc();
+
+    if (!optVerification.isPresent()) {
+      throw new RuntimeException("PhoneNumberVerification not found");
     }
 
-    @Transactional
-    @Test
-    void itShouldRequestPhoneNumberVerification_and_verifyWithCode() throws Exception {
-        // Given
-        int countryCode = 1;
-        PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO = new PhoneNumberVerificationCreateDTO();
-        phoneNumberRequestVerificationDTO.setCountryCode(countryCode);
+    PhoneNumberVerification savedPhoneNumberVerification = optVerification.get();
 
-        long phoneNumber = 3109934731L;
-        phoneNumberRequestVerificationDTO.setPhoneNumber(phoneNumber);
+    PhoneNumberVerificationUpdateDTO phoneNumberVerificationUpdateDTO =
+        new PhoneNumberVerificationUpdateDTO();
+    phoneNumberVerificationUpdateDTO.setCountryCode(1);
+    phoneNumberVerificationUpdateDTO.setPhoneNumber(phoneNumber);
+    phoneNumberVerificationUpdateDTO.setCode(savedPhoneNumberVerification.getVerificationCode());
 
-        Mockito.when(smsService.sendSMS(Mockito.anyInt(), Mockito.anyLong(), Mockito.anyString())).thenReturn("good");
 
-        // When
+   PhoneNumberVerification phoneNumberVerification =  phoneNumberService.verifyNumberWithCode(parent, phoneNumberVerificationUpdateDTO);
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/phonenumbers/request-verification")
-                .header("x-api-key", "test-token")
-                .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(ObjectUtils.toJson(phoneNumberRequestVerificationDTO));
+    log.info("phoneNumberVerificationDTO={}", ObjectUtils.toJson(phoneNumberVerification));
 
-        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+    assertThat(phoneNumberVerification).isNotNull();
+    assertThat(phoneNumberVerification.getPhoneNumber()).isEqualTo(phoneNumber);
+    assertThat(phoneNumberVerification.getPhoneVerified()).isTrue();
 
-        String contentAsString = result.getResponse().getContentAsString();
-
-        ApiDefaultResponseDTO dtoResponse = objectMapper.readValue(contentAsString, new TypeReference<ApiDefaultResponseDTO>() {});
-        // Then
-
-        log.info("dtoResponse={}", ObjectUtils.toJson(dtoResponse));
-
-        assertThat(dtoResponse).isNotNull();
-        assertThat(dtoResponse.getMessage()).isNotNull();
-
-        /**
-         * Verify with number
-         */
-
-        /**
-         * get the last row
-         */
-        Optional<PhoneNumberVerification> optVerification = phoneNumberVerificationRepository.findFirstByOrderByIdDesc();
-
-        if (!optVerification.isPresent()) {
-            throw new RuntimeException("PhoneNumberVerification not found");
-        }
-
-        PhoneNumberVerification phoneNumberVerification = optVerification.get();
-
-        PhoneNumberVerificationUpdateDTO phoneNumberVerificationUpdateDTO = new PhoneNumberVerificationUpdateDTO();
-        phoneNumberVerificationUpdateDTO.setCountryCode(1);
-        phoneNumberVerificationUpdateDTO.setPhoneNumber(phoneNumber);
-        phoneNumberVerificationUpdateDTO.setCode(phoneNumberVerification.getVerificationCode());
-
-        // When
-
-        requestBuilder = MockMvcRequestBuilders.put("/phonenumbers/verification")
-                .header("x-api-key", "test-token")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(ObjectUtils.toJson(phoneNumberVerificationUpdateDTO));
-
-        result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-
-        contentAsString = result.getResponse().getContentAsString();
-
-        PhoneNumberVerificationDTO phoneNumberVerificationDTO = objectMapper.readValue(contentAsString, new TypeReference<PhoneNumberVerificationDTO>() {});
-        // Then
-
-        log.info("phoneNumberVerificationDTO={}", ObjectUtils.toJson(phoneNumberVerificationDTO));
-
-        assertThat(phoneNumberVerificationDTO).isNotNull();
-        assertThat(phoneNumberVerificationDTO.getPhoneNumber()).isEqualTo(phoneNumber);
-        assertThat(phoneNumberVerificationDTO.getPhoneVerified()).isTrue();
-
-    }
+  }
 }

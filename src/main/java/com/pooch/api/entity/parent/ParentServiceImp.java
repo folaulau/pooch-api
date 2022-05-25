@@ -276,7 +276,7 @@ public class ParentServiceImp implements ParentService {
 
     Parent parent = findByUuid(uuid);
 
-    return this.phoneNumberService.requestVerification(phoneNumberRequestVerificationDTO);
+    return this.phoneNumberService.requestVerification(parent, phoneNumberRequestVerificationDTO);
   }
 
 
@@ -287,13 +287,18 @@ public class ParentServiceImp implements ParentService {
     Parent parent = findByUuid(uuid);
 
     PhoneNumberVerification phoneNumberVerification =
-        phoneNumberService.verifyNumberWithCode(phoneNumberVerificationDTO);
+        phoneNumberService.verifyNumberWithCode(parent, phoneNumberVerificationDTO);
 
     if (phoneNumberVerification.getPhoneVerified() != null
         && phoneNumberVerification.getPhoneVerified() == true) {
       parent.setPhoneNumber(phoneNumberVerification.getPhoneNumber());
       parent.setPhoneNumberVerified(true);
+      parent.setPhoneNumberVerification(phoneNumberVerification);
+      this.parentDAO.save(parent);
+
     }
+
+
 
     return entityDTOMapper
         .mapPhoneNumberVerificationToPhoneNumberVerificationDTO(phoneNumberVerification);

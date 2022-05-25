@@ -118,7 +118,7 @@ public class ParentRestController {
 
   @Operation(summary = "Request Phone Number Verification",
       description = "Request phone number verification.")
-  @PostMapping(value = "/{uuid}/phone-number/request-verification")
+  @PostMapping(value = "/{uuid}/phonenumber/request-verification")
   public ResponseEntity<ApiDefaultResponseDTO> requestPhoneNumberVerification(
       @RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
       @RequestBody PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO) {
@@ -133,7 +133,7 @@ public class ParentRestController {
   }
 
   @Operation(summary = "Verify Phone Number", description = "verify phone number with code")
-  @PutMapping(value = "/{uuid}/phone-number/verification")
+  @PutMapping(value = "/{uuid}/phonenumber/verification")
   public ResponseEntity<PhoneNumberVerificationDTO> verifyPhoneNumberWithCode(
       @RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
       @RequestBody PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO) {

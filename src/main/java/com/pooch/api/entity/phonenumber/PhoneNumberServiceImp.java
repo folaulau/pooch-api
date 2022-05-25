@@ -2,6 +2,7 @@ package com.pooch.api.entity.phonenumber;
 
 import java.time.LocalDateTime;
 
+import com.pooch.api.entity.parent.Parent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class PhoneNumberServiceImp implements PhoneNumberService {
     private int                         verificationCodeTimer;
 
     @Override
-    public ApiDefaultResponseDTO requestVerification(PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO) {
+    public ApiDefaultResponseDTO requestVerification(Parent parent, PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO) {
 
         Integer code = RandomGeneratorUtils.getIntegerWithin(1000000, 9999999);
 
@@ -47,6 +48,7 @@ public class PhoneNumberServiceImp implements PhoneNumberService {
         phoneNumberVerification.setVerificationCode(code + "");
         phoneNumberVerification.setCountryCode(phoneNumberRequestVerificationDTO.getCountryCode());
         phoneNumberVerification.setPhoneVerified(false);
+        phoneNumberVerification.setParent(parent);
 
         String sentStatus = smsServive.sendSMS(phoneNumberRequestVerificationDTO.getCountryCode(), phoneNumberRequestVerificationDTO.getPhoneNumber(), "Your PoochApp verification code is: " + code);
 
@@ -59,7 +61,7 @@ public class PhoneNumberServiceImp implements PhoneNumberService {
     }
 
     @Override
-    public PhoneNumberVerification verifyNumberWithCode(PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO) {
+    public PhoneNumberVerification verifyNumberWithCode(Parent parent, PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO) {
         PhoneNumberVerification phoneNumberVerification = phoneNumberValidatorService.validateVerificationNumberWithCode(phoneNumberVerificationDTO);
         phoneNumberVerification.setPhoneVerified(true);
         phoneNumberVerification = phoneNumberVerificationDAO.save(phoneNumberVerification);

@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -35,10 +36,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.AddressCreateUpdateDTO;
+import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.ParentDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.dto.PaymentMethodCreateDTO;
 import com.pooch.api.dto.PaymentMethodDTO;
+import com.pooch.api.dto.PhoneNumberVerificationCreateDTO;
+import com.pooch.api.dto.PhoneNumberVerificationDTO;
+import com.pooch.api.dto.PhoneNumberVerificationUpdateDTO;
 import com.pooch.api.dto.PoochCreateUpdateDTO;
 import com.pooch.api.dto.S3FileDTO;
 import com.pooch.api.dto.SetupIntentCreateDTO;
@@ -47,11 +52,14 @@ import com.pooch.api.dto.VaccineCreateDTO;
 import com.pooch.api.dto.VaccineDTO;
 import com.pooch.api.entity.paymentmethod.PaymentMethod;
 import com.pooch.api.entity.paymentmethod.PaymentMethodDAO;
+import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
+import com.pooch.api.entity.phonenumber.PhoneNumberVerificationRepository;
 import com.pooch.api.entity.pooch.FoodSchedule;
 import com.pooch.api.entity.pooch.Gender;
 import com.pooch.api.entity.pooch.Training;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.library.stripe.setupintent.StripeSetupIntentService;
+import com.pooch.api.library.twilio.sms.SmsService;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.ObjectUtils;
@@ -72,12 +80,23 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
   @Autowired
   private ObjectMapper objectMapper;
 
+
+
+  @Autowired
+  private PhoneNumberVerificationRepository phoneNumberVerificationRepository;
+
+
   @Autowired
   private Filter springSecurityFilterChain;
 
+  @MockBean
+  private SmsService smsService;
 
   @Autowired
   private PaymentMethodDAO paymentMethodDAO;
+
+  @Autowired
+  private ParentDAO parentDAO;
 
   @MockBean
   private JwtTokenService jwtTokenService;
@@ -331,6 +350,144 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
         .isPresent();
 
     assertThat(present).isTrue();
+  }
+
+  @Transactional
+  @Test
+  void itShouldRequestPhoneNumberVerification_valid() throws Exception {
+    // Given
+
+    Parent parent = testEntityGeneratorService.getDBParent();
+
+    PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO =
+        new PhoneNumberVerificationCreateDTO();
+    phoneNumberRequestVerificationDTO.setCountryCode(1);
+
+    long phoneNumber = 3109934731L;
+    phoneNumberRequestVerificationDTO.setPhoneNumber(phoneNumber);
+
+    Mockito.when(smsService.sendSMS(Mockito.anyInt(), Mockito.anyLong(), Mockito.anyString()))
+        .thenReturn("good");
+
+    // When
+
+    RequestBuilder requestBuilder = MockMvcRequestBuilders
+        .post("/parents/" + parent.getUuid() + "/phonenumber/request-verification")
+        .header("token", PARENT_TOKEN).accept(MediaType.APPLICATION_JSON).characterEncoding("utf-8")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(ObjectUtils.toJson(phoneNumberRequestVerificationDTO));
+
+    MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+    String contentAsString = result.getResponse().getContentAsString();
+
+    ApiDefaultResponseDTO dtoResponse =
+        objectMapper.readValue(contentAsString, new TypeReference<ApiDefaultResponseDTO>() {});
+    // Then
+
+    log.info("dtoResponse={}", ObjectUtils.toJson(dtoResponse));
+
+    assertThat(dtoResponse).isNotNull();
+    assertThat(dtoResponse.getMessage()).isNotNull();
+
+    // --verify
+    // --assert
+
+  }
+
+  @Transactional
+  @Test
+  void itShouldRequestPhoneNumberVerification_and_verifyWithCode() throws Exception {
+    // Given
+    Parent parent = testEntityGeneratorService.getDBParent();
+
+
+    int countryCode = 1;
+    PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO =
+        new PhoneNumberVerificationCreateDTO();
+    phoneNumberRequestVerificationDTO.setCountryCode(countryCode);
+
+    long phoneNumber = 3109934731L;
+    phoneNumberRequestVerificationDTO.setPhoneNumber(phoneNumber);
+
+    Mockito.when(smsService.sendSMS(Mockito.anyInt(), Mockito.anyLong(), Mockito.anyString()))
+        .thenReturn("good");
+
+    // When
+
+    RequestBuilder requestBuilder = MockMvcRequestBuilders
+        .post("/parents/" + parent.getUuid() + "/phonenumber/request-verification")
+        .header("token", PARENT_TOKEN).accept(MediaType.APPLICATION_JSON).characterEncoding("utf-8")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(ObjectUtils.toJson(phoneNumberRequestVerificationDTO));
+
+    MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+    String contentAsString = result.getResponse().getContentAsString();
+
+    ApiDefaultResponseDTO dtoResponse =
+        objectMapper.readValue(contentAsString, new TypeReference<ApiDefaultResponseDTO>() {});
+    // Then
+
+    log.info("dtoResponse={}", ObjectUtils.toJson(dtoResponse));
+
+    assertThat(dtoResponse).isNotNull();
+    assertThat(dtoResponse.getMessage()).isNotNull();
+
+    /**
+     * Verify with number
+     */
+
+    /**
+     * get the last row
+     */
+    Optional<PhoneNumberVerification> optVerification =
+        phoneNumberVerificationRepository.findFirstByOrderByIdDesc();
+
+    if (!optVerification.isPresent()) {
+      throw new RuntimeException("PhoneNumberVerification not found");
+    }
+
+    PhoneNumberVerification phoneNumberVerification = optVerification.get();
+
+    PhoneNumberVerificationUpdateDTO phoneNumberVerificationUpdateDTO =
+        new PhoneNumberVerificationUpdateDTO();
+    phoneNumberVerificationUpdateDTO.setCountryCode(1);
+    phoneNumberVerificationUpdateDTO.setPhoneNumber(phoneNumber);
+    phoneNumberVerificationUpdateDTO.setCode(phoneNumberVerification.getVerificationCode());
+
+    // When
+
+    requestBuilder =
+        MockMvcRequestBuilders.put("/parents/" + parent.getUuid() + "/phonenumber/verification")
+            .accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)
+            .header("token", PARENT_TOKEN).accept(MediaType.APPLICATION_JSON)
+            .content(ObjectUtils.toJson(phoneNumberVerificationUpdateDTO));
+
+    result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+    contentAsString = result.getResponse().getContentAsString();
+
+    PhoneNumberVerificationDTO phoneNumberVerificationDTO =
+        objectMapper.readValue(contentAsString, new TypeReference<PhoneNumberVerificationDTO>() {});
+    // Then
+
+    log.info("phoneNumberVerificationDTO={}", ObjectUtils.toJson(phoneNumberVerificationDTO));
+
+    assertThat(phoneNumberVerificationDTO).isNotNull();
+    assertThat(phoneNumberVerificationDTO.getPhoneNumber()).isEqualTo(phoneNumber);
+    assertThat(phoneNumberVerificationDTO.getPhoneVerified()).isTrue();
+
+    Optional<Parent> optParent = parentDAO.getByUuid(parent.getUuid());
+
+    assertThat(optParent.isPresent()).isTrue();
+    Parent savedParent = optParent.get();
+
+    assertThat(savedParent.getPhoneNumber()).isEqualTo(phoneNumberVerificationDTO.getPhoneNumber());
+    assertThat(savedParent.getPhoneNumberVerified()).isTrue();
   }
 
 }

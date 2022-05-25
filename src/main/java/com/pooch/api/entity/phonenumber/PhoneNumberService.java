@@ -4,11 +4,14 @@ import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.PhoneNumberVerificationCreateDTO;
 import com.pooch.api.dto.PhoneNumberVerificationDTO;
 import com.pooch.api.dto.PhoneNumberVerificationUpdateDTO;
+import com.pooch.api.entity.parent.Parent;
 
 public interface PhoneNumberService {
 
-    ApiDefaultResponseDTO requestVerification(PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO);
+  ApiDefaultResponseDTO requestVerification(Parent parent,
+      PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO);
 
-    PhoneNumberVerification verifyNumberWithCode(PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO);
+  PhoneNumberVerification verifyNumberWithCode(Parent parent,
+      PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO);
 
 }
