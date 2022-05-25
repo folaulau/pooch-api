@@ -27,41 +27,7 @@ public class PoochBookingCreateDTO implements Serializable {
 
   private String uuid;
 
-  private String fullName;
-
-  private String breed;
-
-  private Gender gender;
-
-  private Training training;
-
-  private Set<FoodSchedule> foodSchedule;
-
-  private LocalDate dob;
-
-  private Double weight;
-
-  private Boolean spayed;
-
-  private String notes;
-
-  private Set<VaccineCreateDTO> vaccines;
-
   private Set<BookingCareServiceDTO> requestedCareServices;
-
-  public void addFoodSchedule(FoodSchedule fSchedule) {
-    if (foodSchedule == null) {
-      foodSchedule = new HashSet<>();
-    }
-    foodSchedule.add(fSchedule);
-  }
-
-  public void addVaccine(VaccineCreateDTO vaccineCreateDTO) {
-    if (vaccines == null) {
-      vaccines = new HashSet<>();
-    }
-    vaccines.add(vaccineCreateDTO);
-  }
 
   public void addService(BookingCareServiceDTO service) {
     if (this.requestedCareServices == null) {

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.pooch.api.dto.VaccineCreateDTO;
 import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.booking.BookingCostDetails;
 
@@ -226,26 +227,36 @@ public class TestEntityGeneratorService {
     return petParent;
   }
 
-  public Pooch getDBPet(Parent petParent) {
-    Pooch pet = getPet(petParent);
+  public Pooch getDBPooch(Parent petParent) {
+    Pooch pet = getPooch(petParent);
     return petRepository.saveAndFlush(pet);
   }
 
-  public Pooch getPet() {
-    return getPet(null);
-  }
+  public Pooch getPooch(Parent petParent) {
 
-  public Pooch getPet(Parent petParent) {
+    Pooch pooch = new Pooch();
+    pooch.setBreed("Bulldog");
+    pooch.setParent(petParent);
+    pooch.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 60)));
+    pooch.addFoodSchedule(FoodSchedule.Morning);
+    pooch.addFoodSchedule(FoodSchedule.Night);
+    
+    pooch.setFullName(RandomGeneratorUtils.getRandomFullName());
+    pooch.setGender(Gender.Female);
+    pooch.setSpayed(true);
+    pooch.setTraining(Training.Medium);
+    pooch.setWeight(15D);
+    pooch.addVaccine(Vaccine.builder()
+        .name("vitamin")
+        .expireDate(LocalDateTime.now().plusMonths(6))
+        .build());   
+    pooch.addVaccine(Vaccine.builder()
+        .name("protein")
+        .expireDate(LocalDateTime.now().plusMonths(6))
+        .build());   
+    
 
-    Pooch pet = new Pooch();
-    pet.setBreed("Bulldog");
-    pet.setParent(petParent);
-    pet.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 60)));
-    pet.addFoodSchedule(FoodSchedule.Morning);
-    pet.addFoodSchedule(FoodSchedule.Night);
-    pet.addVaccine(new Vaccine("vaccine", LocalDateTime.now().plusDays(24)));
-
-    return pet;
+    return pooch;
   }
 
   public Address getAddress() {

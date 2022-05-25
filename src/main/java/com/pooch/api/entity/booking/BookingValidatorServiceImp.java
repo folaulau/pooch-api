@@ -158,22 +158,19 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
     for (PoochBookingCreateDTO petCreateDTO : petCreateDTOs) {
       String poochUuid = petCreateDTO.getUuid();
 
-      if (poochUuid != null && !poochUuid.trim().isEmpty()) {
+      Pooch pooch = poochDAO.getByUuid(poochUuid).orElseThrow(
+          () -> new ApiException(ApiError.DEFAULT_MSG, "Pooch not found for uuid=" + poochUuid));
 
-        Pooch pooch = poochDAO.getByUuid(poochUuid).orElseThrow(
-            () -> new ApiException(ApiError.DEFAULT_MSG, "Pooch not found for uuid=" + poochUuid));
-
-        if (!parent.getId().equals(pooch.getParent().getId())) {
-          throw new ApiException(ApiError.DEFAULT_MSG, "Pooch does not belong to Parent",
-              "pooch has to belong to his/her parent");
-        }
+      if (!parent.getId().equals(pooch.getParent().getId())) {
+        throw new ApiException(ApiError.DEFAULT_MSG, "Pooch does not belong to Parent",
+            "pooch has to belong to his/her parent");
       }
 
       Set<BookingCareServiceDTO> services = petCreateDTO.getRequestedCareServices();
-      
+
       if (services == null || services.size() <= 0) {
         throw new ApiException(ApiError.DEFAULT_MSG, "Add a service",
-            "services are empty for pooch=" + petCreateDTO.getFullName());
+            "services are empty for pooch uuid=" + petCreateDTO.getUuid());
       }
 
       for (BookingCareServiceDTO service : services) {
@@ -244,7 +241,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
           "payment status=" + paymentIntent.getStatus());
     }
 
-    if (parent.getStripeCustomerId() != null && paymentIntent.getCustomer()!=null
+    if (parent.getStripeCustomerId() != null && paymentIntent.getCustomer() != null
         && !parent.getStripeCustomerId().equalsIgnoreCase(paymentIntent.getCustomer())) {
       throw new ApiException(ApiError.DEFAULT_MSG, "You are charging a different parent",
           "parent stripeCustomerId is not the same as the customerId of the paymentIntent");

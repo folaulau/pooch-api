@@ -43,6 +43,7 @@ import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentDAO;
 import com.pooch.api.entity.pooch.FoodSchedule;
 import com.pooch.api.entity.pooch.Gender;
+import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.pooch.PoochSize;
 import com.pooch.api.entity.pooch.Training;
 import com.pooch.api.entity.role.Authority;
@@ -130,6 +131,8 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
      * Pet Parent
      */
     Parent petParent = testEntityGeneratorService.getDBParent();
+    Pooch pooch1 = testEntityGeneratorService.getDBPooch(petParent);
+
 
     Double bookingCost =
         MathUtils.getTwoDecimalPlaces(RandomGeneratorUtils.getDoubleWithin(20, 300));
@@ -177,17 +180,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
     Set<PoochBookingCreateDTO> petCreateDTOs = new HashSet<>();
     for (int i = 0; i < 1; i++) {
       PoochBookingCreateDTO petCreateDTO = new PoochBookingCreateDTO();
-      petCreateDTO.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 36)));
-      petCreateDTO.setBreed("Bulldog");
-      petCreateDTO.setFullName(RandomGeneratorUtils.getRandomFullName());
-      petCreateDTO.setGender(Gender.Female);
-      petCreateDTO.setSpayed(true);
-      petCreateDTO.setTraining(Training.Medium);
-      petCreateDTO.setWeight(15D);
-      petCreateDTO.addFoodSchedule(FoodSchedule.Morning);
-      petCreateDTO.addFoodSchedule(FoodSchedule.Night);
-      petCreateDTO.addVaccine(new VaccineCreateDTO(LocalDateTime.now().plusMonths(2), "vac1"));
-      petCreateDTO.addVaccine(new VaccineCreateDTO(LocalDateTime.now().plusMonths(6), "vac2"));
+      petCreateDTO.setUuid(pooch1.getUuid());
       petCreateDTO.addService(BookingCareServiceDTO.builder().size(PoochSize.medium)
           .uuid(careService.getUuid()).build());
 
@@ -233,6 +226,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
      * Pet Parent
      */
     Parent petParent = testEntityGeneratorService.getDBParent();
+    Pooch pooch1 = testEntityGeneratorService.getDBPooch(petParent);
 
     Double bookingCost =
         MathUtils.getTwoDecimalPlaces(RandomGeneratorUtils.getDoubleWithin(20, 300));
@@ -277,17 +271,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
     Set<PoochBookingCreateDTO> petCreateDTOs = new HashSet<>();
     for (int i = 0; i < 1; i++) {
       PoochBookingCreateDTO petCreateDTO = new PoochBookingCreateDTO();
-      petCreateDTO.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 36)));
-      petCreateDTO.setBreed("Bulldog");
-      petCreateDTO.setFullName(RandomGeneratorUtils.getRandomFullName());
-      petCreateDTO.setGender(Gender.Female);
-      petCreateDTO.setSpayed(true);
-      petCreateDTO.setTraining(Training.Medium);
-      petCreateDTO.setWeight(15D);
-      petCreateDTO.addFoodSchedule(FoodSchedule.Morning);
-      petCreateDTO.addFoodSchedule(FoodSchedule.Night);
-      petCreateDTO.addVaccine(new VaccineCreateDTO(LocalDateTime.now().plusMonths(2), "vac1"));
-      petCreateDTO.addVaccine(new VaccineCreateDTO(LocalDateTime.now().plusMonths(6), "vac2"));
+      petCreateDTO.setUuid(pooch1.getUuid());
       petCreateDTO.addService(BookingCareServiceDTO.builder().size(PoochSize.medium)
           .uuid(careService.getUuid()).build());
 

@@ -30,9 +30,11 @@ import com.pooch.api.entity.DatabaseTableNames;
 import com.pooch.api.entity.pooch.Pooch;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
