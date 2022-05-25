@@ -59,11 +59,11 @@ public class PhoneNumberServiceImp implements PhoneNumberService {
     }
 
     @Override
-    public PhoneNumberVerificationDTO verifyNumberWithCode(PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO) {
+    public PhoneNumberVerification verifyNumberWithCode(PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO) {
         PhoneNumberVerification phoneNumberVerification = phoneNumberValidatorService.validateVerificationNumberWithCode(phoneNumberVerificationDTO);
         phoneNumberVerification.setPhoneVerified(true);
         phoneNumberVerification = phoneNumberVerificationDAO.save(phoneNumberVerification);
-        return entityDTOMapper.mapPhoneNumberVerificationToPhoneNumberVerificationDTO(phoneNumberVerification);
+        return phoneNumberVerification;
     }
 
 }

@@ -9,6 +9,6 @@ public interface PhoneNumberService {
 
     ApiDefaultResponseDTO requestVerification(PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO);
 
-    PhoneNumberVerificationDTO verifyNumberWithCode(PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO);
+    PhoneNumberVerification verifyNumberWithCode(PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO);
 
 }

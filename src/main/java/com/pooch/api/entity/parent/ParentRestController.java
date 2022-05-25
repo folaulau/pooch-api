@@ -24,6 +24,9 @@ import com.pooch.api.dto.ParentDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.dto.PaymentMethodCreateDTO;
 import com.pooch.api.dto.PaymentMethodDTO;
+import com.pooch.api.dto.PhoneNumberVerificationCreateDTO;
+import com.pooch.api.dto.PhoneNumberVerificationDTO;
+import com.pooch.api.dto.PhoneNumberVerificationUpdateDTO;
 import com.pooch.api.dto.S3FileDTO;
 import com.pooch.api.entity.paymentmethod.PaymentMethodService;
 import com.pooch.api.utils.ObjectUtils;
@@ -111,5 +114,34 @@ public class ParentRestController {
     PaymentMethodDTO paymentMethodDTO = paymentMethodService.add(uuid, paymentMethodCreateDTO);
 
     return new ResponseEntity<>(paymentMethodDTO, OK);
+  }
+
+  @Operation(summary = "Request Phone Number Verification",
+      description = "Request phone number verification.")
+  @PostMapping(value = "/{uuid}/phone-number/request-verification")
+  public ResponseEntity<ApiDefaultResponseDTO> requestPhoneNumberVerification(
+      @RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
+      @RequestBody PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO) {
+    log.info("requestPhoneNumberVerification, phoneNumberRequestVerificationDTO={}",
+        ObjectUtils.toJson(phoneNumberRequestVerificationDTO));
+
+
+    ApiDefaultResponseDTO response =
+        parentService.requestPhoneNumberVerification(uuid, phoneNumberRequestVerificationDTO);
+
+    return new ResponseEntity<>(response, OK);
+  }
+
+  @Operation(summary = "Verify Phone Number", description = "verify phone number with code")
+  @PutMapping(value = "/{uuid}/phone-number/verification")
+  public ResponseEntity<PhoneNumberVerificationDTO> verifyPhoneNumberWithCode(
+      @RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
+      @RequestBody PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO) {
+    log.info("verifyPhoneNumberWithCode");
+
+    PhoneNumberVerificationDTO response =
+        parentService.verifyNumberWithCode(uuid, phoneNumberVerificationDTO);
+
+    return new ResponseEntity<>(response, OK);
   }
 }
