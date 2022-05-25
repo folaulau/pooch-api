@@ -62,7 +62,7 @@ public class ParentValidatorServiceImp implements ParentValidatorService {
         if (poochCreateUpdateDTOs != null && poochCreateUpdateDTOs.size() > 0) {
             for (PoochCreateUpdateDTO pooch : poochCreateUpdateDTOs) {
 
-                poochValidatorService.validateCreateUpdatePooch(pooch);
+                poochValidatorService.validateCreateUpdatePooch(parent, pooch);
 
             }
         }
