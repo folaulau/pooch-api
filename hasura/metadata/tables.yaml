@@ -297,6 +297,16 @@
         filter: {}
 - table:
     schema: public
+    name: chat
+  object_relationships:
+    - name: groomer
+      using:
+        foreign_key_constraint_on: groomer_id
+    - name: parent
+      using:
+        foreign_key_constraint_on: parent_id
+- table:
+    schema: public
     name: groomer
   array_relationships:
     - name: addresses
@@ -320,6 +330,13 @@
           table:
             schema: public
             name: care_service
+    - name: chats
+      using:
+        foreign_key_constraint_on:
+          column: groomer_id
+          table:
+            schema: public
+            name: chat
     - name: groomer_roles
       using:
         foreign_key_constraint_on:
@@ -327,6 +344,13 @@
           table:
             schema: public
             name: groomer_roles
+    - name: phone_number_verifications
+      using:
+        foreign_key_constraint_on:
+          column: groomer_id
+          table:
+            schema: public
+            name: phone_number_verification
     - name: s3files
       using:
         foreign_key_constraint_on:
@@ -443,6 +467,7 @@
           - updated_at
           - uuid
         filter: {}
+        limit: 1
 - table:
     schema: public
     name: groomer_roles
@@ -456,6 +481,10 @@
 - table:
     schema: public
     name: parent
+  object_relationships:
+    - name: phone_number_verification
+      using:
+        foreign_key_constraint_on: phone_pumber_verification_id
   array_relationships:
     - name: addresses
       using:
@@ -471,6 +500,13 @@
           table:
             schema: public
             name: booking
+    - name: chats
+      using:
+        foreign_key_constraint_on:
+          column: parent_id
+          table:
+            schema: public
+            name: chat
     - name: parent_roles
       using:
         foreign_key_constraint_on:
@@ -485,6 +521,13 @@
           table:
             schema: public
             name: payment_method
+    - name: phone_number_verifications
+      using:
+        foreign_key_constraint_on:
+          column: parent_id
+          table:
+            schema: public
+            name: phone_number_verification
     - name: pooches
       using:
         foreign_key_constraint_on:
@@ -560,6 +603,21 @@
 - table:
     schema: public
     name: phone_number_verification
+  object_relationships:
+    - name: groomer
+      using:
+        foreign_key_constraint_on: groomer_id
+    - name: parent
+      using:
+        foreign_key_constraint_on: parent_id
+  array_relationships:
+    - name: parents
+      using:
+        foreign_key_constraint_on:
+          column: phone_pumber_verification_id
+          table:
+            schema: public
+            name: parent
 - table:
     schema: public
     name: pooch
