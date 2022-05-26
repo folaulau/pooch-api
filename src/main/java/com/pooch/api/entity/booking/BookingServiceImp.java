@@ -88,19 +88,6 @@ public class BookingServiceImp implements BookingService {
 
     log.info("paymentIntent={}", paymentIntent.toJson());
 
-    if (parent.getStripeCustomerId() == null) {
-
-      com.stripe.model.Customer customer = stripeCustomerService.createParentDetails(parent);
-
-      log.info("new customer={}", customer.toJson());
-      parent.setStripeCustomerId(customer.getId());
-
-    } else {
-
-      stripeCustomerService.updateParentDetails(parent);
-    }
-    
-    
     Optional<PaymentMethod> optPaymentMethod =
         paymentMethodDAO.getByParentIdAndStripeId(parent.getId(), paymentIntent.getPaymentMethod());
 

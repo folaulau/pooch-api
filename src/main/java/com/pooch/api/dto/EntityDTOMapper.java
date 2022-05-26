@@ -21,6 +21,7 @@ import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.booking.Booking;
 import com.pooch.api.entity.booking.BookingCostDetails;
 import com.pooch.api.entity.booking.BookingPaymentMethod;
+import com.pooch.api.entity.chat.Chat;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.paymentmethod.PaymentMethod;
@@ -118,5 +119,7 @@ public interface EntityDTOMapper {
     PaymentMethodDTO mapPaymentMethodToPaymentMethod(PaymentMethod paymentMethod);
 
     Pooch mapPoochBookingCreateDTOToPooch(PoochBookingCreateDTO petCreateDTO);
+
+    ChatDTO mapChatToChatDTO(Chat chat);
 
 }
