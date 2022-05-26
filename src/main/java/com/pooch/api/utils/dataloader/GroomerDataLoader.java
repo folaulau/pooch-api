@@ -19,6 +19,9 @@ import com.pooch.api.entity.groomer.GroomerSignUpStatus;
 import com.pooch.api.entity.groomer.GroomerStatus;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceRepository;
+import com.pooch.api.entity.s3file.FileType;
+import com.pooch.api.entity.s3file.S3File;
+import com.pooch.api.entity.s3file.S3FileDAO;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
@@ -41,6 +44,9 @@ public class GroomerDataLoader implements ApplicationRunner {
 
   @Autowired
   private CareServiceRepository careServiceRepository;
+
+  @Autowired
+  private S3FileDAO s3FileDAO;
 
   @Override
   public void run(ApplicationArguments args) throws Exception {
@@ -126,6 +132,70 @@ public class GroomerDataLoader implements ApplicationRunner {
         careServiceRepository.saveAll(careServices);
 
         log.info("done with groomer#", (i + 1));
+
+        /**
+         * contracts
+         */
+
+        /***
+         * { "id": 4, "uuid": "s3file-1653595589645-bd9bbe7c-4d16-4844-8f86-d34c3e5bbca5",
+         * "fileName": "groomer-test-contract.pdf", "url":
+         * "https://pooch-api-local.s3.us-west-2.amazonaws.com/public/contracts/groomer/30/eaa0b77c-6bf2-4f1d-87e5-1f4a4a79de62_groomer-test-contract.pdf",
+         * "isPublic": false, "deleted": false, "createdAt": "2022-05-26T20:06:29.647952",
+         * "updatedAt": "2022-05-26T20:06:29.6484" }
+         */
+
+        S3File contract = new S3File();
+        contract.setFileName("groomer-test-contract.pdf");
+        contract.setUrl(
+            "https://pooch-api-local.s3.us-west-2.amazonaws.com/public/contracts/groomer/30/eaa0b77c-6bf2-4f1d-87e5-1f4a4a79de62_groomer-test-contract.pdf");
+        contract.setFileType(FileType.Contract_Attachment);
+        contract.setIsPublic(true);
+        contract.setGroomer(groomer);
+
+
+        /**
+         * 
+         * 
+         * { "id": 5, "uuid": "s3file-1653596490762-cce1b3fe-0c54-42d9-9c8a-49c18c0e6728",
+         * "fileName": "female-dog-groomer.jpeg", "url":
+         * "https://pooch-api-local.s3.us-west-2.amazonaws.com/public/profile_images/groomer/30/a9d942b0-90f5-4684-8052-3fef6e51082d_female-dog-groomer.jpeg",
+         * "isPublic": true, "deleted": false, "createdAt": "2022-05-26T20:21:30.772875",
+         * "updatedAt": "2022-05-26T20:21:30.773069" }, { "id": 6, "uuid":
+         * "s3file-1653596490806-d05ba37d-739b-404b-8b69-9b317a1f1cc9", "fileName":
+         * "male-dog-groomer.jpeg", "url":
+         * "https://pooch-api-local.s3.us-west-2.amazonaws.com/public/profile_images/groomer/30/2093eaef-df0e-4d99-96f9-b2720db207b0_male-dog-groomer.jpeg",
+         * "isPublic": true, "deleted": false, "createdAt": "2022-05-26T20:21:30.806987",
+         * "updatedAt": "2022-05-26T20:21:30.807055" }
+         */
+
+
+
+        S3File femaleProfileImage = new S3File();
+        femaleProfileImage.setFileName("female-dog-groomer.jpeg");
+        femaleProfileImage.setUrl(
+            "https://pooch-api-local.s3.us-west-2.amazonaws.com/public/profile_images/groomer/30/a9d942b0-90f5-4684-8052-3fef6e51082d_female-dog-groomer.jpeg");
+        femaleProfileImage.setFileType(FileType.Profile_Image);
+        femaleProfileImage.setIsPublic(true);
+        femaleProfileImage.setGroomer(groomer);
+
+        S3File maleProfileImage = new S3File();
+        maleProfileImage.setFileName("male-dog-groomer.jpeg");
+        maleProfileImage.setUrl(
+            "https://pooch-api-local.s3.us-west-2.amazonaws.com/public/profile_images/groomer/30/2093eaef-df0e-4d99-96f9-b2720db207b0_male-dog-groomer.jpeg");
+        maleProfileImage.setFileType(FileType.Profile_Image);
+        maleProfileImage.setIsPublic(true);
+        maleProfileImage.setGroomer(groomer);
+
+
+        S3File profileImage = Arrays.asList(femaleProfileImage, maleProfileImage)
+            .get(RandomGeneratorUtils.getIntegerWithin(0, 1));
+
+        s3FileDAO.save(Arrays.asList(contract, profileImage));
+
+
+
+        savedGroomer = groomerDAO.save(groomer);
 
       }
     } catch (Exception e) {

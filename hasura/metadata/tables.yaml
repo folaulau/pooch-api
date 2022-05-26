@@ -259,11 +259,7 @@
           - description
           - created_at
           - updated_at
-        filter:
-          groomer:
-            bookings:
-              parent_id:
-                _eq: x-Hasura-parent-id
+        filter: {}
 - table:
     schema: public
     name: care_service_category
@@ -580,7 +576,7 @@
       using:
         foreign_key_constraint_on: parent_id
   select_permissions:
-    - role: groomer
+    - role: parent
       permission:
         columns:
           - expiration_month
@@ -600,6 +596,7 @@
         filter:
           parent_id:
             _eq: x-Hasura-parent-id
+        allow_aggregations: true
 - table:
     schema: public
     name: phone_number_verification
@@ -845,9 +842,7 @@
           - url
           - created_at
           - updated_at
-        filter:
-          parent_id:
-            _eq: x-Hasura-parent-id
+        filter: {}
 - table:
     schema: public
     name: transaction

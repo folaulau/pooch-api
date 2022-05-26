@@ -469,7 +469,7 @@ public class GroomerServiceImp implements GroomerService {
 
             AwsUploadResponse awsUploadResponse = null;
             try {
-                awsUploadResponse = awsS3Service.uploadPrivateObj(objectKey, metadata, image.getInputStream());
+                awsUploadResponse = awsS3Service.uploadPublicObj(objectKey, metadata, image.getInputStream());
             } catch (IOException e) {
                 log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
                 e.printStackTrace();

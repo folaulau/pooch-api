@@ -149,9 +149,9 @@ public class GroomerRestController {
 
     @Operation(summary = "Get Service Types", description = "get service types")
     @GetMapping("/service/types")
-    public ResponseEntity<List<GroomerServiceCategoryDTO>> getAllServiceTypes(@RequestHeader(name = "x-api-key", required = true) String xApiKey) {
+    public ResponseEntity<List<GroomerServiceCategoryDTO>> getAllServiceTypes(@RequestHeader(name = "token", required = true) String token) {
         log.info("getAllServiceTypes()");
-        xApiKeyService.validate(xApiKey);
+//        xApiKeyService.validate(xApiKey);
 
         return new ResponseEntity<>(groomerServiceTypeService.getAllGroomerServiceTypes(), OK);
     }
