@@ -14,6 +14,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import com.pooch.api.elastic.repo.GroomerES;
@@ -28,8 +29,12 @@ import com.pooch.api.entity.paymentmethod.PaymentMethod;
 import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
 import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.s3file.S3File;
-
-@Mapper(componentModel = "spring", nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+// @formatter:off
+@Mapper(componentModel = "spring", 
+nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, 
+unmappedTargetPolicy = ReportingPolicy.IGNORE,  
+nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
+//@formatter:on
 public interface EntityDTOMapper {
 
     Pooch mapPoochCreateDTOToPooch(PoochCreateUpdateDTO poochCreateDTO);
@@ -49,7 +54,7 @@ public interface EntityDTOMapper {
     Parent mapNewUpdateDTOToParent(ParentCreateUpdateDTO petParentUpdateDTO);
 
     @Mappings({@Mapping(target = "uuid", ignore = true)})
-    void patchParentWithNewParentUpdateDTO(ParentCreateUpdateDTO parentCreateUpdateDTO, @MappingTarget Parent petParent);
+    Parent patchParentWithNewParentUpdateDTO(ParentCreateUpdateDTO parentCreateUpdateDTO, @MappingTarget Parent petParent);
 
     ParentDTO mapPetParentToPetParentDTO(Parent petParent);
 
@@ -73,7 +78,7 @@ public interface EntityDTOMapper {
     AddressES mapAddressToAddressEs(Address address);
 
     @Mappings({@Mapping(target = "uuid", ignore = true)})
-    void patchCareServiceWithCareServiceUpdateDTO(CareServiceUpdateDTO careServicesDTO, @MappingTarget CareService careService);
+    CareService patchCareServiceWithCareServiceUpdateDTO(CareServiceUpdateDTO careServicesDTO, @MappingTarget CareService careService);
 
     CareServiceDTO mapCareServiceToCareServiceDTO(CareService careService);
 
@@ -86,7 +91,7 @@ public interface EntityDTOMapper {
     List<CareServiceDTO> mapCareServicesToCareServiceDTOsAsList(Set<CareService> careServices);
 
     @Mappings({@Mapping(target = "uuid", ignore = true)})
-    void patchAddressWithAddressCreateUpdateDTO(AddressCreateUpdateDTO addressCreateUpdateDTO, @MappingTarget Address address);
+    Address patchAddressWithAddressCreateUpdateDTO(AddressCreateUpdateDTO addressCreateUpdateDTO, @MappingTarget Address address);
 
     @Mappings({@Mapping(target = "uuid", ignore = true)})
     Address mapAddressCreateUpdateDTOToAddress(AddressCreateUpdateDTO addressCreateUpdateDTO);
@@ -98,10 +103,10 @@ public interface EntityDTOMapper {
     ReviewDTO mapReviewToReviewDTO(Review review);
 
     @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
-    void patchGroomerWithGroomerCreateProfileDTO(GroomerCreateProfileDTO groomerCreateProfileDTO, @MappingTarget Groomer groomer);
+    Groomer patchGroomerWithGroomerCreateProfileDTO(GroomerCreateProfileDTO groomerCreateProfileDTO, @MappingTarget Groomer groomer);
 
     @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
-    void patchGroomerWithGroomerCreateListingDTO(GroomerCreateListingDTO groomerCreateListingDTO, @MappingTarget Groomer groomer);
+    Groomer patchGroomerWithGroomerCreateListingDTO(GroomerCreateListingDTO groomerCreateListingDTO, @MappingTarget Groomer groomer);
 
     @Mappings({@Mapping(target = "pooches", ignore = true), @Mapping(target = "parent", ignore = true)})
     Booking mapBookingCreateDTOToBooking(BookingCreateDTO bookingCreateDTO);
@@ -114,7 +119,7 @@ public interface EntityDTOMapper {
     PaymentIntentDTO mapBookingCostDetailsToPaymentIntentDTO(BookingCostDetails costDetails);
 
     @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
-    void patchParentWithParentUpdateDTO(ParentUpdateDTO parentUpdateDTO, @MappingTarget Parent parent);
+    Parent patchParentWithParentUpdateDTO(ParentUpdateDTO parentUpdateDTO, @MappingTarget Parent parent);
 
     PaymentMethodDTO mapPaymentMethodToPaymentMethod(PaymentMethod paymentMethod);
 
