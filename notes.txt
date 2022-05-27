@@ -21,3 +21,7 @@ https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html/#re
 
 Booking research
 https://www.youtube.com/watch?v=YyOXt2MEkv4
+
+Json Validator
+https://json-schema.org/understanding-json-schema/
+https://github.com/victools/jsonschema-generator/tree/main/jsonschema-generator
