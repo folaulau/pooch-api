@@ -20,44 +20,46 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PoochCreateUpdateDTO implements Serializable {
 
-    /**
-     * 
-     */
-    private static final long     serialVersionUID = 1L;
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
 
-    private String                uuid;
+  private String uuid;
 
-    private String                fullName;
+  private String fullName;
 
-    private String                breed;
+  private String breed;
 
-    private Gender                gender;
+  private Gender gender;
 
-    private Training              training;
+  private Training training;
 
-    private Set<FoodSchedule>     foodSchedule;
+  private Set<FoodSchedule> foodSchedule;
 
-    private LocalDate             dob;
+  private LocalDate dob;
 
-    private Double                weight;
+  private Double weight;
 
-    private Boolean               spayed;
+  private Boolean spayed;
 
-    private String                notes;
+  private Boolean neutered;
 
-    private Set<VaccineCreateDTO> vaccines;
+  private String notes;
 
-    public void addFoodSchedule(FoodSchedule fSchedule) {
-        if (foodSchedule == null) {
-            foodSchedule = new HashSet<>();
-        }
-        foodSchedule.add(fSchedule);
+  private Set<VaccineCreateDTO> vaccines;
+
+  public void addFoodSchedule(FoodSchedule fSchedule) {
+    if (foodSchedule == null) {
+      foodSchedule = new HashSet<>();
     }
+    foodSchedule.add(fSchedule);
+  }
 
-    public void addVaccine(VaccineCreateDTO vaccineCreateDTO) {
-        if (vaccines == null) {
-            vaccines = new HashSet<>();
-        }
-        vaccines.add(vaccineCreateDTO);
+  public void addVaccine(VaccineCreateDTO vaccineCreateDTO) {
+    if (vaccines == null) {
+      vaccines = new HashSet<>();
     }
+    vaccines.add(vaccineCreateDTO);
+  }
 }
