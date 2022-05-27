@@ -1,21 +1,16 @@
 package com.pooch.api.config;
 
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pooch.api.exception.JsonSchemaValidatingArgumentResolver;
+
 import com.pooch.api.utils.HttpRequestInterceptor;
 import com.pooch.api.utils.HttpResponseErrorHandler;
 
@@ -25,67 +20,52 @@ import io.swagger.v3.oas.models.servers.Server;
 @Configuration
 public class RestMVCConfig {
 
-  @Value("${resttemplate.timeout:100000}")
-  private int restTemplateTimeout;
+    @Value("${resttemplate.timeout:100000}")
+    private int restTemplateTimeout;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
 
-  @Autowired
-  private ResourcePatternResolver resourcePatternResolver;
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**").allowedHeaders("*").allowedMethods("*").allowedOrigins("*");
+            }
 
-  @Bean
-  public WebMvcConfigurer corsConfigurer() {
-    return new WebMvcConfigurer() {
+            @Override
+            public void addResourceHandlers(ResourceHandlerRegistry registry) {
+                // TODO Auto-generated method stub
+                // WebMvcConfigurer.super.addResourceHandlers(registry);
 
-      @Override
-      public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedHeaders("*").allowedMethods("*").allowedOrigins("*");
-      }
+                registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
 
-      @Override
-      public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // TODO Auto-generated method stub
-        // WebMvcConfigurer.super.addResourceHandlers(registry);
+                registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+            }
 
-        registry.addResourceHandler("swagger-ui.html")
-            .addResourceLocations("classpath:/META-INF/resources/");
+        };
+    }
 
-        registry.addResourceHandler("/webjars/**")
-            .addResourceLocations("classpath:/META-INF/resources/webjars/");
-      }
+    @Bean
+    public RestTemplate getRestTemplate() {
+        final SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(restTemplateTimeout);
+        requestFactory.setReadTimeout(restTemplateTimeout);
+        RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(requestFactory));
+        restTemplate.getInterceptors().add(new HttpRequestInterceptor());
+        restTemplate.setErrorHandler(new HttpResponseErrorHandler());
+        return restTemplate;
+    }
 
-      @Override
-      public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers
-            .add(new JsonSchemaValidatingArgumentResolver(objectMapper, resourcePatternResolver));
-      }
+    @Profile("dev")
+    @Bean
+    public OpenAPI openDevAPI() {
+        return new OpenAPI().addServersItem(new Server().url("https://dev-api.poochapp.net/v1"));
+    }
 
-    };
-  }
-
-  @Bean
-  public RestTemplate getRestTemplate() {
-    final SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-    requestFactory.setConnectTimeout(restTemplateTimeout);
-    requestFactory.setReadTimeout(restTemplateTimeout);
-    RestTemplate restTemplate =
-        new RestTemplate(new BufferingClientHttpRequestFactory(requestFactory));
-    restTemplate.getInterceptors().add(new HttpRequestInterceptor());
-    restTemplate.setErrorHandler(new HttpResponseErrorHandler());
-    return restTemplate;
-  }
-
-  @Profile("dev")
-  @Bean
-  public OpenAPI openDevAPI() {
-    return new OpenAPI().addServersItem(new Server().url("https://dev-api.poochapp.net/v1"));
-  }
-
-  @Profile("prod")
-  @Bean
-  public OpenAPI openProdAPI() {
-    return new OpenAPI().addServersItem(new Server().url("https://prod-api.poochapp.net/v1"));
-  }
+    @Profile("prod")
+    @Bean
+    public OpenAPI openProdAPI() {
+        return new OpenAPI().addServersItem(new Server().url("https://prod-api.poochapp.net/v1"));
+    }
 
 }

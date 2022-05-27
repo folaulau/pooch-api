@@ -3,7 +3,6 @@ package com.pooch.api.exception;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.persistence.PersistenceException;
@@ -34,368 +33,303 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.networknt.schema.ValidationMessage;
 import lombok.extern.slf4j.Slf4j;
 
 @ControllerAdvice
 @Slf4j
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-  /**
-   * 
-   * @param ex
-   * @return
-   */
-  @ExceptionHandler(ApiException.class)
-  protected ResponseEntity<ApiError> handleGetException(ApiException ex) {
-    log.info("handleApiException(..)");
+    /**
+     * 
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(ApiException.class)
+    protected ResponseEntity<ApiError> handleGetException(ApiException ex) {
+        log.info("handleApiException(..)");
 
-    ApiError apiError = ex.getError();
+        ApiError apiError = ex.getError();
 
-    log.debug("Friendly Msg: {}", apiError.getMessage());
-    String errors = StringUtils.join(apiError.getErrors(), ",");
-    log.debug("API response detailed message: {}", errors);
+        log.debug("Friendly Msg: {}", apiError.getMessage());
+        String errors = StringUtils.join(apiError.getErrors(), ",");
+        log.debug("API response detailed message: {}", errors);
 
-    HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
 
-    if (null != apiError.getStatus()) {
-      httpStatus = apiError.getStatus();
-    }
-
-    return new ResponseEntity<>(ex.getError(), httpStatus);
-  }
-
-  /**
-   * Mulformat json
-   */
-  @ExceptionHandler(JsonValidationFailedException.class)
-  public ResponseEntity<Map<String, Object>> onJsonValidationFailedException(
-      JsonValidationFailedException ex) {
-    List<String> messages = ex.getValidationMessages().stream().map(ValidationMessage::getMessage)
-        .collect(Collectors.toList());
-    return ResponseEntity.badRequest()
-        .body(Map.of("message", "Json validation failed", "errors", messages));
-  }
-
-  // /**
-  // * Access Denied Exception
-  // *
-  // * @param ex
-  // * @return
-  // */
-  // @ExceptionHandler(AccessDeniedException.class)
-  // protected ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException ex) {
-  // log.info("handleAccessDeniedException(..)");
-  // ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, "You do not have access to this api.",
-  // null, Collections.singletonList(ex.getLocalizedMessage()));
-  //
-  // log.debug("Friendly Msg: {}", apiError.getMessage());
-  // String errors = StringUtils.join(apiError.getErrors(), ",");
-  // log.debug("API response detailed message: {}", errors);
-  //
-  // HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-  //
-  // if (null != apiError.getStatus()) {
-  // httpStatus = apiError.getStatus();
-  // }
-  //
-  // return new ResponseEntity<>(apiError, httpStatus);
-  // }
-
-  /**
-   * Fall back exception handler - if all fails, I WILL CATCH YOU!
-   *
-   * @param ex
-   * @return
-   */
-  @ExceptionHandler(Exception.class)
-  protected ResponseEntity<ApiError> handleOther(Exception ex) {
-    log.error("handleOther(..)", ex);
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-
-    StringBuilder errorString = new StringBuilder();
-    try {
-      errorString.append(ex.getClass().getName()).append(" ");
-      StackTraceElement[] traceArray = ex.getStackTrace();
-      if (null != traceArray && 0 < traceArray.length) {
-        for (StackTraceElement stackTraceElement : traceArray) {
-          errorString.append(stackTraceElement.toString());
-          if (StringUtils.contains(stackTraceElement.getClassName(), "sidecarhealth")) {
-            break;
-          } else {
-            errorString.append(",");
-          }
+        if (null != apiError.getStatus()) {
+            httpStatus = apiError.getStatus();
         }
-      }
-    } catch (Exception e) {
-      log.warn("ignore");
+
+        return new ResponseEntity<>(ex.getError(), httpStatus);
     }
 
-    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage,
-        Collections.singletonList(errorString.toString()));
-    HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+//    /**
+//     * Access Denied Exception
+//     * 
+//     * @param ex
+//     * @return
+//     */
+//    @ExceptionHandler(AccessDeniedException.class)
+//    protected ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException ex) {
+//        log.info("handleAccessDeniedException(..)");
+//        ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, "You do not have access to this api.", null, Collections.singletonList(ex.getLocalizedMessage()));
+//
+//        log.debug("Friendly Msg: {}", apiError.getMessage());
+//        String errors = StringUtils.join(apiError.getErrors(), ",");
+//        log.debug("API response detailed message: {}", errors);
+//
+//        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+//
+//        if (null != apiError.getStatus()) {
+//            httpStatus = apiError.getStatus();
+//        }
+//
+//        return new ResponseEntity<>(apiError, httpStatus);
+//    }
 
-    if (null != apiError.getStatus()) {
-      httpStatus = apiError.getStatus();
+    /**
+     * Fall back exception handler - if all fails, I WILL CATCH YOU!
+     *
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<ApiError> handleOther(Exception ex) {
+        log.error("handleOther(..)", ex);
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+
+        StringBuilder errorString = new StringBuilder();
+        try {
+            errorString.append(ex.getClass().getName()).append(" ");
+            StackTraceElement[] traceArray = ex.getStackTrace();
+            if (null != traceArray && 0 < traceArray.length) {
+                for (StackTraceElement stackTraceElement : traceArray) {
+                    errorString.append(stackTraceElement.toString());
+                    if (StringUtils.contains(stackTraceElement.getClassName(), "sidecarhealth")) {
+                        break;
+                    } else {
+                        errorString.append(",");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("ignore");
+        }
+
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, Collections.singletonList(errorString.toString()));
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        if (null != apiError.getStatus()) {
+            httpStatus = apiError.getStatus();
+        }
+
+        return new ResponseEntity<>(apiError, httpStatus);
     }
 
-    return new ResponseEntity<>(apiError, httpStatus);
-  }
+    @ExceptionHandler(JsonMappingException.class)
+    protected ResponseEntity<ApiError> handleJsonMappingException(JsonMappingException ex) {
+        log.info("handleJsonMappingException(..)");
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, Collections.singletonList(ex.getLocalizedMessage()));
 
-  @ExceptionHandler(JsonMappingException.class)
-  protected ResponseEntity<ApiError> handleJsonMappingException(JsonMappingException ex) {
-    log.info("handleJsonMappingException(..)");
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage,
-        Collections.singletonList(ex.getLocalizedMessage()));
+        HttpStatus httpStatus = apiError.getStatus();
 
-    HttpStatus httpStatus = apiError.getStatus();
+        return new ResponseEntity<>(apiError, httpStatus);
+    }
 
-    return new ResponseEntity<>(apiError, httpStatus);
-  }
+    @ExceptionHandler(JsonProcessingException.class)
+    protected ResponseEntity<ApiError> handleJsonProcessingException(JsonProcessingException ex) {
+        log.info("handleJsonProcessingException(..)");
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, Collections.singletonList(ex.getLocalizedMessage()));
 
-  @ExceptionHandler(JsonProcessingException.class)
-  protected ResponseEntity<ApiError> handleJsonProcessingException(JsonProcessingException ex) {
-    log.info("handleJsonProcessingException(..)");
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage,
-        Collections.singletonList(ex.getLocalizedMessage()));
+        HttpStatus httpStatus = apiError.getStatus();
 
-    HttpStatus httpStatus = apiError.getStatus();
+        return new ResponseEntity<>(apiError, httpStatus);
+    }
 
-    return new ResponseEntity<>(apiError, httpStatus);
-  }
+    /**
+     * 
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(PersistenceException.class)
+    protected ResponseEntity<ApiError> handleDatabaseException(PersistenceException ex) {
+        log.info("handleDatabaseException(..)");
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, Collections.singletonList(ex.getLocalizedMessage()));
+        HttpStatus httpStatus = apiError.getStatus();
 
-  /**
-   * 
-   * @param ex
-   * @return
-   */
-  @ExceptionHandler(PersistenceException.class)
-  protected ResponseEntity<ApiError> handleDatabaseException(PersistenceException ex) {
-    log.info("handleDatabaseException(..)");
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage,
-        Collections.singletonList(ex.getLocalizedMessage()));
-    HttpStatus httpStatus = apiError.getStatus();
+        return new ResponseEntity<>(apiError, httpStatus);
+    }
 
-    return new ResponseEntity<>(apiError, httpStatus);
-  }
+    /**
+     * 
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(TransientPropertyValueException.class)
+    protected ResponseEntity<ApiError> handleTransientPropertyValueException(TransientPropertyValueException ex) {
+        log.info("handleTransientPropertyValueException(..)");
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, Collections.singletonList(ex.getLocalizedMessage()));
+        HttpStatus httpStatus = apiError.getStatus();
 
-  /**
-   * 
-   * @param ex
-   * @return
-   */
-  @ExceptionHandler(TransientPropertyValueException.class)
-  protected ResponseEntity<ApiError> handleTransientPropertyValueException(
-      TransientPropertyValueException ex) {
-    log.info("handleTransientPropertyValueException(..)");
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage,
-        Collections.singletonList(ex.getLocalizedMessage()));
-    HttpStatus httpStatus = apiError.getStatus();
+        return new ResponseEntity<>(apiError, httpStatus);
+    }
 
-    return new ResponseEntity<>(apiError, httpStatus);
-  }
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.info("handleMissingServletRequestParameter(..)");
+        return super.handleMissingServletRequestParameter(ex, headers, status, request);
+    }
 
-  @Override
-  protected ResponseEntity<Object> handleMissingServletRequestParameter(
-      MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status,
-      WebRequest request) {
-    log.info("handleMissingServletRequestParameter(..)");
-    return super.handleMissingServletRequestParameter(ex, headers, status, request);
-  }
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestPart(MissingServletRequestPartException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.info("handleMissingServletRequestPart(..)");
+        return super.handleMissingServletRequestPart(ex, headers, status, request);
+    }
 
-  @Override
-  protected ResponseEntity<Object> handleMissingServletRequestPart(
-      MissingServletRequestPartException ex, HttpHeaders headers, HttpStatus status,
-      WebRequest request) {
-    log.info("handleMissingServletRequestPart(..)");
-    return super.handleMissingServletRequestPart(ex, headers, status, request);
-  }
+    @Override
+    protected ResponseEntity<Object> handleConversionNotSupported(ConversionNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.info("handleConversionNotSupported(..)");
+        return super.handleConversionNotSupported(ex, headers, status, request);
+    }
 
-  @Override
-  protected ResponseEntity<Object> handleConversionNotSupported(ConversionNotSupportedException ex,
-      HttpHeaders headers, HttpStatus status, WebRequest request) {
-    log.info("handleConversionNotSupported(..)");
-    return super.handleConversionNotSupported(ex, headers, status, request);
-  }
+    @Override
+    protected ResponseEntity<Object> handleServletRequestBindingException(ServletRequestBindingException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.info("handleServletRequestBindingException(..)");
+        return super.handleServletRequestBindingException(ex, headers, status, request);
+    }
 
-  @Override
-  protected ResponseEntity<Object> handleServletRequestBindingException(
-      ServletRequestBindingException ex, HttpHeaders headers, HttpStatus status,
-      WebRequest request) {
-    log.info("handleServletRequestBindingException(..)");
-    return super.handleServletRequestBindingException(ex, headers, status, request);
-  }
+    @Override
+    protected ResponseEntity<Object> handleBindException(BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.info("handleBindException(..)");
+        return super.handleBindException(ex, headers, status, request);
 
-  @Override
-  protected ResponseEntity<Object> handleBindException(BindException ex, HttpHeaders headers,
-      HttpStatus status, WebRequest request) {
-    log.info("handleBindException(..)");
-    return super.handleBindException(ex, headers, status, request);
+    }
 
-  }
+    /**
+     * Stripe Exception
+     * 
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    protected ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.info("handleIllegalArgumentException(..)");
 
-  /**
-   * Stripe Exception
-   * 
-   * @param ex
-   * @return
-   */
-  @ExceptionHandler(IllegalArgumentException.class)
-  protected ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException ex) {
-    log.info("handleIllegalArgumentException(..)");
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, ex.getMessage());
 
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-    ApiError apiError =
-        new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, ex.getMessage());
+        log.debug("Friendly Msg: {}", apiError.getMessage());
+        String errors = StringUtils.join(apiError.getErrors(), ",");
+        log.debug("API response detailed message: {}", errors);
 
-    log.debug("Friendly Msg: {}", apiError.getMessage());
-    String errors = StringUtils.join(apiError.getErrors(), ",");
-    log.debug("API response detailed message: {}", errors);
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
 
-    return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
-  }
+    @Override
+    protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.info("handleHttpMediaTypeNotAcceptable(..)");
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, Collections.singletonList(errorMessage));
+        return new ResponseEntity<>(apiError, status);
+    }
 
-  @Override
-  protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(
-      HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatus status,
-      WebRequest request) {
-    log.info("handleHttpMediaTypeNotAcceptable(..)");
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage,
-        Collections.singletonList(errorMessage));
-    return new ResponseEntity<>(apiError, status);
-  }
+    @Override
+    protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.info("handleHttpMediaTypeNotAcceptable(..)");
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, Collections.singletonList(errorMessage));
+        return new ResponseEntity<>(apiError, status);
+    }
 
-  @Override
-  protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex,
-      HttpHeaders headers, HttpStatus status, WebRequest request) {
-    log.info("handleHttpMediaTypeNotAcceptable(..)");
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage,
-        Collections.singletonList(errorMessage));
-    return new ResponseEntity<>(apiError, status);
-  }
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.info("handleExceptionInternal(..)");
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, Collections.singletonList(errorMessage));
+        return new ResponseEntity<>(apiError, status);
+    }
 
-  @Override
-  protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body,
-      HttpHeaders headers, HttpStatus status, WebRequest request) {
-    log.info("handleExceptionInternal(..)");
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage,
-        Collections.singletonList(errorMessage));
-    return new ResponseEntity<>(apiError, status);
-  }
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.error("handleHttpMessageNotReadable(..)", ex);
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, Arrays.asList("Invalid request/payload", "Check your request and make you pass in the right data type for each field. Check if you are passing in an enum in a mal-formatted way.", ex.getLocalizedMessage()));
+        return new ResponseEntity<>(apiError, status);
+    }
 
-  @Override
-  protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
-      HttpHeaders headers, HttpStatus status, WebRequest request) {
-    log.error("handleHttpMessageNotReadable(..)", ex);
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage,
-        Arrays.asList("Invalid request/payload",
-            "Check your request and make you pass in the right data type for each field. Check if you are passing in an enum in a mal-formatted way.",
-            ex.getLocalizedMessage()));
-    return new ResponseEntity<>(apiError, status);
-  }
+    @Override
+    protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.info("handleHttpMediaTypeNotSupported(..)");
+        log.error(ex.getMessage());
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage, Collections.singletonList(errorMessage));
+        return new ResponseEntity<>(apiError, status);
+    }
 
-  @Override
-  protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(
-      HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status,
-      WebRequest request) {
-    log.info("handleHttpMediaTypeNotSupported(..)");
-    log.error(ex.getMessage());
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ApiError.DEFAULT_MSG, errorMessage,
-        Collections.singletonList(errorMessage));
-    return new ResponseEntity<>(apiError, status);
-  }
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.debug("handleMethodArgumentNotValid(..)");
 
-  @Override
-  protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-      HttpHeaders headers, HttpStatus status, WebRequest request) {
-    log.debug("handleMethodArgumentNotValid(..)");
+        List<ApiSubError> errors = getFormErrors(ex.getBindingResult());
+        log.debug("form errors: {}", errors);
 
-    List<ApiSubError> errors = getFormErrors(ex.getBindingResult());
-    log.debug("form errors: {}", errors);
+        ApiError apiError = new ApiError("Something went wrong", errors, ex);
 
-    ApiError apiError = new ApiError("Something went wrong", errors, ex);
+        return new ResponseEntity<>(apiError, status);
+    }
 
-    return new ResponseEntity<>(apiError, status);
-  }
+    @Override
+    protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.info("handleMissingPathVariable(..)");
+        log.error(ex.getMessage());
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, errorMessage, errorMessage, Collections.singletonList(errorMessage));
+        return new ResponseEntity<>(apiError, status);
+    }
 
-  @Override
-  protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex,
-      HttpHeaders headers, HttpStatus status, WebRequest request) {
-    log.info("handleMissingPathVariable(..)");
-    log.error(ex.getMessage());
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, errorMessage, errorMessage,
-        Collections.singletonList(errorMessage));
-    return new ResponseEntity<>(apiError, status);
-  }
+    @Override
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.info("handleHttpRequestMethodNotSupported(..)");
+        log.error(ex.getMessage());
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, errorMessage, errorMessage, Collections.singletonList(errorMessage));
+        return new ResponseEntity<>(apiError, status);
+    }
 
-  @Override
-  protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
-      HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status,
-      WebRequest request) {
-    log.info("handleHttpRequestMethodNotSupported(..)");
-    log.error(ex.getMessage());
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, errorMessage, errorMessage,
-        Collections.singletonList(errorMessage));
-    return new ResponseEntity<>(apiError, status);
-  }
+    @Override
+    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.info("handleTypeMismatch(..)");
+        log.error(ex.getMessage());
+        String errorMessage = null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, errorMessage, errorMessage, Collections.singletonList(errorMessage));
+        return new ResponseEntity<>(apiError, status);
+    }
 
-  @Override
-  protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
-      HttpStatus status, WebRequest request) {
-    log.info("handleTypeMismatch(..)");
-    log.error(ex.getMessage());
-    String errorMessage =
-        null != ex.getLocalizedMessage() ? ex.getLocalizedMessage() : ApiError.DEFAULT_MSG;
-    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, errorMessage, errorMessage,
-        Collections.singletonList(errorMessage));
-    return new ResponseEntity<>(apiError, status);
-  }
+    private List<ApiSubError> getFormErrors(BindingResult bindingResult) {
 
-  private List<ApiSubError> getFormErrors(BindingResult bindingResult) {
+        List<ApiSubError> errors = bindingResult.getFieldErrors().stream().map(fieldError -> {
 
-    List<ApiSubError> errors = bindingResult.getFieldErrors().stream().map(fieldError -> {
+            String field = fieldError.getField();
 
-      String field = fieldError.getField();
+            String errorMsg = null;
 
-      String errorMsg = null;
+            if (fieldError.getDefaultMessage() != null) {
+                errorMsg = fieldError.getDefaultMessage();
+            }
 
-      if (fieldError.getDefaultMessage() != null) {
-        errorMsg = fieldError.getDefaultMessage();
-      }
+            ApiSubError error = new ApiSubError();
+            error.setObject(fieldError.getObjectName());
+            error.setField(field);
+            error.setRejectedValue(fieldError.getRejectedValue());
+            error.setMessage(errorMsg);
 
-      ApiSubError error = new ApiSubError();
-      error.setObject(fieldError.getObjectName());
-      error.setField(field);
-      error.setRejectedValue(fieldError.getRejectedValue());
-      error.setMessage(errorMsg);
-
-      return error;
-    }).collect(Collectors.toList());
-    return errors;
-  }
+            return error;
+        }).collect(Collectors.toList());
+        return errors;
+    }
 
 }
