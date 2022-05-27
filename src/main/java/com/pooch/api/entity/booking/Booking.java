@@ -46,7 +46,7 @@ import com.pooch.api.entity.DatabaseTableNames;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.parent.Parent;
-import com.pooch.api.entity.paymentmethod.PaymentMethod;
+import com.pooch.api.entity.parent.paymentmethod.PaymentMethod;
 import com.pooch.api.entity.pooch.FoodSchedule;
 import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.pooch.vaccine.Vaccine;

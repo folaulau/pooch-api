@@ -1,4 +1,4 @@
-package com.pooch.api.entity.paymentmethod;
+package com.pooch.api.entity.parent.paymentmethod;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;

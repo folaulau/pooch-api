@@ -40,7 +40,7 @@ import com.pooch.api.dto.PaymentIntentParentCreateDTO;
 import com.pooch.api.dto.PaymentIntentQuestCreateDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
-import com.pooch.api.entity.paymentmethod.PaymentMethod;
+import com.pooch.api.entity.parent.paymentmethod.PaymentMethod;
 import com.pooch.api.entity.role.Authority;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.aws.secretsmanager.XApiKey;

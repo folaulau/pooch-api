@@ -1,4 +1,4 @@
-package com.pooch.api.entity.paymentmethod;
+package com.pooch.api.entity.parent.paymentmethod;
 
 import org.springframework.data.util.Pair;
 import com.pooch.api.dto.PaymentMethodCreateDTO;

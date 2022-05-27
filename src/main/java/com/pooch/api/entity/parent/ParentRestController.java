@@ -28,7 +28,7 @@ import com.pooch.api.dto.PhoneNumberVerificationCreateDTO;
 import com.pooch.api.dto.PhoneNumberVerificationDTO;
 import com.pooch.api.dto.PhoneNumberVerificationUpdateDTO;
 import com.pooch.api.dto.S3FileDTO;
-import com.pooch.api.entity.paymentmethod.PaymentMethodService;
+import com.pooch.api.entity.parent.paymentmethod.PaymentMethodService;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.xapikey.XApiKeyService;
 

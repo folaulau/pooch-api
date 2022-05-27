@@ -1,4 +1,4 @@
-package com.pooch.api.entity.paymentmethod;
+package com.pooch.api.entity.parent.paymentmethod;
 
 public interface PaymentMethodType {
 

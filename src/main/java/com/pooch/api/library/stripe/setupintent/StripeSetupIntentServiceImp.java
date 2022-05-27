@@ -11,7 +11,7 @@ import com.pooch.api.dto.SetupIntentConfirmDTO;
 import com.pooch.api.dto.SetupIntentCreateDTO;
 import com.pooch.api.dto.SetupIntentDTO;
 import com.pooch.api.entity.parent.Parent;
-import com.pooch.api.entity.paymentmethod.PaymentMethodService;
+import com.pooch.api.entity.parent.paymentmethod.PaymentMethodService;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;

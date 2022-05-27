@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.pooch.api.entity.parent.Parent;
-import com.pooch.api.entity.paymentmethod.PaymentMethod;
-import com.pooch.api.entity.paymentmethod.PaymentMethodDAO;
+import com.pooch.api.entity.parent.paymentmethod.PaymentMethod;
+import com.pooch.api.entity.parent.paymentmethod.PaymentMethodDAO;
 import com.pooch.api.exception.ApiError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

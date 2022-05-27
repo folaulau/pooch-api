@@ -25,7 +25,7 @@ import com.pooch.api.entity.booking.BookingPaymentMethod;
 import com.pooch.api.entity.chat.Chat;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
-import com.pooch.api.entity.paymentmethod.PaymentMethod;
+import com.pooch.api.entity.parent.paymentmethod.PaymentMethod;
 import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
 import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.s3file.S3File;

@@ -1,4 +1,4 @@
-package com.pooch.api.entity.paymentmethod;
+package com.pooch.api.entity.parent.paymentmethod;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;

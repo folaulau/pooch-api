@@ -13,8 +13,12 @@ public interface DatabaseTableNames {
   String S3File = "s3file";
   String CareServiceCategory = "care_service_category";
   String Review = "review";
-  String Payment_Method = "payment_method";
+  String PaymentMethod = "payment_method";
   String Transaction = "transaction";
-
+  String EmailTemplate = "email_template";
+  String Email = "email";
   String Chat = "chat";
+  String Notification = "notification";
+  String PushNotification = "push_notification";
+  String PushNotificationToken = "push_notification_token";
 }

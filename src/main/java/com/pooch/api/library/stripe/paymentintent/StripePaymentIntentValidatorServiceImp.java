@@ -1,7 +1,5 @@
 package com.pooch.api.library.stripe.paymentintent;
 
-import com.pooch.api.entity.paymentmethod.PaymentMethod;
-import com.pooch.api.entity.paymentmethod.PaymentMethodDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -12,6 +10,8 @@ import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentDAO;
+import com.pooch.api.entity.parent.paymentmethod.PaymentMethod;
+import com.pooch.api.entity.parent.paymentmethod.PaymentMethodDAO;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
 
