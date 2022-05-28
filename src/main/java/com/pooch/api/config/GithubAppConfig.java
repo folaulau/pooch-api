@@ -62,188 +62,147 @@ import java.io.IOException;
 @Configuration
 public class GithubAppConfig {
 
-    @Value("${aws.deploy.region:us-west-2}")
-    private String                   targetRegion;
+  @Value("${aws.deploy.region:us-west-2}")
+  private String targetRegion;
 
-    @Value("${database.username}")
-    private String                   databaseUsername;
+  @Value("${database.username}")
+  private String databaseUsername;
 
-    @Value("${database.password}")
-    private String                   databasePassword;
+  @Value("${database.password}")
+  private String databasePassword;
 
-    @Value("${database.url}")
-    private String                   databaseUrl;
+  @Value("${database.url}")
+  private String databaseUrl;
 
-    @Value("${spring.datasource.name}")
-    private String                   databaseName;
+  @Value("${spring.datasource.name}")
+  private String databaseName;
 
-    @Value("${aws.access.key}")
-    private String                   awsAccessKey;
+  @Value("${aws.access.key}")
+  private String awsAccessKey;
 
-    @Value("${aws.secret.access.key}")
-    private String                   awsSecretAccessKey;
+  @Value("${aws.secret.access.key}")
+  private String awsSecretAccessKey;
 
-    @Value("${firebase.web.api.key}")
-    private String                   firebaseWebApiKey;
+  @Value("${firebase.web.api.key}")
+  private String firebaseWebApiKey;
 
-    @Value("${elasticsearch.host}")
-    private String                   clusterNode;
+  @Value("${elasticsearch.host}")
+  private String clusterNode;
 
-    @Value("${elasticsearch.httptype}")
-    private String                   clusterHttpType;
+  @Value("${elasticsearch.httptype}")
+  private String clusterHttpType;
 
-    @Value("${elasticsearch.username}")
-    private String                   username;
+  @Value("${elasticsearch.username}")
+  private String username;
 
-    @Value("${elasticsearch.password}")
-    private String                   password;
+  @Value("${elasticsearch.password}")
+  private String password;
 
-    @Value("${elasticsearch.port:9200}")
-    private int                      clusterHttpPort;
+  @Value("${elasticsearch.port:9200}")
+  private int clusterHttpPort;
 
-    @Autowired
-    private AwsSecretsManagerService awsSecretsManagerService;
+  @Autowired
+  private AwsSecretsManagerService awsSecretsManagerService;
 
-    private Regions getTargetRegion() {
-        return Regions.fromName(targetRegion);
-    }
+  private Regions getTargetRegion() {
+    return Regions.fromName(targetRegion);
+  }
 
-    @Bean(name = "amazonAWSCredentialsProvider")
-    public AWSCredentialsProvider amazonAWSCredentialsProvider() {
-        log.info("accessKey={}, secretKey={}", awsAccessKey, awsSecretAccessKey);
-        return new AWSStaticCredentialsProvider(new BasicAWSCredentials(awsAccessKey, awsSecretAccessKey));
+  @Bean(name = "amazonAWSCredentialsProvider")
+  public AWSCredentialsProvider amazonAWSCredentialsProvider() {
+    log.info("accessKey={}, secretKey={}", awsAccessKey, awsSecretAccessKey);
+    return new AWSStaticCredentialsProvider(
+        new BasicAWSCredentials(awsAccessKey, awsSecretAccessKey));
 
-    }
+  }
 
-    @Bean
-    public AmazonS3 amazonS3() {
-        return AmazonS3ClientBuilder.standard().withCredentials(amazonAWSCredentialsProvider()).withRegion(getTargetRegion()).build();
-    }
+  @Bean
+  public AmazonS3 amazonS3() {
+    return AmazonS3ClientBuilder.standard().withCredentials(amazonAWSCredentialsProvider())
+        .withRegion(getTargetRegion()).build();
+  }
 
-    @Bean
-    public AmazonSQS amazonSQS() {
-        return AmazonSQSClientBuilder.standard()
-                .withCredentials(amazonAWSCredentialsProvider())
-                .withEndpointConfiguration(new EndpointConfiguration("sqs." + getTargetRegion().getName() + ".amazonaws.com", getTargetRegion().getName()))
-                .build();
-    }
+  @Bean
+  public AmazonSQS amazonSQS() {
+    return AmazonSQSClientBuilder.standard().withCredentials(amazonAWSCredentialsProvider())
+        .withEndpointConfiguration(new EndpointConfiguration(
+            "sqs." + getTargetRegion().getName() + ".amazonaws.com", getTargetRegion().getName()))
+        .build();
+  }
 
-    @Bean
-    public AmazonSimpleEmailService amazonSES() {
-        return AmazonSimpleEmailServiceClientBuilder.standard().withCredentials(amazonAWSCredentialsProvider()).withRegion(Regions.US_WEST_2).build();
-    }
+  @Bean
+  public AmazonSimpleEmailService amazonSES() {
+    return AmazonSimpleEmailServiceClientBuilder.standard()
+        .withCredentials(amazonAWSCredentialsProvider()).withRegion(Regions.US_WEST_2).build();
+  }
 
-    /* ================== datasource =============== */
-    @DependsOn("amazonAWSCredentialsProvider")
-    @Bean
-    public HikariDataSource dataSource() {
-        log.info("Configuring dataSource...");
+  /* ================== datasource =============== */
+  @DependsOn("amazonAWSCredentialsProvider")
+  @Bean
+  public HikariDataSource dataSource() {
+    log.info("Configuring dataSource...");
 
-        log.info("dbUrl={}", databaseUrl);
-        log.info("dbUsername={}", databaseUsername);
-        log.info("dbPassword={}", databasePassword);
+    log.info("dbUrl={}", databaseUrl);
+    log.info("dbUsername={}", databaseUsername);
+    log.info("dbPassword={}", databasePassword);
 
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(databaseUrl);
-        config.setUsername(databaseUsername);
-        config.setPassword(databasePassword);
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        config.addDataSourceProperty("dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
+    HikariConfig config = new HikariConfig();
+    config.setJdbcUrl(databaseUrl);
+    config.setUsername(databaseUsername);
+    config.setPassword(databasePassword);
+    config.addDataSourceProperty("cachePrepStmts", "true");
+    config.addDataSourceProperty("prepStmtCacheSize", "250");
+    config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+    config.addDataSourceProperty("dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
 
-        HikariDataSource hds = new HikariDataSource(config);
-        hds.setMaximumPoolSize(30);
-        hds.setMinimumIdle(5);
-        hds.setMaxLifetime(1800000);
-        hds.setConnectionTimeout(30000);
-        hds.setIdleTimeout(600000);
-        // 45 seconds
-        hds.setLeakDetectionThreshold(45000);
+    HikariDataSource hds = new HikariDataSource(config);
+    hds.setMaximumPoolSize(30);
+    hds.setMinimumIdle(5);
+    hds.setMaxLifetime(1800000);
+    hds.setConnectionTimeout(30000);
+    hds.setIdleTimeout(600000);
+    // 45 seconds
+    hds.setLeakDetectionThreshold(45000);
 
-        log.info("DataSource configured!");
+    log.info("DataSource configured!");
 
-        return hds;
-    }
+    return hds;
+  }
 
-    /**
-     * Override default flyway initializer to do nothing
-     */
-    @Bean
-    FlywayMigrationInitializer flywayInitializer() {
-        return new FlywayMigrationInitializer(setUpFlyway(), (f) -> {// do nothing
-            log.info("do no migration yet. wait til hibernate initializes tables...");
-        });
-    }
+  @Bean(name = "twilioSecrets")
+  public TwilioSecrets twilioSecrets() {
+    return awsSecretsManagerService.getTwilioSecrets();
+  }
 
-    /**
-     * Create a second flyway initializer to run after jpa has created the schema
-     */
-    @Bean
-    @DependsOn("dataSource")
-    FlywayMigrationInitializer delayedFlywayInitializer() {
-        Flyway flyway = setUpFlyway();
-        return new FlywayMigrationInitializer(flyway, null);
-    }
+  @Bean(name = "xApiKey")
+  public XApiKey xApiKeySecrets() {
+    return awsSecretsManagerService.getXApiKeys();
+  }
 
-    private Flyway setUpFlyway() {
+  @Bean(name = "stripeSecrets")
+  public StripeSecrets stripeSecrets() {
+    return awsSecretsManagerService.getStripeSecrets();
+  }
 
-        FluentConfiguration configuration = Flyway.configure().dataSource(databaseUrl, databaseUsername, databasePassword);
-        configuration.schemas(databaseName);
-        configuration.baselineOnMigrate(true);
-        return configuration.load();
-    }
+  @Bean(name = "queue")
+  public String queue(@Value("${queue}") String queue) {
+    return queue;
+  }
 
-    @Bean(name = "twilioSecrets")
-    public TwilioSecrets twilioSecrets() {
-        return awsSecretsManagerService.getTwilioSecrets();
-    }
+  @Bean(name = "firebaseSecrets")
+  public FirebaseSecrets firebaseSecrets() {
+    FirebaseSecrets firebaseSecrets = new FirebaseSecrets();
+    firebaseSecrets.setAuthWebApiKey(firebaseWebApiKey);
+    return firebaseSecrets;
+  }
 
-    @Bean(name = "xApiKey")
-    public XApiKey xApiKeySecrets() {
-        return awsSecretsManagerService.getXApiKeys();
-    }
+  @Bean
+  public RestHighLevelClient restHighLevelClient() {
 
-    // @Bean(name = "stripeApiSecretKey")
-    // public String stripeApiSecretKey(@Value("${stripe.secret.key}") String stripeApiSecretKey) {
-    // return stripeApiSecretKey;
-    // }
-    //
-    // @Bean(name = "stripeProductId")
-    // public String stripeProductId(@Value("${stripe.product}") String stripeProductId) {
-    // return stripeProductId;
-    // }
-    //
-    // @Bean(name = "stripeWebhookSubscriptionSigningSecret")
-    // public String stripeWebhookSubscriptionSigningSecret(@Value("${stripe.webhook.subscription.signing.secret}")
-    // String stripeWebhookSubscriptionSigningSecret) {
-    // return stripeWebhookSubscriptionSigningSecret;
-    // }
+    RestHighLevelClient restHighLevelClient = null;
+    try {
 
-    @Bean(name = "stripeSecrets")
-    public StripeSecrets stripeSecrets() {
-        return awsSecretsManagerService.getStripeSecrets();
-    }
-
-    @Bean(name = "queue")
-    public String queue(@Value("${queue}") String queue) {
-        return queue;
-    }
-
-    @Bean(name = "firebaseSecrets")
-    public FirebaseSecrets firebaseSecrets() {
-        FirebaseSecrets firebaseSecrets = new FirebaseSecrets();
-        firebaseSecrets.setAuthWebApiKey(firebaseWebApiKey);
-        return firebaseSecrets;
-    }
-
-    @Bean
-    public RestHighLevelClient restHighLevelClient() {
-
-        RestHighLevelClient restHighLevelClient = null;
-        try {
-
-            // @formatter:off
+      // @formatter:off
 
             final int numberOfThreads = 10;
             final int connectionTimeoutTime = 60;
@@ -280,29 +239,29 @@ public class GithubAppConfig {
 
             // @formatter:on
 
-            restHighLevelClient = new RestHighLevelClient(restClientBuilder);
+      restHighLevelClient = new RestHighLevelClient(restClientBuilder);
 
-        } catch (Exception e) {
-            log.warn("Exception RestHighLevelClient, msg={}", e.getMessage());
-        }
-        boolean ping = false;
-        try {
-            ping = restHighLevelClient.ping(RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            log.warn("IOException. ping error, msg={}", e.getMessage());
-        }
-
-        log.info("elasticsearch configured! ping={}", ping);
-        return restHighLevelClient;
+    } catch (Exception e) {
+      log.warn("Exception RestHighLevelClient, msg={}", e.getMessage());
+    }
+    boolean ping = false;
+    try {
+      ping = restHighLevelClient.ping(RequestOptions.DEFAULT);
+    } catch (IOException e) {
+      log.warn("IOException. ping error, msg={}", e.getMessage());
     }
 
-    @Bean
-    public ElasticsearchConverter elasticsearchConverter() {
-        return new MappingElasticsearchConverter(new SimpleElasticsearchMappingContext());
-    }
+    log.info("elasticsearch configured! ping={}", ping);
+    return restHighLevelClient;
+  }
 
-    @Bean
-    public ElasticsearchOperations elasticsearchTemplate() {
-        return new ElasticsearchRestTemplate(restHighLevelClient(), elasticsearchConverter());
-    }
+  @Bean
+  public ElasticsearchConverter elasticsearchConverter() {
+    return new MappingElasticsearchConverter(new SimpleElasticsearchMappingContext());
+  }
+
+  @Bean
+  public ElasticsearchOperations elasticsearchTemplate() {
+    return new ElasticsearchRestTemplate(restHighLevelClient(), elasticsearchConverter());
+  }
 }
