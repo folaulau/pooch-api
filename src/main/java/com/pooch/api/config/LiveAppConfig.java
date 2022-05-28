@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
 import com.pooch.api.utils.ObjectUtils;
+import com.sendgrid.SendGrid;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -117,9 +118,10 @@ public class LiveAppConfig {
   }
 
   @Bean
-  public SMTPSecrets smtpSecrets() {
+  public SendGrid sendGrid() {
     SMTPSecrets sMTPSecrets = awsSecretsManagerService.getSMTPSecrets();
-    return sMTPSecrets;
+    SendGrid sendGrid = new SendGrid(sMTPSecrets.getPassword());
+    return sendGrid;
   }
 
   // @Bean

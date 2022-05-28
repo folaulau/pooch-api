@@ -46,6 +46,7 @@ import com.pooch.api.library.aws.secretsmanager.SMTPSecrets;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.aws.secretsmanager.TwilioSecrets;
 import com.pooch.api.library.aws.secretsmanager.XApiKey;
+import com.sendgrid.SendGrid;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -198,11 +199,12 @@ public class GithubAppConfig {
     firebaseSecrets.setAuthWebApiKey(firebaseWebApiKey);
     return firebaseSecrets;
   }
-  
+
   @Bean
-  public SMTPSecrets smtpSecrets() {
+  public SendGrid sendGrid() {
     SMTPSecrets sMTPSecrets = awsSecretsManagerService.getSMTPSecrets();
-    return sMTPSecrets;
+    SendGrid sendGrid = new SendGrid(sMTPSecrets.getPassword());
+    return sendGrid;
   }
 
   // @Bean
