@@ -89,37 +89,6 @@ public class LiveAppConfig {
         return hds;
     }
 
-    /** Override default flyway initializer to do nothing */
-    @Bean
-    FlywayMigrationInitializer flywayInitializer() {
-        return new FlywayMigrationInitializer(setUpFlyway(), (f) -> { // do nothing
-            log.info("do no migration yet. wait til hibernate initializes tables...");
-        });
-    }
-
-    /** Create a second flyway initializer to run after jpa has created the schema */
-    @Bean
-    @DependsOn("dataSource")
-    FlywayMigrationInitializer delayedFlywayInitializer() {
-        Flyway flyway = setUpFlyway();
-        return new FlywayMigrationInitializer(flyway, null);
-    }
-
-    private Flyway setUpFlyway() {
-
-        DatabaseSecrets databaseSecrets = awsSecretsManagerService.getDbSecret();
-
-        // jdbc:postgresql://localhost:5432/learnmymath_api_db
-        int port = 5432;
-        String host = databaseSecrets.getHost();
-        String url = "jdbc:postgresql://" + host + ":" + port + "/" + databaseName;
-
-        FluentConfiguration configuration = Flyway.configure().dataSource(url, databaseSecrets.getUsername(), databaseSecrets.getPassword());
-        configuration.schemas(databaseName);
-        configuration.baselineOnMigrate(true);
-        return configuration.load();
-    }
-
     @Bean(name = "stripeSecrets")
     public StripeSecrets stripeSecrets() {
         return awsSecretsManagerService.getStripeSecrets();

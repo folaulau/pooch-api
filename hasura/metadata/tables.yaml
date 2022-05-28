@@ -301,6 +301,76 @@
     - name: parent
       using:
         foreign_key_constraint_on: parent_id
+  select_permissions:
+    - role: groomer
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - deleted
+          - uuid
+          - created_at
+          - updated_at
+        filter:
+          groomer_id:
+            _eq: x-Hasura-groomer-id
+        allow_aggregations: true
+    - role: parent
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - deleted
+          - uuid
+          - created_at
+          - updated_at
+        filter:
+          parent_id:
+            _eq: x-Hasura-parent-id
+- table:
+    schema: public
+    name: email
+  array_relationships:
+    - name: email_blind_carbon_copies
+      using:
+        foreign_key_constraint_on:
+          column: email_id
+          table:
+            schema: public
+            name: email_blind_carbon_copies
+    - name: email_carbon_copies
+      using:
+        foreign_key_constraint_on:
+          column: email_id
+          table:
+            schema: public
+            name: email_carbon_copies
+- table:
+    schema: public
+    name: email_blind_carbon_copies
+  object_relationships:
+    - name: email
+      using:
+        foreign_key_constraint_on: email_id
+- table:
+    schema: public
+    name: email_carbon_copies
+  object_relationships:
+    - name: email
+      using:
+        foreign_key_constraint_on: email_id
+- table:
+    schema: public
+    name: email_template
+  object_relationships:
+    - name: notification
+      using:
+        foreign_key_constraint_on: notification_id
+- table:
+    schema: public
+    name: flyway_schema_history
 - table:
     schema: public
     name: groomer
@@ -474,6 +544,17 @@
     - name: role
       using:
         foreign_key_constraint_on: role_id
+- table:
+    schema: public
+    name: notification
+  array_relationships:
+    - name: email_templates
+      using:
+        foreign_key_constraint_on:
+          column: notification_id
+          table:
+            schema: public
+            name: email_template
 - table:
     schema: public
     name: parent
@@ -717,6 +798,12 @@
           pooch:
             parent_id:
               _eq: x-Hasura-parent-id
+- table:
+    schema: public
+    name: push_notification
+- table:
+    schema: public
+    name: push_notification_token
 - table:
     schema: public
     name: review

@@ -11,7 +11,7 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class V1__1__Add_users extends BaseJavaMigration {
+public class V1__Add_users extends BaseJavaMigration {
 
     @Override
     public void migrate(Context context) throws Exception {

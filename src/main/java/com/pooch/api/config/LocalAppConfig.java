@@ -39,6 +39,7 @@ import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMa
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 import java.io.IOException;
+import javax.sql.DataSource;
 
 @Slf4j
 @Profile(value = {"local"})
@@ -144,30 +145,6 @@ public class LocalAppConfig {
         log.info("DataSource configured!");
 
         return hds;
-    }
-
-    /** Override default flyway initializer to do nothing */
-    @Bean
-    FlywayMigrationInitializer flywayInitializer() {
-        return new FlywayMigrationInitializer(setUpFlyway(), (f) -> { // do nothing
-            log.info("do no migration yet. wait til hibernate initializes tables...");
-        });
-    }
-
-    /** Create a second flyway initializer to run after jpa has created the schema */
-    @Bean
-    @DependsOn("dataSource")
-    FlywayMigrationInitializer delayedFlywayInitializer() {
-        Flyway flyway = setUpFlyway();
-        return new FlywayMigrationInitializer(flyway, null);
-    }
-
-    private Flyway setUpFlyway() {
-
-        FluentConfiguration configuration = Flyway.configure().dataSource(databaseUrl, databaseUsername, databasePassword);
-        configuration.schemas(databaseName);
-        configuration.baselineOnMigrate(true);
-        return configuration.load();
     }
 
     @Bean(name = "firebaseSecrets")
