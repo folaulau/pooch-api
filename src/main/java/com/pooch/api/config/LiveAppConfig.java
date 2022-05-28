@@ -34,106 +34,136 @@ import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
-
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.io.IOException;
+import java.util.Properties;
 
 @Slf4j
 @Profile(value = {"dev", "qa", "prod"})
 @Configuration
 public class LiveAppConfig {
 
-    @Value("${aws.deploy.region:us-west-2}")
-    private String                   targetRegion;
+  @Value("${aws.deploy.region:us-west-2}")
+  private String targetRegion;
 
-    @Value("${spring.datasource.name}")
-    private String                   databaseName;
+  @Value("${spring.datasource.name}")
+  private String databaseName;
 
-    @Autowired
-    private AwsSecretsManagerService awsSecretsManagerService;
+  @Autowired
+  private AwsSecretsManagerService awsSecretsManagerService;
 
-    /* ================== datasource =============== */
-    @Bean
-    public HikariDataSource dataSource() {
-        log.info("Configuring dataSource...");
+  /* ================== datasource =============== */
+  @Bean
+  public HikariDataSource dataSource() {
+    log.info("Configuring dataSource...");
 
-        DatabaseSecrets databaseSecrets = awsSecretsManagerService.getDbSecret();
+    DatabaseSecrets databaseSecrets = awsSecretsManagerService.getDbSecret();
 
-        log.info("databaseSecrets={}", ObjectUtils.toJson(databaseSecrets));
-        // jdbc:postgresql://localhost:5432/learnmymath_api_db
-        int port = 5432;
-        String host = databaseSecrets.getHost();
-        String username = databaseSecrets.getUsername();
-        String password = databaseSecrets.getPassword();
-        String url = "jdbc:postgresql://" + host + ":" + port + "/" + databaseName;
+    log.info("databaseSecrets={}", ObjectUtils.toJson(databaseSecrets));
+    // jdbc:postgresql://localhost:5432/learnmymath_api_db
+    int port = 5432;
+    String host = databaseSecrets.getHost();
+    String username = databaseSecrets.getUsername();
+    String password = databaseSecrets.getPassword();
+    String url = "jdbc:postgresql://" + host + ":" + port + "/" + databaseName;
 
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(url);
-        config.setUsername(databaseSecrets.getUsername());
-        config.setPassword(databaseSecrets.getPassword());
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        config.addDataSourceProperty("dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
+    HikariConfig config = new HikariConfig();
+    config.setJdbcUrl(url);
+    config.setUsername(databaseSecrets.getUsername());
+    config.setPassword(databaseSecrets.getPassword());
+    config.addDataSourceProperty("cachePrepStmts", "true");
+    config.addDataSourceProperty("prepStmtCacheSize", "250");
+    config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+    config.addDataSourceProperty("dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
 
-        HikariDataSource hds = new HikariDataSource(config);
-        hds.setMaximumPoolSize(30);
-        hds.setMinimumIdle(5);
-        hds.setMaxLifetime(1800000);
-        hds.setConnectionTimeout(30000);
-        hds.setIdleTimeout(600000);
-        // 45 seconds
-        hds.setLeakDetectionThreshold(45000);
+    HikariDataSource hds = new HikariDataSource(config);
+    hds.setMaximumPoolSize(30);
+    hds.setMinimumIdle(5);
+    hds.setMaxLifetime(1800000);
+    hds.setConnectionTimeout(30000);
+    hds.setIdleTimeout(600000);
+    // 45 seconds
+    hds.setLeakDetectionThreshold(45000);
 
-        log.info("DataSource configured!");
+    log.info("DataSource configured!");
 
-        return hds;
-    }
+    return hds;
+  }
 
-    @Bean(name = "stripeSecrets")
-    public StripeSecrets stripeSecrets() {
-        return awsSecretsManagerService.getStripeSecrets();
-    }
+  @Bean(name = "stripeSecrets")
+  public StripeSecrets stripeSecrets() {
+    return awsSecretsManagerService.getStripeSecrets();
+  }
 
-    @Bean(name = "twilioSecrets")
-    public TwilioSecrets twilioSecrets() {
-        return awsSecretsManagerService.getTwilioSecrets();
-    }
+  @Bean(name = "twilioSecrets")
+  public TwilioSecrets twilioSecrets() {
+    return awsSecretsManagerService.getTwilioSecrets();
+  }
 
-    @Bean(name = "firebaseSecrets")
-    public FirebaseSecrets firebaseSecrets() {
-        return awsSecretsManagerService.getFirebaseSecrets();
-    }
+  @Bean(name = "firebaseSecrets")
+  public FirebaseSecrets firebaseSecrets() {
+    return awsSecretsManagerService.getFirebaseSecrets();
+  }
 
-    @Bean(name = "queue")
-    public String queue(@Value("${queue}") String queue) {
-        return queue;
-    }
+  @Bean(name = "queue")
+  public String queue(@Value("${queue}") String queue) {
+    return queue;
+  }
 
-    @Bean(name = "xApiKey")
-    public XApiKey xApiKeySecrets() {
-        return awsSecretsManagerService.getXApiKeys();
-    }
+  @Bean(name = "xApiKey")
+  public XApiKey xApiKeySecrets() {
+    return awsSecretsManagerService.getXApiKeys();
+  }
 
-    @Bean
-    public RestHighLevelClient restHighLevelClient() {
-        log.info("configuring elasticsearch");
-        RestHighLevelClient restHighLevelClient = null;
-        try {
+  @Bean
+  public SMTPSecrets smtpSecrets() {
+    SMTPSecrets sMTPSecrets = awsSecretsManagerService.getSMTPSecrets();
+    return sMTPSecrets;
+  }
 
-            ElasticsearchSecrets esSecrets = awsSecretsManagerService.getElasticsearchSecrets();
+  // @Bean
+  // public JavaMailSender javaMailSender() {
+  // JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+  // mailSender.setHost("smtp.sendgrid.net");
+  // mailSender.setPort(587);
+  //
+  // SMTPSecrets sMTPSecrets = awsSecretsManagerService.getSMTPSecrets();
+  //
+  // mailSender.setUsername(sMTPSecrets.getUsername());
+  // mailSender.setPassword(sMTPSecrets.getPassword());
+  //
+  // Properties props = mailSender.getJavaMailProperties();
+  // props.put("mail.transport.protocol", "smtp");
+  // props.put("mail.smtp.auth", "true");
+  // props.put("mail.smtp.starttls.enable", "true");
+  // props.put("mail.debug", "true");
+  //
+  // return mailSender;
+  // }
 
-            log.info("ElasticsearchSecrets={}", ObjectUtils.toJson(esSecrets));
+  @Bean
+  public RestHighLevelClient restHighLevelClient() {
+    log.info("configuring elasticsearch");
+    RestHighLevelClient restHighLevelClient = null;
+    try {
 
-            final int numberOfThreads = 50;
-            final int connectionTimeoutTime = 60;
+      ElasticsearchSecrets esSecrets = awsSecretsManagerService.getElasticsearchSecrets();
 
-            // final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            // credentialsProvider.setCredentials(
-            // AuthScope.ANY, new UsernamePasswordCredentials(esSecrets.getUsername(), esSecrets.getPassword()));
+      log.info("ElasticsearchSecrets={}", ObjectUtils.toJson(esSecrets));
 
-            RestClientBuilder restClientBuilder = RestClient.builder(new HttpHost(esSecrets.getHost(), esSecrets.getPort(), esSecrets.getHttpType()));
+      final int numberOfThreads = 50;
+      final int connectionTimeoutTime = 60;
 
-            // @formatter:off
+      // final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+      // credentialsProvider.setCredentials(
+      // AuthScope.ANY, new UsernamePasswordCredentials(esSecrets.getUsername(),
+      // esSecrets.getPassword()));
+
+      RestClientBuilder restClientBuilder = RestClient
+          .builder(new HttpHost(esSecrets.getHost(), esSecrets.getPort(), esSecrets.getHttpType()));
+
+      // @formatter:off
             restClientBuilder.setHttpClientConfigCallback(
               new RestClientBuilder.HttpClientConfigCallback() {
                 @Override
@@ -168,30 +198,30 @@ public class LiveAppConfig {
             log.info("RequestConfigCallback set!");
             // @formatter:on
 
-            restHighLevelClient = new RestHighLevelClient(restClientBuilder);
-            log.info("RestHighLevelClient set!");
-        } catch (Exception e) {
-            log.warn("Exception RestHighLevelClient, msg={}", e.getMessage());
-        }
-
-        boolean ping = false;
-        try {
-            // ping = restHighLevelClient.ping(RequestOptions.DEFAULT);
-        } catch (Exception e) {
-            log.warn("IOException. ping error, msg={}", e.getMessage());
-        }
-
-        log.info("elasticsearch configured! ping={}", ping);
-        return restHighLevelClient;
+      restHighLevelClient = new RestHighLevelClient(restClientBuilder);
+      log.info("RestHighLevelClient set!");
+    } catch (Exception e) {
+      log.warn("Exception RestHighLevelClient, msg={}", e.getMessage());
     }
 
-    @Bean
-    public ElasticsearchConverter elasticsearchConverter() {
-        return new MappingElasticsearchConverter(new SimpleElasticsearchMappingContext());
+    boolean ping = false;
+    try {
+      // ping = restHighLevelClient.ping(RequestOptions.DEFAULT);
+    } catch (Exception e) {
+      log.warn("IOException. ping error, msg={}", e.getMessage());
     }
 
-    @Bean
-    public ElasticsearchOperations elasticsearchTemplate() {
-        return new ElasticsearchRestTemplate(restHighLevelClient(), elasticsearchConverter());
-    }
+    log.info("elasticsearch configured! ping={}", ping);
+    return restHighLevelClient;
+  }
+
+  @Bean
+  public ElasticsearchConverter elasticsearchConverter() {
+    return new MappingElasticsearchConverter(new SimpleElasticsearchMappingContext());
+  }
+
+  @Bean
+  public ElasticsearchOperations elasticsearchTemplate() {
+    return new ElasticsearchRestTemplate(restHighLevelClient(), elasticsearchConverter());
+  }
 }

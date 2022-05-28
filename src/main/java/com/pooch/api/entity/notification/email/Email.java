@@ -24,6 +24,7 @@ import com.pooch.api.entity.DatabaseTableNames;
 import com.pooch.api.entity.notification.email.template.EmailTemplateUuid;
 import com.pooch.api.utils.ObjectUtils;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,6 +44,8 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
+
+@Builder
 @Slf4j
 @Getter
 @Setter

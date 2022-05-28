@@ -18,217 +18,257 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AwsSecretsManagerServiceImp implements AwsSecretsManagerService {
 
-    @Value("${database.secret.name}")
-    private String            databaseSecretName;
+  @Value("${database.secret.name}")
+  private String databaseSecretName;
 
-    @Value("${stripe.secret.name}")
-    private String            stripeSecretName;
+  @Value("${stripe.secret.name}")
+  private String stripeSecretName;
 
-    @Value("${twilio.secret.name}")
-    private String            twilioSecretName;
+  @Value("${twilio.secret.name}")
+  private String twilioSecretName;
 
-    @Value("${firebase.secret.name}")
-    private String            firebaseSecretName;
+  @Value("${firebase.secret.name}")
+  private String firebaseSecretName;
 
-    @Value("${elasticsearch.secret.name}")
-    private String            elasticsearchSecretName;
+  @Value("${elasticsearch.secret.name}")
+  private String elasticsearchSecretName;
 
-    @Value("${xapikey.secret.name}")
-    private String            xApiKeySecretName;
+  @Value("${xapikey.secret.name}")
+  private String xApiKeySecretName;
 
-    @Autowired
-    private AWSSecretsManager awsSecretsManager;
+  @Value("${smtp.secret.name}")
+  private String smtpSecretName;
 
-    @Override
-    public DatabaseSecrets getDbSecret() {
 
-        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
-        getSecretValueRequest.setSecretId(databaseSecretName);
+  @Autowired
+  private AWSSecretsManager awsSecretsManager;
 
-        GetSecretValueResult getSecretValueResponse = null;
-        try {
-            getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
-        } catch (Exception e) {
-            log.error("Failed to get values for sercret {}, msg:{}", databaseSecretName, e.getMessage(), e);
-        }
+  @Override
+  public DatabaseSecrets getDbSecret() {
 
-        if (getSecretValueResponse == null) {
-            return null;
-        }
+    GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
+    getSecretValueRequest.setSecretId(databaseSecretName);
 
-        ByteBuffer binarySecretData;
-        String secret;
-        // Decrypted secret using the associated KMS CMK
-        // Depending on whether the secret was a string or binary, one of these fields
-        // will be populated
-        if (getSecretValueResponse.getSecretString() != null) {
-            log.info("secret string");
-            secret = getSecretValueResponse.getSecretString();
-            return DatabaseSecrets.fromJson(secret);
-        } else {
-            log.info("secret binary secret data");
-            binarySecretData = getSecretValueResponse.getSecretBinary();
-            return DatabaseSecrets.fromJson(binarySecretData.toString());
-        }
+    GetSecretValueResult getSecretValueResponse = null;
+    try {
+      getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
+    } catch (Exception e) {
+      log.error("Failed to get values for sercret {}, msg:{}", databaseSecretName, e.getMessage(),
+          e);
     }
 
-    @Override
-    public StripeSecrets getStripeSecrets() {
-        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
-        getSecretValueRequest.setSecretId(stripeSecretName);
-
-        GetSecretValueResult getSecretValueResponse = null;
-        try {
-            getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
-        } catch (Exception e) {
-            log.error("Failed to get values for sercret {}, msg:{}", stripeSecretName, e.getMessage(), e);
-        }
-
-        if (getSecretValueResponse == null) {
-            return null;
-        }
-
-        ByteBuffer binarySecretData;
-        String secret;
-        // Decrypted secret using the associated KMS CMK
-        // Depending on whether the secret was a string or binary, one of these fields
-        // will be populated
-        if (getSecretValueResponse.getSecretString() != null) {
-            log.info("secret string");
-            secret = getSecretValueResponse.getSecretString();
-            return StripeSecrets.fromJson(secret);
-        } else {
-            log.info("secret binary secret data");
-            binarySecretData = getSecretValueResponse.getSecretBinary();
-            return StripeSecrets.fromJson(binarySecretData.toString());
-        }
+    if (getSecretValueResponse == null) {
+      return null;
     }
 
-    @Override
-    public TwilioSecrets getTwilioSecrets() {
-        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
-        getSecretValueRequest.setSecretId(twilioSecretName);
+    ByteBuffer binarySecretData;
+    String secret;
+    // Decrypted secret using the associated KMS CMK
+    // Depending on whether the secret was a string or binary, one of these fields
+    // will be populated
+    if (getSecretValueResponse.getSecretString() != null) {
+      log.info("secret string");
+      secret = getSecretValueResponse.getSecretString();
+      return DatabaseSecrets.fromJson(secret);
+    } else {
+      log.info("secret binary secret data");
+      binarySecretData = getSecretValueResponse.getSecretBinary();
+      return DatabaseSecrets.fromJson(binarySecretData.toString());
+    }
+  }
 
-        GetSecretValueResult getSecretValueResponse = null;
-        try {
-            getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
-        } catch (Exception e) {
-            log.error("Failed to get values for sercret {}, msg:{}", twilioSecretName, e.getMessage(), e);
-        }
+  @Override
+  public StripeSecrets getStripeSecrets() {
+    GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
+    getSecretValueRequest.setSecretId(stripeSecretName);
 
-        if (getSecretValueResponse == null) {
-            return null;
-        }
-
-        ByteBuffer binarySecretData;
-        String secret;
-        // Decrypted secret using the associated KMS CMK
-        // Depending on whether the secret was a string or binary, one of these fields
-        // will be populated
-        if (getSecretValueResponse.getSecretString() != null) {
-            log.info("secret string");
-            secret = getSecretValueResponse.getSecretString();
-            return TwilioSecrets.fromJson(secret);
-        } else {
-            log.info("secret binary secret data");
-            binarySecretData = getSecretValueResponse.getSecretBinary();
-            return TwilioSecrets.fromJson(binarySecretData.toString());
-        }
+    GetSecretValueResult getSecretValueResponse = null;
+    try {
+      getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
+    } catch (Exception e) {
+      log.error("Failed to get values for sercret {}, msg:{}", stripeSecretName, e.getMessage(), e);
     }
 
-    @Override
-    public FirebaseSecrets getFirebaseSecrets() {
-        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
-        getSecretValueRequest.setSecretId(firebaseSecretName);
-
-        GetSecretValueResult getSecretValueResponse = null;
-        try {
-            getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
-        } catch (Exception e) {
-            log.error("Failed to get values for sercret {}, msg:{}", firebaseSecretName, e.getMessage(), e);
-        }
-
-        if (getSecretValueResponse == null) {
-            return null;
-        }
-
-        ByteBuffer binarySecretData;
-        String secret;
-        // Decrypted secret using the associated KMS CMK
-        // Depending on whether the secret was a string or binary, one of these fields
-        // will be populated
-        if (getSecretValueResponse.getSecretString() != null) {
-            log.info("secret string");
-            secret = getSecretValueResponse.getSecretString();
-            return FirebaseSecrets.fromJson(secret);
-        } else {
-            log.info("secret binary secret data");
-            binarySecretData = getSecretValueResponse.getSecretBinary();
-            return FirebaseSecrets.fromJson(binarySecretData.toString());
-        }
+    if (getSecretValueResponse == null) {
+      return null;
     }
 
-    @Override
-    public ElasticsearchSecrets getElasticsearchSecrets() {
-        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
-        getSecretValueRequest.setSecretId(elasticsearchSecretName);
+    ByteBuffer binarySecretData;
+    String secret;
+    // Decrypted secret using the associated KMS CMK
+    // Depending on whether the secret was a string or binary, one of these fields
+    // will be populated
+    if (getSecretValueResponse.getSecretString() != null) {
+      log.info("secret string");
+      secret = getSecretValueResponse.getSecretString();
+      return StripeSecrets.fromJson(secret);
+    } else {
+      log.info("secret binary secret data");
+      binarySecretData = getSecretValueResponse.getSecretBinary();
+      return StripeSecrets.fromJson(binarySecretData.toString());
+    }
+  }
 
-        GetSecretValueResult getSecretValueResponse = null;
-        try {
-            getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
-        } catch (Exception e) {
-            log.error("Failed to get values for sercret {}, msg:{}", elasticsearchSecretName, e.getMessage(), e);
-        }
+  @Override
+  public TwilioSecrets getTwilioSecrets() {
+    GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
+    getSecretValueRequest.setSecretId(twilioSecretName);
 
-        if (getSecretValueResponse == null) {
-            return null;
-        }
-
-        ByteBuffer binarySecretData;
-        String secret;
-        // Decrypted secret using the associated KMS CMK
-        // Depending on whether the secret was a string or binary, one of these fields
-        // will be populated
-        if (getSecretValueResponse.getSecretString() != null) {
-            log.info("secret string");
-            secret = getSecretValueResponse.getSecretString();
-            return ElasticsearchSecrets.fromJson(secret);
-        } else {
-            log.info("secret binary secret data");
-            binarySecretData = getSecretValueResponse.getSecretBinary();
-            return ElasticsearchSecrets.fromJson(binarySecretData.toString());
-        }
+    GetSecretValueResult getSecretValueResponse = null;
+    try {
+      getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
+    } catch (Exception e) {
+      log.error("Failed to get values for sercret {}, msg:{}", twilioSecretName, e.getMessage(), e);
     }
 
-    @Override
-    public XApiKey getXApiKeys() {
-        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
-        getSecretValueRequest.setSecretId(xApiKeySecretName);
-
-        GetSecretValueResult getSecretValueResponse = null;
-        try {
-            getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
-        } catch (Exception e) {
-            log.error("Failed to get values for sercret {}, msg:{}", elasticsearchSecretName, e.getMessage(), e);
-        }
-
-        if (getSecretValueResponse == null) {
-            return null;
-        }
-
-        ByteBuffer binarySecretData;
-        String secret;
-        // Decrypted secret using the associated KMS CMK
-        // Depending on whether the secret was a string or binary, one of these fields
-        // will be populated
-        if (getSecretValueResponse.getSecretString() != null) {
-            log.info("secret string");
-            secret = getSecretValueResponse.getSecretString();
-            return XApiKey.fromJson(secret);
-        } else {
-            log.info("secret binary secret data");
-            binarySecretData = getSecretValueResponse.getSecretBinary();
-            return XApiKey.fromJson(binarySecretData.toString());
-        }
+    if (getSecretValueResponse == null) {
+      return null;
     }
+
+    ByteBuffer binarySecretData;
+    String secret;
+    // Decrypted secret using the associated KMS CMK
+    // Depending on whether the secret was a string or binary, one of these fields
+    // will be populated
+    if (getSecretValueResponse.getSecretString() != null) {
+      log.info("secret string");
+      secret = getSecretValueResponse.getSecretString();
+      return TwilioSecrets.fromJson(secret);
+    } else {
+      log.info("secret binary secret data");
+      binarySecretData = getSecretValueResponse.getSecretBinary();
+      return TwilioSecrets.fromJson(binarySecretData.toString());
+    }
+  }
+
+  @Override
+  public FirebaseSecrets getFirebaseSecrets() {
+    GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
+    getSecretValueRequest.setSecretId(firebaseSecretName);
+
+    GetSecretValueResult getSecretValueResponse = null;
+    try {
+      getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
+    } catch (Exception e) {
+      log.error("Failed to get values for sercret {}, msg:{}", firebaseSecretName, e.getMessage(),
+          e);
+    }
+
+    if (getSecretValueResponse == null) {
+      return null;
+    }
+
+    ByteBuffer binarySecretData;
+    String secret;
+    // Decrypted secret using the associated KMS CMK
+    // Depending on whether the secret was a string or binary, one of these fields
+    // will be populated
+    if (getSecretValueResponse.getSecretString() != null) {
+      log.info("secret string");
+      secret = getSecretValueResponse.getSecretString();
+      return FirebaseSecrets.fromJson(secret);
+    } else {
+      log.info("secret binary secret data");
+      binarySecretData = getSecretValueResponse.getSecretBinary();
+      return FirebaseSecrets.fromJson(binarySecretData.toString());
+    }
+  }
+
+  @Override
+  public ElasticsearchSecrets getElasticsearchSecrets() {
+    GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
+    getSecretValueRequest.setSecretId(elasticsearchSecretName);
+
+    GetSecretValueResult getSecretValueResponse = null;
+    try {
+      getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
+    } catch (Exception e) {
+      log.error("Failed to get values for sercret {}, msg:{}", elasticsearchSecretName,
+          e.getMessage(), e);
+    }
+
+    if (getSecretValueResponse == null) {
+      return null;
+    }
+
+    ByteBuffer binarySecretData;
+    String secret;
+    // Decrypted secret using the associated KMS CMK
+    // Depending on whether the secret was a string or binary, one of these fields
+    // will be populated
+    if (getSecretValueResponse.getSecretString() != null) {
+      log.info("secret string");
+      secret = getSecretValueResponse.getSecretString();
+      return ElasticsearchSecrets.fromJson(secret);
+    } else {
+      log.info("secret binary secret data");
+      binarySecretData = getSecretValueResponse.getSecretBinary();
+      return ElasticsearchSecrets.fromJson(binarySecretData.toString());
+    }
+  }
+
+  @Override
+  public XApiKey getXApiKeys() {
+    GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
+    getSecretValueRequest.setSecretId(xApiKeySecretName);
+
+    GetSecretValueResult getSecretValueResponse = null;
+    try {
+      getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
+    } catch (Exception e) {
+      log.error("Failed to get values for sercret {}, msg:{}", xApiKeySecretName, e.getMessage(),
+          e);
+    }
+
+    if (getSecretValueResponse == null) {
+      return null;
+    }
+
+    ByteBuffer binarySecretData;
+    String secret;
+    // Decrypted secret using the associated KMS CMK
+    // Depending on whether the secret was a string or binary, one of these fields
+    // will be populated
+    if (getSecretValueResponse.getSecretString() != null) {
+      log.info("secret string");
+      secret = getSecretValueResponse.getSecretString();
+      return XApiKey.fromJson(secret);
+    } else {
+      log.info("secret binary secret data");
+      binarySecretData = getSecretValueResponse.getSecretBinary();
+      return XApiKey.fromJson(binarySecretData.toString());
+    }
+  }
+
+  @Override
+  public SMTPSecrets getSMTPSecrets() {
+    GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
+    getSecretValueRequest.setSecretId(smtpSecretName);
+
+    GetSecretValueResult getSecretValueResponse = null;
+    try {
+      getSecretValueResponse = awsSecretsManager.getSecretValue(getSecretValueRequest);
+    } catch (Exception e) {
+      log.error("Failed to get values for sercret {}, msg:{}", smtpSecretName, e.getMessage(), e);
+    }
+
+    if (getSecretValueResponse == null) {
+      return null;
+    }
+
+    ByteBuffer binarySecretData;
+    String secret;
+    // Decrypted secret using the associated KMS CMK
+    // Depending on whether the secret was a string or binary, one of these fields
+    // will be populated
+    if (getSecretValueResponse.getSecretString() != null) {
+      log.info("secret string");
+      secret = getSecretValueResponse.getSecretString();
+      return SMTPSecrets.fromJson(secret);
+    } else {
+      log.info("secret binary secret data");
+      binarySecretData = getSecretValueResponse.getSecretBinary();
+      return SMTPSecrets.fromJson(binarySecretData.toString());
+    }
+  }
 }

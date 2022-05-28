@@ -42,6 +42,7 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.pooch.api.library.aws.secretsmanager.AwsSecretsManagerService;
 import com.pooch.api.library.aws.secretsmanager.FirebaseSecrets;
+import com.pooch.api.library.aws.secretsmanager.SMTPSecrets;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.aws.secretsmanager.TwilioSecrets;
 import com.pooch.api.library.aws.secretsmanager.XApiKey;
@@ -54,8 +55,10 @@ import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
-
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.io.IOException;
+import java.util.Properties;
 
 @Slf4j
 @Profile({"github"})
@@ -195,6 +198,32 @@ public class GithubAppConfig {
     firebaseSecrets.setAuthWebApiKey(firebaseWebApiKey);
     return firebaseSecrets;
   }
+  
+  @Bean
+  public SMTPSecrets smtpSecrets() {
+    SMTPSecrets sMTPSecrets = awsSecretsManagerService.getSMTPSecrets();
+    return sMTPSecrets;
+  }
+
+  // @Bean
+  // public JavaMailSender javaMailSender() {
+  // JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+  // mailSender.setHost("smtp.sendgrid.net");
+  // mailSender.setPort(587);
+  //
+  // SMTPSecrets sMTPSecrets = awsSecretsManagerService.getSMTPSecrets();
+  //
+  // mailSender.setUsername(sMTPSecrets.getUsername());
+  // mailSender.setPassword(sMTPSecrets.getPassword());
+  //
+  // Properties props = mailSender.getJavaMailProperties();
+  // props.put("mail.transport.protocol", "smtp");
+  // props.put("mail.smtp.auth", "true");
+  // props.put("mail.smtp.starttls.enable", "true");
+  // props.put("mail.debug", "true");
+  //
+  // return mailSender;
+  // }
 
   @Bean
   public RestHighLevelClient restHighLevelClient() {

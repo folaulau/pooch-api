@@ -34,7 +34,7 @@ public class AwsSESEmail {
 
   public static void main(String[] args) {
     LocalAwsConfig awsConfig = new LocalAwsConfig();
-    amazonSimpleEmailService = awsConfig.amazonSES();
+//    amazonSimpleEmailService = awsConfig.amazonSES();
 
     // createTemplate();
   }

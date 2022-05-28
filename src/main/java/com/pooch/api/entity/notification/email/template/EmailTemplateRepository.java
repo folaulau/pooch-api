@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 interface EmailTemplateRepository extends JpaRepository<EmailTemplate, Long> {
 
-    Optional<EmailTemplate> findByUuid(EmailTemplateUuid uuid);
+  Optional<EmailTemplate> findByUuid(EmailTemplateUuid uuid);
+
+  Optional<EmailTemplate> findByNotificationId(Long notificationId);
 }

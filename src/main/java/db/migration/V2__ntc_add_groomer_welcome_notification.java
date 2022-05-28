@@ -55,10 +55,10 @@ public class V2__ntc_add_groomer_welcome_notification extends BaseJavaMigration 
     queryBuilder = new StringBuilder();
     queryBuilder.append("INSERT INTO email_template ");
     queryBuilder.append(
-        "(id, uuid, content, created_by_user, last_updated_by_user, deleted, notification_id, created_at, updated_at) ");
+        "(id, uuid, content, subject, created_by_user, last_updated_by_user, deleted, notification_id, created_at, updated_at) ");
     queryBuilder.append("VALUES ");
     queryBuilder.append("(" + emailTemplateId
-        + ", 'WELCOME_GROOMER_EMAIL', '<h1>Welcome</>', 'system', 'system', true, ");
+        + ", 'WELCOME_GROOMER_EMAIL', '<h1>Welcome</>', 'Welcome To Poochfolio', 'system', 'system', false, ");
     queryBuilder.append(notificationId);
     queryBuilder.append(", '2022-05-28 00:37:08.738098', '2022-05-28 00:37:08.738098')");
 

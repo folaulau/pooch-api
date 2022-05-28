@@ -23,9 +23,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
 import com.pooch.api.library.aws.secretsmanager.FirebaseSecrets;
+import com.pooch.api.library.aws.secretsmanager.SMTPSecrets;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.aws.secretsmanager.TwilioSecrets;
 import com.pooch.api.library.aws.secretsmanager.XApiKey;
+import com.sendgrid.SendGrid;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -37,8 +39,10 @@ import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverte
 import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
-
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.io.IOException;
+import java.util.Properties;
 import javax.sql.DataSource;
 
 @Slf4j
@@ -49,126 +53,179 @@ import javax.sql.DataSource;
 @PropertySource("classpath:config/local-secrets.properties")
 public class LocalAppConfig {
 
-    /** Postgres */
-    @Value("${database.username}")
-    private String databaseUsername;
+  /** Postgres */
+  @Value("${database.username}")
+  private String databaseUsername;
 
-    @Value("${database.password}")
-    private String databasePassword;
+  @Value("${database.password}")
+  private String databasePassword;
 
-    @Value("${database.name}")
-    private String databaseName;
+  @Value("${database.name}")
+  private String databaseName;
 
-    @Value("${database.url}")
-    private String databaseUrl;
+  @Value("${database.url}")
+  private String databaseUrl;
 
-    @Value("${aws.deploy.region:us-west-2}")
-    private String targetRegion;
+  @Value("${aws.deploy.region:us-west-2}")
+  private String targetRegion;
 
-    @Value("${firebase.web.api.key}")
-    private String firebaseWebApiKey;
+  @Value("${firebase.web.api.key}")
+  private String firebaseWebApiKey;
+
+  /**
+   * Elasticsearch
+   *
+   * @param stripeApiSecretKey
+   * @return
+   */
+  @Value("${elasticsearch.host}")
+  private String clusterNode;
+
+  @Value("${elasticsearch.httptype}")
+  private String clusterHttpType;
+
+  @Value("${elasticsearch.username}")
+  private String username;
+
+  @Value("${elasticsearch.password}")
+  private String password;
+
+  @Value("${elasticsearch.port}")
+  private int clusterHttpPort;
+
+  @Value("${spring.mail.username}")
+  private String smtpUsername;
+
+  @Value("${spring.mail.password}")
+  private String smtpPassword;
+
+  @Bean(name = "stripeSecrets")
+  public StripeSecrets stripeSecrets(@Value("${stripe.publishable.key}") String publishableKey,
+      @Value("${stripe.secret.key}") String secretKey, @Value("${stripe.product}") String productId,
+      @Value("${stripe.webhook.signing.key}") String webhookSigningKey) {
+    return new StripeSecrets(publishableKey, secretKey, productId, webhookSigningKey);
+  }
+
+  @Bean(name = "queue")
+  public String queue(@Value("${queue}") String queue) {
+    return queue;
+  }
+
+  @Bean(name = "twilioSecrets")
+  public TwilioSecrets getTwilioSecrets(@Value("${twilio.account.sid}") String twilioAccountId,
+      @Value("${twilio.auth.token}") String twilioAuthToken,
+      @Value("${twilio.sms.sender}") String twilioSMSSender) {
+    TwilioSecrets twilioSecrets = new TwilioSecrets();
+    twilioSecrets.setAccountSid(twilioAccountId);
+    twilioSecrets.setAuthToken(twilioAuthToken);
+    twilioSecrets.setSmsSender(twilioSMSSender);
+    return twilioSecrets;
+  }
+
+  @Bean(name = "xApiKey")
+  public XApiKey xApiKeySecrets(@Value("${web.x.api.key}") String webXApiKey,
+      @Value("${mobile.x.api.key}") String mobileXApiKey,
+      @Value("${utility.x.api.key}") String utilityXApiKey) {
+    return new XApiKey(webXApiKey, mobileXApiKey, utilityXApiKey);
+  }
+
+  /* ================== datasource =============== */
+  @Bean
+  public HikariDataSource dataSource() {
+    log.info("Configuring dataSource...");
+
+    log.info("dbUrl={}", databaseUrl);
+    log.info("dbUsername={}", databaseUsername);
+    log.info("dbPassword={}", databasePassword);
+
+    HikariConfig config = new HikariConfig();
+    config.setJdbcUrl(databaseUrl);
+    config.setUsername(databaseUsername);
+    config.setPassword(databasePassword);
+    config.addDataSourceProperty("cachePrepStmts", "true");
+    config.addDataSourceProperty("prepStmtCacheSize", "250");
+    config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+    config.addDataSourceProperty("dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
+
+    HikariDataSource hds = new HikariDataSource(config);
+    hds.setMaximumPoolSize(30);
+    hds.setMinimumIdle(5);
+    hds.setMaxLifetime(1800000);
+    hds.setConnectionTimeout(30000);
+    hds.setIdleTimeout(600000);
+    // 45 seconds
+    hds.setLeakDetectionThreshold(45000);
+
+    log.info("DataSource configured!");
+
+    return hds;
+  }
+
+  @Bean(name = "firebaseSecrets")
+  public FirebaseSecrets firebaseSecrets() {
+    FirebaseSecrets firebaseSecrets = new FirebaseSecrets();
+    firebaseSecrets.setAuthWebApiKey(firebaseWebApiKey);
+    return firebaseSecrets;
+  }
+
+  // @Bean
+  // public SMTPSecrets smtpSecrets() {
+  // SMTPSecrets sMTPSecrets = new SMTPSecrets();
+  // sMTPSecrets.setPassword(smtpPassword);
+  // sMTPSecrets.setUsername(smtpUsername);
+  // return sMTPSecrets;
+  // }
+
+  @Bean
+  public SendGrid sendGrid() {
+    SendGrid sendGrid = new SendGrid(smtpPassword);
+    return sendGrid;
+  }
+
+  @Bean
+  public JavaMailSender javaMailSender() {
+    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+    mailSender.setHost("smtp.sendgrid.net");
+    mailSender.setPort(465);
+    mailSender.setUsername(smtpUsername);
+    mailSender.setPassword(smtpPassword);
 
     /**
-     * Elasticsearch
-     *
-     * @param stripeApiSecretKey
-     * @return
+     * spring.mail.host=email-smtp.us-east-1.amazonaws.com
+     * spring.mail.properties.mail.transport.protocol=smtp spring.mail.properties.mail.smtp.port=587
+     * spring.mail.properties.mail.smtp.auth=true
+     * spring.mail.properties.mail.smtp.starttls.enable=true
+     * spring.mail.properties.mail.smtp.starttls.required=true
+     * spring.mail.properties.mail.sender=no-reply@
      */
-    @Value("${elasticsearch.host}")
-    private String clusterNode;
+    Properties props = mailSender.getJavaMailProperties();
+    props.put("mail.transport.protocol", "smtp");
+    props.put("mail.smtp.port", "465");
+    props.put("mail.smtp.auth", "true");
+    props.put("mail.smtp.ssl.trust", "smtp.sendgrid.net");
+    props.put("mail.smtp.starttls.enable", "true");
+    props.put("mail.smtp.starttls.required", "true");
+    props.put("mail.debug", "true");
 
-    @Value("${elasticsearch.httptype}")
-    private String clusterHttpType;
+    return mailSender;
+  }
 
-    @Value("${elasticsearch.username}")
-    private String username;
+  @Bean
+  public RestHighLevelClient restHighLevelClient() {
+    log.info("configuing elasticsearch");
+    RestHighLevelClient restHighLevelClient = null;
+    try {
+      log.info("username={}, password={}", username, password);
 
-    @Value("${elasticsearch.password}")
-    private String password;
+      // clusterNode =
+      // "search-dev-es-pooch-api-x4vu7wl4j4bccdz6wn6abne5uu.us-west-2.es.amazonaws.com";
+      // clusterHttpType = "https";
+      // clusterHttpPort = 443;
 
-    @Value("${elasticsearch.port}")
-    private int    clusterHttpPort;
+      log.info("clusterNode={}, httpType={}", clusterNode, this.clusterHttpType);
 
-    @Bean(name = "stripeSecrets")
-    public StripeSecrets stripeSecrets(@Value("${stripe.publishable.key}") String publishableKey, @Value("${stripe.secret.key}") String secretKey, @Value("${stripe.product}") String productId,
-            @Value("${stripe.webhook.signing.key}") String webhookSigningKey) {
-        return new StripeSecrets(publishableKey, secretKey, productId, webhookSigningKey);
-    }
-
-    @Bean(name = "queue")
-    public String queue(@Value("${queue}") String queue) {
-        return queue;
-    }
-
-    @Bean(name = "twilioSecrets")
-    public TwilioSecrets getTwilioSecrets(@Value("${twilio.account.sid}") String twilioAccountId, @Value("${twilio.auth.token}") String twilioAuthToken,
-            @Value("${twilio.sms.sender}") String twilioSMSSender) {
-        TwilioSecrets twilioSecrets = new TwilioSecrets();
-        twilioSecrets.setAccountSid(twilioAccountId);
-        twilioSecrets.setAuthToken(twilioAuthToken);
-        twilioSecrets.setSmsSender(twilioSMSSender);
-        return twilioSecrets;
-    }
-
-    @Bean(name = "xApiKey")
-    public XApiKey xApiKeySecrets(@Value("${web.x.api.key}") String webXApiKey, @Value("${mobile.x.api.key}") String mobileXApiKey, @Value("${utility.x.api.key}") String utilityXApiKey) {
-        return new XApiKey(webXApiKey, mobileXApiKey, utilityXApiKey);
-    }
-
-    /* ================== datasource =============== */
-    @Bean
-    public HikariDataSource dataSource() {
-        log.info("Configuring dataSource...");
-
-        log.info("dbUrl={}", databaseUrl);
-        log.info("dbUsername={}", databaseUsername);
-        log.info("dbPassword={}", databasePassword);
-
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(databaseUrl);
-        config.setUsername(databaseUsername);
-        config.setPassword(databasePassword);
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        config.addDataSourceProperty("dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
-
-        HikariDataSource hds = new HikariDataSource(config);
-        hds.setMaximumPoolSize(30);
-        hds.setMinimumIdle(5);
-        hds.setMaxLifetime(1800000);
-        hds.setConnectionTimeout(30000);
-        hds.setIdleTimeout(600000);
-        // 45 seconds
-        hds.setLeakDetectionThreshold(45000);
-
-        log.info("DataSource configured!");
-
-        return hds;
-    }
-
-    @Bean(name = "firebaseSecrets")
-    public FirebaseSecrets firebaseSecrets() {
-        FirebaseSecrets firebaseSecrets = new FirebaseSecrets();
-        firebaseSecrets.setAuthWebApiKey(firebaseWebApiKey);
-        return firebaseSecrets;
-    }
-
-    @Bean
-    public RestHighLevelClient restHighLevelClient() {
-        log.info("configuing elasticsearch");
-        RestHighLevelClient restHighLevelClient = null;
-        try {
-            log.info("username={}, password={}", username, password);
-
-//             clusterNode = "search-dev-es-pooch-api-x4vu7wl4j4bccdz6wn6abne5uu.us-west-2.es.amazonaws.com";
-//             clusterHttpType = "https";
-//             clusterHttpPort = 443;
-
-            log.info("clusterNode={}, httpType={}", clusterNode, this.clusterHttpType);
-
-            final int numberOfThreads = 10;
-            final int connectionTimeoutTime = 60;
+      final int numberOfThreads = 10;
+      final int connectionTimeoutTime = 60;
 
       // @formatter:off
 //      final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
@@ -212,30 +269,30 @@ public class LocalAppConfig {
       log.info("RequestConfigCallback set!");
       // @formatter:on
 
-            restHighLevelClient = new RestHighLevelClient(restClientBuilder);
-            log.info("RestHighLevelClient set!");
-        } catch (Exception e) {
-            log.warn("Exception RestHighLevelClient, msg={}", e.getMessage());
-        }
-
-        boolean ping = false;
-        try {
-            ping = restHighLevelClient.ping(RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            log.warn("IOException. ping error, msg={}", e.getMessage());
-        }
-
-        log.info("elasticsearch configured! ping={}", ping);
-        return restHighLevelClient;
+      restHighLevelClient = new RestHighLevelClient(restClientBuilder);
+      log.info("RestHighLevelClient set!");
+    } catch (Exception e) {
+      log.warn("Exception RestHighLevelClient, msg={}", e.getMessage());
     }
 
-    @Bean
-    public ElasticsearchConverter elasticsearchConverter() {
-        return new MappingElasticsearchConverter(new SimpleElasticsearchMappingContext());
+    boolean ping = false;
+    try {
+      ping = restHighLevelClient.ping(RequestOptions.DEFAULT);
+    } catch (IOException e) {
+      log.warn("IOException. ping error, msg={}", e.getMessage());
     }
 
-    @Bean
-    public ElasticsearchOperations elasticsearchTemplate() {
-        return new ElasticsearchRestTemplate(restHighLevelClient(), elasticsearchConverter());
-    }
+    log.info("elasticsearch configured! ping={}", ping);
+    return restHighLevelClient;
+  }
+
+  @Bean
+  public ElasticsearchConverter elasticsearchConverter() {
+    return new MappingElasticsearchConverter(new SimpleElasticsearchMappingContext());
+  }
+
+  @Bean
+  public ElasticsearchOperations elasticsearchTemplate() {
+    return new ElasticsearchRestTemplate(restHighLevelClient(), elasticsearchConverter());
+  }
 }

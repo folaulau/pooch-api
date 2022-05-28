@@ -30,6 +30,7 @@ import com.pooch.api.dto.PoochDTO;
 import com.pooch.api.dto.S3FileDTO;
 import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.notification.NotificationService;
 import com.pooch.api.entity.phonenumber.PhoneNumberService;
 import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
 import com.pooch.api.entity.pooch.Pooch;
@@ -83,6 +84,9 @@ public class ParentServiceImp implements ParentService {
 
   @Autowired
   private PoochService poochService;
+
+  @Autowired
+  private NotificationService notificationService;
 
   @Autowired
   private StripeCustomerService stripeCustomerService;
@@ -173,6 +177,8 @@ public class ParentServiceImp implements ParentService {
       petParent.setStripeCustomerId(customer.getId());
 
       petParent = parentDAO.save(petParent);
+
+      notificationService.sendWelcomeNotificationToParent(petParent);
     }
 
     AuthenticationResponseDTO authenticationResponseDTO =

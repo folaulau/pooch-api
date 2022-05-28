@@ -4,7 +4,9 @@ import java.util.Optional;
 
 public interface EmailTemplateDAO {
 
-    EmailTemplate save(EmailTemplate emailTemplate);
+  EmailTemplate save(EmailTemplate emailTemplate);
 
-    Optional<EmailTemplate> getByUuid(EmailTemplateUuid uuid);
+  Optional<EmailTemplate> getByUuid(EmailTemplateUuid uuid);
+
+  Optional<EmailTemplate> getByNotificationId(long notificationId);
 }

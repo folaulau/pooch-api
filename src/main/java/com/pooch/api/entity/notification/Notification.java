@@ -82,7 +82,7 @@ public class Notification implements Serializable {
    */
 
   @JsonIgnoreProperties(value = {"notification"})
-  @OneToOne(cascade = CascadeType.ALL, mappedBy = "notification")
+  @OneToOne(cascade = CascadeType.ALL, mappedBy = "notification", fetch = FetchType.EAGER)
   private EmailTemplate emailTemplate;
 
   @CreationTimestamp

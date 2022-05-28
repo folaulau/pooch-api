@@ -68,6 +68,9 @@ public class EmailTemplate implements Serializable {
   @Column(name = "uuid", unique = true, nullable = false, updatable = false)
   private EmailTemplateUuid uuid;
 
+  @Column(name = "subject")
+  private String subject;
+
   @Lob
   @Type(type = "org.hibernate.type.TextType")
   @Column(name = "content")
@@ -97,7 +100,7 @@ public class EmailTemplate implements Serializable {
   private String lastUpdatedByUser;
 
   @JsonIgnoreProperties(value = {"emailTemplate"})
-  @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+  @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
   @JoinColumn(name = "notification_id", nullable = false)
   private Notification notification;
 

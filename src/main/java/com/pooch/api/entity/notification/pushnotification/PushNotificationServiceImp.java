@@ -3,6 +3,7 @@ package com.pooch.api.entity.notification.pushnotification;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import com.google.firebase.messaging.AndroidNotification;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.pooch.api.entity.notification.Notification;
 import com.pooch.api.entity.notification.pushnotification.token.PushNotificationToken;
 import lombok.extern.slf4j.Slf4j;
 
@@ -162,6 +164,12 @@ public class PushNotificationServiceImp implements PushNotificationService {
   // //
   // // return pushNotification;
   // // }
+
+  @Override
+  public void push(Notification ntc, Map<String, String> data) {
+    // TODO Auto-generated method stub
+
+  }
 
 
 }

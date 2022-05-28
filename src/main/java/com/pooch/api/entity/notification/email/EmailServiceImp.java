@@ -10,136 +10,100 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
+import com.pooch.api.entity.UserType;
+import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.notification.Notification;
+import com.pooch.api.entity.notification.email.template.EmailTemplate;
+import com.pooch.api.entity.notification.email.template.EmailTemplateDAO;
+import com.pooch.api.entity.parent.Parent;
+import com.sun.mail.smtp.SMTPSendFailedException;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
 public class EmailServiceImp implements EmailService {
 
-//    @Autowired
-//    private AwsEmailService  awsEmailService;
+  // @Autowired
+  // private AwsEmailService awsEmailService;
 
-    @Autowired
-    private EmailDAO         emailDAO;
+  @Autowired
+  private EmailDAO emailDAO;
 
-    @Value("${project.web.app.uri}")
-    private String           appHost;
+  @Value("${project.web.app.uri}")
+  private String appHost;
 
-//    @Autowired
-//    private EmailTemplateDAO emailTemplateDAO;
+  @Autowired
+  private EmailSenderService emailSenderService;
 
-//    @Async
-//    @Override
-//    public void sendPasswordResetRequest(User user, PasswordReset passwordReset) {
-//        /**
-//         * Get template
-//         */
-//
-//        Email email = new Email();
-//        email.setSendTo(user.getEmail());
-//        email.setSubject("Request Password Reset");
-//        email.setTemplateUuid(EmailTemplateUuid.REQUEST_PASSWORD_RESET);
-//
-//        Optional<EmailTemplate> optEmailTemplate = emailTemplateDAO.getByUuid(EmailTemplateUuid.REQUEST_PASSWORD_RESET);
-//
-//        if (optEmailTemplate.isPresent()) {
-//            /**
-//             * populate email
-//             */
-//
-//            EmailTemplate emailTemplate = optEmailTemplate.get();
-//
-//            /**
-//             * generate params for html email
-//             */
-//            Map<String, Object> params = new HashMap<>();
-//
-//            StringBuilder link = new StringBuilder(appHost);
-//            link.append("/password-reset?token=");
-//            link.append(passwordReset.getToken());
-//
-//            params.put("resetPasswordLink", link.toString());
-//
-//            log.info("params={}", ObjectUtils.toJson(params));
-//            log.info("emailTemplate={}", ObjectUtils.toJson(emailTemplate));
-//
-//            String content = EmailUtils.subValues(params, emailTemplate.getContent());
-//
-//            email.setContent(content);
-//            /**
-//             * send email
-//             */
-//
-//            try {
-//                email = awsEmailService.send(email);
-//
-//            } catch (MessagingException e) {
-//                log.warn("MessagingException,msg={}", e.getLocalizedMessage());
-//                email.setError(e.getMessage());
-//            }
-//        } else {
-//            email.setError("template " + EmailTemplateUuid.REQUEST_PASSWORD_RESET + " not found");
-//        }
-//
-//        /**
-//         * save email
-//         */
-//        emailDAO.save(email);
-//    }
-//
-//    @Async
-//    @Override
-//    public void sendWelcome(User user) {
-//        /**
-//         * Get template
-//         */
-//
-//        Email email = new Email();
-//        email.setSendTo(user.getEmail());
-//        email.setSubject("Welcome to Learn My Math");
-//        email.setTemplateUuid(EmailTemplateUuid.WELCOME_USER_UPON_SIGNUP);
-//
-//        Optional<EmailTemplate> optEmailTemplate = emailTemplateDAO.getByUuid(EmailTemplateUuid.WELCOME_USER_UPON_SIGNUP);
-//
-//        if (optEmailTemplate.isPresent()) {
-//            /**
-//             * populate email
-//             */
-//
-//            EmailTemplate emailTemplate = optEmailTemplate.get();
-//
-//            Map<String, Object> params = new HashMap<>();
-//
-//            StringBuilder acccountLink = new StringBuilder(appHost);
-//            acccountLink.append("/account/profile");
-//
-//            params.put("accountLink", acccountLink.toString());
-//
-//            String content = EmailUtils.subValues(params, emailTemplate.getContent());
-//
-//            email.setContent(content);
-//
-//            /**
-//             * send email
-//             */
-//
-//            try {
-//                email = awsEmailService.send(email);
-//
-//            } catch (MessagingException e) {
-//                log.warn("MessagingException,msg={}", e.getLocalizedMessage());
-//                email.setError(e.getMessage());
-//            }
-//            
-//        } else {
-//            email.setError("template " + EmailTemplateUuid.REQUEST_PASSWORD_RESET + " not found");
-//        }
-//
-//        /**
-//         * save email
-//         */
-//        emailDAO.save(email);
-//    }
+  // @Autowired
+  // private EmailTemplateDAO emailTemplateDAO;
+
+  @Override
+  public void send(Groomer groomer, Notification notification, Map<String, String> data) {
+    log.info("send");
+
+    EmailTemplate emailTemplate = notification.getEmailTemplate();
+    log.info("emailTemplate={}", emailTemplate.toJson());
+
+    Email email = new Email();
+    email.setSubject(emailTemplate.getSubject());
+    email.setSendTo(groomer.getEmail().toLowerCase());
+    email.setTemplateUuid(emailTemplate.getUuid());
+    email.setStatus(EmailStatus.SENDING);
+    String content = EmailUtils.subValues(data, emailTemplate.getContent());
+
+    email.setContent(content);
+
+    try {
+      DeliveryStatus status = emailSenderService.sendEmail(email, UserType.Groomer);
+
+      if (status.isDelivered()) {
+
+        email.setStatus(EmailStatus.SENT);
+      } else {
+        email.setStatus(EmailStatus.ERROR_SENT);
+
+        email.setError(status.getMessage());
+      }
+    } catch (SMTPSendFailedException e) {
+      log.warn("SMTPSendFailedException, msg={}", e.getLocalizedMessage());
+    }
+
+    emailDAO.save(email);
+  }
+
+  @Override
+  public void send(Parent parent, Notification notification, Map<String, String> data) {
+    log.info("send");
+
+    EmailTemplate emailTemplate = notification.getEmailTemplate();
+    log.info("emailTemplate={}", emailTemplate.toJson());
+
+    Email email = new Email();
+    email.setSubject(emailTemplate.getSubject());
+    email.setSendTo(parent.getEmail().toLowerCase());
+    email.setTemplateUuid(emailTemplate.getUuid());
+    email.setStatus(EmailStatus.SENDING);
+    String content = EmailUtils.subValues(data, emailTemplate.getContent());
+
+    email.setContent(content);
+
+    try {
+      DeliveryStatus status = emailSenderService.sendEmail(email, UserType.Parent);
+
+      if (status.isDelivered()) {
+
+        email.setStatus(EmailStatus.SENT);
+      } else {
+        email.setStatus(EmailStatus.ERROR_SENT);
+
+        email.setError(status.getMessage());
+      }
+    } catch (SMTPSendFailedException e) {
+      log.warn("SMTPSendFailedException, msg={}", e.getLocalizedMessage());
+    }
+
+    emailDAO.save(email);
+  }
 
 }

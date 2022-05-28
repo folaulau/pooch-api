@@ -46,10 +46,10 @@ public class LocalAwsConfig {
         return AmazonS3ClientBuilder.standard().withCredentials(amazonAWSCredentialsProvider()).withRegion(getTargetRegion()).build();
     }
 
-    @Bean
-    public AmazonSimpleEmailService amazonSES() {
-        return AmazonSimpleEmailServiceClientBuilder.standard().withCredentials(amazonAWSCredentialsProvider()).withRegion(Regions.US_WEST_2).build();
-    }
+//    @Bean
+//    public AmazonSimpleEmailService amazonSES() {
+//        return AmazonSimpleEmailServiceClientBuilder.standard().withCredentials(amazonAWSCredentialsProvider()).withRegion(Regions.US_WEST_2).build();
+//    }
 
     @Bean
     public AWSSecretsManager awsSecretsManager(AWSCredentialsProvider aWSCredentialsProvider) {

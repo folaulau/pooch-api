@@ -11,17 +11,23 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EmailTemplateDAOImp implements EmailTemplateDAO {
 
-    @Autowired
-    private EmailTemplateRepository emailTemplateRepository;
+  @Autowired
+  private EmailTemplateRepository emailTemplateRepository;
 
-    @Override
-    public EmailTemplate save(EmailTemplate emailTemplate) {
-        return emailTemplateRepository.saveAndFlush(emailTemplate);
-    }
+  @Override
+  public EmailTemplate save(EmailTemplate emailTemplate) {
+    return emailTemplateRepository.saveAndFlush(emailTemplate);
+  }
 
-    @Override
-    public Optional<EmailTemplate> getByUuid(EmailTemplateUuid uuid) {
-        return emailTemplateRepository.findByUuid(uuid);
-    }
+  @Override
+  public Optional<EmailTemplate> getByUuid(EmailTemplateUuid uuid) {
+    return emailTemplateRepository.findByUuid(uuid);
+  }
+
+  @Override
+  public Optional<EmailTemplate> getByNotificationId(long notificationId) {
+    // TODO Auto-generated method stub
+    return emailTemplateRepository.findByNotificationId(notificationId);
+  }
 
 }
