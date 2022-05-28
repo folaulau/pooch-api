@@ -45,6 +45,9 @@ public class EmailSenderServiceImp implements EmailSenderService {
 
   private String poochfolioPersonal = "Poochfolio";
 
+  @Value("${spring.profiles.active}")
+  private String env;
+
   /**
    * Send Mail subject,body, and recipient email
    * 
@@ -63,6 +66,10 @@ public class EmailSenderServiceImp implements EmailSenderService {
   @Override
   public DeliveryStatus sendEmail(Email email, UserType userType) throws SMTPSendFailedException {
     log.debug("Sending email");
+
+    if (env.equalsIgnoreCase("github")) {
+      return new DeliveryStatus(false, DeliveryStatus.NOT_DELIVERED);
+    }
 
     String sendTo = null;
     String subject = null;
