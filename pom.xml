@@ -195,7 +195,20 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 	</dependencies>
-
+	
+	<distributionManagement>
+		<repository>
+			<id>pooch-api-repo-release</id>
+			<name>Pooch API Repo S3 Release Repository</name>
+			<url>s3://repo.poochapp.com/release</url>
+		</repository>
+		<snapshotRepository>
+			<id>pooch-api-repo-snapshot</id>
+			<name>Pooch API Repo Snapshot Repository</name>
+			<url>s3://repo.poochapp.com/snapshot</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
 	<build>
 		<plugins>
 			<plugin>

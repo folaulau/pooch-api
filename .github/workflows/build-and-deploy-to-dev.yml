@@ -68,6 +68,61 @@ jobs:
           aws-region: us-west-2
           mask-aws-account-id: 'no'
           
+      - name: Set up maven settings.xml
+        uses: whelk-io/maven-settings-xml-action@v18
+        with:
+          repositories: >
+            [
+              {
+                "id": "repo.poochapi.snapshot",
+                "name": "repo.poochapi.snapshot",
+                "url": "s3://repo.poochapp.com/snapshot",
+                "releases": {
+                  "enabled": "false"
+                },
+                "snapshots": {
+                  "enabled": "true"
+                }
+              },
+              {
+                "id": "repo.poochapi.release",
+                "name": "repo.poochapi.release",
+                "url": "s3://repo.poochapp.com/release",
+                "releases": {
+                  "enabled": "true"
+                },
+                "snapshots": {
+                  "enabled": "false"
+                }
+              }
+            ]
+          profiles: >
+            [
+              {
+                "id": "allow-snapshots",
+                "activation": {
+                  "activeByDefault": true
+                }
+              }
+            ]
+          servers: >
+            [
+              {
+                "id": "repo.sidecarhealth.snapshot",
+                "username": "${{ secrets.AWS_ACCESS_KEY_ID }}",
+                "password": "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+              },
+              {
+                "id": "repo.sidecarhealth.release",
+                "username": "${{ secrets.AWS_ACCESS_KEY_ID }}",
+                "password": "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+              }
+            ]
+            
+      - name: Build Package and Release (No Test)
+        run: |
+          mvn -B clean release:prepare release:perform -U -DskipTests=true
+          
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
