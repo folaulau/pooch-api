@@ -60,7 +60,7 @@ public class V3__ntc_add_parent_welcome_notification extends BaseJavaMigration {
         "(id, uuid, content, subject, created_by_user, last_updated_by_user, deleted, notification_id, created_at, updated_at) ");
     queryBuilder.append("VALUES ");
     queryBuilder.append("(" + emailTemplateId
-        + ", 'WELCOME_PARENT_EMAIL', '<h1>Welcome</>', 'Welcome To Poochapp', 'system', 'system', false, ");
+        + ", 'WELCOME_PARENT_EMAIL', '<div>Welcome to Poochapp. We are here to serve your needs and find groomers that serve what you are looking for. <div/>', 'Welcome To Poochapp', 'system', 'system', false, ");
     queryBuilder.append(notificationId);
     queryBuilder.append(", '2022-05-28 00:37:08.738098', '2022-05-28 00:37:08.738098')");
 

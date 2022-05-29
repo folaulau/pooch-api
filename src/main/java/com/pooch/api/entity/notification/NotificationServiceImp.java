@@ -2,6 +2,7 @@ package com.pooch.api.entity.notification;
 
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.notification.email.EmailService;
@@ -23,6 +24,7 @@ public class NotificationServiceImp implements NotificationService {
   @Autowired
   private PushNotificationService pushNotificationService;
 
+  @Async
   @Override
   public void sendWelcomeNotificationToGroomer(Groomer groomer) {
 
@@ -30,7 +32,7 @@ public class NotificationServiceImp implements NotificationService {
 
     log.info("ntc={}", ntc.toJson());
 
-    java.util.Map<String, String> data = Map.of("", "");
+    java.util.Map<String, String> data = Map.of("name", groomer.getFullName());
 
     if (ntc.getEmail() != null && ntc.getEmail() == true) {
       emailService.send(groomer, ntc, data);
@@ -42,13 +44,14 @@ public class NotificationServiceImp implements NotificationService {
 
   }
 
+  @Async
   @Override
   public void sendWelcomeNotificationToParent(Parent parent) {
     Notification ntc = notificationRepository.findByUuid(NotificationUuid.WELCOME_PARENT).get();
 
     log.info("ntc={}", ntc.toJson());
 
-    java.util.Map<String, String> data = Map.of("", "");
+    java.util.Map<String, String> data = Map.of("name", parent.getFullName());
 
     if (ntc.getEmail() != null && ntc.getEmail() == true) {
       emailService.send(parent, ntc, data);
