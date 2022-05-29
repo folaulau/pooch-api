@@ -49,7 +49,7 @@ jobs:
 
       - name: Build with maven
         run: |
-          mvn -Daws.access.key=${{ secrets.AWS_ACCESS_KEY_ID }} -Daws.secret.key=${{ secrets.AWS_SECRET_ACCESS_KEY }} -Dstripe.secret.key=${{ secrets.STRIPE_SECRET_KEY }} -Dstripe.publishable.key=${{ secrets.STRIPE_PUBLISHABLE_KEY }} -Dfirebase.web.api.key=${{ secrets.DEV_FIREBASE_WEB_API_KEY }} -Dspring.profiles.active=github clean package
+          mvn -Daws.access.key=${{ secrets.AWS_ACCESS_KEY_ID }} -Daws.secret.key=${{ secrets.AWS_SECRET_ACCESS_KEY }} -Dstripe.secret.key=${{ secrets.STRIPE_SECRET_KEY }} -Dstripe.publishable.key=${{ secrets.STRIPE_PUBLISHABLE_KEY }} -Dfirebase.web.api.key=${{ secrets.DEV_FIREBASE_WEB_API_KEY }} -Dspring.profiles.active=github clean deploy 
         env:
           database.url: postgres://${{ env.POSTGRESQL_USER }}:${{ env.POSTGRESQL_PASSWORD }}@host.docker.internal:5432/${{ env.POSTGRESQL_DB }}
           database.username: ${{ env.POSTGRESQL_USER }}
@@ -67,61 +67,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
           mask-aws-account-id: 'no'
-          
-      - name: Set up maven settings.xml
-        uses: whelk-io/maven-settings-xml-action@v18
-        with:
-          repositories: >
-            [
-              {
-                "id": "repo.poochapi.snapshot",
-                "name": "repo.poochapi.snapshot",
-                "url": "s3://repo.poochapp.com/snapshot",
-                "releases": {
-                  "enabled": "false"
-                },
-                "snapshots": {
-                  "enabled": "true"
-                }
-              },
-              {
-                "id": "repo.poochapi.release",
-                "name": "repo.poochapi.release",
-                "url": "s3://repo.poochapp.com/release",
-                "releases": {
-                  "enabled": "true"
-                },
-                "snapshots": {
-                  "enabled": "false"
-                }
-              }
-            ]
-          profiles: >
-            [
-              {
-                "id": "allow-snapshots",
-                "activation": {
-                  "activeByDefault": true
-                }
-              }
-            ]
-          servers: >
-            [
-              {
-                "id": "repo.sidecarhealth.snapshot",
-                "username": "${{ secrets.AWS_ACCESS_KEY_ID }}",
-                "password": "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-              },
-              {
-                "id": "repo.sidecarhealth.release",
-                "username": "${{ secrets.AWS_ACCESS_KEY_ID }}",
-                "password": "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-              }
-            ]
-            
-      - name: Build Package and Release (No Test)
-        run: |
-          mvn -B clean deploy -U -DskipTests=true
           
       - name: Login to Amazon ECR
         id: login-ecr
