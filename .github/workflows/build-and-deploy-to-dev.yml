@@ -121,7 +121,7 @@ jobs:
             
       - name: Build Package and Release (No Test)
         run: |
-          mvn -B clean release:prepare release:perform -U -DskipTests=true
+          mvn -B clean deploy -U -DskipTests=true
           
       - name: Login to Amazon ECR
         id: login-ecr
