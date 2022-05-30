@@ -53,7 +53,7 @@ public class V4__ntc_add_groomer_new_booking_notification extends BaseJavaMigrat
         "(id, uuid, content, subject, send_to_user, created_by_user, last_updated_by_user, deleted, notification_id, created_at, updated_at) ");
     queryBuilder.append("VALUES ");
     queryBuilder.append("(" + emailTemplateId
-        + ", 'GROOMER_NEW_BOOKING_EMAIL', '<div>You have a new booking.<div/>', 'New Booking', 'Groomer', 'system', 'system', false, ");
+        + ", 'GROOMER_NEW_BOOKING_EMAIL', '<div>You have a new booking. {{details}}<div/>', 'New Booking', 'Groomer', 'system', 'system', false, ");
     queryBuilder.append(notificationId);
     queryBuilder.append(", NOW(), NOW())");
 
@@ -74,7 +74,7 @@ public class V4__ntc_add_groomer_new_booking_notification extends BaseJavaMigrat
         "(id, uuid, content, subject, send_to_user, created_by_user, last_updated_by_user, deleted, notification_id, created_at, updated_at) ");
     queryBuilder.append("VALUES ");
     queryBuilder.append("(" + emailTemplateId
-        + ", 'PARENT_NEW_BOOKING_EMAIL', '<div>Details of your booking {{details}}.<div/>', 'New Booking Details', 'Parent', 'system', 'system', false, ");
+        + ", 'PARENT_NEW_BOOKING_EMAIL', '<div>Thank for booking with us.<div/>', 'New Booking Details', 'Parent', 'system', 'system', false, ");
     queryBuilder.append(notificationId);
     queryBuilder.append(", NOW(), NOW())");
 
