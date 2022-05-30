@@ -240,7 +240,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
         paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
 
     /**
-     * validate booking fees
+     * ============= Booking Cost Details ================
      */
     if (dropOffCost != null && dropOffCost >= 0) {
       totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(dropOffCost));
@@ -253,6 +253,12 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
     totalBookingCost = totalBookingCost.add(calculatedBookingCost);
 
     totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(costDetails.getBookingFee()));
+
+    totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(costDetails.getStripeFee()));
+
+    /**
+     * ============= Booking Cost Details Ends ================
+     */
 
     System.out.println("totalBookingCost: " + totalBookingCost.doubleValue());
 
@@ -267,10 +273,11 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
         throw new ApiException("Incorrect payment value",
             "today's charge: " + costDetails.getTotalChargeAtBooking(),
             "today's charge should be: " + totalBookingCost.doubleValue(),
-            "formula: bookingCost + bookingFee + stripeFee",
+            "formula: bookingCost + bookingFee + stripeFee + dropOffCost + pickUpCost",
             "calculated bookingCost: " + calculatedBookingCost.doubleValue(),
             "bookingFee: " + costDetails.getBookingFee(),
-            "stripeFee: " + costDetails.getStripeFee());
+            "stripeFee: " + costDetails.getStripeFee(), "pickUpCost: " + pickUpCost,
+            "dropOffCost: " + dropOffCost, "numberOfDays: " + numberOfDays);
       }
 
       if (costDetails.getTotalChargeAtDropOff() != null
