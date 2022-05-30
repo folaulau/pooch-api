@@ -87,7 +87,7 @@ public class BookingServiceImp implements BookingService {
         stripePaymentIntentService.getById(bookingCreateDTO.getPaymentIntentId());
 
     log.info("paymentIntent={}", paymentIntent.toJson());
-
+    
     Optional<PaymentMethod> optPaymentMethod =
         paymentMethodDAO.getByParentIdAndStripeId(parent.getId(), paymentIntent.getPaymentMethod());
 

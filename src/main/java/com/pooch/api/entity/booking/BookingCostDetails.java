@@ -23,17 +23,19 @@ public class BookingCostDetails implements Serializable {
   private static final long serialVersionUID = 1L;
 
   /**
-   * cost of the booking
+   * cost of the booking<br>
+   * all service costs for all the days
    */
   private Double bookingCost;
 
   /**
-   * Pooch fee
+   * Pooch fee. Flat fee taken by Pooch Platform
    */
   private Double bookingFee;
 
   /**
-   * stripe fee on charge
+   * stripe fee on charge<br>
+   * 2.9% of bookingCost + 30 cents which is charged to the parent<br>
    */
   private Double stripeFee;
 
@@ -48,7 +50,8 @@ public class BookingCostDetails implements Serializable {
   private Double totalChargeAtDropOff;
 
   /**
-   * total cost of booking
+   * total cost of booking<br>
+   * bookingCost + bookingFee + stripeFee
    */
   private Double totalAmount;
 

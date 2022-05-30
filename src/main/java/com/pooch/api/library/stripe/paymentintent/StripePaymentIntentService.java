@@ -10,18 +10,24 @@ import com.stripe.model.PaymentIntentCollection;
 
 public interface StripePaymentIntentService {
 
-    PaymentIntent getById(String paymentIntentId);
+  PaymentIntent getById(String paymentIntentId);
 
-//    PaymentIntentDTO createQuestPaymentIntent(PaymentIntentQuestCreateDTO paymentIntentCreateDTO);
+  PaymentIntent confirm(String paymentIntentId);
 
-//    PaymentIntentDTO updateQuestPaymentIntent(PaymentIntentQuestCreateDTO paymentIntentQuestUpdateDTO);
+  PaymentIntent confirm(PaymentIntent paymentIntent);
 
-    PaymentIntentCollection getPaymentIntentsByCustomerId(String customerId, long limit, String startingAfter);
+  // PaymentIntentDTO createQuestPaymentIntent(PaymentIntentQuestCreateDTO paymentIntentCreateDTO);
 
-    boolean transferFundsToGroomer(PaymentIntent paymentIntent, Groomer groomer);
+  // PaymentIntentDTO updateQuestPaymentIntent(PaymentIntentQuestCreateDTO
+  // paymentIntentQuestUpdateDTO);
 
-    PaymentIntentDTO createParentPaymentIntent(PaymentIntentParentCreateDTO paymentIntentParentDTO);
+  PaymentIntentCollection getPaymentIntentsByCustomerId(String customerId, long limit,
+      String startingAfter);
 
-    PaymentIntentDTO updateParentPaymentIntent(PaymentIntentParentCreateDTO paymentIntentParentDTO);
+  boolean transferFundsToGroomer(PaymentIntent paymentIntent, Groomer groomer);
+
+  PaymentIntentDTO createParentPaymentIntent(PaymentIntentParentCreateDTO paymentIntentParentDTO);
+
+  PaymentIntentDTO updateParentPaymentIntent(PaymentIntentParentCreateDTO paymentIntentParentDTO);
 
 }

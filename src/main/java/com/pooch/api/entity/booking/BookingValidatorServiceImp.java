@@ -61,7 +61,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
   public void validateBook(BookingCreateDTO bookingCreateDTO) {
 
     String parentUuid = bookingCreateDTO.getParentUuid();
-    
+
     if (parentUuid == null || parentUuid.trim().isEmpty()) {
       throw new ApiException(ApiError.DEFAULT_MSG, "parent.uuid is required");
     }
@@ -145,6 +145,8 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
     Set<PoochBookingCreateDTO> petCreateDTOs = bookingCreateDTO.getPooches();
 
     BigDecimal totalBookingCost = BigDecimal.valueOf(0.0);
+    BigDecimal calculatedBookingCost = BigDecimal.valueOf(0.0);
+
 
     if (petCreateDTOs == null || petCreateDTOs.size() <= 0) {
       throw new ApiException(ApiError.DEFAULT_MSG, "Add a pooch", "pooches are empty");
@@ -201,19 +203,11 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
 
         System.out.println("careServicePrice: " + careServicePrice);
 
-        totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(careServicePrice));
+        calculatedBookingCost = calculatedBookingCost.add(BigDecimal.valueOf(careServicePrice));
 
       }
 
 
-    }
-
-    if (dropOffCost != null && dropOffCost >= 0) {
-      totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(dropOffCost));
-    }
-
-    if (pickUpCost != null && pickUpCost >= 0) {
-      totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(pickUpCost));
     }
 
     String paymentIntentId = bookingCreateDTO.getPaymentIntentId();
@@ -248,7 +242,53 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
     /**
      * validate booking fees
      */
+    if (dropOffCost != null && dropOffCost >= 0) {
+      totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(dropOffCost));
+    }
+
+    if (pickUpCost != null && pickUpCost >= 0) {
+      totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(pickUpCost));
+    }
+
+    totalBookingCost = totalBookingCost.add(calculatedBookingCost);
+
+    totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(costDetails.getBookingFee()));
+
     System.out.println("totalBookingCost: " + totalBookingCost.doubleValue());
+
+    if (groomer.isStripeReady()) {
+      /**
+       * totalChargeAtBooking = all<br>
+       * totalChargeAtDropOff = 0<br>
+       * bookingCost + bookingFee + stripeFee <br>
+       */
+
+      if (!costDetails.getTotalChargeAtBooking().equals(totalBookingCost.doubleValue())) {
+        throw new ApiException("Incorrect payment value",
+            "today's charge: " + costDetails.getTotalChargeAtBooking(),
+            "today's charge should be: " + totalBookingCost.doubleValue(),
+            "formula: bookingCost + bookingFee + stripeFee",
+            "calculated bookingCost: " + calculatedBookingCost.doubleValue(),
+            "bookingFee: " + costDetails.getBookingFee(),
+            "stripeFee: " + costDetails.getStripeFee());
+      }
+
+      if (costDetails.getTotalChargeAtDropOff() != null
+          && costDetails.getTotalChargeAtDropOff().equals(0D)) {
+        throw new ApiException("Incorrect payment value",
+            "TotalChargeAtDropOff should be 0 but it's " + costDetails.getTotalChargeAtDropOff());
+      }
+
+
+    } else {
+      /**
+       * booking fee
+       */
+      if (!costDetails.getBookingFee().equals(costDetails.getTotalChargeAtBooking())) {
+        throw new ApiException(ApiError.DEFAULT_MSG,
+            "today's charge should be just the booking fee");
+      }
+    }
 
 
   }
