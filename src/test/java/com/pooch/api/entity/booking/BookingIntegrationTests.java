@@ -10,6 +10,7 @@ import javax.servlet.Filter;
 import javax.transaction.Transactional;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,7 +119,8 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
   /**
    * First time parent makes a booking
    */
-  // @Transactional
+  @Disabled
+  @Transactional
   @Test
   void itShouldMakeBooking_first_time_valid() throws Exception {
     // Given
@@ -146,7 +148,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
     ParentCreateUpdateDTO petParentDTO =
         entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
 
-    bookingCreateDTO.setParentUuid(petParentDTO.getUuid());   
+    bookingCreateDTO.setParentUuid(petParentDTO.getUuid());
     bookingCreateDTO.setAgreedToContracts(true);
 
     bookingCreateDTO.setPaymentIntentId(paymentIntent.getId());
@@ -212,6 +214,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
    * 
    * @throws Exception
    */
+  @Disabled
   @Transactional
   @Test
   void itShouldMakeBooking_second_time_valid() throws Exception {
@@ -240,7 +243,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
     ParentCreateUpdateDTO petParentDTO =
         entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
 
-    bookingCreateDTO.setParentUuid(petParentDTO.getUuid());  
+    bookingCreateDTO.setParentUuid(petParentDTO.getUuid());
 
     bookingCreateDTO.setAgreedToContracts(true);
 
