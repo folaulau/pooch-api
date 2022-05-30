@@ -883,52 +883,55 @@
     - role: anonymous
       permission:
         columns:
-          - groomer_id
-          - id
-          - parent_id
+          - created_at
           - deleted
-          - is_public
           - file_name
           - file_type
+          - groomer_id
+          - id
+          - is_public
+          - main_profile_image
+          - parent_id
           - s3_key
-          - uuid
-          - url
-          - created_at
           - updated_at
+          - url
+          - uuid
         filter: {}
     - role: groomer
       permission:
         columns:
-          - groomer_id
-          - id
-          - parent_id
+          - created_at
           - deleted
-          - is_public
           - file_name
           - file_type
+          - groomer_id
+          - id
+          - is_public
+          - main_profile_image
+          - parent_id
           - s3_key
-          - uuid
-          - url
-          - created_at
           - updated_at
+          - url
+          - uuid
         filter:
           groomer_id:
             _eq: x-Hasura-groomer-id
     - role: parent
       permission:
         columns:
-          - groomer_id
-          - id
-          - parent_id
+          - created_at
           - deleted
-          - is_public
           - file_name
           - file_type
+          - groomer_id
+          - id
+          - is_public
+          - main_profile_image
+          - parent_id
           - s3_key
-          - uuid
-          - url
-          - created_at
           - updated_at
+          - url
+          - uuid
         filter: {}
 - table:
     schema: public
