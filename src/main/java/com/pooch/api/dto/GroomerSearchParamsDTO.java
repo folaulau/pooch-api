@@ -13,12 +13,14 @@ import org.springframework.data.domain.Sort.Order;
 import com.pooch.api.entity.pooch.PoochSize;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /*
  * Groomer search filters and sorts
  */
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

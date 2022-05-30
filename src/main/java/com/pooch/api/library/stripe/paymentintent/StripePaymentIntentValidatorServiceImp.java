@@ -138,7 +138,7 @@ public class StripePaymentIntentValidatorServiceImp implements StripePaymentInte
 
         String paymentMethodUuid = paymentIntentParentDTO.getPaymentMethodUuid();
 
-        if (paymentMethodUuid != null || !paymentMethodUuid.trim().isEmpty()) {
+        if (paymentMethodUuid != null && !paymentMethodUuid.trim().isEmpty()) {
             PaymentMethod paymentMethod = paymentMethodDAO.getByUuid(paymentMethodUuid).orElseThrow(() -> new ApiException(ApiError.DEFAULT_MSG, "PaymentMethod not found for uuid=" + paymentMethodUuid));
 
             if (paymentMethod.getParent() == null || !paymentMethod.getParent().getId().equals(parent.getId())) {

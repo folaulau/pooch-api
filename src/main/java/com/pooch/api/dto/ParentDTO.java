@@ -37,36 +37,38 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 public class ParentDTO implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private Long              id;
+  private Long id;
 
-    private String            uuid;
+  private String uuid;
 
-    private String            fullName;
+  private String fullName;
 
-    private String            email;
+  private String email;
 
-    private Boolean           emailVerified;
+  private Boolean emailVerified;
 
-    private boolean           emailTemp;
+  private boolean emailTemp;
 
-    private ParentStatus      status;
+  private ParentStatus status;
 
-    private Integer           countryCode;
+  private Integer countryCode;
 
-    private Long              phoneNumber;
+  private Long phoneNumber;
 
-    private Double            rating;
+  private Double rating;
 
-    private Boolean           phoneNumberVerified;
+  private Boolean phoneNumberVerified;
 
-    private LocalDateTime     createdAt;
+  private LocalDateTime createdAt;
 
-    private LocalDateTime     lastUpdatedAt;
+  private LocalDateTime lastUpdatedAt;
 
-    private AddressDTO        address;
+  private AddressDTO address;
 
-    private List<PoochDTO>    pooches;
+  private List<PoochDTO> pooches;
+
+  private List<PaymentMethodDTO> paymentMethods;
 
 }
