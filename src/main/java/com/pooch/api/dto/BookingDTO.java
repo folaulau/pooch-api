@@ -41,7 +41,11 @@ public class BookingDTO implements Serializable {
 
   private LocalDateTime pickUpDateTime;
 
+  private Double pickUpCost;
+
   private LocalDateTime dropOffDateTime;
+
+  private Double dropOffCost;
 
   private LocalDateTime startDateTime;
 
@@ -58,5 +62,7 @@ public class BookingDTO implements Serializable {
   private Double totalChargeAtBooking;
 
   private Double totalChargeAtDropOff;
+
+  private Set<TransactionDTO> transactions;
 
 }

@@ -24,6 +24,7 @@ public class TransactionServiceImp implements TransactionService {
         transaction.setStripeFee(costDetails.getStripeFee());
         transaction.setTotalChargeAtDropOff(costDetails.getTotalChargeAtDropOff());
         transaction.setTotalChargeAtBooking(costDetails.getTotalChargeAtBooking());
+        transaction.setBooking(booking);
 
         return transactionDAO.save(transaction);
     }
