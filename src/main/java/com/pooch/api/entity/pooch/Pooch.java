@@ -61,99 +61,106 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 @DynamicUpdate
 @Entity
-@SQLDelete(sql = "UPDATE " + DatabaseTableNames.Pooch + " SET deleted = 'T' WHERE id = ?", check = ResultCheckStyle.NONE)
+@SQLDelete(sql = "UPDATE " + DatabaseTableNames.Pooch + " SET deleted = 'T' WHERE id = ?",
+    check = ResultCheckStyle.NONE)
 @Where(clause = "deleted = 'F'")
-@Table(name = DatabaseTableNames.Pooch, indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
+@Table(name = DatabaseTableNames.Pooch,
+    indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
 public class Pooch implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, updatable = false, unique = true)
-    private Long              id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id", nullable = false, updatable = false, unique = true)
+  private Long id;
 
-    @Column(name = "uuid", unique = true, nullable = false, updatable = false)
-    private String            uuid;
+  @Column(name = "uuid", unique = true, nullable = false, updatable = false)
+  private String uuid;
 
-    @Column(name = "full_name")
-    private String            fullName;
+  @Column(name = "full_name")
+  private String fullName;
 
-    @Column(name = "breed")
-    private String            breed;
+  @Column(name = "breed")
+  private String breed;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "gender")
-    private Gender            gender;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "gender")
+  private Gender gender;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "training")
-    private Training          training;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "training")
+  private Training training;
 
-    @ElementCollection
-    @CollectionTable(name = "pooch_food_schedule", joinColumns = {@JoinColumn(name = "pooch_id")})
-    private Set<FoodSchedule> foodSchedule;
+  @ElementCollection
+  @CollectionTable(name = "pooch_food_schedule", joinColumns = {@JoinColumn(name = "pooch_id")})
+  private Set<FoodSchedule> foodSchedule;
 
-    @Column(name = "dob")
-    private LocalDate         dob;
+  @Column(name = "dob")
+  private LocalDate dob;
 
-    @Column(name = "weight")
-    private Double            weight;
+  @Column(name = "weight")
+  private Double weight;
 
-    @Column(name = "spayed")
-    private Boolean           spayed;
+  @Column(name = "spayed")
+  private Boolean spayed;
 
-    @Column(name = "neutered")
-    private Boolean           neutered;
+  @Column(name = "neutered")
+  private Boolean neutered;
 
-    @Lob
-    @Type(type = "org.hibernate.type.TextType")
-    @Column(name = "notes")
-    private String            notes;
+  @Lob
+  @Type(type = "org.hibernate.type.TextType")
+  @Column(name = "notes")
+  private String notes;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "pooch_id")
-    private Set<Vaccine>      vaccines;
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JoinColumn(name = "pooch_id")
+  private Set<Vaccine> vaccines;
 
-    @ManyToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name = "parent_id")
-    private Parent            parent;
+  @ManyToOne(cascade = CascadeType.DETACH)
+  @JoinColumn(name = "parent_id")
+  private Parent parent;
 
-    @JsonIgnoreProperties(value = {"pooches"})
-    @ManyToMany(mappedBy = "pooches")
-    private Set<Booking>      bookings;
+  @JsonIgnoreProperties(value = {"pooches"})
+  @ManyToMany(mappedBy = "pooches")
+  private Set<Booking> bookings;
 
-    @Column(name = "deleted", nullable = false)
-    private boolean           deleted;
+  @Column(name = "deleted", nullable = false)
+  private boolean deleted;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime     createdAt;
+  @CreationTimestamp
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime     updatedAt;
+  @UpdateTimestamp
+  @Column(name = "updated_at", nullable = false)
+  private LocalDateTime updatedAt;
 
-    public void addFoodSchedule(FoodSchedule fSchedule) {
-        if (this.foodSchedule == null) {
-            this.foodSchedule = new HashSet<>();
-        }
-        this.foodSchedule.add(fSchedule);
+  public void addFoodSchedule(FoodSchedule fSchedule) {
+    if (this.foodSchedule == null) {
+      this.foodSchedule = new HashSet<>();
+    }
+    this.foodSchedule.add(fSchedule);
+  }
+
+  public void addVaccine(Vaccine vaccine) {
+    if (this.vaccines == null) {
+      this.vaccines = new HashSet<>();
+    }
+    this.vaccines.add(vaccine);
+  }
+
+  @Column(name = "size")
+  public String getSize() {
+    return PoochSize.getSizeByWeight(weight);
+  }
+
+  @PrePersist
+  private void preCreate() {
+    if (this.uuid == null || this.uuid.isEmpty()) {
+      this.uuid = "pet-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
     }
 
-    public void addVaccine(Vaccine vaccine) {
-        if (this.vaccines == null) {
-            this.vaccines = new HashSet<>();
-        }
-        this.vaccines.add(vaccine);
-    }
-
-    @PrePersist
-    private void preCreate() {
-        if (this.uuid == null || this.uuid.isEmpty()) {
-            this.uuid = "pet-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
-        }
-
-    }
+  }
 
 }

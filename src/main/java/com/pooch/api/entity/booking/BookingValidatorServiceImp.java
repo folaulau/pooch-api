@@ -128,13 +128,19 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
     int numberOfDays = 0;
 
     LocalDateTime countFromStartDateTime = startDateTime;
+    
+    System.out.println("startDateTime: " + startDateTime);
+    System.out.println("endDateTime: " + endDateTime);
 
     do {
 
       numberOfDays++;
       countFromStartDateTime = countFromStartDateTime.plusDays(1);
+      
+      System.out.println("startDateTime: " + startDateTime);
+      System.out.println("endDateTime: " + endDateTime);
 
-    } while (countFromStartDateTime.isAfter(endDateTime));
+    } while (countFromStartDateTime.isBefore(endDateTime));
 
     System.out.println("numberOfDays: " + numberOfDays);
 

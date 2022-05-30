@@ -148,7 +148,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
     ParentCreateUpdateDTO petParentDTO =
         entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
 
-    bookingCreateDTO.setParentUuid(petParentDTO.getUuid());
+    bookingCreateDTO.setParentUuid(petParentDTO.getUuid());   
     bookingCreateDTO.setAgreedToContracts(true);
 
     bookingCreateDTO.setPaymentIntentId(paymentIntent.getId());
@@ -243,7 +243,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
     ParentCreateUpdateDTO petParentDTO =
         entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
 
-    bookingCreateDTO.setParentUuid(petParentDTO.getUuid());
+    bookingCreateDTO.setParentUuid(petParentDTO.getUuid());  
 
     bookingCreateDTO.setAgreedToContracts(true);
 
