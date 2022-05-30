@@ -30,7 +30,7 @@ public class ParentDataLoader implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        long lastParentId = 5;
+        long lastParentId = 20;
 
         Optional<Parent> optParent = parentRepository.findById(lastParentId);
 

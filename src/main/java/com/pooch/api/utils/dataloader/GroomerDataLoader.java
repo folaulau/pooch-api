@@ -150,7 +150,8 @@ public class GroomerDataLoader implements ApplicationRunner {
         contract.setUrl(
             "https://pooch-api-local.s3.us-west-2.amazonaws.com/public/contracts/groomer/30/eaa0b77c-6bf2-4f1d-87e5-1f4a4a79de62_groomer-test-contract.pdf");
         contract.setFileType(FileType.Contract_Attachment);
-        contract.setS3key("public/contracts/groomer/30/eaa0b77c-6bf2-4f1d-87e5-1f4a4a79de62_groomer-test-contract");
+        contract.setS3key(
+            "public/contracts/groomer/30/eaa0b77c-6bf2-4f1d-87e5-1f4a4a79de62_groomer-test-contract");
         contract.setIsPublic(true);
         contract.setGroomer(groomer);
 
@@ -178,7 +179,8 @@ public class GroomerDataLoader implements ApplicationRunner {
             "https://pooch-api-local.s3.us-west-2.amazonaws.com/public/profile_images/groomer/30/a9d942b0-90f5-4684-8052-3fef6e51082d_female-dog-groomer.jpeg");
         femaleProfileImage.setFileType(FileType.Profile_Image);
         femaleProfileImage.setIsPublic(true);
-        femaleProfileImage.setS3key("public/profile_images/groomer/30/a9d942b0-90f5-4684-8052-3fef6e51082d_female-dog-groomer");
+        femaleProfileImage.setS3key(
+            "public/profile_images/groomer/30/a9d942b0-90f5-4684-8052-3fef6e51082d_female-dog-groomer");
         femaleProfileImage.setGroomer(savedGroomer);
 
         S3File maleProfileImage = new S3File();
@@ -187,12 +189,15 @@ public class GroomerDataLoader implements ApplicationRunner {
             "https://pooch-api-local.s3.us-west-2.amazonaws.com/public/profile_images/groomer/30/2093eaef-df0e-4d99-96f9-b2720db207b0_male-dog-groomer.jpeg");
         maleProfileImage.setFileType(FileType.Profile_Image);
         maleProfileImage.setIsPublic(true);
-        maleProfileImage.setS3key("public/profile_images/groomer/30/2093eaef-df0e-4d99-96f9-b2720db207b0_male-dog-groomer");
+        maleProfileImage.setS3key(
+            "public/profile_images/groomer/30/2093eaef-df0e-4d99-96f9-b2720db207b0_male-dog-groomer");
         maleProfileImage.setGroomer(savedGroomer);
 
 
         S3File profileImage = Arrays.asList(femaleProfileImage, maleProfileImage)
             .get(RandomGeneratorUtils.getIntegerWithin(0, 1));
+
+        profileImage.setMainProfileImage(true);
 
         try {
 

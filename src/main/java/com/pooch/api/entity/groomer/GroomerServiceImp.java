@@ -192,7 +192,7 @@ public class GroomerServiceImp implements GroomerService {
       log.info("groomer={}", ObjectUtils.toJson(groomer));
 
       groomer = groomerDAO.save(groomer);
-      
+
       notificationService.sendWelcomeNotificationToGroomer(groomer);
     }
 
@@ -438,8 +438,10 @@ public class GroomerServiceImp implements GroomerService {
   public List<S3FileDTO> uploadProfileImages(String uuid, List<MultipartFile> images) {
     Groomer groomer = groomerValidatorService.validateUploadProfileImages(uuid, images);
 
-    List<S3File> s3Files = new ArrayList<>();
+    long count = s3FileDAO.getGroomerFileCount(FileType.Profile_Image, groomer.getId());
 
+    List<S3File> s3Files = new ArrayList<>();
+    int fileCount = 0;
     for (MultipartFile image : images) {
       String fileName = image.getOriginalFilename();
       String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
@@ -467,7 +469,16 @@ public class GroomerServiceImp implements GroomerService {
       s3File.setFileType(FileType.Profile_Image);
       s3File.setGroomer(groomer);
 
+      /**
+       * set first profile image as main profile image
+       */
+      if (fileCount == 0 && count == 0) {
+        s3File.setMainProfileImage(true);
+      }
+
       s3Files.add(s3File);
+
+      fileCount++;
     }
 
     if (s3Files.size() > 0) {
