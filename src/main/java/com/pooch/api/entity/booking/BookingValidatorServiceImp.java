@@ -291,7 +291,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
       }
 
       if (costDetails.getTotalChargeAtDropOff() != null
-          && (costDetails.getTotalChargeAtDropOff().equals(0.0D)
+          && !(costDetails.getTotalChargeAtDropOff().equals(0.0D)
               || costDetails.getTotalChargeAtDropOff().equals(0D))) {
         throw new ApiException("Incorrect payment value",
             "TotalChargeAtDropOff should be 0 but it's " + costDetails.getTotalChargeAtDropOff());

@@ -54,7 +54,7 @@ public interface MathUtils {
 
     // Get Two Decimal Double
     public static Double getTwoDecimalPlaces(Double value) {
-        return new BigDecimal(value).setScale(2, RoundingMode.CEILING).doubleValue();
+        return new BigDecimal(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
     public static String getTwoDecimalPlacesAsString(Double value) {
