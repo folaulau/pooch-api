@@ -136,6 +136,21 @@ public class CareService implements Serializable {
     this.largePrice = MathUtils.getTwoDecimalPlaces(largePrice);
   }
 
+  public Double getByPoochSize(String poochSize) {
+    if (poochSize == null || poochSize.trim().isEmpty()) {
+      return null;
+    }
+
+    if (poochSize.equalsIgnoreCase("small")) {
+      return this.smallPrice;
+    } else if (poochSize.equalsIgnoreCase("medium")) {
+      return this.mediumPrice;
+    } else if (poochSize.equalsIgnoreCase("large")) {
+      return this.largePrice;
+    }
+    return null;
+  }
+
   @PrePersist
   private void preCreate() {
     if (this.uuid == null || this.uuid.isEmpty()) {
@@ -144,18 +159,18 @@ public class CareService implements Serializable {
   }
 
   public Double getPriceBySize(String size) {
-      if(size==null || size.length()==0 || !PoochSize.isValidSize(size)) {
-        return null;
-      }
-      
-      if(size.equalsIgnoreCase(PoochSize.small)) {
-        return this.smallPrice;
-      }else if(size.equalsIgnoreCase(PoochSize.medium)) {
-        return this.mediumPrice;
-      } else if(size.equalsIgnoreCase(PoochSize.large)) {
-        return this.largePrice;
-      }
+    if (size == null || size.length() == 0 || !PoochSize.isValidSize(size)) {
       return null;
     }
+
+    if (size.equalsIgnoreCase(PoochSize.small)) {
+      return this.smallPrice;
+    } else if (size.equalsIgnoreCase(PoochSize.medium)) {
+      return this.mediumPrice;
+    } else if (size.equalsIgnoreCase(PoochSize.large)) {
+      return this.largePrice;
+    }
+    return null;
+  }
 
 }

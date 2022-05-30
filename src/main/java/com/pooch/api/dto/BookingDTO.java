@@ -7,7 +7,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.booking.BookingStatus;
-
+import com.pooch.api.entity.booking.careservice.BookingCareService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,7 +29,9 @@ public class BookingDTO implements Serializable {
 
   private ParentDTO parent;
 
-  private Set<PoochDTO> pooches;
+  private Set<BookingPoochDTO> pooches;
+
+  private Set<BookingCareServiceDTO> careServices;
 
   private GroomerDTO groomer;
 

@@ -9,12 +9,14 @@ public enum Authority {
     parent,
 
     groomer,
+    
+    groomer_agent,
 
     sales,
+    
+    support,
 
     engineer,
-    
-    anonymous,
 
     admin;
 

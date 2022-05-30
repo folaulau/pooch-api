@@ -27,42 +27,27 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/utils")
 public class UtilRestController {
 
-    @Autowired
-    private DataLoadService dataLoadService;
+  @Autowired
+  private DataLoadService dataLoadService;
 
-    @Autowired
-    private XApiKeyService  xApiKeyService;
+  @Autowired
+  private XApiKeyService xApiKeyService;
 
-    @Autowired
-    private JwtTokenService twtTokenService;
+  @Autowired
+  private JwtTokenService twtTokenService;
 
-    @Operation(summary = "Load Groomers To ES", description = "Reload groomers into Elasticsearch")
-    @PostMapping(value = "/load-groomers-to-es")
-    public ResponseEntity<ApiDefaultResponseDTO> loadGroomersToES(@RequestHeader(name = "x-api-key", required = true) String xApiKey) {
-        log.info("loadGroomersToES");
+  @Operation(summary = "Load Groomers To ES", description = "Reload groomers into Elasticsearch")
+  @PostMapping(value = "/load-groomers-to-es")
+  public ResponseEntity<ApiDefaultResponseDTO> loadGroomersToES(
+      @RequestHeader(name = "x-api-key", required = true) String xApiKey) {
+    log.info("loadGroomersToES");
 
-        xApiKeyService.validateForUtility(xApiKey);
+    xApiKeyService.validateForUtility(xApiKey);
 
-        ApiDefaultResponseDTO response = dataLoadService.loadGroomers();
+    ApiDefaultResponseDTO response = dataLoadService.loadGroomers();
 
-        log.info("loadGroomersToES done!");
+    log.info("loadGroomersToES done!");
 
-        return new ResponseEntity<>(response, OK);
-    }
-
-    @Operation(summary = "Generate anonymous Token", description = "Generate anonymous token to use with GraphQL. GraphQL doesn't take x-api-key so you need to generate a anonymous token using your x-api-key to be able to use it.")
-    @PostMapping(value = "/anonymous-token")
-    public ResponseEntity<AuthenticationResponseDTO> generateAnonymous(@RequestHeader(name = "x-api-key", required = true) String xApiKey) {
-        log.info("loadGroomersToES");
-
-        xApiKeyService.validate(xApiKey);
-
-        String token = twtTokenService.generateAnonymousForParent();
-
-        AuthenticationResponseDTO response = new AuthenticationResponseDTO();
-
-        response.setToken(token);
-
-        return new ResponseEntity<>(response, OK);
-    }
+    return new ResponseEntity<>(response, OK);
+  }
 }

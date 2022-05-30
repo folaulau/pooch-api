@@ -69,7 +69,7 @@ public class BookingDataLoader implements ApplicationRunner {
 
                 poochRepository.saveAndFlush(pooch);
 
-                booking.addPooch(pooch);
+//                booking.addPooch(pooch);
 
                 pooch = generatorService.getPooch();
                 pooch.setId((long)(i+2));
@@ -77,7 +77,7 @@ public class BookingDataLoader implements ApplicationRunner {
 
                 poochRepository.saveAndFlush(pooch);
 
-                booking.addPooch(pooch);
+//                booking.addPooch(pooch);
 
                 booking.setParent(Parent.builder().id(1L).build());
                 booking.setStartDateTime(LocalDateTime.now().minusDays(RandomGeneratorUtils.getLongWithin(8, 10)));

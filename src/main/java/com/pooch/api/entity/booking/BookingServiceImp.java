@@ -3,6 +3,7 @@ package com.pooch.api.entity.booking;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,13 +11,20 @@ import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.ParentCreateUpdateDTO;
 import com.pooch.api.dto.PoochBookingCreateDTO;
 import com.pooch.api.dto.BookingCancelDTO;
+import com.pooch.api.dto.BookingCareServiceCreateDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.BookingDTO;
 import com.pooch.api.dto.PoochCreateUpdateDTO;
 import com.pooch.api.dto.PoochDTO;
+import com.pooch.api.entity.booking.careservice.BookingCareService;
+import com.pooch.api.entity.booking.careservice.BookingCareServiceRepository;
+import com.pooch.api.entity.booking.pooch.BookingPooch;
+import com.pooch.api.entity.booking.pooch.BookingPoochRepository;
 import com.pooch.api.entity.booking.transaction.TransactionService;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
+import com.pooch.api.entity.groomer.careservice.CareService;
+import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentDAO;
 import com.pooch.api.entity.parent.ParentService;
@@ -44,10 +52,17 @@ public class BookingServiceImp implements BookingService {
   private EntityDTOMapper entityDTOMapper;
 
   @Autowired
+  private BookingCareServiceRepository bookingCareServiceRepository;
+
+  @Autowired
   private GroomerDAO groomerDAO;
 
   @Autowired
   private ParentDAO parentDAO;
+
+
+  @Autowired
+  private CareServiceDAO careServiceDAO;
 
   @Autowired
   private PoochDAO poochDAO;
@@ -63,6 +78,9 @@ public class BookingServiceImp implements BookingService {
 
   @Autowired
   private PaymentMethodDAO paymentMethodDAO;
+
+  @Autowired
+  private BookingPoochRepository bookingPoochRepository;
 
   @Autowired
   private StripeCustomerService stripeCustomerService;
@@ -82,12 +100,12 @@ public class BookingServiceImp implements BookingService {
     Parent parent = parentDAO.getByUuid(bookingCreateDTO.getParentUuid()).get();
 
     booking.setStripePaymentIntentId(bookingCreateDTO.getPaymentIntentId());
-    
+
     com.stripe.model.PaymentIntent paymentIntent =
         stripePaymentIntentService.getById(bookingCreateDTO.getPaymentIntentId());
 
     log.info("paymentIntent={}", paymentIntent.toJson());
-    
+
     Optional<PaymentMethod> optPaymentMethod =
         paymentMethodDAO.getByParentIdAndStripeId(parent.getId(), paymentIntent.getPaymentMethod());
 
@@ -139,17 +157,22 @@ public class BookingServiceImp implements BookingService {
       booking.setStatus(BookingStatus.Pending_Groomer_Approval);
     }
 
-    booking = addPoochesToBooking(booking, bookingCreateDTO.getPooches());
-
-    log.info("booking={}", ObjectUtils.toJson(booking));
-
-
     BookingCostDetails costDetails = BookingCostDetails.fromJson(
         paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
 
     booking.populateBookingCostDetails(costDetails);
 
     booking = bookingDAO.save(booking);
+
+    log.info("booking={}", ObjectUtils.toJson(booking));
+
+    booking = addPoochesToBooking(booking, bookingCreateDTO.getPooches());
+
+    log.info("booking with pooches={}", ObjectUtils.toJson(booking));
+
+    booking = bookingDAO.save(booking);
+
+    log.info("booking={}", ObjectUtils.toJson(booking));
 
     transactionService.addBookingInitialPayment(booking, costDetails);
 
@@ -161,7 +184,7 @@ public class BookingServiceImp implements BookingService {
 
   private Booking addPoochesToBooking(Booking booking, Set<PoochBookingCreateDTO> poochCreateDTOs) {
     if (poochCreateDTOs != null) {
-
+      int count = 0;
       for (PoochBookingCreateDTO petCreateDTO : poochCreateDTOs) {
         String uuid = petCreateDTO.getUuid();
 
@@ -174,8 +197,45 @@ public class BookingServiceImp implements BookingService {
           pooch = poochDAO.getByUuid(uuid).get();
         }
 
-        booking.addPooch(pooch);
+        Set<BookingCareServiceCreateDTO> requestedCareServices =
+            petCreateDTO.getRequestedCareServices();
 
+        if (count == 0) {
+          for (BookingCareServiceCreateDTO bookingCareServiceDTO : requestedCareServices) {
+
+            CareService careService =
+                careServiceDAO.getByUuid(bookingCareServiceDTO.getUuid()).get();
+
+            BookingCareService bookingCareService =
+                entityDTOMapper.mapCareServiceToBookingCareService(careService);
+
+            bookingCareService.setBooking(booking);
+            bookingCareService
+                .setPrice(careService.getByPoochSize(bookingCareServiceDTO.getSize()));
+            bookingCareService.setSize(bookingCareServiceDTO.getSize());
+
+            bookingCareService = bookingCareServiceRepository.saveAndFlush(bookingCareService);
+
+            booking.addCareService(bookingCareService);
+          }
+        }
+
+
+        BookingPooch bookingPooch = entityDTOMapper.mapPoochToBookingPooch(pooch);
+        bookingPooch.setBooking(booking);
+        
+        bookingPooch.setVaccines(bookingPooch.getVaccines().stream().map(vaccine -> {
+          vaccine.setId(null);
+          return vaccine;
+        }).collect(Collectors.toSet()));
+        
+        log.info("bookingPooch={}", ObjectUtils.toJson(bookingPooch));
+        
+        bookingPooch = bookingPoochRepository.saveAndFlush(bookingPooch);
+        
+        booking.addPooch(bookingPooch);
+
+        count++;
       }
 
     }

@@ -26,9 +26,12 @@ import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
-
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.ResultCheckStyle;
@@ -43,6 +46,9 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.elastic.repo.AddressES;
 import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.entity.DatabaseTableNames;
+import com.pooch.api.entity.address.Address;
+import com.pooch.api.entity.booking.careservice.BookingCareService;
+import com.pooch.api.entity.booking.pooch.BookingPooch;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.parent.Parent;
@@ -54,10 +60,13 @@ import com.pooch.api.entity.pooch.vaccine.Vaccine;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Builder
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
@@ -84,11 +93,20 @@ public class Booking implements Serializable {
   @JoinColumn(name = "parent_id")
   private Parent parent;
 
-  @JsonIgnoreProperties(value = {"bookings", "parent"})
-  @ManyToMany(cascade = {CascadeType.DETACH})
-  @JoinTable(name = "booking_pooches", joinColumns = @JoinColumn(name = "booking_id"),
-      inverseJoinColumns = @JoinColumn(name = "pooch_id"))
-  private Set<Pooch> pooches;
+
+  // @ManyToMany(cascade = {CascadeType.DETACH})
+  // @JoinTable(name = "booking_pooches", joinColumns = @JoinColumn(name = "booking_id"),
+  // inverseJoinColumns = @JoinColumn(name = "pooch_id"))
+  @JsonIgnoreProperties(value = {"booking"})
+  @OneToMany(cascade = {CascadeType.DETACH}, mappedBy = "booking")
+  private Set<BookingPooch> pooches;
+
+  // @OneToMany(cascade = {CascadeType.ALL})
+  // @JoinTable(name = "booking_careservices", joinColumns = @JoinColumn(name = "booking_id"),
+  // inverseJoinColumns = @JoinColumn(name = "booking_care_service_id"))
+  @JsonIgnoreProperties(value = {"booking"})
+  @OneToMany(cascade = {CascadeType.DETACH}, mappedBy = "booking")
+  private Set<BookingCareService> careServices;
 
   @ManyToOne(cascade = CascadeType.DETACH)
   @JoinColumn(name = "groomer_id")
@@ -103,6 +121,12 @@ public class Booking implements Serializable {
 
   @Column(name = "drop_off_date_time", nullable = true)
   private LocalDateTime dropOffDateTime;
+
+  @Column(name = "pick_up_cost")
+  private Double pickUpCost;
+
+  @Column(name = "drop_off_cost")
+  private Double dropOffCost;
 
   @Column(name = "start_date_time", nullable = false)
   private LocalDateTime startDateTime;
@@ -145,11 +169,18 @@ public class Booking implements Serializable {
   @Column(name = "updated_at", nullable = false)
   private LocalDateTime updatedAt;
 
-  public void addPooch(Pooch pooch) {
+  public void addPooch(BookingPooch pooch) {
     if (this.pooches == null) {
       this.pooches = new HashSet<>();
     }
     this.pooches.add(pooch);
+  }
+
+  public void addCareService(BookingCareService bookingCareService) {
+    if (this.careServices == null) {
+      this.careServices = new HashSet<>();
+    }
+    this.careServices.add(bookingCareService);
   }
 
 
@@ -160,6 +191,34 @@ public class Booking implements Serializable {
     this.setStripeFee(costDetails.getStripeFee());
     this.setTotalChargeAtBooking(costDetails.getTotalChargeAtBooking());
     this.setTotalChargeAtDropOff(costDetails.getTotalChargeAtDropOff());
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(17, 37).append(this.id).append(this.uuid).toHashCode();
+
+    // return HashCodeBuilder.reflectionHashCode(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (obj == this) {
+      return true;
+    }
+    if (obj.getClass() != getClass()) {
+      return false;
+    }
+    Booking other = (Booking) obj;
+    return new EqualsBuilder().append(this.id, other.id).append(this.uuid, other.uuid).isEquals();
+  }
+
+  @Override
+  public String toString() {
+    // TODO Auto-generated method stub
+    return ToStringBuilder.reflectionToString(this);
   }
 
   @PrePersist

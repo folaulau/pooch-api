@@ -9,26 +9,6 @@
       using:
         foreign_key_constraint_on: parent_id
   select_permissions:
-    - role: anonymous
-      permission:
-        columns:
-          - groomer_id
-          - id
-          - parent_id
-          - primary_address
-          - city
-          - country
-          - state
-          - street
-          - street2
-          - timezone
-          - uuid
-          - zipcode
-          - latitude
-          - longitude
-          - created_at
-          - updated_at
-        filter: {}
     - role: groomer
       permission:
         columns:
@@ -48,9 +28,7 @@
           - longitude
           - created_at
           - updated_at
-        filter:
-          groomer_id:
-            _eq: x-Hasura-groomer-id
+        filter: {}
     - role: parent
       permission:
         columns:
@@ -70,9 +48,47 @@
           - longitude
           - created_at
           - updated_at
-        filter:
-          parent_id:
-            _eq: x-Hasura-parent-id
+        filter: {}
+    - role: sales
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - primary_address
+          - city
+          - country
+          - state
+          - street
+          - street2
+          - timezone
+          - uuid
+          - zipcode
+          - latitude
+          - longitude
+          - created_at
+          - updated_at
+        filter: {}
+    - role: support
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - primary_address
+          - city
+          - country
+          - state
+          - street
+          - street2
+          - timezone
+          - uuid
+          - zipcode
+          - latitude
+          - longitude
+          - created_at
+          - updated_at
+        filter: {}
 - table:
     schema: public
     name: booking
@@ -84,6 +100,13 @@
       using:
         foreign_key_constraint_on: parent_id
   array_relationships:
+    - name: booking_care_services
+      using:
+        foreign_key_constraint_on:
+          column: booking_id
+          table:
+            schema: public
+            name: booking_care_services
     - name: booking_pooches
       using:
         foreign_key_constraint_on:
@@ -102,69 +125,237 @@
     - role: groomer
       permission:
         columns:
-          - booking_cost
-          - booking_fee
-          - created_at
-          - deleted
-          - drop_off_date_time
-          - end_date_time
           - groomer_id
           - id
           - parent_id
+          - payment_method_id
+          - deleted
           - payment_method_bank
           - payment_method_brand
-          - payment_method_id
           - payment_method_last4
           - payment_method_name
           - payment_method_type
           - payment_method_uuid
-          - pick_up_date_time
-          - start_date_time
           - status
-          - stripe_fee
           - stripe_payment_intent_id
           - stripe_payment_method_id
+          - uuid
+          - booking_cost
+          - booking_fee
+          - drop_off_cost
+          - pick_up_cost
+          - stripe_fee
           - total_amount
           - total_charge_at_booking
           - total_charge_at_drop_off
+          - created_at
+          - drop_off_date_time
+          - end_date_time
+          - pick_up_date_time
+          - start_date_time
           - updated_at
-          - uuid
         filter:
           groomer_id:
             _eq: x-Hasura-groomer-id
+        allow_aggregations: true
     - role: parent
       permission:
         columns:
-          - booking_cost
-          - booking_fee
-          - created_at
-          - deleted
-          - drop_off_date_time
-          - end_date_time
           - groomer_id
           - id
           - parent_id
+          - payment_method_id
+          - deleted
           - payment_method_bank
           - payment_method_brand
-          - payment_method_id
           - payment_method_last4
           - payment_method_name
           - payment_method_type
           - payment_method_uuid
-          - pick_up_date_time
-          - start_date_time
           - status
-          - stripe_fee
           - stripe_payment_intent_id
           - stripe_payment_method_id
+          - uuid
+          - booking_cost
+          - booking_fee
+          - drop_off_cost
+          - pick_up_cost
+          - stripe_fee
           - total_amount
           - total_charge_at_booking
           - total_charge_at_drop_off
+          - created_at
+          - drop_off_date_time
+          - end_date_time
+          - pick_up_date_time
+          - start_date_time
           - updated_at
-          - uuid
         filter:
           parent_id:
             _eq: x-Hasura-parent-id
+        allow_aggregations: true
+    - role: sales
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - payment_method_id
+          - deleted
+          - payment_method_bank
+          - payment_method_brand
+          - payment_method_last4
+          - payment_method_name
+          - payment_method_type
+          - payment_method_uuid
+          - status
+          - stripe_payment_intent_id
+          - stripe_payment_method_id
+          - uuid
+          - booking_cost
+          - booking_fee
+          - drop_off_cost
+          - pick_up_cost
+          - stripe_fee
+          - total_amount
+          - total_charge_at_booking
+          - total_charge_at_drop_off
+          - created_at
+          - drop_off_date_time
+          - end_date_time
+          - pick_up_date_time
+          - start_date_time
+          - updated_at
+        filter: {}
+        allow_aggregations: true
+    - role: support
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - payment_method_id
+          - deleted
+          - payment_method_bank
+          - payment_method_brand
+          - payment_method_last4
+          - payment_method_name
+          - payment_method_type
+          - payment_method_uuid
+          - status
+          - stripe_payment_intent_id
+          - stripe_payment_method_id
+          - uuid
+          - booking_cost
+          - booking_fee
+          - drop_off_cost
+          - pick_up_cost
+          - stripe_fee
+          - total_amount
+          - total_charge_at_booking
+          - total_charge_at_drop_off
+          - created_at
+          - drop_off_date_time
+          - end_date_time
+          - pick_up_date_time
+          - start_date_time
+          - updated_at
+        filter: {}
+        allow_aggregations: true
+- table:
+    schema: public
+    name: booking_care_services
+  object_relationships:
+    - name: booking
+      using:
+        foreign_key_constraint_on: booking_id
+  select_permissions:
+    - role: groomer
+      permission:
+        columns:
+          - booking_care_service_id
+          - booking_id
+          - id
+          - size
+          - uuid
+          - price
+        filter:
+          booking:
+            groomer_id:
+              _eq: x-Hasura-groomer-id
+    - role: parent
+      permission:
+        columns:
+          - booking_care_service_id
+          - booking_id
+          - id
+          - size
+          - uuid
+          - price
+        filter:
+          booking:
+            parent_id:
+              _eq: x-Hasura-parent-id
+    - role: sales
+      permission:
+        columns:
+          - booking_care_service_id
+          - booking_id
+          - id
+          - size
+          - uuid
+          - price
+        filter: {}
+    - role: support
+      permission:
+        columns:
+          - booking_care_service_id
+          - booking_id
+          - id
+          - size
+          - uuid
+          - price
+        filter: {}
+- table:
+    schema: public
+    name: booking_pooch_food_schedule
+  object_relationships:
+    - name: booking_pooch
+      using:
+        foreign_key_constraint_on: booking_pooch_id
+  select_permissions:
+    - role: groomer
+      permission:
+        columns:
+          - booking_pooch_id
+          - food_schedule
+        filter:
+          booking_pooch:
+            booking:
+              groomer_id:
+                _eq: x-Hasura-groomer-id
+    - role: parent
+      permission:
+        columns:
+          - booking_pooch_id
+          - food_schedule
+        filter:
+          booking_pooch:
+            booking:
+              parent_id:
+                _eq: x-Hasura-parent-id
+    - role: sales
+      permission:
+        columns:
+          - booking_pooch_id
+          - food_schedule
+        filter: {}
+    - role: support
+      permission:
+        columns:
+          - booking_pooch_id
+          - food_schedule
+        filter: {}
 - table:
     schema: public
     name: booking_pooches
@@ -172,30 +363,116 @@
     - name: booking
       using:
         foreign_key_constraint_on: booking_id
-    - name: pooch
+    - name: bookingPoochToPooch
       using:
-        foreign_key_constraint_on: pooch_id
-  update_permissions:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: pooch
+          insertion_order: null
+          column_mapping:
+            id: id
+  array_relationships:
+    - name: booking_pooch_food_schedules
+      using:
+        foreign_key_constraint_on:
+          column: booking_pooch_id
+          table:
+            schema: public
+            name: booking_pooch_food_schedule
+    - name: vaccines
+      using:
+        foreign_key_constraint_on:
+          column: booking_pooch_id
+          table:
+            schema: public
+            name: vaccine
+  select_permissions:
     - role: groomer
       permission:
         columns:
           - booking_id
-          - pooch_id
+          - booking_pooch_id
+          - id
+          - neutered
+          - spayed
+          - breed
+          - full_name
+          - gender
+          - size
+          - training
+          - uuid
+          - dob
+          - weight
+          - created_at
+          - updated_at
         filter:
           booking:
             groomer_id:
               _eq: x-Hasura-groomer-id
-        check: null
+        allow_aggregations: true
     - role: parent
       permission:
         columns:
           - booking_id
-          - pooch_id
+          - booking_pooch_id
+          - id
+          - neutered
+          - spayed
+          - breed
+          - full_name
+          - gender
+          - size
+          - training
+          - uuid
+          - dob
+          - weight
+          - created_at
+          - updated_at
         filter:
           booking:
             parent_id:
               _eq: x-Hasura-parent-id
-        check: null
+        allow_aggregations: true
+    - role: sales
+      permission:
+        columns:
+          - booking_id
+          - booking_pooch_id
+          - id
+          - neutered
+          - spayed
+          - breed
+          - full_name
+          - gender
+          - size
+          - training
+          - uuid
+          - dob
+          - weight
+          - created_at
+          - updated_at
+        filter: {}
+        allow_aggregations: true
+    - role: support
+      permission:
+        columns:
+          - booking_pooch_id
+          - breed
+          - created_at
+          - dob
+          - full_name
+          - gender
+          - id
+          - neutered
+          - size
+          - spayed
+          - training
+          - updated_at
+          - uuid
+          - weight
+          - booking_id
+        filter: {}
 - table:
     schema: public
     name: care_service
@@ -204,7 +481,27 @@
       using:
         foreign_key_constraint_on: groomer_id
   select_permissions:
-    - role: anonymous
+    - role: groomer
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - deleted
+          - service_large
+          - service_medium
+          - service_small
+          - name
+          - uuid
+          - large_price
+          - medium_price
+          - small_price
+          - description
+          - created_at
+          - updated_at
+        filter:
+          groomer_id:
+            _eq: x-Hasura-groomer-id
+    - role: parent
       permission:
         columns:
           - groomer_id
@@ -222,7 +519,7 @@
           - created_at
           - updated_at
         filter: {}
-    - role: groomer
+    - role: sales
       permission:
         columns:
           - groomer_id
@@ -239,10 +536,8 @@
           - description
           - created_at
           - updated_at
-        filter:
-          groomer_id:
-            _eq: x-Hasura-groomer-id
-    - role: parent
+        filter: {}
+    - role: support
       permission:
         columns:
           - groomer_id
@@ -264,15 +559,6 @@
     schema: public
     name: care_service_category
   select_permissions:
-    - role: anonymous
-      permission:
-        columns:
-          - id
-          - name
-          - type
-          - uuid
-          - description
-        filter: {}
     - role: groomer
       permission:
         columns:
@@ -283,6 +569,24 @@
           - description
         filter: {}
     - role: parent
+      permission:
+        columns:
+          - id
+          - name
+          - type
+          - uuid
+          - description
+        filter: {}
+    - role: sales
+      permission:
+        columns:
+          - id
+          - name
+          - type
+          - uuid
+          - description
+        filter: {}
+    - role: support
       permission:
         columns:
           - id
@@ -315,7 +619,6 @@
         filter:
           groomer_id:
             _eq: x-Hasura-groomer-id
-        allow_aggregations: true
     - role: parent
       permission:
         columns:
@@ -329,6 +632,28 @@
         filter:
           parent_id:
             _eq: x-Hasura-parent-id
+    - role: sales
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - deleted
+          - uuid
+          - created_at
+          - updated_at
+        filter: {}
+    - role: support
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - deleted
+          - uuid
+          - created_at
+          - updated_at
+        filter: {}
 - table:
     schema: public
     name: email
@@ -425,115 +750,152 @@
             schema: public
             name: s3file
   select_permissions:
-    - role: anonymous
-      permission:
-        columns:
-          - business_name
-          - charge_per_mile
-          - close_time
-          - country_code
-          - created_at
-          - deleted
-          - description
-          - email
-          - email_temp
-          - email_verified
-          - first_name
-          - id
-          - instant_booking
-          - last_name
-          - listing
-          - number_of_occupancy
-          - offered_drop_off
-          - offered_pick_up
-          - open_time
-          - phone_number
-          - phone_number_verified
-          - rating
-          - sign_up_status
-          - status
-          - stripe_accept_card_payments
-          - stripe_charges_enabled
-          - stripe_connected_account_id
-          - stripe_details_submitted
-          - stripe_payouts_enabled
-          - updated_at
-          - uuid
-        filter: {}
-        limit: 1
     - role: groomer
       permission:
         columns:
-          - business_name
-          - charge_per_mile
-          - close_time
-          - country_code
-          - created_at
+          - id
+          - number_of_occupancy
+          - phone_number
           - deleted
-          - description
-          - email
           - email_temp
           - email_verified
-          - first_name
-          - id
           - instant_booking
-          - last_name
           - listing
-          - number_of_occupancy
           - offered_drop_off
           - offered_pick_up
-          - open_time
-          - phone_number
           - phone_number_verified
-          - rating
+          - stripe_charges_enabled
+          - stripe_details_submitted
+          - stripe_payouts_enabled
+          - business_name
+          - email
+          - first_name
+          - last_name
           - sign_up_status
           - status
           - stripe_accept_card_payments
-          - stripe_charges_enabled
           - stripe_connected_account_id
-          - stripe_details_submitted
-          - stripe_payouts_enabled
-          - updated_at
           - uuid
+          - charge_per_mile
+          - rating
+          - country_code
+          - description
+          - close_time
+          - open_time
+          - created_at
+          - updated_at
         filter:
           id:
             _eq: x-Hasura-groomer-id
+        allow_aggregations: true
     - role: parent
       permission:
         columns:
-          - business_name
-          - charge_per_mile
-          - close_time
-          - country_code
-          - created_at
+          - id
+          - number_of_occupancy
+          - phone_number
           - deleted
-          - description
-          - email
           - email_temp
           - email_verified
-          - first_name
-          - id
           - instant_booking
-          - last_name
           - listing
-          - number_of_occupancy
           - offered_drop_off
           - offered_pick_up
-          - open_time
-          - phone_number
           - phone_number_verified
-          - rating
+          - stripe_charges_enabled
+          - stripe_details_submitted
+          - stripe_payouts_enabled
+          - business_name
+          - email
+          - first_name
+          - last_name
           - sign_up_status
           - status
           - stripe_accept_card_payments
-          - stripe_charges_enabled
           - stripe_connected_account_id
-          - stripe_details_submitted
-          - stripe_payouts_enabled
-          - updated_at
           - uuid
+          - charge_per_mile
+          - rating
+          - country_code
+          - description
+          - close_time
+          - open_time
+          - created_at
+          - updated_at
         filter: {}
         limit: 1
+    - role: sales
+      permission:
+        columns:
+          - id
+          - number_of_occupancy
+          - phone_number
+          - deleted
+          - email_temp
+          - email_verified
+          - instant_booking
+          - listing
+          - offered_drop_off
+          - offered_pick_up
+          - phone_number_verified
+          - stripe_charges_enabled
+          - stripe_details_submitted
+          - stripe_payouts_enabled
+          - business_name
+          - email
+          - first_name
+          - last_name
+          - sign_up_status
+          - status
+          - stripe_accept_card_payments
+          - stripe_connected_account_id
+          - uuid
+          - charge_per_mile
+          - rating
+          - country_code
+          - description
+          - close_time
+          - open_time
+          - created_at
+          - updated_at
+        filter: {}
+        allow_aggregations: true
+    - role: support
+      permission:
+        columns:
+          - id
+          - number_of_occupancy
+          - phone_number
+          - deleted
+          - email_temp
+          - email_verified
+          - instant_booking
+          - listing
+          - offered_drop_off
+          - offered_pick_up
+          - phone_number_verified
+          - stripe_charges_enabled
+          - stripe_details_submitted
+          - stripe_payouts_enabled
+          - business_name
+          - email
+          - first_name
+          - last_name
+          - sign_up_status
+          - status
+          - stripe_accept_card_payments
+          - stripe_connected_account_id
+          - uuid
+          - charge_per_mile
+          - rating
+          - country_code
+          - description
+          - close_time
+          - open_time
+          - created_at
+          - updated_at
+        filter: {}
+        allow_aggregations: true
 - table:
     schema: public
     name: groomer_roles
@@ -620,25 +982,90 @@
             schema: public
             name: s3file
   select_permissions:
+    - role: groomer
+      permission:
+        columns:
+          - id
+          - phone_number
+          - phone_pumber_verification_id
+          - deleted
+          - email_temp
+          - email_verified
+          - phone_number_verified
+          - email
+          - full_name
+          - status
+          - stripe_customer_id
+          - uuid
+          - country_code
+          - created_at
+          - updated_at
+        filter:
+          bookings:
+            parent_id:
+              _eq: x-Hasura-parent-id
     - role: parent
       permission:
         columns:
-          - created_at
-          - deleted
-          - email
-          - email_temp
-          - email_verified
-          - full_name
           - id
           - phone_number
+          - phone_pumber_verification_id
+          - deleted
+          - email_temp
+          - email_verified
           - phone_number_verified
+          - email
+          - full_name
           - status
           - stripe_customer_id
-          - updated_at
           - uuid
+          - country_code
+          - created_at
+          - updated_at
         filter:
           id:
             _eq: x-Hasura-parent-id
+        allow_aggregations: true
+    - role: sales
+      permission:
+        columns:
+          - id
+          - phone_number
+          - phone_pumber_verification_id
+          - deleted
+          - email_temp
+          - email_verified
+          - phone_number_verified
+          - email
+          - full_name
+          - status
+          - stripe_customer_id
+          - uuid
+          - country_code
+          - created_at
+          - updated_at
+        filter: {}
+        allow_aggregations: true
+    - role: support
+      permission:
+        columns:
+          - id
+          - phone_number
+          - phone_pumber_verification_id
+          - deleted
+          - email_temp
+          - email_verified
+          - phone_number_verified
+          - email
+          - full_name
+          - status
+          - stripe_customer_id
+          - uuid
+          - country_code
+          - created_at
+          - updated_at
+        filter: {}
+        allow_aggregations: true
 - table:
     schema: public
     name: parent_roles
@@ -657,6 +1084,28 @@
       using:
         foreign_key_constraint_on: parent_id
   select_permissions:
+    - role: groomer
+      permission:
+        columns:
+          - expiration_month
+          - expiration_year
+          - id
+          - parent_id
+          - deleted
+          - brand
+          - last4
+          - name
+          - source_token
+          - stripe_id
+          - type
+          - uuid
+          - created_at
+          - updated_at
+        filter:
+          parent:
+            bookings:
+              groomer_id:
+                _eq: x-Hasura-groomer-id
     - role: parent
       permission:
         columns:
@@ -677,6 +1126,44 @@
         filter:
           parent_id:
             _eq: x-Hasura-parent-id
+        allow_aggregations: true
+    - role: sales
+      permission:
+        columns:
+          - expiration_month
+          - expiration_year
+          - id
+          - parent_id
+          - deleted
+          - brand
+          - last4
+          - name
+          - source_token
+          - stripe_id
+          - type
+          - uuid
+          - created_at
+          - updated_at
+        filter: {}
+        allow_aggregations: true
+    - role: support
+      permission:
+        columns:
+          - expiration_month
+          - expiration_year
+          - id
+          - parent_id
+          - deleted
+          - brand
+          - last4
+          - name
+          - source_token
+          - stripe_id
+          - type
+          - uuid
+          - created_at
+          - updated_at
+        filter: {}
         allow_aggregations: true
 - table:
     schema: public
@@ -704,13 +1191,6 @@
       using:
         foreign_key_constraint_on: parent_id
   array_relationships:
-    - name: booking_pooches
-      using:
-        foreign_key_constraint_on:
-          column: pooch_id
-          table:
-            schema: public
-            name: booking_pooches
     - name: pooch_food_schedules
       using:
         foreign_key_constraint_on:
@@ -737,6 +1217,7 @@
           - breed
           - full_name
           - gender
+          - size
           - training
           - uuid
           - dob
@@ -745,10 +1226,11 @@
           - created_at
           - updated_at
         filter:
-          booking_pooches:
-            booking:
+          parent:
+            bookings:
               groomer_id:
                 _eq: x-Hasura-groomer-id
+        allow_aggregations: true
     - role: parent
       permission:
         columns:
@@ -760,6 +1242,7 @@
           - breed
           - full_name
           - gender
+          - size
           - training
           - uuid
           - dob
@@ -770,6 +1253,49 @@
         filter:
           parent_id:
             _eq: x-Hasura-parent-id
+        allow_aggregations: true
+    - role: sales
+      permission:
+        columns:
+          - id
+          - parent_id
+          - deleted
+          - neutered
+          - spayed
+          - breed
+          - full_name
+          - gender
+          - size
+          - training
+          - uuid
+          - dob
+          - weight
+          - notes
+          - created_at
+          - updated_at
+        filter: {}
+        allow_aggregations: true
+    - role: support
+      permission:
+        columns:
+          - id
+          - parent_id
+          - deleted
+          - neutered
+          - spayed
+          - breed
+          - full_name
+          - gender
+          - size
+          - training
+          - uuid
+          - dob
+          - weight
+          - notes
+          - created_at
+          - updated_at
+        filter: {}
+        allow_aggregations: true
 - table:
     schema: public
     name: pooch_food_schedule
@@ -783,12 +1309,7 @@
         columns:
           - pooch_id
           - food_schedule
-        filter:
-          pooch:
-            booking_pooches:
-              booking:
-                groomer_id:
-                  _eq: x-Hasura-groomer-id
+        filter: {}
     - role: parent
       permission:
         columns:
@@ -798,6 +1319,18 @@
           pooch:
             parent_id:
               _eq: x-Hasura-parent-id
+    - role: sales
+      permission:
+        columns:
+          - pooch_id
+          - food_schedule
+        filter: {}
+    - role: support
+      permission:
+        columns:
+          - pooch_id
+          - food_schedule
+        filter: {}
 - table:
     schema: public
     name: push_notification
@@ -808,19 +1341,6 @@
     schema: public
     name: review
   select_permissions:
-    - role: anonymous
-      permission:
-        columns:
-          - groomer_id
-          - id
-          - parent_id
-          - deleted
-          - uuid
-          - rating
-          - description
-          - created_at
-          - updated_at
-        filter: {}
     - role: groomer
       permission:
         columns:
@@ -851,6 +1371,32 @@
         filter:
           parent_id:
             _eq: x-Hasura-parent-id
+    - role: sales
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - deleted
+          - uuid
+          - rating
+          - description
+          - created_at
+          - updated_at
+        filter: {}
+    - role: support
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - deleted
+          - uuid
+          - rating
+          - description
+          - created_at
+          - updated_at
+        filter: {}
 - table:
     schema: public
     name: roles
@@ -880,58 +1426,75 @@
       using:
         foreign_key_constraint_on: parent_id
   select_permissions:
-    - role: anonymous
-      permission:
-        columns:
-          - created_at
-          - deleted
-          - file_name
-          - file_type
-          - groomer_id
-          - id
-          - is_public
-          - main_profile_image
-          - parent_id
-          - s3_key
-          - updated_at
-          - url
-          - uuid
-        filter: {}
     - role: groomer
       permission:
         columns:
-          - created_at
-          - deleted
-          - file_name
-          - file_type
           - groomer_id
           - id
+          - parent_id
+          - deleted
           - is_public
           - main_profile_image
-          - parent_id
+          - file_name
+          - file_type
           - s3_key
-          - updated_at
-          - url
           - uuid
+          - url
+          - created_at
+          - updated_at
         filter:
           groomer_id:
             _eq: x-Hasura-groomer-id
     - role: parent
       permission:
         columns:
-          - created_at
-          - deleted
-          - file_name
-          - file_type
           - groomer_id
           - id
+          - parent_id
+          - deleted
           - is_public
           - main_profile_image
-          - parent_id
+          - file_name
+          - file_type
           - s3_key
-          - updated_at
-          - url
           - uuid
+          - url
+          - created_at
+          - updated_at
+        filter: {}
+    - role: sales
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - deleted
+          - is_public
+          - main_profile_image
+          - file_name
+          - file_type
+          - s3_key
+          - uuid
+          - url
+          - created_at
+          - updated_at
+        filter: {}
+    - role: support
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - parent_id
+          - deleted
+          - is_public
+          - main_profile_image
+          - file_name
+          - file_type
+          - s3_key
+          - uuid
+          - url
+          - created_at
+          - updated_at
         filter: {}
 - table:
     schema: public
@@ -958,13 +1521,14 @@
           - non_refunded_amount
           - refunded_amount
           - stripe_fee
+          - total_charge_at_booking
+          - total_charge_at_drop_off
           - created_at
           - updated_at
         filter:
           booking:
             groomer_id:
               _eq: x-Hasura-groomer-id
-        allow_aggregations: true
     - role: parent
       permission:
         columns:
@@ -982,17 +1546,65 @@
           - non_refunded_amount
           - refunded_amount
           - stripe_fee
+          - total_charge_at_booking
+          - total_charge_at_drop_off
           - created_at
           - updated_at
         filter:
           booking:
             parent_id:
               _eq: x-Hasura-parent-id
-        allow_aggregations: true
+    - role: sales
+      permission:
+        columns:
+          - booking_id
+          - cancel_user_id
+          - id
+          - deleted
+          - cancel_user_type
+          - description
+          - type
+          - uuid
+          - amount
+          - booking_cost
+          - booking_fee
+          - non_refunded_amount
+          - refunded_amount
+          - stripe_fee
+          - total_charge_at_booking
+          - total_charge_at_drop_off
+          - created_at
+          - updated_at
+        filter: {}
+    - role: support
+      permission:
+        columns:
+          - booking_id
+          - cancel_user_id
+          - id
+          - deleted
+          - cancel_user_type
+          - description
+          - type
+          - uuid
+          - amount
+          - booking_cost
+          - booking_fee
+          - non_refunded_amount
+          - refunded_amount
+          - stripe_fee
+          - total_charge_at_booking
+          - total_charge_at_drop_off
+          - created_at
+          - updated_at
+        filter: {}
 - table:
     schema: public
     name: vaccine
   object_relationships:
+    - name: booking_pooch
+      using:
+        foreign_key_constraint_on: booking_pooch_id
     - name: pooch
       using:
         foreign_key_constraint_on: pooch_id
@@ -1000,21 +1612,18 @@
     - role: groomer
       permission:
         columns:
+          - booking_pooch_id
           - id
           - pooch_id
           - name
           - created_at
           - expire_date
           - updated_at
-        filter:
-          pooch:
-            booking_pooches:
-              booking:
-                groomer_id:
-                  _eq: x-Hasura-groomer-id
+        filter: {}
     - role: parent
       permission:
         columns:
+          - booking_pooch_id
           - id
           - pooch_id
           - name
@@ -1023,6 +1632,27 @@
           - updated_at
         filter:
           pooch:
-            parent:
-              id:
-                _eq: x-Hasura-parent-id
+            parent_id:
+              _eq: x-Hasura-parent-id
+    - role: sales
+      permission:
+        columns:
+          - booking_pooch_id
+          - id
+          - pooch_id
+          - name
+          - created_at
+          - expire_date
+          - updated_at
+        filter: {}
+    - role: support
+      permission:
+        columns:
+          - booking_pooch_id
+          - id
+          - pooch_id
+          - name
+          - created_at
+          - expire_date
+          - updated_at
+        filter: {}

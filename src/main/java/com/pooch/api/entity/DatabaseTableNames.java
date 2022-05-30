@@ -8,6 +8,8 @@ public interface DatabaseTableNames {
   String PocchVaccine = "pooch_vaccine";
   String PhoneNumberVerification = "phone_number_verification";
   String Booking = "booking";
+  String BookingPooch = "booking_pooches";
+  String BookingCareService = "booking_care_services";
   String CareService = "care_service";
   String Address = "address";
   String S3File = "s3file";

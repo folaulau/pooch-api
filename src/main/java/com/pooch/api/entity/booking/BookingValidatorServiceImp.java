@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.BookingCancelDTO;
-import com.pooch.api.dto.BookingCareServiceDTO;
+import com.pooch.api.dto.BookingCareServiceCreateDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.PoochCreateUpdateDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
@@ -173,14 +173,14 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
             "pooch has to belong to his/her parent");
       }
 
-      Set<BookingCareServiceDTO> services = petCreateDTO.getRequestedCareServices();
+      Set<BookingCareServiceCreateDTO> services = petCreateDTO.getRequestedCareServices();
 
       if (services == null || services.size() <= 0) {
         throw new ApiException(ApiError.DEFAULT_MSG, "Add a service",
             "services are empty for pooch uuid=" + petCreateDTO.getUuid());
       }
 
-      for (BookingCareServiceDTO service : services) {
+      for (BookingCareServiceCreateDTO service : services) {
         String careServiceUuid = service.getUuid();
 
         if (careServiceUuid == null || careServiceUuid.trim().isEmpty()) {

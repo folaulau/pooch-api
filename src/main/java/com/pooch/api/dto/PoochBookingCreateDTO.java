@@ -27,9 +27,9 @@ public class PoochBookingCreateDTO implements Serializable {
 
   private String uuid;
 
-  private Set<BookingCareServiceDTO> requestedCareServices;
+  private Set<BookingCareServiceCreateDTO> requestedCareServices;
 
-  public void addService(BookingCareServiceDTO service) {
+  public void addService(BookingCareServiceCreateDTO service) {
     if (this.requestedCareServices == null) {
       this.requestedCareServices = new HashSet<>();
     }

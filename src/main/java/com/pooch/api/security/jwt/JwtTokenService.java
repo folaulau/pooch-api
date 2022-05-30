@@ -28,158 +28,118 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JwtTokenService {
 
-    private static final String      secret            = "poochapi-poochapi-poochapi-poochapi-poochapi";
+  private static final String secret = "poochapi-poochapi-poochapi-poochapi-poochapi";
 
-    private static final String      audience          = "poochapi";
+  private static final String audience = "poochapi";
 
-    private static final Algorithm   ALGORITHM         = Algorithm.HMAC256(secret);
+  private static final Algorithm ALGORITHM = Algorithm.HMAC256(secret);
 
-    private static final String      ISSUER            = "poochapi";
+  private static final String ISSUER = "poochapi";
 
-    /**
-     * user can stay logged in for 14 days
-     */
-    private static final int         LIFE_TIME_IN_DAYS = 200;
+  /**
+   * user can stay logged in for 14 days
+   */
+  private static final int LIFE_TIME_IN_DAYS = 200;
 
-    private static final JWTVerifier VERIFIER          = JWT.require(ALGORITHM).withIssuer(ISSUER).build();
+  private static final JWTVerifier VERIFIER = JWT.require(ALGORITHM).withIssuer(ISSUER).build();
 
-    public String generatePetParentToken(Parent petParent) {
+  public String generatePetParentToken(Parent petParent) {
 
-        try {
+    try {
 
-            Map<String, Object> hasura = new HashMap<String, Object>();
+      Map<String, Object> hasura = new HashMap<String, Object>();
 
-            hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
-            hasura.put("x-hasura-default-role", Authority.parent.name());
-            hasura.put("x-Hasura-parent-id", petParent.getId() + "");
-            hasura.put("x-Hasura-parent-uuid", petParent.getUuid());
+      hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
+      hasura.put("x-hasura-default-role", Authority.parent.name());
+      hasura.put("x-Hasura-parent-id", petParent.getId() + "");
+      hasura.put("x-Hasura-parent-uuid", petParent.getUuid());
 
-            String token = JWT.create()
-                    .withJWTId(RandomGeneratorUtils.getJWTId())
-                    .withSubject(petParent.getId() + "")
-                    .withExpiresAt(DateUtils.addDays(new Date(), LIFE_TIME_IN_DAYS))
-                    .withIssuedAt(new Date())
-                    .withAudience(audience)
-                    .withIssuer(ISSUER)
-                    .withClaim("uuid", petParent.getUuid())
-                    .withClaim("name", petParent.getFullName())
-                    .withClaim("role", Authority.parent.name())
-                    .withClaim("hasura", hasura)
-                    .sign(ALGORITHM);
-            return token;
-        } catch (JWTCreationException e) {
-            log.warn("JWTCreationException, msg: {}", e.getLocalizedMessage());
-            return null;
-        } catch (Exception e) {
-            log.warn("generateToken exception, msg: {}", e.getLocalizedMessage());
-            return null;
-        }
-
+      String token = JWT.create().withJWTId(RandomGeneratorUtils.getJWTId())
+          .withSubject(petParent.getId() + "")
+          .withExpiresAt(DateUtils.addDays(new Date(), LIFE_TIME_IN_DAYS)).withIssuedAt(new Date())
+          .withAudience(audience).withIssuer(ISSUER).withClaim("uuid", petParent.getUuid())
+          .withClaim("name", petParent.getFullName()).withClaim("role", Authority.parent.name())
+          .withClaim("hasura", hasura).sign(ALGORITHM);
+      return token;
+    } catch (JWTCreationException e) {
+      log.warn("JWTCreationException, msg: {}", e.getLocalizedMessage());
+      return null;
+    } catch (Exception e) {
+      log.warn("generateToken exception, msg: {}", e.getLocalizedMessage());
+      return null;
     }
 
-    public String generateGroomerToken(Groomer groomer) {
-        try {
-            Map<String, Object> hasura = new HashMap<String, Object>();
+  }
 
-            hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
-            hasura.put("x-hasura-default-role", Authority.groomer.name());
-            hasura.put("x-Hasura-groomer-id", groomer.getId() + "");
-            hasura.put("x-Hasura-groomer-uuid", groomer.getUuid());
+  public String generateGroomerToken(Groomer groomer) {
+    try {
+      Map<String, Object> hasura = new HashMap<String, Object>();
 
-            String token = JWT.create()
-                    .withJWTId(RandomGeneratorUtils.getJWTId())
-                    .withSubject(groomer.getId() + "")
-                    .withExpiresAt(DateUtils.addDays(new Date(), LIFE_TIME_IN_DAYS))
-                    .withIssuedAt(new Date())
-                    .withAudience(audience)
-                    .withIssuer(ISSUER)
-                    .withClaim("uuid", groomer.getUuid())
-                    .withClaim("name", groomer.getFullName())
-                    .withClaim("role", Authority.groomer.name())
-                    .withClaim("hasura", hasura)
-                    .sign(ALGORITHM);
-            log.info("test12");
-            return token;
-        } catch (JWTCreationException e) {
-            log.warn("JWTCreationException, msg: {}", e.getLocalizedMessage());
-            return null;
-        } catch (Exception e) {
-            log.warn("generateToken exception, msg: {}", e.getLocalizedMessage());
-            return null;
-        }
+      hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
+      hasura.put("x-hasura-default-role", Authority.groomer.name());
+      hasura.put("x-Hasura-groomer-id", groomer.getId() + "");
+      hasura.put("x-Hasura-groomer-uuid", groomer.getUuid());
+
+      String token = JWT.create().withJWTId(RandomGeneratorUtils.getJWTId())
+          .withSubject(groomer.getId() + "")
+          .withExpiresAt(DateUtils.addDays(new Date(), LIFE_TIME_IN_DAYS)).withIssuedAt(new Date())
+          .withAudience(audience).withIssuer(ISSUER).withClaim("uuid", groomer.getUuid())
+          .withClaim("name", groomer.getFullName()).withClaim("role", Authority.groomer.name())
+          .withClaim("hasura", hasura).sign(ALGORITHM);
+      log.info("test12");
+      return token;
+    } catch (JWTCreationException e) {
+      log.warn("JWTCreationException, msg: {}", e.getLocalizedMessage());
+      return null;
+    } catch (Exception e) {
+      log.warn("generateToken exception, msg: {}", e.getLocalizedMessage());
+      return null;
+    }
+  }
+
+  public JwtPayload getPayloadByToken(String token) {
+    if (token == null || token.length() == 0) {
+      return null;
     }
 
-    public JwtPayload getPayloadByToken(String token) {
-        if (token == null || token.length() == 0) {
-            return null;
-        }
+    try {
 
-        try {
+      // Reusable verifier instance
+      DecodedJWT jwt = VERIFIER.verify(token);
+      if (jwt != null) {
+        JwtPayload jwtPayload = new JwtPayload();
+        jwtPayload.setExp(jwt.getExpiresAt());
+        jwtPayload.setIss(jwt.getIssuer());
+        jwtPayload.setJti(jwt.getId());
+        jwtPayload.setIat(jwt.getIssuedAt());
+        jwtPayload.setSub(jwt.getSubject());
+        jwtPayload.setAud(jwt.getAudience().get(0));
+        jwtPayload.setName(jwt.getClaim("name").asString());
+        jwtPayload.setUuid(jwt.getClaim("uuid").asString());
+        jwtPayload.setRole(jwt.getClaim("role").asString());
 
-            // Reusable verifier instance
-            DecodedJWT jwt = VERIFIER.verify(token);
-            if (jwt != null) {
-                JwtPayload jwtPayload = new JwtPayload();
-                jwtPayload.setExp(jwt.getExpiresAt());
-                jwtPayload.setIss(jwt.getIssuer());
-                jwtPayload.setJti(jwt.getId());
-                jwtPayload.setIat(jwt.getIssuedAt());
-                jwtPayload.setSub(jwt.getSubject());
-                jwtPayload.setAud(jwt.getAudience().get(0));
-                jwtPayload.setName(jwt.getClaim("name").asString());
-                jwtPayload.setUuid(jwt.getClaim("uuid").asString());
-                jwtPayload.setRole(jwt.getClaim("role").asString());
+        setHasura(jwtPayload, jwt);
 
-                setHasura(jwtPayload, jwt);
+        return jwtPayload;
+      }
+    } catch (Exception e) {
+      log.warn("getPayloadByToken exception, msg: {}", e.getLocalizedMessage());
+    }
+    return null;
+  }
 
-                return jwtPayload;
-            }
-        } catch (Exception e) {
-            log.warn("getPayloadByToken exception, msg: {}", e.getLocalizedMessage());
-        }
-        return null;
+  private void setHasura(JwtPayload jwtPayload, DecodedJWT jwt) {
+    Map<String, Object> hasura = null;
+    try {
+      hasura = jwt.getClaim("hasura").asMap();
+      jwtPayload.setHasura(hasura);
+    } catch (Exception e) {
+      log.warn(e.getLocalizedMessage());
     }
 
-    private void setHasura(JwtPayload jwtPayload, DecodedJWT jwt) {
-        Map<String, Object> hasura = null;
-        try {
-            hasura = jwt.getClaim("hasura").asMap();
-            jwtPayload.setHasura(hasura);
-        } catch (Exception e) {
-            log.warn(e.getLocalizedMessage());
-        }
-
-        if (hasura == null) {
-            return;
-        }
-
+    if (hasura == null) {
+      return;
     }
 
-    public String generateAnonymousForParent() {
-        try {
-            Map<String, Object> hasura = new HashMap<String, Object>();
-
-            hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
-            hasura.put("x-hasura-default-role", Authority.anonymous.name());
-
-            String token = JWT.create()
-                    .withJWTId(RandomGeneratorUtils.getJWTId())
-                    .withExpiresAt(DateUtils.addDays(new Date(), 300))
-                    .withIssuedAt(new Date())
-                    .withAudience(audience)
-                    .withIssuer(ISSUER)
-                    .withClaim("role", Authority.anonymous.name())
-                    .withClaim("hasura", hasura)
-                    .sign(ALGORITHM);
-            log.info("test12");
-            return token;
-        } catch (JWTCreationException e) {
-            log.warn("JWTCreationException, msg: {}", e.getLocalizedMessage());
-            return null;
-        } catch (Exception e) {
-            log.warn("generateToken exception, msg: {}", e.getLocalizedMessage());
-            return null;
-        }
-    }
-
+  }
 }

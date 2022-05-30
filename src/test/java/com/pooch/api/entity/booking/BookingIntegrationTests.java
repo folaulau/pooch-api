@@ -32,7 +32,7 @@ import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.ParentCreateUpdateDTO;
 import com.pooch.api.dto.ParentDTO;
 import com.pooch.api.dto.PoochBookingCreateDTO;
-import com.pooch.api.dto.BookingCareServiceDTO;
+import com.pooch.api.dto.BookingCareServiceCreateDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.BookingDTO;
 import com.pooch.api.dto.PoochCreateUpdateDTO;
@@ -182,7 +182,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
     for (int i = 0; i < 1; i++) {
       PoochBookingCreateDTO petCreateDTO = new PoochBookingCreateDTO();
       petCreateDTO.setUuid(pooch1.getUuid());
-      petCreateDTO.addService(BookingCareServiceDTO.builder().size(PoochSize.medium)
+      petCreateDTO.addService(BookingCareServiceCreateDTO.builder().size(PoochSize.medium)
           .uuid(careService.getUuid()).build());
 
       petCreateDTOs.add(petCreateDTO);
@@ -274,7 +274,7 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
     for (int i = 0; i < 1; i++) {
       PoochBookingCreateDTO petCreateDTO = new PoochBookingCreateDTO();
       petCreateDTO.setUuid(pooch1.getUuid());
-      petCreateDTO.addService(BookingCareServiceDTO.builder().size(PoochSize.medium)
+      petCreateDTO.addService(BookingCareServiceCreateDTO.builder().size(PoochSize.medium)
           .uuid(careService.getUuid()).build());
 
       petCreateDTOs.add(petCreateDTO);
