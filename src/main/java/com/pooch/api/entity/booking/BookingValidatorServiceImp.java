@@ -110,6 +110,8 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
       throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime must be in the future");
     }
 
+    startDateTime = startDateTime.withSecond(0).withNano(0);
+
     LocalDateTime endDateTime = bookingCreateDTO.getEndDateTime();
 
     if (endDateTime == null) {
@@ -120,6 +122,8 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
       throw new ApiException(ApiError.DEFAULT_MSG, "endDateTime must be in the future");
     }
 
+    endDateTime = endDateTime.withSecond(0).withNano(0);
+
     if (startDateTime.isAfter(endDateTime)) {
       throw new ApiException(ApiError.DEFAULT_MSG,
           "endDateTime must be greater than startDateTime");
@@ -128,17 +132,17 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
     int numberOfDays = 0;
 
     LocalDateTime countFromStartDateTime = startDateTime;
-    
-    System.out.println("startDateTime: " + startDateTime);
-    System.out.println("endDateTime: " + endDateTime);
+
+    log.info("startDateTime: " + startDateTime);
+    log.info("endDateTime: " + endDateTime);
 
     do {
 
       numberOfDays++;
       countFromStartDateTime = countFromStartDateTime.plusDays(1);
-      
-      System.out.println("startDateTime: " + startDateTime);
-      System.out.println("endDateTime: " + endDateTime);
+
+      log.info("startDateTime: " + startDateTime);
+      log.info("endDateTime: " + endDateTime);
 
     } while (countFromStartDateTime.isBefore(endDateTime));
 
@@ -287,7 +291,8 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
       }
 
       if (costDetails.getTotalChargeAtDropOff() != null
-          && costDetails.getTotalChargeAtDropOff().equals(0D)) {
+          && (costDetails.getTotalChargeAtDropOff().equals(0.0D)
+              || costDetails.getTotalChargeAtDropOff().equals(0D))) {
         throw new ApiException("Incorrect payment value",
             "TotalChargeAtDropOff should be 0 but it's " + costDetails.getTotalChargeAtDropOff());
       }
