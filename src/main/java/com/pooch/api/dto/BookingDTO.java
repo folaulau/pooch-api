@@ -2,6 +2,7 @@ package com.pooch.api.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -64,5 +65,12 @@ public class BookingDTO implements Serializable {
   private Double totalChargeAtDropOff;
 
   private Set<TransactionDTO> transactions;
+
+  public void addTransaction(TransactionDTO transaction) {
+    if (this.transactions == null) {
+      this.transactions = new HashSet<>();
+    }
+    this.transactions.add(transaction);
+  }
 
 }

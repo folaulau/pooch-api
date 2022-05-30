@@ -12,6 +12,11 @@ public enum NotificationUuid {
 
   WELCOME_PARENT,
 
-  WELCOME_POOCH_EMPLOYEE;
+  WELCOME_POOCH_EMPLOYEE,
+
+  /**
+   * send notification to groomer and parent of new booking
+   */
+  SEND_NEW_BOOKING_DETAILS;
 
 }

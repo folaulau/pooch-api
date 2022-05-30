@@ -24,6 +24,7 @@ import com.pooch.api.entity.booking.BookingCostDetails;
 import com.pooch.api.entity.booking.BookingPaymentMethod;
 import com.pooch.api.entity.booking.careservice.BookingCareService;
 import com.pooch.api.entity.booking.pooch.BookingPooch;
+import com.pooch.api.entity.booking.transaction.Transaction;
 import com.pooch.api.entity.chat.Chat;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
@@ -145,5 +146,7 @@ public interface EntityDTOMapper {
   BookingDTO mapBookingToBookingDTO(Booking booking);
 
   BookingCareService mapCareServiceToBookingCareService(CareService careService);
+
+  TransactionDTO mapTransactionToTransactionDTO(Transaction transaction);
 
 }

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -20,6 +21,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
@@ -82,8 +84,8 @@ public class Notification implements Serializable {
    */
 
   @JsonIgnoreProperties(value = {"notification"})
-  @OneToOne(cascade = CascadeType.ALL, mappedBy = "notification", fetch = FetchType.EAGER)
-  private EmailTemplate emailTemplate;
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "notification", fetch = FetchType.EAGER)
+  private Set<EmailTemplate> emailTemplates;
 
   @CreationTimestamp
   @Column(name = "created_at", nullable = true)

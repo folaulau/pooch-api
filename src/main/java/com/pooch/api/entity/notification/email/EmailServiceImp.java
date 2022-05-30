@@ -3,7 +3,7 @@ package com.pooch.api.entity.notification.email;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
+import java.util.Set;
 import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +39,13 @@ public class EmailServiceImp implements EmailService {
   // private EmailTemplateDAO emailTemplateDAO;
 
   @Override
-  public void send(Groomer groomer, Notification notification, Map<String, String> data) {
+  public void send(Groomer groomer, EmailTemplate emailTemplate, Map<String, String> data) {
     log.info("send");
 
-    EmailTemplate emailTemplate = notification.getEmailTemplate();
+    if (emailTemplate == null) {
+      return;
+    }
+
     log.info("emailTemplate={}", emailTemplate.toJson());
 
     Email email = new Email();
@@ -55,8 +58,7 @@ public class EmailServiceImp implements EmailService {
     email.setContent(content);
 
     try {
-      DeliveryStatus status = emailSenderService.sendEmail(email, UserType.Groomer);
-
+      DeliveryStatus status = emailSenderService.sendEmail(email, emailTemplate.getSendToUser());
       if (status.isDelivered()) {
 
         email.setStatus(EmailStatus.SENT);
@@ -73,10 +75,13 @@ public class EmailServiceImp implements EmailService {
   }
 
   @Override
-  public void send(Parent parent, Notification notification, Map<String, String> data) {
+  public void send(Parent parent, EmailTemplate emailTemplate, Map<String, String> data) {
     log.info("send");
 
-    EmailTemplate emailTemplate = notification.getEmailTemplate();
+    if (emailTemplate == null) {
+      return;
+    }
+
     log.info("emailTemplate={}", emailTemplate.toJson());
 
     Email email = new Email();
@@ -89,7 +94,7 @@ public class EmailServiceImp implements EmailService {
     email.setContent(content);
 
     try {
-      DeliveryStatus status = emailSenderService.sendEmail(email, UserType.Parent);
+      DeliveryStatus status = emailSenderService.sendEmail(email, emailTemplate.getSendToUser());
 
       if (status.isDelivered()) {
 

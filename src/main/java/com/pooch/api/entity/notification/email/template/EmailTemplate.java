@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.DatabaseTableNames;
+import com.pooch.api.entity.UserType;
 import com.pooch.api.entity.notification.Notification;
 import com.pooch.api.security.ApiSession;
 import com.pooch.api.utils.ApiSessionUtils;
@@ -68,6 +69,14 @@ public class EmailTemplate implements Serializable {
   @Column(name = "uuid", unique = true, nullable = false, updatable = false)
   private EmailTemplateUuid uuid;
 
+  /**
+   * user this email template is for<br>
+   * 
+   */
+  @Enumerated(EnumType.STRING)
+  @Column(name = "send_to_user")
+  private UserType sendToUser;
+
   @Column(name = "subject")
   private String subject;
 
@@ -100,7 +109,7 @@ public class EmailTemplate implements Serializable {
   private String lastUpdatedByUser;
 
   @JsonIgnoreProperties(value = {"emailTemplate"})
-  @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+  @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
   @JoinColumn(name = "notification_id", nullable = false)
   private Notification notification;
 

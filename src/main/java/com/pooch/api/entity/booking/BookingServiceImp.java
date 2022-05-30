@@ -16,15 +16,18 @@ import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.BookingDTO;
 import com.pooch.api.dto.PoochCreateUpdateDTO;
 import com.pooch.api.dto.PoochDTO;
+import com.pooch.api.dto.TransactionDTO;
 import com.pooch.api.entity.booking.careservice.BookingCareService;
 import com.pooch.api.entity.booking.careservice.BookingCareServiceRepository;
 import com.pooch.api.entity.booking.pooch.BookingPooch;
 import com.pooch.api.entity.booking.pooch.BookingPoochRepository;
+import com.pooch.api.entity.booking.transaction.Transaction;
 import com.pooch.api.entity.booking.transaction.TransactionService;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
+import com.pooch.api.entity.notification.NotificationService;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentDAO;
 import com.pooch.api.entity.parent.ParentService;
@@ -90,6 +93,9 @@ public class BookingServiceImp implements BookingService {
 
   @Autowired
   private TransactionService transactionService;
+
+  @Autowired
+  private NotificationService notificationService;
 
   @Override
   public BookingDTO book(BookingCreateDTO bookingCreateDTO) {
@@ -174,12 +180,19 @@ public class BookingServiceImp implements BookingService {
 
     log.info("booking={}", ObjectUtils.toJson(booking));
 
-    transactionService.addBookingInitialPayment(booking, costDetails);
+    Transaction transaction = transactionService.addBookingInitialPayment(booking, costDetails);
+
+    TransactionDTO transactionDTO = entityDTOMapper.mapTransactionToTransactionDTO(transaction);
+    
+    notificationService.sendBookingDetailsUponBooking(booking, booking.getParent(), booking.getGroomer());
 
     // 1. handle calendar
     // 2. send notification
 
-    return entityDTOMapper.mapBookingToBookingDTO(booking);
+    BookingDTO bookingDTO = entityDTOMapper.mapBookingToBookingDTO(booking);
+    bookingDTO.addTransaction(transactionDTO);
+
+    return bookingDTO;
   }
 
   private Booking addPoochesToBooking(Booking booking, Set<PoochBookingCreateDTO> poochCreateDTOs) {
@@ -223,16 +236,16 @@ public class BookingServiceImp implements BookingService {
 
         BookingPooch bookingPooch = entityDTOMapper.mapPoochToBookingPooch(pooch);
         bookingPooch.setBooking(booking);
-        
+
         bookingPooch.setVaccines(bookingPooch.getVaccines().stream().map(vaccine -> {
           vaccine.setId(null);
           return vaccine;
         }).collect(Collectors.toSet()));
-        
+
         log.info("bookingPooch={}", ObjectUtils.toJson(bookingPooch));
-        
+
         bookingPooch = bookingPoochRepository.saveAndFlush(bookingPooch);
-        
+
         booking.addPooch(bookingPooch);
 
         count++;

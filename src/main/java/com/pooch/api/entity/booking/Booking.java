@@ -56,7 +56,7 @@ import com.pooch.api.entity.parent.paymentmethod.PaymentMethod;
 import com.pooch.api.entity.pooch.FoodSchedule;
 import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.pooch.vaccine.Vaccine;
-
+import com.pooch.api.utils.ObjectUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -227,6 +227,10 @@ public class Booking implements Serializable {
       this.uuid = "booking-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
     }
 
+  }
+
+  public String toJson() {
+    return ObjectUtils.toJson(this);
   }
 
 

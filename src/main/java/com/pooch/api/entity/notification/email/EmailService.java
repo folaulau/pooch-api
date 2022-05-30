@@ -9,9 +9,9 @@ import com.pooch.api.entity.parent.Parent;
 
 public interface EmailService {
 
-  void send(Groomer groomer, Notification notification, Map<String, String> data);
+  void send(Groomer groomer, EmailTemplate emailTemplate, Map<String, String> data);
 
-  void send(Parent parent, Notification notification, Map<String, String> data);
+  void send(Parent parent, EmailTemplate emailTemplate, Map<String, String> data);
 
   // @Async
   // void sendWelcome(User user);

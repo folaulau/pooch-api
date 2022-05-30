@@ -6,5 +6,6 @@ public enum UserType {
     Parent,
     Engineer,
     Sales,
+    Support,
     Admin
 }

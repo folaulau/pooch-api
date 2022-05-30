@@ -16,25 +16,24 @@ import org.springframework.jdbc.support.KeyHolder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class V3__ntc_add_parent_welcome_notification extends BaseJavaMigration {
+public class V4__ntc_add_groomer_new_booking_notification extends BaseJavaMigration {
 
   @Override
   public void migrate(Context context) throws Exception {
-    log.info("migrating V1__2__Add_welcome_notification...");
+    log.info("migrating V4__ntc_add_groomer_new_booking_notification...");
     JdbcTemplate jdbcTemplate =
         new JdbcTemplate(new SingleConnectionDataSource(context.getConnection(), true));
 
+
     /**
-     * parent welcome notification
+     * groomer welcome notification
      */
-
-
-    long notificationId = 2;
+    long notificationId = 3;
     StringBuilder queryBuilder = new StringBuilder();
     queryBuilder.append(
-        "INSERT INTO notification (id, uuid, email, push_notification, created_at, updated_at)");
+        "INSERT INTO notification (id, uuid, description, email, push_notification, created_at, updated_at)");
     queryBuilder.append("VALUES (" + notificationId
-        + ", 'WELCOME_PARENT', true, true, '2022-05-28 00:37:08.738098', '2022-05-28 00:37:08.738098')");
+        + ", 'SEND_NEW_BOOKING_DETAILS', 'sending booking details to the groomer and the parent', true, true, NOW(), NOW())");
 
     try {
       String query = queryBuilder.toString();
@@ -47,22 +46,16 @@ public class V3__ntc_add_parent_welcome_notification extends BaseJavaMigration {
     log.debug("notificationId={}", notificationId);
 
 
-
-    /**
-     * parent welcome email
-     */
-
-
-    long emailTemplateId = 2;
+    long emailTemplateId = 3;
     queryBuilder = new StringBuilder();
     queryBuilder.append("INSERT INTO email_template ");
     queryBuilder.append(
         "(id, uuid, content, subject, send_to_user, created_by_user, last_updated_by_user, deleted, notification_id, created_at, updated_at) ");
     queryBuilder.append("VALUES ");
     queryBuilder.append("(" + emailTemplateId
-        + ", 'WELCOME_PARENT_EMAIL', '<div>Welcome to Poochapp. We are here to serve your needs and find groomers that serve what you are looking for. <div/>', 'Welcome To Poochapp', 'Parent', 'system', 'system', false, ");
+        + ", 'GROOMER_NEW_BOOKING_EMAIL', '<div>You have a new booking.<div/>', 'New Booking', 'Groomer', 'system', 'system', false, ");
     queryBuilder.append(notificationId);
-    queryBuilder.append(", '2022-05-28 00:37:08.738098', '2022-05-28 00:37:08.738098')");
+    queryBuilder.append(", NOW(), NOW())");
 
     try {
       String query = queryBuilder.toString();
@@ -74,8 +67,28 @@ public class V3__ntc_add_parent_welcome_notification extends BaseJavaMigration {
 
     log.debug("emailTemplateId={}", emailTemplateId);
 
+     emailTemplateId = 4;
+    queryBuilder = new StringBuilder();
+    queryBuilder.append("INSERT INTO email_template ");
+    queryBuilder.append(
+        "(id, uuid, content, subject, send_to_user, created_by_user, last_updated_by_user, deleted, notification_id, created_at, updated_at) ");
+    queryBuilder.append("VALUES ");
+    queryBuilder.append("(" + emailTemplateId
+        + ", 'PARENT_NEW_BOOKING_EMAIL', '<div>Details of your booking {{details}}.<div/>', 'New Booking Details', 'Parent', 'system', 'system', false, ");
+    queryBuilder.append(notificationId);
+    queryBuilder.append(", NOW(), NOW())");
 
-    log.info("done migrating V1__2__Add_welcome_notification!");
+    try {
+      String query = queryBuilder.toString();
+      log.info("insert new email_template - query : {}", query.toString());
+      jdbcTemplate.update(query, new Object[] {});
+    } catch (Exception e) {
+      log.warn("Exception, msg={}", e.getLocalizedMessage());
+    }
+
+    log.debug("emailTemplateId={}", emailTemplateId);
+
+    log.info("done migrating V4__ntc_add_groomer_new_booking_notification!");
   }
 
 }
