@@ -40,12 +40,14 @@ public class BookingCostDetails implements Serializable {
   private Double stripeFee;
 
   /**
-   * amount charge now depending on Groomer's Stripe status
+   * amount charge now depending on Groomer's Stripe status<br>
+   * if groomer is Stripe ready? = all costs, else = just booking fee<br>
    */
   private Double totalChargeAtBooking;
 
   /**
-   * amount charge at drop off depending on Groomer's Stripe status
+   * amount charge at drop off depending on Groomer's Stripe status<br>
+   * if groomer is Stripe ready? = 0, else = (all costs - (bookingFee + stripeFee))<br>
    */
   private Double totalChargeAtDropOff;
 

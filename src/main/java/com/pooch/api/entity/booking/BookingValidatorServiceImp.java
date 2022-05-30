@@ -295,6 +295,31 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
         throw new ApiException(ApiError.DEFAULT_MSG,
             "today's charge should be just the booking fee");
       }
+
+      BigDecimal calculatedChargeAtDropOff = BigDecimal.valueOf(0.0);
+      /**
+       * calculatedBookingCost + dropOffCost + pickUpCost
+       */
+      if (dropOffCost != null && dropOffCost >= 0) {
+        calculatedChargeAtDropOff = calculatedChargeAtDropOff.add(BigDecimal.valueOf(dropOffCost));
+      }
+
+      if (pickUpCost != null && pickUpCost >= 0) {
+        calculatedChargeAtDropOff = calculatedChargeAtDropOff.add(BigDecimal.valueOf(pickUpCost));
+      }
+
+      calculatedChargeAtDropOff = calculatedChargeAtDropOff.add(calculatedBookingCost);
+
+      if (!costDetails.getTotalChargeAtDropOff().equals(calculatedChargeAtDropOff.doubleValue())) {
+        throw new ApiException("Incorrect payment value",
+            "chargeAtDropOff: " + costDetails.getTotalChargeAtDropOff(),
+            "chargeAtDropOff should be: " + calculatedChargeAtDropOff.doubleValue(),
+            "formula: bookingCost + dropOffCost + pickUpCost",
+            "calculated bookingCost: " + calculatedBookingCost.doubleValue(),
+            "pickUpCost: " + pickUpCost, "dropOffCost: " + dropOffCost,
+            "numberOfDays: " + numberOfDays);
+      }
+
     }
 
 
