@@ -45,4 +45,11 @@ public class BookingCreateDTO implements Serializable {
 
   private Double dropOffCost;
 
+  public void addPooch(PoochBookingCreateDTO poochBookingCreateDTO) {
+    if (this.pooches == null) {
+      this.pooches = new HashSet<>();
+    }
+    this.pooches.add(poochBookingCreateDTO);
+  }
+
 }
