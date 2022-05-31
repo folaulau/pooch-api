@@ -2,6 +2,7 @@ package com.pooch.api.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -47,4 +48,11 @@ public class PaymentIntentParentCreateDTO implements Serializable {
   /**
    * ====== Fields to calculate payment ends ===
    */
+
+  public void addPooch(PoochBookingCreateDTO pooch) {
+    if (this.pooches == null) {
+      this.pooches = new HashSet<>();
+    }
+    this.pooches.add(pooch);
+  }
 }
