@@ -162,6 +162,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
       throw new ApiException(ApiError.DEFAULT_MSG, "Add a pooch", "pooches are empty");
     }
 
+
     for (PoochBookingCreateDTO petCreateDTO : petCreateDTOs) {
       String poochUuid = petCreateDTO.getUuid();
 
@@ -235,8 +236,8 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
           "PaymentIntent not found for id=" + paymentIntentId);
     }
 
-    if (!paymentIntent.getStatus().equalsIgnoreCase("succeeded")) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "Payment has not been made",
+    if (!paymentIntent.getStatus().equalsIgnoreCase("requires_confirmation")) {
+      throw new ApiException(ApiError.DEFAULT_MSG, "attach paymentMethod if you have not done so","payment status should be requires_confirmation",
           "payment status=" + paymentIntent.getStatus());
     }
 

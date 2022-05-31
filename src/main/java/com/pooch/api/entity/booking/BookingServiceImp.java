@@ -108,7 +108,7 @@ public class BookingServiceImp implements BookingService {
     booking.setStripePaymentIntentId(bookingCreateDTO.getPaymentIntentId());
 
     com.stripe.model.PaymentIntent paymentIntent =
-        stripePaymentIntentService.getById(bookingCreateDTO.getPaymentIntentId());
+        stripePaymentIntentService.confirm(bookingCreateDTO.getPaymentIntentId());
 
     log.info("paymentIntent={}", paymentIntent.toJson());
 
@@ -183,8 +183,9 @@ public class BookingServiceImp implements BookingService {
     Transaction transaction = transactionService.addBookingInitialPayment(booking, costDetails);
 
     TransactionDTO transactionDTO = entityDTOMapper.mapTransactionToTransactionDTO(transaction);
-    
-    notificationService.sendBookingDetailsUponBooking(booking, booking.getParent(), booking.getGroomer());
+
+    notificationService.sendBookingDetailsUponBooking(booking, booking.getParent(),
+        booking.getGroomer());
 
     // 1. handle calendar
     // 2. send notification
