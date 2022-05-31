@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.joda.time.Days;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.ApiDefaultResponseDTO;
@@ -57,6 +58,9 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
   @Autowired
   private StripePaymentIntentService stripePaymentIntentService;
 
+  @Autowired
+  private BookingCalculatorService bookingCalculatorService;
+
   @Override
   public void validateBook(BookingCreateDTO bookingCreateDTO) {
 
@@ -86,140 +90,33 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
 
     Double dropOffCost = bookingCreateDTO.getDropOffCost();
 
-    if (dropOffCost != null && dropOffCost < 0) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "dropOffCost must greater than or equal to 0");
-    }
-
     Double pickUpCost = bookingCreateDTO.getPickUpCost();
-
-    if (pickUpCost != null && pickUpCost < 0) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "pickUpCost must greater than or equal to 0");
-    }
-
-    LocalTime openTime = groomer.getOpenTime();
-
-    LocalTime closeTime = groomer.getCloseTime();
 
     LocalDateTime startDateTime = bookingCreateDTO.getStartDateTime();
 
-    if (startDateTime == null) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime is required");
-    }
-
-    if (startDateTime.isBefore(LocalDateTime.now())) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime must be in the future");
-    }
-
-    startDateTime = startDateTime.withSecond(0).withNano(0);
-
     LocalDateTime endDateTime = bookingCreateDTO.getEndDateTime();
 
-    if (endDateTime == null) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "endDateTime is required");
-    }
-
-    if (endDateTime.isBefore(LocalDateTime.now())) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "endDateTime must be in the future");
-    }
-
     endDateTime = endDateTime.withSecond(0).withNano(0);
-
-    if (startDateTime.isAfter(endDateTime)) {
-      throw new ApiException(ApiError.DEFAULT_MSG,
-          "endDateTime must be greater than startDateTime");
-    }
 
     int numberOfDays = 0;
 
     LocalDateTime countFromStartDateTime = startDateTime;
 
-    log.info("startDateTime: " + startDateTime);
-    log.info("endDateTime: " + endDateTime);
-
     do {
-
       numberOfDays++;
       countFromStartDateTime = countFromStartDateTime.plusDays(1);
-
-      log.info("startDateTime: " + startDateTime);
-      log.info("endDateTime: " + endDateTime);
-
     } while (countFromStartDateTime.isBefore(endDateTime));
-
-    System.out.println("numberOfDays: " + numberOfDays);
-
 
     /**
      * Pets
      */
     Set<PoochBookingCreateDTO> petCreateDTOs = bookingCreateDTO.getPooches();
 
-    BigDecimal totalBookingCost = BigDecimal.valueOf(0.0);
-    BigDecimal calculatedBookingCost = BigDecimal.valueOf(0.0);
+    Pair<Double, Double> bookingCosts = bookingCalculatorService.calculateBookingCareServicesCost(
+        groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, petCreateDTOs);
 
-
-    if (petCreateDTOs == null || petCreateDTOs.size() <= 0) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "Add a pooch", "pooches are empty");
-    }
-
-
-    for (PoochBookingCreateDTO petCreateDTO : petCreateDTOs) {
-      String poochUuid = petCreateDTO.getUuid();
-
-      Pooch pooch = poochDAO.getByUuid(poochUuid).orElseThrow(
-          () -> new ApiException(ApiError.DEFAULT_MSG, "Pooch not found for uuid=" + poochUuid));
-
-      if (!parent.getId().equals(pooch.getParent().getId())) {
-        throw new ApiException(ApiError.DEFAULT_MSG, "Pooch does not belong to Parent",
-            "pooch has to belong to his/her parent");
-      }
-
-      Set<BookingCareServiceCreateDTO> services = petCreateDTO.getRequestedCareServices();
-
-      if (services == null || services.size() <= 0) {
-        throw new ApiException(ApiError.DEFAULT_MSG, "Add a service",
-            "services are empty for pooch uuid=" + petCreateDTO.getUuid());
-      }
-
-      for (BookingCareServiceCreateDTO service : services) {
-        String careServiceUuid = service.getUuid();
-
-        if (careServiceUuid == null || careServiceUuid.trim().isEmpty()) {
-          throw new ApiException(ApiError.DEFAULT_MSG, "service.uuid is required");
-        }
-
-        String size = service.getSize();
-
-        if (!PoochSize.isValidSize(size)) {
-          throw new ApiException(ApiError.DEFAULT_MSG, "service.size is invalid",
-              "valid sizes: " + PoochSize.sizes);
-        }
-
-        Optional<CareService> optService =
-            careServiceDAO.getByUuidAndGroomer(careServiceUuid, groomer.getId());
-
-        if (!optService.isPresent()) {
-          throw new ApiException(ApiError.DEFAULT_MSG,
-              "service.uuid belongs to a different groomer");
-        }
-
-        CareService careService = optService.get();
-
-        Double careServicePrice = careService.getPriceBySize(size);
-
-        /**
-         * calculate careService price per day
-         */
-        careServicePrice = careServicePrice * numberOfDays;
-
-        System.out.println("careServicePrice: " + careServicePrice);
-
-        calculatedBookingCost = calculatedBookingCost.add(BigDecimal.valueOf(careServicePrice));
-
-      }
-
-
-    }
+    Double calculatedBookingCost = bookingCosts.getFirst();
+    Double totalBookingCost = bookingCosts.getSecond();
 
     String paymentIntentId = bookingCreateDTO.getPaymentIntentId();
 
@@ -237,7 +134,8 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
     }
 
     if (!paymentIntent.getStatus().equalsIgnoreCase("requires_confirmation")) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "attach paymentMethod if you have not done so","payment status should be requires_confirmation",
+      throw new ApiException(ApiError.DEFAULT_MSG, "attach paymentMethod if you have not done so",
+          "payment status should be requires_confirmation",
           "payment status=" + paymentIntent.getStatus());
     }
 
@@ -250,28 +148,6 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
     BookingCostDetails costDetails = BookingCostDetails.fromJson(
         paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
 
-    /**
-     * ============= Booking Cost Details ================
-     */
-    if (dropOffCost != null && dropOffCost >= 0) {
-      totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(dropOffCost));
-    }
-
-    if (pickUpCost != null && pickUpCost >= 0) {
-      totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(pickUpCost));
-    }
-
-    totalBookingCost = totalBookingCost.add(calculatedBookingCost);
-
-    totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(costDetails.getBookingFee()));
-
-    totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(costDetails.getStripeFee()));
-
-    /**
-     * ============= Booking Cost Details Ends ================
-     */
-
-    System.out.println("totalBookingCost: " + totalBookingCost.doubleValue());
 
     if (groomer.isStripeReady()) {
       /**
@@ -320,7 +196,8 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
         calculatedChargeAtDropOff = calculatedChargeAtDropOff.add(BigDecimal.valueOf(pickUpCost));
       }
 
-      calculatedChargeAtDropOff = calculatedChargeAtDropOff.add(calculatedBookingCost);
+      calculatedChargeAtDropOff =
+          calculatedChargeAtDropOff.add(BigDecimal.valueOf(calculatedBookingCost));
 
       if (!costDetails.getTotalChargeAtDropOff().equals(calculatedChargeAtDropOff.doubleValue())) {
         throw new ApiException("Incorrect payment value",
@@ -333,8 +210,6 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
       }
 
     }
-
-
   }
 
   @Override

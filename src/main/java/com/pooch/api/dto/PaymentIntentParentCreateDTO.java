@@ -1,6 +1,8 @@
 package com.pooch.api.dto;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -16,18 +18,33 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 public class PaymentIntentParentCreateDTO implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String            groomerUuid;
+  private String groomerUuid;
 
-    private Double            amount;
+  private String paymentIntentId;
 
-    private String            paymentIntentId;
+  private String parentUuid;
 
-    private String            parentUuid;
+  private String paymentMethodUuid;
 
-    private String            paymentMethodUuid;
+  private Boolean savePaymentMethodForFutureUse;
 
-    private Boolean           savePaymentMethodForFutureUse;
 
+  /**
+   * ====== Fields to calculate payment =======
+   */
+  private Double pickUpCost;
+
+  private Double dropOffCost;
+
+  private LocalDateTime startDateTime;
+
+  private LocalDateTime endDateTime;
+
+  private Set<PoochBookingCreateDTO> pooches;
+
+  /**
+   * ====== Fields to calculate payment ends ===
+   */
 }

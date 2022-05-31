@@ -412,11 +412,11 @@ public class TestEntityGeneratorService {
     return pooch;
   }
 
-  public PaymentIntent createAndConfirmPaymentIntent(Double amount, String paymentMethodId) {
-    return createAndConfirmPaymentIntent(amount, paymentMethodId, null);
+  public PaymentIntent createAndAddPaymentMethod(Double amount, String paymentMethodId) {
+    return createAndAddPaymentMethod(amount, paymentMethodId, null);
   }
 
-  public PaymentIntent createAndConfirmPaymentIntent(Double amount, String paymentMethodId,
+  public PaymentIntent createAndAddPaymentMethod(Double amount, String paymentMethodId,
       String customerId) {
     Stripe.apiKey = stripeSecrets.getSecretKey();
 
@@ -460,7 +460,7 @@ public class TestEntityGeneratorService {
                 .setSetupFutureUsage(PaymentIntentCreateParams.SetupFutureUsage.OFF_SESSION)
                 .putMetadata(StripeMetadataService.env, env)
                 .putMetadata(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS, costDetails.toJson())
-                .setConfirm(true)
+//                .setConfirm(true)
                 .setTransferGroup("group-" + UUID.randomUUID().toString());
         // @formatter:on
 
