@@ -1,6 +1,8 @@
 package com.pooch.api.entity.booking;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,7 +28,7 @@ public class BookingCostDetails implements Serializable {
    * cost of the booking<br>
    * all service costs for all the days
    */
-  private Double bookingCost;
+  private Double careServicesCost;
 
   /**
    * Pooch fee. Flat fee taken by Pooch Platform
@@ -43,22 +45,112 @@ public class BookingCostDetails implements Serializable {
    * amount charge now depending on Groomer's Stripe status<br>
    * if groomer is Stripe ready? = all costs, else = just booking fee<br>
    */
-  private Double totalChargeAtBooking;
+  // private Double totalChargeAtBooking;
 
   /**
    * amount charge at drop off depending on Groomer's Stripe status<br>
    * if groomer is Stripe ready? = 0, else = (all costs - (bookingFee + stripeFee))<br>
    */
-  private Double totalChargeAtDropOff;
+  // private Double totalChargeAtDropOff;
+
+  /**
+   * start date and time of the booking
+   */
+  private LocalDateTime startDateTime;
+
+  /**
+   * end date and time of the booking
+   */
+  private LocalDateTime endDateTime;
+
+  /**
+   * number of days charged for services<br>
+   * difference between endDateTime and startDateTime
+   */
+  private Integer numberOfDays;
+
+  private Double dropOffCost;
+
+  private Double pickUpCost;
+
+  private Boolean groomerStripeReady;
+
+  public String toJson() {
+    return ObjectUtils.toJson(this);
+  }
+
+  /**
+   * careServicesCost + pickUpCost + dropOffCost
+   * 
+   * @return
+   */
+  public Double getBookingCost() {
+    BigDecimal bookingCost = BigDecimal.valueOf(0.0);
+
+    bookingCost = bookingCost.add(BigDecimal.valueOf(careServicesCost));
+
+    if (pickUpCost != null) {
+      bookingCost = bookingCost.add(BigDecimal.valueOf(pickUpCost));
+    }
+
+    if (dropOffCost != null) {
+      bookingCost = bookingCost.add(BigDecimal.valueOf(dropOffCost));
+    }
+
+    return bookingCost.doubleValue();
+  }
+
+  public Double getTotalChargeAtBooking() {
+    BigDecimal chargeAtBooking = BigDecimal.valueOf(0.0);
+
+    if (groomerStripeReady != null && groomerStripeReady) {
+      chargeAtBooking = chargeAtBooking.add(BigDecimal.valueOf(getTotalAmount()));
+
+    } else {
+      chargeAtBooking = chargeAtBooking.add(BigDecimal.valueOf(bookingFee));
+    }
+
+    return chargeAtBooking.doubleValue();
+  }
+
+  public Double getTotalChargeAtDropOff() {
+    BigDecimal chargeAtBooking = BigDecimal.valueOf(0.0);
+
+
+    if (groomerStripeReady == null || groomerStripeReady == false) {
+      chargeAtBooking = chargeAtBooking.add(BigDecimal.valueOf(getBookingCost()));
+    }
+
+    return chargeAtBooking.doubleValue();
+  }
+
 
   /**
    * total cost of booking<br>
    * bookingCost + bookingFee + stripeFee
    */
-  private Double totalAmount;
+  public Double getTotalAmount() {
+    BigDecimal amount = BigDecimal.valueOf(0.0);
 
-  public String toJson() {
-    return ObjectUtils.toJson(this);
+    amount = amount.add(BigDecimal.valueOf(careServicesCost));
+
+    if (pickUpCost != null) {
+      amount = amount.add(BigDecimal.valueOf(pickUpCost));
+    }
+
+    if (dropOffCost != null) {
+      amount = amount.add(BigDecimal.valueOf(dropOffCost));
+    }
+
+    if (stripeFee != null) {
+      amount = amount.add(BigDecimal.valueOf(stripeFee));
+    }
+
+    if (bookingFee != null) {
+      amount = amount.add(BigDecimal.valueOf(bookingFee));
+    }
+
+    return amount.doubleValue();
   }
 
   public static BookingCostDetails fromJson(String json) {

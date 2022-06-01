@@ -137,6 +137,8 @@ public class Booking implements Serializable {
   @Column(name = "stripe_payment_intent_id", nullable = true)
   private String stripePaymentIntentId;
 
+  
+  // services cost + pick up cost + drop off cost
   @Column(name = "booking_cost")
   private Double bookingCost;
 
@@ -185,7 +187,7 @@ public class Booking implements Serializable {
 
 
   public void populateBookingCostDetails(BookingCostDetails costDetails) {
-    this.setBookingCost(costDetails.getBookingCost());
+    this.setBookingCost(costDetails.getCareServicesCost());
     this.setBookingFee(costDetails.getBookingFee());
     this.setTotalAmount(costDetails.getTotalAmount());
     this.setStripeFee(costDetails.getStripeFee());

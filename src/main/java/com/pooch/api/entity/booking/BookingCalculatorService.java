@@ -10,9 +10,13 @@ import com.pooch.api.entity.parent.Parent;
 
 public interface BookingCalculatorService {
 
-  public BookingCostDetails generatePaymentIntentDetails(Groomer groomer, Double amount);
-
-  public Pair<Double, Double> calculateBookingCareServicesCost(Groomer groomer, Parent parent, Double pickUpCost,
+//  public BookingCostDetails generatePaymentIntentDetails(Groomer groomer, Double amount);
+//
+//  public Pair<Double, Double> calculateBookingCareServicesCost(Groomer groomer, Parent parent, Double pickUpCost,
+//      Double dropOffCost, LocalDateTime startDateTime, LocalDateTime endDateTime,
+//      Set<PoochBookingCreateDTO> pooches);
+  
+  public BookingCostDetails runCalculateBookingCareServicesCost(Groomer groomer, Parent parent, Double pickUpCost,
       Double dropOffCost, LocalDateTime startDateTime, LocalDateTime endDateTime,
       Set<PoochBookingCreateDTO> pooches);
 }

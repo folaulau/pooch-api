@@ -33,6 +33,7 @@ import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
 import com.pooch.api.library.stripe.StripeMetadataService;
 import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
+import com.pooch.api.utils.MathUtils;
 import com.stripe.model.PaymentIntent;
 
 import lombok.extern.slf4j.Slf4j;
@@ -99,25 +100,18 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
 
     endDateTime = endDateTime.withSecond(0).withNano(0);
 
-    int numberOfDays = 0;
 
-    LocalDateTime countFromStartDateTime = startDateTime;
-
-    do {
-      numberOfDays++;
-      countFromStartDateTime = countFromStartDateTime.plusDays(1);
-    } while (countFromStartDateTime.isBefore(endDateTime));
 
     /**
      * Pets
      */
     Set<PoochBookingCreateDTO> petCreateDTOs = bookingCreateDTO.getPooches();
 
-    Pair<Double, Double> bookingCosts = bookingCalculatorService.calculateBookingCareServicesCost(
-        groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, petCreateDTOs);
+    BookingCostDetails calculatedCostDetails =
+        bookingCalculatorService.runCalculateBookingCareServicesCost(groomer, parent, pickUpCost,
+            dropOffCost, startDateTime, endDateTime, petCreateDTOs);
 
-    Double calculatedBookingCost = bookingCosts.getFirst();
-    Double totalBookingCost = bookingCosts.getSecond();
+    int numberOfDays = calculatedCostDetails.getNumberOfDays();
 
     String paymentIntentId = bookingCreateDTO.getPaymentIntentId();
 
@@ -136,8 +130,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
 
     if (!paymentIntent.getStatus().equalsIgnoreCase("succeeded")) {
       throw new ApiException(ApiError.DEFAULT_MSG, "Payment has not been made",
-          "stripe issue, booking payment",
-          "payment status should be succeeded",
+          "stripe issue, booking payment", "payment status should be succeeded",
           "payment status=" + paymentIntent.getStatus());
     }
 
@@ -148,72 +141,99 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
           "parent stripeCustomerId is not the same as the customerId of the paymentIntent");
     }
 
-    BookingCostDetails costDetails = BookingCostDetails.fromJson(
+    log.info("paymentIntent.getAmount={},paymentIntent.getAmountReceived={}",
+        paymentIntent.getAmount(), paymentIntent.getAmountReceived());
+
+    BookingCostDetails paymentIntentCostDetails = BookingCostDetails.fromJson(
         paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
 
+    Double amountReceived = MathUtils.convertCentsToDollars(paymentIntent.getAmountReceived());
+    Double amount = MathUtils.convertCentsToDollars(paymentIntent.getAmount());
 
-    if (groomer.isStripeReady()) {
-      /**
-       * totalChargeAtBooking = all<br>
-       * totalChargeAtDropOff = 0<br>
-       * bookingCost + bookingFee + stripeFee <br>
-       */
-
-      if (!costDetails.getTotalChargeAtBooking().equals(totalBookingCost.doubleValue())) {
-        throw new ApiException("Incorrect payment value",
-            "today's charge: " + costDetails.getTotalChargeAtBooking(),
-            "today's charge should be: " + totalBookingCost.doubleValue(),
-            "formula: bookingCost + bookingFee + stripeFee + dropOffCost + pickUpCost",
-            "calculated bookingCost: " + calculatedBookingCost.doubleValue(),
-            "bookingFee: " + costDetails.getBookingFee(),
-            "stripeFee: " + costDetails.getStripeFee(), "pickUpCost: " + pickUpCost,
-            "dropOffCost: " + dropOffCost, "numberOfDays: " + numberOfDays);
-      }
-
-      if (costDetails.getTotalChargeAtDropOff() != null
-          && !(costDetails.getTotalChargeAtDropOff().equals(0.0D)
-              || costDetails.getTotalChargeAtDropOff().equals(0D))) {
-        throw new ApiException("Incorrect payment value",
-            "TotalChargeAtDropOff should be 0 but it's " + costDetails.getTotalChargeAtDropOff());
-      }
-
-
-    } else {
-      /**
-       * booking fee
-       */
-      if (!costDetails.getBookingFee().equals(costDetails.getTotalChargeAtBooking())) {
-        throw new ApiException(ApiError.DEFAULT_MSG,
-            "today's charge should be just the booking fee");
-      }
-
-      BigDecimal calculatedChargeAtDropOff = BigDecimal.valueOf(0.0);
-      /**
-       * calculatedBookingCost + dropOffCost + pickUpCost
-       */
-      if (dropOffCost != null && dropOffCost >= 0) {
-        calculatedChargeAtDropOff = calculatedChargeAtDropOff.add(BigDecimal.valueOf(dropOffCost));
-      }
-
-      if (pickUpCost != null && pickUpCost >= 0) {
-        calculatedChargeAtDropOff = calculatedChargeAtDropOff.add(BigDecimal.valueOf(pickUpCost));
-      }
-
-      calculatedChargeAtDropOff =
-          calculatedChargeAtDropOff.add(BigDecimal.valueOf(calculatedBookingCost));
-
-      if (!costDetails.getTotalChargeAtDropOff().equals(calculatedChargeAtDropOff.doubleValue())) {
-        throw new ApiException("Incorrect payment value",
-            "chargeAtDropOff: " + costDetails.getTotalChargeAtDropOff(),
-            "chargeAtDropOff should be: " + calculatedChargeAtDropOff.doubleValue(),
-            "formula: bookingCost + dropOffCost + pickUpCost",
-            "calculated bookingCost: " + calculatedBookingCost.doubleValue(),
-            "pickUpCost: " + pickUpCost, "dropOffCost: " + dropOffCost,
-            "numberOfDays: " + numberOfDays);
-      }
-
+    if (!amountReceived.equals(calculatedCostDetails.getTotalChargeAtBooking())) {
+      throw new ApiException("Incorrect payment value",
+          "today's amountReceived: " + amountReceived,
+          "today's amount: " + amount,
+          "today's charge should be: " + calculatedCostDetails.getTotalChargeAtBooking(),
+          "stripe paymentIntent.totalChargeAtBooking: " + paymentIntentCostDetails.getTotalChargeAtBooking());
     }
-    
+
+
+    if (!paymentIntentCostDetails.getTotalChargeAtBooking()
+        .equals(calculatedCostDetails.getTotalChargeAtBooking())) {
+      throw new ApiException("Incorrect payment value",
+          "today's charge: " + paymentIntentCostDetails.getTotalChargeAtBooking(),
+          "today's charge should be: " + calculatedCostDetails.getTotalChargeAtBooking(),
+          "formula: bookingCost + bookingFee + stripeFee + dropOffCost + pickUpCost",
+          "calculated services bookingCost: " + calculatedCostDetails.getCareServicesCost(),
+          "bookingFee: " + paymentIntentCostDetails.getBookingFee(),
+          "stripeFee: " + paymentIntentCostDetails.getStripeFee(), "pickUpCost: " + pickUpCost,
+          "dropOffCost: " + dropOffCost, "numberOfDays: " + numberOfDays);
+    }
+
+    if (!paymentIntentCostDetails.getTotalChargeAtDropOff()
+        .equals(calculatedCostDetails.getTotalChargeAtDropOff())) {
+      throw new ApiException("Incorrect payment value",
+          "TotalChargeAtDropOff is " + paymentIntentCostDetails.getTotalChargeAtDropOff(),
+          "TotalChargeAtDropOff should be " + calculatedCostDetails.getTotalChargeAtDropOff());
+    }
+
+    // if (groomer.isStripeReady()) {
+    // /**
+    // * totalChargeAtBooking = all<br>
+    // * totalChargeAtDropOff = 0<br>
+    // * bookingCost + bookingFee + stripeFee <br>
+    // */
+    //
+    // if (!paymentIntentCostDetails.getTotalChargeAtBooking()
+    // .equals(calculatedCostDetails.getTotalChargeAtBooking())) {
+    // throw new ApiException("Incorrect payment value",
+    // "today's charge: " + paymentIntentCostDetails.getTotalChargeAtBooking(),
+    // "today's charge should be: " + calculatedCostDetails.getTotalChargeAtBooking(),
+    // "formula: bookingCost + bookingFee + stripeFee + dropOffCost + pickUpCost",
+    // "calculated services bookingCost: " + calculatedCostDetails.getCareServicesCost(),
+    // "bookingFee: " + paymentIntentCostDetails.getBookingFee(),
+    // "stripeFee: " + paymentIntentCostDetails.getStripeFee(), "pickUpCost: " + pickUpCost,
+    // "dropOffCost: " + dropOffCost, "numberOfDays: " + numberOfDays);
+    // }
+    //
+    // if (!paymentIntentCostDetails.getTotalChargeAtDropOff()
+    // .equals(calculatedCostDetails.getTotalChargeAtDropOff())) {
+    // throw new ApiException("Incorrect payment value",
+    // "TotalChargeAtDropOff is " + paymentIntentCostDetails.getTotalChargeAtDropOff(),
+    // "TotalChargeAtDropOff should be " + calculatedCostDetails.getTotalChargeAtDropOff());
+    // }
+    //
+    //
+    // } else {
+    // /**
+    // * booking fee
+    // */
+    // if
+    // (!paymentIntentCostDetails.getBookingFee().equals(paymentIntentCostDetails.getTotalChargeAtBooking()))
+    // {
+    // throw new ApiException(ApiError.DEFAULT_MSG,
+    // "today's charge should be just the booking fee");
+    // }
+    //
+    // BigDecimal calculatedChargeAtDropOff =
+    // BigDecimal.valueOf(paymentIntentCostDetails.getTotalAmount())
+    // .subtract(BigDecimal.valueOf(paymentIntentCostDetails.getTotalChargeAtBooking()));
+    //
+    // if
+    // (!paymentIntentCostDetails.getTotalChargeAtDropOff().equals(calculatedCostDetails.getTotalChargeAtDropOff()))
+    // {
+    // throw new ApiException("Incorrect payment value",
+    // "chargeAtDropOff: " + paymentIntentCostDetails.getTotalChargeAtDropOff(),
+    // "chargeAtDropOff should be: " + calculatedChargeAtDropOff.doubleValue(),
+    // "formula: bookingCost + dropOffCost + pickUpCost",
+    // "calculated careServicesCost: " + calculatedCostDetails.getCareServicesCost(),
+    // "pickUpCost: " + pickUpCost, "dropOffCost: " + dropOffCost,
+    // "numberOfDays: " + numberOfDays);
+    // }
+    //
+    // }
+
     return Triple.of(groomer, parent, paymentIntent);
   }
 

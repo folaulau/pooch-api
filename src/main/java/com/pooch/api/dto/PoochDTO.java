@@ -15,7 +15,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 
 import org.hibernate.annotations.Type;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.pooch.FoodSchedule;
 import com.pooch.api.entity.pooch.Gender;
 import com.pooch.api.entity.pooch.Training;
@@ -23,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@JsonInclude(value = Include.NON_NULL)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

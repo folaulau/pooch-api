@@ -24,9 +24,10 @@ import com.pooch.api.exception.ApiException;
 import com.pooch.api.library.stripe.StripeMetadataService;
 import com.pooch.api.utils.MathUtils;
 import com.pooch.api.utils.ObjectUtils;
-
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+@Setter
 @Service
 @Slf4j
 public class BookingCalculatorServiceImp implements BookingCalculatorService {
@@ -43,58 +44,12 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
   @Autowired
   private CareServiceDAO careServiceDAO;
 
-  @Override
-  public BookingCostDetails generatePaymentIntentDetails(Groomer groomer, Double amount) {
-
-    BookingCostDetails costDetails = new BookingCostDetails();
-
-    // $10 booking fee
-    double bookingCost = MathUtils.getTwoDecimalPlaces(amount);
-
-    // 2.9% of chargeAmount + 30 cents
-    // put bookingCost on the parent, 10 booking is on pooch account
-    double stripeFee = BigDecimal.valueOf(2.9).divide(BigDecimal.valueOf(100))
-        .multiply(BigDecimal.valueOf(bookingCost)).add(BigDecimal.valueOf(0.3))
-        .setScale(2, RoundingMode.CEILING).doubleValue();
-
-
-    double totalChargeToday = 0;
-    double totalChargeAtDropOff = 0;
-    double totalAmount = 0;
-
-    if (groomer.isStripeReady()) {
-      totalChargeToday = BigDecimal.valueOf(bookingCost).add(BigDecimal.valueOf(stripeFee))
-          .add(BigDecimal.valueOf(bookingFee)).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-      totalChargeAtDropOff = 0;
-    } else {
-      totalChargeToday = bookingFee;
-      totalChargeAtDropOff = bookingCost;
-      stripeFee = 0;
-    }
-
-    totalAmount = (totalChargeToday + totalChargeAtDropOff);
-
-    costDetails.setBookingCost(bookingCost);
-    costDetails.setBookingFee(bookingFee);
-    costDetails.setStripeFee(stripeFee);
-    costDetails.setTotalChargeAtBooking(totalChargeToday);
-    costDetails.setTotalChargeAtDropOff(totalChargeAtDropOff);
-    costDetails.setTotalAmount(totalAmount);
-
-    log.info("groomer={}", ObjectUtils.toJson(groomer));
-
-    log.info(
-        "generatePaymentIntentDetails -> groomer.isStripeReady={}, bookingFee={}, bookingCost={}, totalChargeToday={}, stripeFee={}, totalChargeAtDropOff={}, totalAmount={}",
-        groomer.isStripeReady(), bookingFee, bookingCost, totalChargeToday, stripeFee,
-        totalChargeAtDropOff, totalAmount);
-
-    return costDetails;
-  }
 
   @Override
-  public Pair<Double, Double> calculateBookingCareServicesCost(Groomer groomer, Parent parent,
+  public BookingCostDetails runCalculateBookingCareServicesCost(Groomer groomer, Parent parent,
       Double pickUpCost, Double dropOffCost, LocalDateTime startDateTime, LocalDateTime endDateTime,
-      Set<PoochBookingCreateDTO> petCreateDTOs) {
+      Set<PoochBookingCreateDTO> pooches) {
+
 
     if (dropOffCost != null && dropOffCost < 0) {
       throw new ApiException(ApiError.DEFAULT_MSG, "dropOffCost must greater than or equal to 0");
@@ -104,49 +59,39 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
       throw new ApiException(ApiError.DEFAULT_MSG, "pickUpCost must greater than or equal to 0");
     }
 
-    LocalTime openTime = groomer.getOpenTime();
+    BookingCostDetails bookingCostDetails = new BookingCostDetails();
+    bookingCostDetails.setDropOffCost(dropOffCost);
+    bookingCostDetails.setPickUpCost(pickUpCost);
+    bookingCostDetails.setEndDateTime(endDateTime);
+    bookingCostDetails.setStartDateTime(startDateTime);
+    bookingCostDetails.setGroomerStripeReady(groomer.isStripeReady());
 
-    LocalTime closeTime = groomer.getCloseTime();
+    int numberOfDays = calculateNumberOfDays(groomer, startDateTime, endDateTime);
 
-    if (startDateTime == null) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime is required");
-    }
+    bookingCostDetails.setNumberOfDays(numberOfDays);
 
-    if (startDateTime.isBefore(LocalDateTime.now())) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime must be in the future");
-    }
+    Double careServicesCost = calculateCareServicesCost(groomer, parent, numberOfDays, pooches);
 
-    startDateTime = startDateTime.withSecond(0).withNano(0);
+    bookingCostDetails.setCareServicesCost(careServicesCost);
 
-    if (endDateTime == null) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "endDateTime is required");
-    }
+    bookingCostDetails = calculateStripeFees(bookingCostDetails, groomer);
 
-    if (endDateTime.isBefore(LocalDateTime.now())) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "endDateTime must be in the future");
-    }
+    log.info("bookingCostDetails={}", bookingCostDetails.toJson());
 
-    endDateTime = endDateTime.withSecond(0).withNano(0);
+    return bookingCostDetails;
+  }
 
-    if (startDateTime.isAfter(endDateTime)) {
-      throw new ApiException(ApiError.DEFAULT_MSG,
-          "endDateTime must be greater than startDateTime");
-    }
+  /**
+   * careServicesCost
+   */
+  private Double calculateCareServicesCost(Groomer groomer, Parent parent, int numberOfDays,
+      Set<PoochBookingCreateDTO> petCreateDTOs) {
 
-    int numberOfDays = 0;
+    log.info("calculateBookingCareServicesCost(..)");
 
-    LocalDateTime countFromStartDateTime = startDateTime;
+    log.info("petCreateDTOs={}", ObjectUtils.toJson(petCreateDTOs));
 
-    do {
-
-      numberOfDays++;
-      countFromStartDateTime = countFromStartDateTime.plusDays(1);
-
-    } while (countFromStartDateTime.isBefore(endDateTime));
-
-
-    BigDecimal totalBookingCost = BigDecimal.valueOf(0.0);
-    BigDecimal calculatedBookingCost = BigDecimal.valueOf(0.0);
+    BigDecimal careServicesBookingCost = BigDecimal.valueOf(0.0);
 
 
     if (petCreateDTOs == null || petCreateDTOs.size() <= 0) {
@@ -189,47 +134,119 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
               "valid sizes: " + PoochSize.sizes);
         }
 
-        Optional<CareService> optService =
-            careServiceDAO.getByUuidAndGroomer(careServiceUuid, groomer.getId());
+        CareService careService =
+            careServiceDAO.getByUuidAndGroomer(careServiceUuid, groomer.getId())
+                .orElseThrow(() -> new ApiException(ApiError.DEFAULT_MSG,
+                    "service.uuid belongs to a different groomer"));
 
-        if (!optService.isPresent()) {
-          throw new ApiException(ApiError.DEFAULT_MSG,
-              "service.uuid belongs to a different groomer");
+        if (!careService.isSizeServiced(size)) {
+          throw new ApiException(ApiError.DEFAULT_MSG, "Groomer does not off service for this size",
+              "size: " + size, "serviceName: " + careService.getName());
         }
 
-        CareService careService = optService.get();
-
-        Double careServicePrice = careService.getPriceBySize(size);
+        Double careServicePricePerDay = careService.getPriceBySize(size);
 
         /**
          * calculate careService price per day
          */
-        careServicePrice = careServicePrice * numberOfDays;
+        Double careServicePrice = careServicePricePerDay * numberOfDays;
 
-        calculatedBookingCost = calculatedBookingCost.add(BigDecimal.valueOf(careServicePrice));
+        log.info("careService.name={}, careServicePricePerDay={}, careServicePrice={}",
+            careService.getName(), careServicePricePerDay, careServicePrice);
+
+        careServicesBookingCost = careServicesBookingCost.add(BigDecimal.valueOf(careServicePrice));
 
       }
 
 
     }
 
-    /**
-     * ============= Booking Cost Details ================
-     */
-    if (dropOffCost != null && dropOffCost >= 0) {
-      totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(dropOffCost));
-    }
-
-    if (pickUpCost != null && pickUpCost >= 0) {
-      totalBookingCost = totalBookingCost.add(BigDecimal.valueOf(pickUpCost));
-    }
-
-    totalBookingCost = totalBookingCost.add(calculatedBookingCost);
+    log.info("careServicesBookingCost={}", careServicesBookingCost);
 
     // calculatedBookingCost, totalBookingCost
-    return Pair.of(MathUtils.getTwoDecimalPlaces(calculatedBookingCost.doubleValue()),
-        MathUtils.getTwoDecimalPlaces(totalBookingCost.doubleValue()));
+    return careServicesBookingCost.doubleValue();
 
   }
+
+  private int calculateNumberOfDays(Groomer groomer, LocalDateTime startDateTime,
+      LocalDateTime endDateTime) {
+    LocalTime openTime = groomer.getOpenTime();
+
+    // openTime = openTime.withSecond(0).withNano(0);
+
+    LocalTime closeTime = groomer.getCloseTime();
+
+    // closeTime = closeTime.withSecond(0).withNano(0);
+
+    if (startDateTime == null) {
+      throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime is required");
+    }
+
+    if (startDateTime.isBefore(LocalDateTime.now())) {
+      throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime must be in the future");
+    }
+
+    startDateTime = startDateTime.withSecond(0).withNano(0);
+
+    // if(!openTime.equals(startDateTime.toLocalTime())) {
+    // throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime is required");
+    // }
+
+    if (endDateTime == null) {
+      throw new ApiException(ApiError.DEFAULT_MSG, "endDateTime is required");
+    }
+
+    if (endDateTime.isBefore(LocalDateTime.now())) {
+      throw new ApiException(ApiError.DEFAULT_MSG, "endDateTime must be in the future");
+    }
+
+    endDateTime = endDateTime.withSecond(0).withNano(0);
+
+    if (startDateTime.isAfter(endDateTime)) {
+      throw new ApiException(ApiError.DEFAULT_MSG,
+          "endDateTime must be greater than startDateTime");
+    }
+
+    int numberOfDays = 0;
+
+    LocalDateTime countFromStartDateTime = startDateTime;
+
+    do {
+
+      numberOfDays++;
+      countFromStartDateTime = countFromStartDateTime.plusDays(1);
+
+    } while (countFromStartDateTime.isBefore(endDateTime));
+
+    log.info("numberOfDays={}, startDateTime={}, endDateTime={}", numberOfDays, startDateTime,
+        endDateTime);
+
+    return numberOfDays;
+  }
+
+  private BookingCostDetails calculateStripeFees(BookingCostDetails costDetails, Groomer groomer) {
+
+    // $10 booking fee
+    double bookingCost = MathUtils.getTwoDecimalPlaces(costDetails.getBookingCost());
+
+    // 2.9% of chargeAmount + 30 cents
+    // put bookingCost on the parent, 10 booking is on pooch account
+    double stripeFee = BigDecimal.valueOf(2.9).divide(BigDecimal.valueOf(100))
+        .multiply(BigDecimal.valueOf(bookingCost)).add(BigDecimal.valueOf(0.3))
+        .setScale(2, RoundingMode.HALF_UP).doubleValue();
+
+    if (!groomer.isStripeReady()) {
+      stripeFee = 0;
+    }
+
+    costDetails.setBookingFee(bookingFee);
+    costDetails.setStripeFee(stripeFee);
+
+    log.info("calculateStripeFee bookingFee={}, stripeFee={}", bookingFee, stripeFee);
+
+    return costDetails;
+  }
+
+
 
 }

@@ -301,17 +301,10 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     PaymentMethod paymentMethod =
         paymentMethodDAO.getByUuid(paymentIntentParentDTO.getPaymentMethodUuid()).orElse(null);
 
-    Pair<Double, Double> bookingCosts = bookingCalculatorService.calculateBookingCareServicesCost(
+    BookingCostDetails costDetails = bookingCalculatorService.runCalculateBookingCareServicesCost(
         groomer, parent, paymentIntentParentDTO.getPickUpCost(),
         paymentIntentParentDTO.getDropOffCost(), paymentIntentParentDTO.getStartDateTime(),
         paymentIntentParentDTO.getEndDateTime(), paymentIntentParentDTO.getPooches());
-
-    Double bookingCost = bookingCosts.getSecond();
-
-    // Customer customer = stripeCustomerService.createPlaceHolderCustomer();
-
-    BookingCostDetails costDetails =
-        bookingCalculatorService.generatePaymentIntentDetails(groomer, bookingCost);
 
     long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeAtBooking())
         .multiply(BigDecimal.valueOf(100)).longValue();
@@ -379,18 +372,13 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     Groomer groomer = pair.getFirst();
     Parent parent = pair.getSecond();
 
-    Pair<Double, Double> bookingCosts = bookingCalculatorService.calculateBookingCareServicesCost(
+    BookingCostDetails costDetails = bookingCalculatorService.runCalculateBookingCareServicesCost(
         groomer, parent, paymentIntentParentDTO.getPickUpCost(),
         paymentIntentParentDTO.getDropOffCost(), paymentIntentParentDTO.getStartDateTime(),
         paymentIntentParentDTO.getEndDateTime(), paymentIntentParentDTO.getPooches());
 
-    Double bookingCost = bookingCosts.getSecond();
-
     PaymentMethod paymentMethod =
         paymentMethodDAO.getByUuid(paymentIntentParentDTO.getPaymentMethodUuid()).orElse(null);
-
-    BookingCostDetails costDetails =
-        bookingCalculatorService.generatePaymentIntentDetails(groomer, bookingCost);
 
     long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeAtBooking())
         .multiply(BigDecimal.valueOf(100)).longValue();

@@ -122,7 +122,8 @@ public class TestEntityGeneratorService {
     groomer.setEmailVerified(false);
     groomer.setBusinessName((firstName + " " + lastName).toLowerCase());
     groomer.setNumberOfOccupancy(RandomGeneratorUtils.getLongWithin(2L, 100L));
-    groomer.setChargePerMile(MathUtils.getTwoDecimalPlaces(RandomGeneratorUtils.getDoubleWithin(2D, 20D)));
+    groomer.setChargePerMile(
+        MathUtils.getTwoDecimalPlaces(RandomGeneratorUtils.getDoubleWithin(2D, 20D)));
     groomer.setOfferedDropOff(true);
     groomer.setOfferedPickUp(true);
     groomer.setStatus(GroomerStatus.SIGNING_UP);
@@ -134,12 +135,12 @@ public class TestEntityGeneratorService {
 
     groomer.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
     groomer.addRole(new Role(Authority.groomer));
-    
-    LocalTime openTime = LocalTime.of(RandomGeneratorUtils.getIntegerWithin(7, 9) , 0);
-    groomer.setOpenTime(openTime);    
-    
+
+    LocalTime openTime = LocalTime.of(RandomGeneratorUtils.getIntegerWithin(7, 9), 0);
+    groomer.setOpenTime(openTime);
+
     groomer.setCloseTime(openTime.plusHours(8));
-    
+
     groomer.setAddress(getAddress());
     return groomer;
   }
@@ -168,6 +169,13 @@ public class TestEntityGeneratorService {
 
     groomer.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
     groomer.addRole(new Role(Authority.groomer));
+
+    LocalTime openTime =
+        LocalTime.of(RandomGeneratorUtils.getIntegerWithin(7, 9), 0).withNano(0).withSecond(0);
+    LocalTime closeTimme = openTime.plusHours(9);
+
+    groomer.setOpenTime(openTime);
+    groomer.setCloseTime(closeTimme);
 
     groomer.setAddress(getAddress());
 
@@ -240,21 +248,17 @@ public class TestEntityGeneratorService {
     pooch.setDob(LocalDate.now().minusMonths(RandomGeneratorUtils.getLongWithin(6, 60)));
     pooch.addFoodSchedule(FoodSchedule.Morning);
     pooch.addFoodSchedule(FoodSchedule.Night);
-    
+
     pooch.setFullName(RandomGeneratorUtils.getRandomFullName());
     pooch.setGender(Gender.Female);
     pooch.setSpayed(true);
     pooch.setTraining(Training.Medium);
     pooch.setWeight(15D);
-    pooch.addVaccine(Vaccine.builder()
-        .name("vitamin")
-        .expireDate(LocalDateTime.now().plusMonths(6))
-        .build());   
-    pooch.addVaccine(Vaccine.builder()
-        .name("protein")
-        .expireDate(LocalDateTime.now().plusMonths(6))
-        .build());   
-    
+    pooch.addVaccine(
+        Vaccine.builder().name("vitamin").expireDate(LocalDateTime.now().plusMonths(6)).build());
+    pooch.addVaccine(
+        Vaccine.builder().name("protein").expireDate(LocalDateTime.now().plusMonths(6)).build());
+
 
     return pooch;
   }
@@ -431,24 +435,19 @@ public class TestEntityGeneratorService {
     double stripeFee = BigDecimal.valueOf(2.9).divide(BigDecimal.valueOf(100))
         .multiply(BigDecimal.valueOf(chargeAmount)).add(BigDecimal.valueOf(0.3))
         .setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-    
+
     double totalCharge = chargeAmount + stripeFee;
-    
+
     long totalChargeAsCents =
         BigDecimal.valueOf(totalCharge).multiply(BigDecimal.valueOf(100)).longValue();
-    
-    Double totalAmount = totalCharge;
 
     // String customerId = "cus_Lgyk8DhX8TytPQ";
 
     // @formatter:off
         
         BookingCostDetails costDetails = BookingCostDetails.builder()
-                .bookingCost(bookingCost)
+                .careServicesCost(bookingCost)
                 .bookingFee(bookingFee)
-                .totalChargeAtBooking(totalCharge)
-                .totalChargeAtDropOff(0D)
-                .totalAmount(totalAmount)
                 .stripeFee(stripeFee)
                 .build();
         
@@ -566,32 +565,32 @@ public class TestEntityGeneratorService {
 
     return pm;
   }
-  
-  public SetupIntent addPaymentMethodAndConfirmSetupIntent(String setupIntentId, String paymentMethodId) {
-    
+
+  public SetupIntent addPaymentMethodAndConfirmSetupIntent(String setupIntentId,
+      String paymentMethodId) {
+
     Stripe.apiKey = stripeSecrets.getSecretKey();
-    
+
     SetupIntent setupIntent = null;
     try {
       setupIntent = SetupIntent.retrieve(setupIntentId);
 
       log.info("setupIntent={}", setupIntent.toJson());
-      
-      setupIntent = setupIntent.update(SetupIntentUpdateParams.builder()
-          .setPaymentMethod(paymentMethodId)
-          .build());
-      
+
+      setupIntent = setupIntent
+          .update(SetupIntentUpdateParams.builder().setPaymentMethod(paymentMethodId).build());
+
       log.info("updated setupIntent={}", setupIntent.toJson());
-      
+
       setupIntent = setupIntent.confirm();
-      
+
       log.info("confirmed setupIntent={}", setupIntent.toJson());
-      
+
     } catch (StripeException e) {
       log.warn("StripeException - create, localMessage={}, userMessage={}", e.getLocalizedMessage(),
           e.getUserMessage());
     }
-    
+
     return setupIntent;
   }
 }

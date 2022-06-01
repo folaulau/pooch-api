@@ -1,4 +1,4 @@
-package com.pooch.api.entity.groomer.careservice.type;
+package com.pooch.api.utils.dataloader;
 
 import java.util.Arrays;
 import java.util.List;
@@ -8,6 +8,9 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
+import com.pooch.api.entity.groomer.careservice.type.CareServiceType;
+import com.pooch.api.entity.groomer.careservice.type.GroomerServiceCategory;
+import com.pooch.api.entity.groomer.careservice.type.GroomerServiceCategoryRepository;
 
 @Component
 public class CareServiceTypeDataLoader implements ApplicationRunner {

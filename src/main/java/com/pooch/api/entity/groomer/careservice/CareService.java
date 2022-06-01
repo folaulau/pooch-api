@@ -173,4 +173,19 @@ public class CareService implements Serializable {
     return null;
   }
 
+  public boolean isSizeServiced(String size) {
+    if (size == null || size.length() == 0 || !PoochSize.isValidSize(size)) {
+      return false;
+    }
+
+    if (size.equalsIgnoreCase(PoochSize.small)) {
+      return this.serviceSmall;
+    } else if (size.equalsIgnoreCase(PoochSize.medium)) {
+      return this.serviceMedium;
+    } else if (size.equalsIgnoreCase(PoochSize.large)) {
+      return this.serviceLarge;
+    }
+    return false;
+  }
+
 }
