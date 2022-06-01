@@ -83,7 +83,8 @@ class BookingCalculatorServiceTests {
     }
 
 
-    BookingCostDetails bookingCostDetails = calculatorService.runCalculateBookingCareServicesCost(
+    BookingCostDetails bookingCostDetails = calculatorService.calculateBookingDetailCosts(
+        BookingCalculatorSender.CREATE_PAYMENTINTENT,
         groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, pooches);
 
     assertThat(bookingCostDetails).isNotNull();
@@ -142,7 +143,8 @@ class BookingCalculatorServiceTests {
     }
 
 
-    BookingCostDetails bookingCostDetails = calculatorService.runCalculateBookingCareServicesCost(
+    BookingCostDetails bookingCostDetails = calculatorService.calculateBookingDetailCosts(
+        BookingCalculatorSender.CREATE_PAYMENTINTENT,
         groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, pooches);
 
     assertThat(bookingCostDetails).isNotNull();
@@ -205,7 +207,8 @@ class BookingCalculatorServiceTests {
     }
 
 
-    BookingCostDetails bookingCostDetails = calculatorService.runCalculateBookingCareServicesCost(
+    BookingCostDetails bookingCostDetails = calculatorService.calculateBookingDetailCosts(
+        BookingCalculatorSender.CREATE_PAYMENTINTENT,
         groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, pooches);
 
     assertThat(bookingCostDetails).isNotNull();

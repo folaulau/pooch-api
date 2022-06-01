@@ -106,7 +106,9 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
     Set<PoochBookingCreateDTO> petCreateDTOs = bookingCreateDTO.getPooches();
 
     BookingCostDetails calculatedCostDetails =
-        bookingCalculatorService.runCalculateBookingCareServicesCost(groomer, parent, pickUpCost,
+        bookingCalculatorService.calculateBookingDetailCosts(
+            BookingCalculatorSender.CREATE_BOOKING,
+            groomer, parent, pickUpCost,
             dropOffCost, startDateTime, endDateTime, petCreateDTOs);
 
     String paymentIntentId = bookingCreateDTO.getPaymentIntentId();

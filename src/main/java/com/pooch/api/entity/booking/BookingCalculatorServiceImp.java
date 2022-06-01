@@ -46,9 +46,9 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
 
 
   @Override
-  public BookingCostDetails runCalculateBookingCareServicesCost(Groomer groomer, Parent parent,
-      Double pickUpCost, Double dropOffCost, LocalDateTime startDateTime, LocalDateTime endDateTime,
-      Set<PoochBookingCreateDTO> pooches) {
+  public BookingCostDetails calculateBookingDetailCosts(BookingCalculatorSender sender,
+      Groomer groomer, Parent parent, Double pickUpCost, Double dropOffCost,
+      LocalDateTime startDateTime, LocalDateTime endDateTime, Set<PoochBookingCreateDTO> pooches) {
 
 
     if (dropOffCost != null && dropOffCost < 0) {
@@ -70,7 +70,8 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
 
     bookingCostDetails.setNumberOfDays(numberOfDays);
 
-    Double careServicesCost = calculateCareServicesCost(groomer, parent, numberOfDays, pooches);
+    Double careServicesCost =
+        calculateCareServicesCost(sender, groomer, parent, numberOfDays, pooches);
 
     bookingCostDetails.setCareServicesCost(careServicesCost);
 
@@ -84,8 +85,8 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
   /**
    * careServicesCost
    */
-  private Double calculateCareServicesCost(Groomer groomer, Parent parent, int numberOfDays,
-      Set<PoochBookingCreateDTO> petCreateDTOs) {
+  private Double calculateCareServicesCost(BookingCalculatorSender sender, Groomer groomer,
+      Parent parent, int numberOfDays, Set<PoochBookingCreateDTO> petCreateDTOs) {
 
     log.info("calculateBookingCareServicesCost(..)");
 
@@ -103,7 +104,12 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
 
       String poochUuid = petCreateDTO.getUuid();
 
-      if (poochUuid != null && !poochUuid.trim().isEmpty()) {
+      if (sender.equals(BookingCalculatorSender.CREATE_BOOKING)) {
+
+        if (poochUuid == null || poochUuid.trim().isEmpty()) {
+          throw new ApiException(ApiError.DEFAULT_MSG, "pooch uuid is required");
+        }
+
         Pooch pooch = poochDAO.getByUuid(poochUuid).orElseThrow(
             () -> new ApiException(ApiError.DEFAULT_MSG, "Pooch not found for uuid=" + poochUuid));
 

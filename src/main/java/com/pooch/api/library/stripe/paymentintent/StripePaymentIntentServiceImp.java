@@ -21,6 +21,7 @@ import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.PaymentIntentDTO;
 import com.pooch.api.dto.PaymentIntentParentCreateDTO;
 import com.pooch.api.dto.PaymentIntentQuestCreateDTO;
+import com.pooch.api.entity.booking.BookingCalculatorSender;
 import com.pooch.api.entity.booking.BookingCalculatorService;
 import com.pooch.api.entity.booking.BookingCostDetails;
 import com.pooch.api.entity.groomer.Groomer;
@@ -138,7 +139,8 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     PaymentMethod paymentMethod =
         paymentMethodDAO.getByUuid(paymentIntentParentDTO.getPaymentMethodUuid()).orElse(null);
 
-    BookingCostDetails costDetails = bookingCalculatorService.runCalculateBookingCareServicesCost(
+    BookingCostDetails costDetails = bookingCalculatorService.calculateBookingDetailCosts(
+        BookingCalculatorSender.CREATE_PAYMENTINTENT,
         groomer, parent, paymentIntentParentDTO.getPickUpCost(),
         paymentIntentParentDTO.getDropOffCost(), paymentIntentParentDTO.getStartDateTime(),
         paymentIntentParentDTO.getEndDateTime(), paymentIntentParentDTO.getPooches());
@@ -209,7 +211,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     Groomer groomer = pair.getFirst();
     Parent parent = pair.getSecond();
 
-    BookingCostDetails costDetails = bookingCalculatorService.runCalculateBookingCareServicesCost(
+    BookingCostDetails costDetails = bookingCalculatorService.calculateBookingDetailCosts(BookingCalculatorSender.CREATE_PAYMENTINTENT,
         groomer, parent, paymentIntentParentDTO.getPickUpCost(),
         paymentIntentParentDTO.getDropOffCost(), paymentIntentParentDTO.getStartDateTime(),
         paymentIntentParentDTO.getEndDateTime(), paymentIntentParentDTO.getPooches());
