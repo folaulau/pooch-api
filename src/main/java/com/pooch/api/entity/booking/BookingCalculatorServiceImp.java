@@ -156,6 +156,18 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
 
     for (PoochBookingCreateDTO petCreateDTO : petCreateDTOs) {
 
+      String poochUuid = petCreateDTO.getUuid();
+
+      if (poochUuid != null && !poochUuid.trim().isEmpty()) {
+        Pooch pooch = poochDAO.getByUuid(poochUuid).orElseThrow(
+            () -> new ApiException(ApiError.DEFAULT_MSG, "Pooch not found for uuid=" + poochUuid));
+
+        if (!parent.getId().equals(pooch.getParent().getId())) {
+          throw new ApiException(ApiError.DEFAULT_MSG, "Pooch does not belong to Parent",
+              "pooch has to belong to his/her parent");
+        }
+      }
+
       Set<BookingCareServiceCreateDTO> services = petCreateDTO.getRequestedCareServices();
 
       if (services == null || services.size() <= 0) {

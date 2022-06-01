@@ -133,15 +133,17 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
           "PaymentIntent not found for id=" + paymentIntentId);
     }
 
-    if (!paymentIntent.getStatus().equalsIgnoreCase("requires_confirmation")) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "attach paymentMethod if you have not done so",
-          "payment status should be requires_confirmation",
+    if (!paymentIntent.getStatus().equalsIgnoreCase("succeeded")) {
+      throw new ApiException(ApiError.DEFAULT_MSG, "Payment has not been made",
+          "stripe issue, booking payment",
+          "payment status should be succeeded",
           "payment status=" + paymentIntent.getStatus());
     }
 
     if (parent.getStripeCustomerId() != null && paymentIntent.getCustomer() != null
         && !parent.getStripeCustomerId().equalsIgnoreCase(paymentIntent.getCustomer())) {
       throw new ApiException(ApiError.DEFAULT_MSG, "You are charging a different parent",
+          "stripe issue, booking payment",
           "parent stripeCustomerId is not the same as the customerId of the paymentIntent");
     }
 
