@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.Days;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -62,7 +63,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
   private BookingCalculatorService bookingCalculatorService;
 
   @Override
-  public void validateBook(BookingCreateDTO bookingCreateDTO) {
+  public Triple<Groomer, Parent, PaymentIntent> validateBook(BookingCreateDTO bookingCreateDTO) {
 
     String parentUuid = bookingCreateDTO.getParentUuid();
 
@@ -212,6 +213,8 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
       }
 
     }
+    
+    return Triple.of(groomer, parent, paymentIntent);
   }
 
   @Override

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,7 @@ import com.pooch.api.library.stripe.customer.StripeCustomerService;
 import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
 import com.pooch.api.library.stripe.paymentmethod.StripePaymentMethodService;
 import com.pooch.api.utils.ObjectUtils;
-
+import com.stripe.model.PaymentIntent;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -99,17 +100,17 @@ public class BookingServiceImp implements BookingService {
 
   @Override
   public BookingDTO book(BookingCreateDTO bookingCreateDTO) {
-    bookingValidatorService.validateBook(bookingCreateDTO);
+    Triple<Groomer, Parent, PaymentIntent> triple =
+        bookingValidatorService.validateBook(bookingCreateDTO);
+
+    Groomer groomer = triple.getLeft();
+    Parent parent = triple.getMiddle();
+    com.stripe.model.PaymentIntent paymentIntent = triple.getRight();
 
     Booking booking = entityDTOMapper.mapBookingCreateDTOToBooking(bookingCreateDTO);
 
-    Parent parent = parentDAO.getByUuid(bookingCreateDTO.getParentUuid()).get();
-
-    booking.setStripePaymentIntentId(bookingCreateDTO.getPaymentIntentId());
-
-    com.stripe.model.PaymentIntent paymentIntent =
-        stripePaymentIntentService.confirm(bookingCreateDTO.getPaymentIntentId());
-
+    booking.setStripePaymentIntentId(paymentIntent.getId());
+    
     log.info("paymentIntent={}", paymentIntent.toJson());
 
     Optional<PaymentMethod> optPaymentMethod =
@@ -142,8 +143,6 @@ public class BookingServiceImp implements BookingService {
     parent = parentDAO.save(parent);
 
     booking.setParent(parent);
-
-    Groomer groomer = groomerDAO.getByUuid(bookingCreateDTO.getGroomerUuid()).get();
 
     booking.setGroomer(groomer);
 
