@@ -242,50 +242,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
   // return paymentIntentDTO;
   // }
 
-  @Override
-  public boolean transferFundsToGroomer(PaymentIntent pi, Groomer groomer) {
-    Stripe.apiKey = stripeSecrets.getSecretKey();
 
-    PaymentIntent paymentIntent = null;
-
-    try {
-      paymentIntent = PaymentIntent.retrieve(pi.getId());
-
-      String transferGroup = paymentIntent.getTransferGroup();
-
-      BookingCostDetails costDetails = BookingCostDetails.fromJson(
-          paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
-
-      BigDecimal bookingCost = BigDecimal.valueOf(costDetails.getBookingCost());
-
-      List<com.stripe.model.Charge> charges = paymentIntent.getCharges().getData();
-
-      com.stripe.model.Charge charge = charges.get(charges.size() - 1);
-
-      /**
-       * make sure TransferGroup is the same from the payment intent
-       */
-      TransferCreateParams transferParams = TransferCreateParams.builder()
-          .setAmount(bookingCost.multiply(BigDecimal.valueOf(100)).longValue()).setCurrency("usd")
-          .setDestination(groomer.getStripeConnectedAccountId())
-
-          // https://stripe.com/docs/connect/charges-transfers#transfer-availability
-          .setSourceTransaction(charge.getId()).setTransferGroup(transferGroup).build();
-
-      System.out.println("transferParams: " + transferParams.toMap().toString());
-
-      Transfer transfer = Transfer.create(transferParams);
-
-      System.out.println("transfer: " + transfer.toJson());
-
-    } catch (StripeException e) {
-      log.warn("StripeException - transferFundsToGroomer, msg={}", e.getMessage());
-
-      return false;
-    }
-
-    return false;
-  }
 
   @Override
   public PaymentIntentDTO createParentPaymentIntent(
@@ -462,4 +419,61 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
     return paymentIntent;
   }
+
+
+  @Override
+  public boolean transferFundsToGroomerOnBookingInitialPayment(PaymentIntent paymentIntent,
+      Groomer groomer) {
+
+    List<com.stripe.model.Charge> charges = paymentIntent.getCharges().getData();
+
+    com.stripe.model.Charge charge = charges.get(charges.size() - 1);
+
+    return transferFundsToGroomer(paymentIntent, groomer, charge);
+  }
+
+  @Override
+  public boolean transferFundsToGroomer(PaymentIntent pi, Groomer groomer,
+      com.stripe.model.Charge charge) {
+    Stripe.apiKey = stripeSecrets.getSecretKey();
+
+    PaymentIntent paymentIntent = null;
+
+    try {
+      paymentIntent = PaymentIntent.retrieve(pi.getId());
+
+      String transferGroup = paymentIntent.getTransferGroup();
+
+      BookingCostDetails costDetails = BookingCostDetails.fromJson(
+          paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
+
+      BigDecimal bookingCost = BigDecimal.valueOf(costDetails.getBookingCost());
+
+
+      /**
+       * make sure TransferGroup is the same from the payment intent
+       */
+      TransferCreateParams transferParams = TransferCreateParams.builder()
+          .setAmount(MathUtils.convertDollarsToCents(bookingCost.doubleValue())).setCurrency("usd")
+
+          .setDestination(groomer.getStripeConnectedAccountId())
+
+          // https://stripe.com/docs/connect/charges-transfers#transfer-availability
+          .setSourceTransaction(charge.getId()).setTransferGroup(transferGroup).build();
+
+      System.out.println("transferParams: " + transferParams.toMap().toString());
+
+      Transfer transfer = Transfer.create(transferParams);
+
+      System.out.println("transfer: " + transfer.toJson());
+
+    } catch (StripeException e) {
+      log.warn("StripeException - transferFundsToGroomer, msg={}", e.getMessage());
+
+      return false;
+    }
+
+    return false;
+  }
+
 }

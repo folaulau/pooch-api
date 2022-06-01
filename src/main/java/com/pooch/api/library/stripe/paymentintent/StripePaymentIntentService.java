@@ -24,7 +24,9 @@ public interface StripePaymentIntentService {
   PaymentIntentCollection getPaymentIntentsByCustomerId(String customerId, long limit,
       String startingAfter);
 
-  boolean transferFundsToGroomer(PaymentIntent paymentIntent, Groomer groomer);
+  boolean transferFundsToGroomerOnBookingInitialPayment(PaymentIntent paymentIntent, Groomer groomer);
+  
+  boolean transferFundsToGroomer(PaymentIntent paymentIntent, Groomer groomer, com.stripe.model.Charge charge);
 
   PaymentIntentDTO createParentPaymentIntent(PaymentIntentParentCreateDTO paymentIntentParentDTO);
 

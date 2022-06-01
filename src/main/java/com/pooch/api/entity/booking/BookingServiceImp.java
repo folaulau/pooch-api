@@ -110,7 +110,7 @@ public class BookingServiceImp implements BookingService {
     Booking booking = entityDTOMapper.mapBookingCreateDTOToBooking(bookingCreateDTO);
 
     booking.setStripePaymentIntentId(paymentIntent.getId());
-    
+
     log.info("paymentIntent={}", paymentIntent.toJson());
 
     Optional<PaymentMethod> optPaymentMethod =
@@ -148,8 +148,8 @@ public class BookingServiceImp implements BookingService {
 
     if (groomer.isStripeReady()) {
 
-      boolean transferred =
-          stripePaymentIntentService.transferFundsToGroomer(paymentIntent, groomer);
+      boolean transferred = stripePaymentIntentService
+          .transferFundsToGroomerOnBookingInitialPayment(paymentIntent, groomer);
 
       if (transferred) {
         booking.setStatus(BookingStatus.Booked);
