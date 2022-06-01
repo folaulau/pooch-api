@@ -151,7 +151,7 @@ public class BookingServiceImp implements BookingService {
       boolean transferred = stripePaymentIntentService
           .transferFundsToGroomerOnBookingInitialPayment(paymentIntent, groomer);
 
-      if (transferred) {
+      if (transferred && groomer.getInstantBooking()) {
         booking.setStatus(BookingStatus.Booked);
       } else {
         booking.setStatus(BookingStatus.Pending_Groomer_Approval);

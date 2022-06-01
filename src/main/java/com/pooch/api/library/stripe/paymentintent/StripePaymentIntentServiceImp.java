@@ -341,11 +341,15 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
           // https://stripe.com/docs/connect/charges-transfers#transfer-availability
           .setSourceTransaction(charge.getId()).setTransferGroup(transferGroup).build();
 
-      System.out.println("transferParams: " + transferParams.toMap().toString());
+      log.info("transferParams to {}, params={}: ", groomer.getStripeConnectedAccountId(),
+          transferParams.toMap().toString());
 
       Transfer transfer = Transfer.create(transferParams);
 
-      System.out.println("transfer: " + transfer.toJson());
+      log.info("transfer to {} response: {}", groomer.getStripeConnectedAccountId(),
+          transfer.toJson());
+
+      return true;
 
     } catch (StripeException e) {
       log.warn("StripeException - transferFundsToGroomer, msg={}", e.getMessage());
@@ -353,7 +357,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
       return false;
     }
 
-    return false;
+
   }
 
 }
