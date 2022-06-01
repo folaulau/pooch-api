@@ -77,6 +77,7 @@ public class Email implements Serializable {
   @Column(name = "subject")
   private String subject;
 
+  @Enumerated(EnumType.STRING)
   @Column(name = "status")
   private EmailStatus status;
 
