@@ -42,6 +42,7 @@ import com.pooch.api.library.stripe.customer.StripeCustomerService;
 import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
 import com.pooch.api.library.stripe.paymentmethod.StripePaymentMethodService;
 import com.pooch.api.utils.ObjectUtils;
+import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import lombok.extern.slf4j.Slf4j;
 
@@ -106,6 +107,8 @@ public class BookingServiceImp implements BookingService {
     Groomer groomer = triple.getLeft();
     Parent parent = triple.getMiddle();
     com.stripe.model.PaymentIntent paymentIntent = triple.getRight();
+
+    paymentIntent = stripePaymentIntentService.capture(paymentIntent);
 
     Booking booking = entityDTOMapper.mapBookingCreateDTOToBooking(bookingCreateDTO);
 

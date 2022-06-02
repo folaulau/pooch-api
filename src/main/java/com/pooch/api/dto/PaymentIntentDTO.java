@@ -16,38 +16,40 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 public class PaymentIntentDTO implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String            clientSecret;
+  private String clientSecret;
 
-    private String            id;
+  private String id;
 
-    /**
-     * cost of the booking
-     */
-    private Double            bookingCost;
+  /**
+   * cost of the booking
+   */
+  private Double bookingCost;
 
-    /**
-     * Pooch fee
-     */
-    private Double            bookingFee;
+  /**
+   * Pooch fee
+   */
+  private Double bookingFee;
 
-    /**
-     * stripe fee on charge
-     */
-    private Double            stripeFee;
+  /**
+   * stripe fee on charge
+   */
+  private Double stripeFee;
 
-    /**
-     * amount charge now depending on Groomer's Stripe status
-     */
-    private Double            totalChargeAtBooking;
+  /**
+   * amount charge now depending on Groomer's Stripe status
+   */
+  private Double totalChargeAtBooking;
 
-    /**
-     * amount charge at drop off depending on Groomer's Stripe status
-     */
-    private Double            totalChargeAtDropOff;
+  /**
+   * amount charge at drop off depending on Groomer's Stripe status
+   */
+  private Double totalChargeAtDropOff;
 
-    // for paymentMethod to use in future
-    private String            setupFutureUsage;
+  // for paymentMethod to use in future
+  private String setupFutureUsage;
+
+  private String status;
 
 }

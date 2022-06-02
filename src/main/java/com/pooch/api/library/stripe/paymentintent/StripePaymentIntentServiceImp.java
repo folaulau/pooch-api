@@ -140,10 +140,10 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
         paymentMethodDAO.getByUuid(paymentIntentParentDTO.getPaymentMethodUuid()).orElse(null);
 
     BookingCostDetails costDetails = bookingCalculatorService.calculateBookingDetailCosts(
-        BookingCalculatorSender.CREATE_PAYMENTINTENT,
-        groomer, parent, paymentIntentParentDTO.getPickUpCost(),
-        paymentIntentParentDTO.getDropOffCost(), paymentIntentParentDTO.getStartDateTime(),
-        paymentIntentParentDTO.getEndDateTime(), paymentIntentParentDTO.getPooches());
+        BookingCalculatorSender.CREATE_PAYMENTINTENT, groomer, parent,
+        paymentIntentParentDTO.getPickUpCost(), paymentIntentParentDTO.getDropOffCost(),
+        paymentIntentParentDTO.getStartDateTime(), paymentIntentParentDTO.getEndDateTime(),
+        paymentIntentParentDTO.getPooches());
 
     long totalChargeAsCents = BigDecimal.valueOf(costDetails.getTotalChargeAtBooking())
         .multiply(BigDecimal.valueOf(100)).longValue();
@@ -152,6 +152,8 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
         com.stripe.param.PaymentIntentCreateParams.Builder builder = PaymentIntentCreateParams.builder()
                 .addPaymentMethodType("card")
                 .setAmount(totalChargeAsCents)
+                .setConfirmationMethod(PaymentIntentCreateParams.ConfirmationMethod.MANUAL)
+                .setCaptureMethod(PaymentIntentCreateParams.CaptureMethod.MANUAL)
                 .setCurrency("usd")
                 .putMetadata(StripeMetadataService.env, env)
                 .putMetadata(StripeMetadataService.PAYMENT_PURPOSE, StripeMetadataService.PAYMENT_PURPOSE_BOOKING_INITIAL_PAYMENT)
@@ -196,6 +198,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     paymentIntentDTO.setTotalChargeAtBooking(stripeChargeAmount);
     paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
     paymentIntentDTO.setSetupFutureUsage(paymentIntent.getSetupFutureUsage());
+    paymentIntentDTO.setStatus(paymentIntent.getStatus());
 
     return paymentIntentDTO;
   }
@@ -211,10 +214,11 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     Groomer groomer = pair.getFirst();
     Parent parent = pair.getSecond();
 
-    BookingCostDetails costDetails = bookingCalculatorService.calculateBookingDetailCosts(BookingCalculatorSender.CREATE_PAYMENTINTENT,
-        groomer, parent, paymentIntentParentDTO.getPickUpCost(),
-        paymentIntentParentDTO.getDropOffCost(), paymentIntentParentDTO.getStartDateTime(),
-        paymentIntentParentDTO.getEndDateTime(), paymentIntentParentDTO.getPooches());
+    BookingCostDetails costDetails = bookingCalculatorService.calculateBookingDetailCosts(
+        BookingCalculatorSender.CREATE_PAYMENTINTENT, groomer, parent,
+        paymentIntentParentDTO.getPickUpCost(), paymentIntentParentDTO.getDropOffCost(),
+        paymentIntentParentDTO.getStartDateTime(), paymentIntentParentDTO.getEndDateTime(),
+        paymentIntentParentDTO.getPooches());
 
     PaymentMethod paymentMethod =
         paymentMethodDAO.getByUuid(paymentIntentParentDTO.getPaymentMethodUuid()).orElse(null);
@@ -360,6 +364,29 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
     }
 
 
+  }
+
+  @Override
+  public PaymentIntent capture(PaymentIntent paymentIntent) {
+
+    Stripe.apiKey = stripeSecrets.getSecretKey();
+
+
+    try {
+      paymentIntent = paymentIntent.capture();
+
+    } catch (StripeException e) {
+      log.warn("StripeException - transferFundsToGroomer, msg={}", e.getMessage());
+      throw new ApiException("Unable to capture payment", e.getUserMessage());
+    }
+
+    return paymentIntent;
+
+  }
+
+  @Override
+  public PaymentIntent capture(String paymentIntentId) {
+    return capture(this.getById(paymentIntentId));
   }
 
 }

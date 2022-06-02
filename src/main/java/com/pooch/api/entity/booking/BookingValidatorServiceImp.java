@@ -126,7 +126,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
           "PaymentIntent not found for id=" + paymentIntentId);
     }
 
-    if (!paymentIntent.getStatus().equalsIgnoreCase("succeeded")) {
+    if (!paymentIntent.getStatus().equalsIgnoreCase("requires_capture")) {
       throw new ApiException(ApiError.DEFAULT_MSG, "Payment has not been made",
           "stripe issue, booking payment", "payment status should be succeeded",
           "payment status=" + paymentIntent.getStatus());
@@ -148,7 +148,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
     Double amountReceived = MathUtils.convertCentsToDollars(paymentIntent.getAmountReceived());
     Double amount = MathUtils.convertCentsToDollars(paymentIntent.getAmount());
 
-    if (!amountReceived.equals(calculatedCostDetails.getTotalChargeAtBooking())) {
+    if (!amount.equals(calculatedCostDetails.getTotalChargeAtBooking())) {
       throw new ApiException("Incorrect payment value", "today's amountReceived: " + amountReceived,
           "today's amount: " + amount,
           "today's charge should be: " + calculatedCostDetails.getTotalChargeAtBooking(),

@@ -32,4 +32,8 @@ public interface StripePaymentIntentService {
 
   PaymentIntentDTO updateParentPaymentIntent(PaymentIntentParentCreateDTO paymentIntentParentDTO);
 
+  PaymentIntent capture(PaymentIntent paymentIntent);
+  
+  PaymentIntent capture(String paymentIntentId);
+
 }
