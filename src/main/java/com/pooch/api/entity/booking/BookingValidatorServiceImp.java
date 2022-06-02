@@ -128,7 +128,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
 
     if (!paymentIntent.getStatus().equalsIgnoreCase("requires_capture")) {
       throw new ApiException(ApiError.DEFAULT_MSG, "Payment has not been made",
-          "stripe issue, booking payment", "payment status should be succeeded",
+          "stripe issue, booking payment", "payment status should be requires_confirmation",
           "payment status=" + paymentIntent.getStatus());
     }
 

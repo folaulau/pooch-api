@@ -159,7 +159,9 @@ public class ParentServiceImp implements ParentService {
           petParent.setEmailTemp(true);
         }
       }
-
+      
+      petParent.setFullName(userRecord.getDisplayName());
+      
       petParent.setEmail(email);
 
       Long phoneNumber = null;

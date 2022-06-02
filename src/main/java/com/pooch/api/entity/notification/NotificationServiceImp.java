@@ -1,6 +1,7 @@
 package com.pooch.api.entity.notification;
 
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,7 @@ public class NotificationServiceImp implements NotificationService {
 
     log.info("ntc={}", ntc.toJson());
 
-    java.util.Map<String, String> data = Map.of("name", parent.getFullName());
+    java.util.Map<String, String> data = Map.of("name", Optional.ofNullable(parent.getFullName()).orElse(""));
 
     sendEmails(ntc, data, null, parent);
 
