@@ -137,7 +137,7 @@ public class Booking implements Serializable {
   @Column(name = "stripe_payment_intent_id", nullable = true)
   private String stripePaymentIntentId;
 
-  
+
   // services cost + pick up cost + drop off cost
   @Column(name = "booking_cost")
   private Double bookingCost;
@@ -156,6 +156,18 @@ public class Booking implements Serializable {
 
   @Column(name = "total_charge_at_drop_off")
   private Double totalChargeAtDropOff;
+
+  @Column(name = "checked_in", nullable = true)
+  private Boolean checkedIn;
+
+  @Column(name = "checked_out", nullable = true)
+  private Boolean checkedOut;
+
+  @Column(name = "checked_in_at", nullable = true)
+  private LocalDateTime checkedInAt;
+
+  @Column(name = "checked_out_at", nullable = true)
+  private LocalDateTime checkedOutAt;
 
   @Embedded
   private BookingPaymentMethod paymentMethod;
@@ -227,6 +239,14 @@ public class Booking implements Serializable {
   private void preCreate() {
     if (this.uuid == null || this.uuid.isEmpty()) {
       this.uuid = "booking-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
+    }
+
+    if (checkedIn == null) {
+      checkedIn = false;
+    }
+
+    if (checkedOut == null) {
+      checkedIn = false;
     }
 
   }

@@ -4,6 +4,7 @@ public interface DatabaseTableNames {
 
   String Pooch = "pooch";
   String Groomer = "groomer";
+  String BookingStatistics = "booking_statistics";
   String Parent = "parent";
   String PocchVaccine = "pooch_vaccine";
   String PhoneNumberVerification = "phone_number_verification";
@@ -23,4 +24,5 @@ public interface DatabaseTableNames {
   String Notification = "notification";
   String PushNotification = "push_notification";
   String PushNotificationToken = "push_notification_token";
+  String Note = "note";
 }

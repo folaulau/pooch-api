@@ -9,4 +9,8 @@ public interface BookingService {
     BookingDTO book(BookingCreateDTO petCareCreateDTO);
 
     BookingDTO cancel(BookingCancelDTO bookingCancelDTO);
+
+    BookingDTO checkIn(String uuid);
+
+    BookingDTO checkOut(String uuid);
 }

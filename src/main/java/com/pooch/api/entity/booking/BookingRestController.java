@@ -4,6 +4,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,6 +49,26 @@ public class BookingRestController {
         log.info("cancel");
 
         BookingDTO bookingDTO = bookingService.cancel(bookingCancelDTO);
+
+        return new ResponseEntity<>(bookingDTO, OK);
+    }
+    
+    @Operation(summary = "Check In Booking", description = "check in a booking")
+    @PutMapping(value = "/{uuid}/checkin")
+    public ResponseEntity<BookingDTO> checkIn(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid) {
+        log.info("checkIn");
+
+        BookingDTO bookingDTO = bookingService.checkIn(uuid);
+
+        return new ResponseEntity<>(bookingDTO, OK);
+    }
+    
+    @Operation(summary = "Check Out Booking", description = "check out a booking")
+    @PutMapping(value = "/{uuid}/checkout")
+    public ResponseEntity<BookingDTO> checkOut(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid) {
+        log.info("checkOut");
+
+        BookingDTO bookingDTO = bookingService.checkOut(uuid);
 
         return new ResponseEntity<>(bookingDTO, OK);
     }

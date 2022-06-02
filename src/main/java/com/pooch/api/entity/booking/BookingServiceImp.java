@@ -1,5 +1,6 @@
 package com.pooch.api.entity.booking;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -37,6 +38,8 @@ import com.pooch.api.entity.parent.paymentmethod.PaymentMethodDAO;
 import com.pooch.api.entity.parent.paymentmethod.PaymentMethodService;
 import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.pooch.PoochDAO;
+import com.pooch.api.exception.ApiError;
+import com.pooch.api.exception.ApiException;
 import com.pooch.api.library.stripe.StripeMetadataService;
 import com.pooch.api.library.stripe.customer.StripeCustomerService;
 import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
@@ -98,6 +101,11 @@ public class BookingServiceImp implements BookingService {
 
   @Autowired
   private NotificationService notificationService;
+
+  private Booking findByUuid(String uuid) {
+    return bookingDAO.getByUuid(uuid).orElseThrow(
+        () -> new ApiException(ApiError.DEFAULT_MSG, "Booking not found for uuid=" + uuid));
+  }
 
   @Override
   public BookingDTO book(BookingCreateDTO bookingCreateDTO) {
@@ -263,7 +271,25 @@ public class BookingServiceImp implements BookingService {
   public BookingDTO cancel(BookingCancelDTO bookingCancelDTO) {
     Booking booking = bookingValidatorService.validateCancel(bookingCancelDTO);
 
-    return null;
+    return entityDTOMapper.mapBookingToBookingDTO(booking);
+  }
+
+  @Override
+  public BookingDTO checkIn(String uuid) {
+    Booking booking = findByUuid(uuid);
+    booking.setCheckedIn(true);
+    booking.setCheckedInAt(LocalDateTime.now());
+
+    return entityDTOMapper.mapBookingToBookingDTO(bookingDAO.save(booking));
+  }
+
+  @Override
+  public BookingDTO checkOut(String uuid) {
+    Booking booking = findByUuid(uuid);
+    booking.setCheckedOut(true);
+    booking.setCheckedOutAt(LocalDateTime.now());
+
+    return entityDTOMapper.mapBookingToBookingDTO(bookingDAO.save(booking));
   }
 
 }
