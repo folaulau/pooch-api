@@ -46,6 +46,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.elastic.repo.AddressES;
 import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.entity.DatabaseTableNames;
+import com.pooch.api.entity.UserType;
 import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.booking.careservice.BookingCareService;
 import com.pooch.api.entity.booking.pooch.BookingPooch;
@@ -93,6 +94,9 @@ public class Booking implements Serializable {
   @JoinColumn(name = "parent_id")
   private Parent parent;
 
+  @ManyToOne(cascade = CascadeType.DETACH)
+  @JoinColumn(name = "groomer_id")
+  private Groomer groomer;
 
   // @ManyToMany(cascade = {CascadeType.DETACH})
   // @JoinTable(name = "booking_pooches", joinColumns = @JoinColumn(name = "booking_id"),
@@ -108,9 +112,6 @@ public class Booking implements Serializable {
   @OneToMany(cascade = {CascadeType.DETACH}, mappedBy = "booking")
   private Set<BookingCareService> careServices;
 
-  @ManyToOne(cascade = CascadeType.DETACH)
-  @JoinColumn(name = "groomer_id")
-  private Groomer groomer;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "status")
@@ -136,6 +137,13 @@ public class Booking implements Serializable {
 
   @Column(name = "stripe_payment_intent_id", nullable = true)
   private String stripePaymentIntentId;
+
+  /**
+   * Id of Transfer of bookingCost from pooch to the groomer's connected account<br>
+   * Use to refund money back
+   */
+  @Column(name = "stripe_payment_intent_transfer_id", nullable = true)
+  private String stripePaymentIntentTransferId;
 
 
   // services cost + pick up cost + drop off cost
@@ -168,6 +176,41 @@ public class Booking implements Serializable {
 
   @Column(name = "checked_out_at", nullable = true)
   private LocalDateTime checkedOutAt;
+
+  /**
+   * ======== Cancellation ========
+   */
+  @Column(name = "cancelled_at", nullable = true)
+  private LocalDateTime cancelledAt;
+
+  /**
+   * user type of who cancelled booking
+   */
+  @Enumerated(EnumType.STRING)
+  @Column(name = "cancel_user_type", nullable = true)
+  private UserType cancelUserType;
+
+  /**
+   * user id of who cancelled booking
+   */
+  @Column(name = "cancel_user_id", nullable = true)
+  private Long cancelUserId;
+
+  /**
+   * amount refunded on cancellation
+   */
+  @Column(name = "cancellation_refunded_amount")
+  private Double cancellationRefundedAmount;
+
+  /**
+   * amount non refunded on cancellation
+   */
+  @Column(name = "cancellation_non_refunded_amount")
+  private Double cancellationNonRefundedAmount;
+
+  /**
+   * ======== Cancellation End =====
+   */
 
   @Embedded
   private BookingPaymentMethod paymentMethod;

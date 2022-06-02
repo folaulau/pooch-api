@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.EntityDTOMapper;
@@ -47,6 +48,7 @@ import com.pooch.api.library.stripe.paymentmethod.StripePaymentMethodService;
 import com.pooch.api.utils.ObjectUtils;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentUpdateParams;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -159,11 +161,22 @@ public class BookingServiceImp implements BookingService {
 
     if (groomer.isStripeReady()) {
 
-      boolean transferred = stripePaymentIntentService
+      com.stripe.model.Transfer transfer = stripePaymentIntentService
           .transferFundsToGroomerOnBookingInitialPayment(paymentIntent, groomer);
 
-      if (transferred && groomer.getInstantBooking()) {
+      if (transfer != null && groomer.getInstantBooking()) {
         booking.setStatus(BookingStatus.Booked);
+
+        try {
+          paymentIntent = paymentIntent.update(PaymentIntentUpdateParams.builder()
+              .setTransferGroup(transfer.getTransferGroup())
+              .build());
+
+        } catch (StripeException e) {
+          log.warn("StripeException, msg={}", e.getLocalizedMessage());
+        }
+
+
       } else {
         booking.setStatus(BookingStatus.Pending_Groomer_Approval);
       }
@@ -271,6 +284,39 @@ public class BookingServiceImp implements BookingService {
   public BookingDTO cancel(BookingCancelDTO bookingCancelDTO) {
     Booking booking = bookingValidatorService.validateCancel(bookingCancelDTO);
 
+    /**
+     * 
+     */
+
+    com.stripe.model.PaymentIntent paymentIntent =
+        stripePaymentIntentService.getById(booking.getStripePaymentIntentId());
+
+    BookingCostDetails costDetails = BookingCostDetails.fromJson(
+        paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
+
+    Pair<Double, Double> pair =
+        stripePaymentIntentService.cancelBooking(paymentIntent, costDetails.getGroomerPortion());
+
+    Double amountRefunded = pair.getFirst();
+
+    Double amountNonRefunded = pair.getSecond();
+
+    log.info("amountRefunded={}", amountRefunded);
+
+    booking.setCancellationRefundedAmount(amountRefunded);
+    booking.setCancellationNonRefundedAmount(amountNonRefunded);
+
+    booking.setStatus(BookingStatus.Cancelled);
+
+    booking = bookingDAO.save(booking);
+
+    Transaction transaction =
+        transactionService.addBookingCancellation(booking, amountRefunded, amountNonRefunded);
+
+    notificationService.sendBookingCancellation(booking, booking.getParent(), booking.getGroomer());
+
+
+
     return entityDTOMapper.mapBookingToBookingDTO(booking);
   }
 
@@ -279,6 +325,7 @@ public class BookingServiceImp implements BookingService {
     Booking booking = findByUuid(uuid);
     booking.setCheckedIn(true);
     booking.setCheckedInAt(LocalDateTime.now());
+    booking.setStatus(BookingStatus.Checked_In);
 
     return entityDTOMapper.mapBookingToBookingDTO(bookingDAO.save(booking));
   }
@@ -288,6 +335,7 @@ public class BookingServiceImp implements BookingService {
     Booking booking = findByUuid(uuid);
     booking.setCheckedOut(true);
     booking.setCheckedOutAt(LocalDateTime.now());
+    booking.setStatus(BookingStatus.Checked_Out);
 
     return entityDTOMapper.mapBookingToBookingDTO(bookingDAO.save(booking));
   }

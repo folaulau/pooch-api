@@ -4,9 +4,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.pooch.api.entity.UserType;
 import com.pooch.api.entity.booking.BookingStatus;
 import com.pooch.api.entity.booking.careservice.BookingCareService;
 import lombok.AllArgsConstructor;
@@ -65,6 +68,18 @@ public class BookingDTO implements Serializable {
   private Double totalChargeAtDropOff;
 
   private Set<TransactionDTO> transactions;
+
+  private String stripePaymentIntentTransferId;
+
+  private UserType cancelUserType;
+
+  private Long cancelUserId;
+
+  private Double cancellationRefundedAmount;
+
+  private Double cancellationNonRefundedAmount;
+
+  private LocalDateTime cancelledAt;
 
   public void addTransaction(TransactionDTO transaction) {
     if (this.transactions == null) {

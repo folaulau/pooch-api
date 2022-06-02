@@ -15,4 +15,7 @@ public interface NotificationService {
 
   @Async
   void sendBookingDetailsUponBooking(Booking booking, Parent parent, Groomer groomer);
+
+  @Async
+  void sendBookingCancellation(Booking booking, Parent parent, Groomer groomer);
 }

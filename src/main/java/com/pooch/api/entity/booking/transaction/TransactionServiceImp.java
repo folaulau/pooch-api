@@ -12,20 +12,38 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TransactionServiceImp implements TransactionService {
 
-    @Autowired
-    private TransactionDAO transactionDAO;
+  @Autowired
+  private TransactionDAO transactionDAO;
 
-    @Override
-    public Transaction addBookingInitialPayment(Booking booking, BookingCostDetails costDetails) {
-        Transaction transaction = new Transaction();
-        transaction.setType(TransactionType.BOOKING_INITIAL_PAYMENT);
-        transaction.setBookingCost(costDetails.getBookingCost());
-        transaction.setBookingFee(costDetails.getBookingFee());
-        transaction.setStripeFee(costDetails.getStripeFee());
-        transaction.setTotalChargeAtDropOff(costDetails.getTotalChargeAtDropOff());
-        transaction.setTotalChargeAtBooking(costDetails.getTotalChargeAtBooking());
-        transaction.setBooking(booking);
+  @Override
+  public Transaction addBookingInitialPayment(Booking booking, BookingCostDetails costDetails) {
+    Transaction transaction = new Transaction();
+    transaction.setType(TransactionType.BOOKING_INITIAL_PAYMENT);
+    transaction.setBookingCost(costDetails.getBookingCost());
+    transaction.setBookingFee(costDetails.getBookingFee());
+    transaction.setStripeFee(costDetails.getStripeFee());
+    transaction.setTotalChargeAtDropOff(costDetails.getTotalChargeAtDropOff());
+    transaction.setTotalChargeAtBooking(costDetails.getTotalChargeAtBooking());
+    transaction.setBooking(booking);
 
-        return transactionDAO.save(transaction);
-    }
+    return transactionDAO.save(transaction);
+  }
+
+
+  @Override
+  public Transaction addBookingCancellation(Booking booking, Double refundedAmount,
+      Double nonRefundedAmount) {
+    /**
+     * - cancelUserType, cancelUserId, refundedAmount, nonRefundedAmount, description
+     */
+    Transaction transaction = new Transaction();
+    transaction.setType(TransactionType.BOOKING_CANCELLATION);
+    transaction.setCancelUserType(booking.getCancelUserType());
+    transaction.setCancelUserId(booking.getCancelUserId());
+    transaction.setRefundedAmount(nonRefundedAmount);
+    transaction.setNonRefundedAmount(nonRefundedAmount);
+    transaction.setBooking(booking);
+
+    return transaction;
+  }
 }

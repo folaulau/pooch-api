@@ -106,10 +106,8 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
     Set<PoochBookingCreateDTO> petCreateDTOs = bookingCreateDTO.getPooches();
 
     BookingCostDetails calculatedCostDetails =
-        bookingCalculatorService.calculateBookingDetailCosts(
-            BookingCalculatorSender.CREATE_BOOKING,
-            groomer, parent, pickUpCost,
-            dropOffCost, startDateTime, endDateTime, petCreateDTOs);
+        bookingCalculatorService.calculateBookingDetailCosts(BookingCalculatorSender.CREATE_BOOKING,
+            groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, petCreateDTOs);
 
     String paymentIntentId = bookingCreateDTO.getPaymentIntentId();
 
@@ -127,15 +125,15 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
     }
 
     if (!paymentIntent.getStatus().equalsIgnoreCase("requires_capture")) {
-      if(paymentIntent.getStatus().equalsIgnoreCase("requires_payment_method")) {
+      if (paymentIntent.getStatus().equalsIgnoreCase("requires_payment_method")) {
         throw new ApiException("You need to add a Payment Method",
             "payment status should be requires_capture",
             "payment status=" + paymentIntent.getStatus(),
             "payment nextAction=" + paymentIntent.getNextAction());
       }
-      
-      throw new ApiException("Unable to confirm your payment",
-          "stripe issue, booking payment", "payment status should be requires_capture",
+
+      throw new ApiException("Unable to confirm your payment", "stripe issue, booking payment",
+          "payment status should be requires_capture",
           "payment status=" + paymentIntent.getStatus(),
           "payment nextAction=" + paymentIntent.getNextAction());
     }
@@ -192,17 +190,10 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
   public Booking validateCancel(BookingCancelDTO bookingCancelDTO) {
     // TODO Auto-generated method stub
     String uuid = bookingCancelDTO.getUuid();
-    if (uuid == null) {
-      throw new ApiException(ApiError.DEFAULT_MSG, "uuid is required");
-    }
 
-    Optional<Booking> optBooking = bookingDAO.getByUuid(uuid);
+    Booking booking = bookingDAO.getByUuid(uuid).orElseThrow(
+        () -> new ApiException("Booking not found", "booking not found for uuid=" + uuid));
 
-    if (!optBooking.isPresent()) {
-      throw new ApiException("Booking not found", "booking not found for uuid=" + uuid);
-    }
-
-    Booking booking = optBooking.get();
 
     return booking;
   }

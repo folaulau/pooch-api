@@ -52,7 +52,8 @@ public class NotificationServiceImp implements NotificationService {
 
     log.info("ntc={}", ntc.toJson());
 
-    java.util.Map<String, String> data = Map.of("name", Optional.ofNullable(parent.getFullName()).orElse(""));
+    java.util.Map<String, String> data =
+        Map.of("name", Optional.ofNullable(parent.getFullName()).orElse(""));
 
     sendEmails(ntc, data, null, parent);
 
@@ -93,6 +94,12 @@ public class NotificationServiceImp implements NotificationService {
 
       });
     }
+  }
+
+  @Override
+  public void sendBookingCancellation(Booking booking, Parent parent, Groomer groomer) {
+    // TODO Auto-generated method stub
+
   }
 
 }

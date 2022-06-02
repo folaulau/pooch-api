@@ -125,11 +125,15 @@
     - role: groomer
       permission:
         columns:
+          - cancel_user_id
           - groomer_id
           - id
           - parent_id
           - payment_method_id
+          - checked_in
+          - checked_out
           - deleted
+          - cancel_user_type
           - payment_method_bank
           - payment_method_brand
           - payment_method_last4
@@ -138,16 +142,22 @@
           - payment_method_uuid
           - status
           - stripe_payment_intent_id
+          - stripe_payment_intent_transfer_id
           - stripe_payment_method_id
           - uuid
           - booking_cost
           - booking_fee
+          - cancellation_non_refunded_amount
+          - cancellation_refunded_amount
           - drop_off_cost
           - pick_up_cost
           - stripe_fee
           - total_amount
           - total_charge_at_booking
           - total_charge_at_drop_off
+          - cancelled_at
+          - checked_in_at
+          - checked_out_at
           - created_at
           - drop_off_date_time
           - end_date_time
@@ -161,11 +171,15 @@
     - role: parent
       permission:
         columns:
+          - cancel_user_id
           - groomer_id
           - id
           - parent_id
           - payment_method_id
+          - checked_in
+          - checked_out
           - deleted
+          - cancel_user_type
           - payment_method_bank
           - payment_method_brand
           - payment_method_last4
@@ -174,16 +188,22 @@
           - payment_method_uuid
           - status
           - stripe_payment_intent_id
+          - stripe_payment_intent_transfer_id
           - stripe_payment_method_id
           - uuid
           - booking_cost
           - booking_fee
+          - cancellation_non_refunded_amount
+          - cancellation_refunded_amount
           - drop_off_cost
           - pick_up_cost
           - stripe_fee
           - total_amount
           - total_charge_at_booking
           - total_charge_at_drop_off
+          - cancelled_at
+          - checked_in_at
+          - checked_out_at
           - created_at
           - drop_off_date_time
           - end_date_time
@@ -197,11 +217,15 @@
     - role: sales
       permission:
         columns:
+          - cancel_user_id
           - groomer_id
           - id
           - parent_id
           - payment_method_id
+          - checked_in
+          - checked_out
           - deleted
+          - cancel_user_type
           - payment_method_bank
           - payment_method_brand
           - payment_method_last4
@@ -210,16 +234,22 @@
           - payment_method_uuid
           - status
           - stripe_payment_intent_id
+          - stripe_payment_intent_transfer_id
           - stripe_payment_method_id
           - uuid
           - booking_cost
           - booking_fee
+          - cancellation_non_refunded_amount
+          - cancellation_refunded_amount
           - drop_off_cost
           - pick_up_cost
           - stripe_fee
           - total_amount
           - total_charge_at_booking
           - total_charge_at_drop_off
+          - cancelled_at
+          - checked_in_at
+          - checked_out_at
           - created_at
           - drop_off_date_time
           - end_date_time
@@ -231,11 +261,15 @@
     - role: support
       permission:
         columns:
+          - cancel_user_id
           - groomer_id
           - id
           - parent_id
           - payment_method_id
+          - checked_in
+          - checked_out
           - deleted
+          - cancel_user_type
           - payment_method_bank
           - payment_method_brand
           - payment_method_last4
@@ -244,16 +278,22 @@
           - payment_method_uuid
           - status
           - stripe_payment_intent_id
+          - stripe_payment_intent_transfer_id
           - stripe_payment_method_id
           - uuid
           - booking_cost
           - booking_fee
+          - cancellation_non_refunded_amount
+          - cancellation_refunded_amount
           - drop_off_cost
           - pick_up_cost
           - stripe_fee
           - total_amount
           - total_charge_at_booking
           - total_charge_at_drop_off
+          - cancelled_at
+          - checked_in_at
+          - checked_out_at
           - created_at
           - drop_off_date_time
           - end_date_time

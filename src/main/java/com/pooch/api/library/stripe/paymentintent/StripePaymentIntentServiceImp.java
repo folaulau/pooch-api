@@ -32,15 +32,20 @@ import com.pooch.api.library.stripe.customer.StripeCustomerService;
 import com.pooch.api.utils.MathUtils;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Charge;
 import com.stripe.model.Customer;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.PaymentIntentCollection;
+import com.stripe.model.Refund;
 import com.stripe.model.Transfer;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.PaymentIntentUpdateParams;
+import com.stripe.param.RefundCreateParams;
 import com.stripe.param.TransferCreateParams;
-
+import com.stripe.param.TransferReversalCollectionCreateParams;
+import com.stripe.param.TransferReversalUpdateParams;
+import com.stripe.param.TransferUpdateParams;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -308,7 +313,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
 
   @Override
-  public boolean transferFundsToGroomerOnBookingInitialPayment(PaymentIntent paymentIntent,
+  public Transfer transferFundsToGroomerOnBookingInitialPayment(PaymentIntent paymentIntent,
       Groomer groomer) {
 
     List<com.stripe.model.Charge> charges = paymentIntent.getCharges().getData();
@@ -319,12 +324,13 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
   }
 
   @Override
-  public boolean transferFundsToGroomer(PaymentIntent pi, Groomer groomer,
+  public Transfer transferFundsToGroomer(PaymentIntent pi, Groomer groomer,
       com.stripe.model.Charge charge) {
     Stripe.apiKey = stripeSecrets.getSecretKey();
 
     PaymentIntent paymentIntent = null;
 
+    Transfer transfer = null;
     try {
       paymentIntent = PaymentIntent.retrieve(pi.getId());
 
@@ -350,19 +356,18 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
       log.info("transferParams to {}, params={}: ", groomer.getStripeConnectedAccountId(),
           transferParams.toMap().toString());
 
-      Transfer transfer = Transfer.create(transferParams);
+      transfer = Transfer.create(transferParams);
 
       log.info("transfer to {} response: {}", groomer.getStripeConnectedAccountId(),
           transfer.toJson());
 
-      return true;
-
     } catch (StripeException e) {
       log.warn("StripeException - transferFundsToGroomer, msg={}", e.getMessage());
 
-      return false;
+      return transfer;
     }
 
+    return transfer;
 
   }
 
@@ -387,6 +392,73 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
   @Override
   public PaymentIntent capture(String paymentIntentId) {
     return capture(this.getById(paymentIntentId));
+  }
+
+  @Override
+  public Pair<Double, Double> cancelBooking(PaymentIntent paymentIntent, Double amount) {
+    Stripe.apiKey = stripeSecrets.getSecretKey();
+
+    long chargesRefundAmount = 0;
+
+    try {
+
+      if (paymentIntent.getTransferGroup() != null) {
+
+        RefundCreateParams params =
+            RefundCreateParams.builder().setReason(RefundCreateParams.Reason.REQUESTED_BY_CUSTOMER)
+                .setReverseTransfer(true).setPaymentIntent(paymentIntent.getId()).build();
+
+        Refund refund = Refund.create(params);
+
+        log.info("refund.getAmount={}", refund.getAmount());
+
+        chargesRefundAmount += refund.getAmount();
+      } else {
+        
+        log.info("amount={}", amount);
+
+        RefundCreateParams params =
+            RefundCreateParams.builder().setReason(RefundCreateParams.Reason.REQUESTED_BY_CUSTOMER)
+                .setPaymentIntent(paymentIntent.getId()).build();
+
+        Refund refund = Refund.create(params);
+
+        chargesRefundAmount += refund.getAmount();
+
+        // List<Charge> charges = paymentIntent.getCharges().getData();
+        //
+        // for (Charge charge : charges) {
+        //
+        // Refund refund =
+        // Refund.create(Map.of("charge", charge.getId(), "reason", "requested_by_customer"));
+        //
+        // chargesRefundAmount += refund.getAmount();
+        // }
+      }
+
+
+
+//      paymentIntent = paymentIntent.cancel();
+
+
+      // Transfer transfer = Transfer.retrieve(transferId);
+      //
+      // Map<String, Object> params = new HashMap<>();
+      // params.put("amount", MathUtils.convertDollarsToCents(amount));
+      // params.put("description", "booking cancellation");
+      //
+      // com.stripe.model.TransferReversal transferReversal =
+      // transfer.getReversals().create(params);
+
+    } catch (StripeException e) {
+      log.warn("StripeException - cancelBooking, msg={}, userMessage={}, stripeErrorMessage={}",
+          e.getLocalizedMessage(), e.getUserMessage(), e.getStripeError().getMessage());
+
+      throw new ApiException(e.getUserMessage());
+    }
+
+    return Pair.of(MathUtils.convertCentsToDollars(chargesRefundAmount), null);
+
   }
 
 }

@@ -46,7 +46,7 @@ public class BookingRestController {
     @Operation(summary = "Cancel Booking", description = "cancel a booking")
     @PutMapping(value = "/cancel")
     public ResponseEntity<BookingDTO> cancel(@RequestHeader(name = "token", required = true) String token, @RequestBody BookingCancelDTO bookingCancelDTO) {
-        log.info("cancel");
+        log.info("cancel, bookingCancelDTO={}", bookingCancelDTO.toString());
 
         BookingDTO bookingDTO = bookingService.cancel(bookingCancelDTO);
 

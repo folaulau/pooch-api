@@ -100,6 +100,10 @@ public class BookingCostDetails implements Serializable {
     return bookingCost.doubleValue();
   }
 
+  public Double getGroomerPortion() {
+    return getBookingCost();
+  }
+
   public Double getTotalChargeAtBooking() {
     BigDecimal chargeAtBooking = BigDecimal.valueOf(0.0);
 
