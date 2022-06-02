@@ -377,7 +377,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
     } catch (StripeException e) {
       log.warn("StripeException - transferFundsToGroomer, msg={}", e.getMessage());
-      throw new ApiException("Unable to capture payment", e.getUserMessage());
+      throw new ApiException(e.getUserMessage(), e.getMessage());
     }
 
     return paymentIntent;
