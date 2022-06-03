@@ -5,12 +5,12 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import com.pooch.api.entity.UserType;
 import com.pooch.api.entity.booking.Booking;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.notification.email.EmailService;
 import com.pooch.api.entity.notification.pushnotification.PushNotificationService;
 import com.pooch.api.entity.parent.Parent;
+import com.pooch.api.entity.role.UserType;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -85,9 +85,9 @@ public class NotificationServiceImp implements NotificationService {
 
       ntc.getEmailTemplates().stream().forEach(template -> {
         if (template.getSendToUser() != null) {
-          if (template.getSendToUser().equals(UserType.Groomer) && groomer != null) {
+          if (template.getSendToUser().equals(UserType.groomer) && groomer != null) {
             emailService.send(groomer, template, data);
-          } else if (template.getSendToUser().equals(UserType.Parent) && parent != null) {
+          } else if (template.getSendToUser().equals(UserType.parent) && parent != null) {
             emailService.send(parent, template, data);
           }
         }

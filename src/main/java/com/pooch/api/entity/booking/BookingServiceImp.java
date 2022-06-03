@@ -45,6 +45,8 @@ import com.pooch.api.library.stripe.StripeMetadataService;
 import com.pooch.api.library.stripe.customer.StripeCustomerService;
 import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
 import com.pooch.api.library.stripe.paymentmethod.StripePaymentMethodService;
+import com.pooch.api.security.jwt.JwtPayload;
+import com.pooch.api.utils.ApiSessionUtils;
 import com.pooch.api.utils.ObjectUtils;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
@@ -130,7 +132,7 @@ public class BookingServiceImp implements BookingService {
       if (transfer != null && transfer.getId() != null && groomer.getInstantBooking()) {
         booking.setStatus(BookingStatus.Booked);
         booking.setStripePaymentIntentTransferId(transfer.getId());
-        
+
       } else {
         booking.setStatus(BookingStatus.Pending_Groomer_Approval);
       }
@@ -277,29 +279,24 @@ public class BookingServiceImp implements BookingService {
   public BookingDTO cancel(BookingCancelDTO bookingCancelDTO) {
     Booking booking = bookingValidatorService.validateCancel(bookingCancelDTO);
 
-    /**
-     * 
-     */
-
-    com.stripe.model.PaymentIntent paymentIntent =
-        stripePaymentIntentService.getById(booking.getStripePaymentIntentId());
-
-    BookingCostDetails costDetails = BookingCostDetails.fromJson(
-        paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
-
-    Pair<Double, Double> pair =
-        stripePaymentIntentService.cancelBooking(booking);
+    Pair<Double, Double> pair = stripePaymentIntentService.cancelBooking(booking);
 
     Double amountRefunded = pair.getFirst();
 
     Double amountNonRefunded = pair.getSecond();
 
-    log.info("amountRefunded={}", amountRefunded);
-
     booking.setCancellationRefundedAmount(amountRefunded);
     booking.setCancellationNonRefundedAmount(amountNonRefunded);
-
+    booking.setCancelledAt(LocalDateTime.now());
     booking.setStatus(BookingStatus.Cancelled);
+
+    try {
+      JwtPayload jwtPayload = ApiSessionUtils.getJwtPayload();
+      booking.setCancelUserType(jwtPayload.getUserType());
+      booking.setCancelUserId(Long.parseLong(jwtPayload.getSub()));
+    } catch (Exception e) {
+      // TODO: handle exception
+    }
 
     booking = bookingDAO.save(booking);
 
@@ -307,8 +304,6 @@ public class BookingServiceImp implements BookingService {
         transactionService.addBookingCancellation(booking, amountRefunded, amountNonRefunded);
 
     notificationService.sendBookingCancellation(booking, booking.getParent(), booking.getGroomer());
-
-
 
     return entityDTOMapper.mapBookingToBookingDTO(booking);
   }
@@ -320,7 +315,9 @@ public class BookingServiceImp implements BookingService {
     booking.setCheckedInAt(LocalDateTime.now());
     booking.setStatus(BookingStatus.Checked_In);
 
-    return entityDTOMapper.mapBookingToBookingDTO(bookingDAO.save(booking));
+    booking = bookingDAO.save(booking);
+
+    return entityDTOMapper.mapBookingToBookingDTO(booking);
   }
 
   @Override
@@ -330,7 +327,9 @@ public class BookingServiceImp implements BookingService {
     booking.setCheckedOutAt(LocalDateTime.now());
     booking.setStatus(BookingStatus.Checked_Out);
 
-    return entityDTOMapper.mapBookingToBookingDTO(bookingDAO.save(booking));
+    booking = bookingDAO.save(booking);
+
+    return entityDTOMapper.mapBookingToBookingDTO(booking);
   }
 
 }

@@ -1,6 +1,6 @@
 package com.pooch.api.entity.notification.email;
 
-import com.pooch.api.entity.UserType;
+import com.pooch.api.entity.role.UserType;
 import com.sun.mail.smtp.SMTPSendFailedException;
 
 public interface EmailSenderService {

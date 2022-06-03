@@ -5,10 +5,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -38,7 +36,7 @@ import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
 import com.pooch.api.entity.groomer.careservice.type.GroomerServiceCategory;
 import com.pooch.api.entity.groomer.careservice.type.GroomerServiceTypeService;
 import com.pooch.api.entity.notification.NotificationService;
-import com.pooch.api.entity.role.Authority;
+import com.pooch.api.entity.role.UserType;
 import com.pooch.api.entity.role.Role;
 import com.pooch.api.entity.s3file.FileType;
 import com.pooch.api.entity.s3file.S3File;
@@ -54,12 +52,8 @@ import com.pooch.api.utils.FileUtils;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 import com.stripe.Stripe;
-import com.stripe.exception.StripeException;
 import com.stripe.model.AccountLink;
-import com.stripe.net.RequestOptions;
-import com.stripe.param.AccountCreateParams;
 import com.stripe.param.AccountLinkCreateParams;
-import com.stripe.param.AccountRetrieveParams;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -147,7 +141,7 @@ public class GroomerServiceImp implements GroomerService {
       groomer = new Groomer();
 
       groomer.setUuid(uuid);
-      groomer.addRole(new Role(Authority.groomer));
+      groomer.addRole(new Role(UserType.groomer));
       groomer.setAddress(new Address());
 
       String email = userRecord.getEmail();

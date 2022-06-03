@@ -7,11 +7,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import com.pooch.api.dto.VaccineCreateDTO;
+
 import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.booking.BookingCostDetails;
 
@@ -36,9 +35,8 @@ import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.pooch.PoochRepository;
 import com.pooch.api.entity.pooch.Training;
 import com.pooch.api.entity.pooch.vaccine.Vaccine;
-import com.pooch.api.entity.role.Authority;
+import com.pooch.api.entity.role.UserType;
 import com.pooch.api.entity.role.Role;
-import com.pooch.api.exception.ApiException;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.stripe.StripeMetadataService;
 import com.pooch.api.library.stripe.paymentmethod.StripePaymentMethodService;
@@ -48,7 +46,6 @@ import com.stripe.model.Customer;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.SetupIntent;
 import com.stripe.param.CustomerCreateParams;
-import com.stripe.param.CustomerUpdateParams;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.SetupIntentUpdateParams;
 import lombok.extern.slf4j.Slf4j;
@@ -134,7 +131,7 @@ public class TestEntityGeneratorService {
     groomer.setPhoneNumberVerified(false);
 
     groomer.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
-    groomer.addRole(new Role(Authority.groomer));
+    groomer.addRole(new Role(UserType.groomer));
 
     LocalTime openTime = LocalTime.of(RandomGeneratorUtils.getIntegerWithin(7, 9), 0);
     groomer.setOpenTime(openTime);
@@ -168,7 +165,7 @@ public class TestEntityGeneratorService {
     groomer.setPhoneNumberVerified(false);
 
     groomer.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
-    groomer.addRole(new Role(Authority.groomer));
+    groomer.addRole(new Role(UserType.groomer));
 
     LocalTime openTime =
         LocalTime.of(RandomGeneratorUtils.getIntegerWithin(7, 9), 0).withNano(0).withSecond(0);
@@ -228,7 +225,7 @@ public class TestEntityGeneratorService {
     petParent.setEmailVerified(false);
     petParent.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));
     petParent.setPhoneNumberVerified(false);
-    petParent.addRole(new Role(Authority.parent));
+    petParent.addRole(new Role(UserType.parent));
 
     petParent.setAddress(getAddress());
 

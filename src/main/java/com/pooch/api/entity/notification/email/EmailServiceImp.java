@@ -1,20 +1,11 @@
 package com.pooch.api.entity.notification.email;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import javax.mail.MessagingException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import com.pooch.api.entity.UserType;
 import com.pooch.api.entity.groomer.Groomer;
-import com.pooch.api.entity.notification.Notification;
 import com.pooch.api.entity.notification.email.template.EmailTemplate;
-import com.pooch.api.entity.notification.email.template.EmailTemplateDAO;
 import com.pooch.api.entity.parent.Parent;
 import com.sun.mail.smtp.SMTPSendFailedException;
 import lombok.extern.slf4j.Slf4j;

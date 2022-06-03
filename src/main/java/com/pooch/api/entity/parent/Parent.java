@@ -2,10 +2,8 @@ package com.pooch.api.entity.parent;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -32,18 +30,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.pooch.api.elastic.repo.AddressES;
-import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.entity.DatabaseTableNames;
 import com.pooch.api.entity.address.Address;
-import com.pooch.api.entity.groomer.GroomerStatus;
 import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
 import com.pooch.api.entity.role.Role;
 
@@ -149,7 +143,7 @@ public class Parent implements Serializable {
     if (this.roles == null) {
       return null;
     }
-    return this.roles.stream().findFirst().get().getAuthority().name();
+    return this.roles.stream().findFirst().get().getUserType().name();
   }
 
   public boolean isActive() {

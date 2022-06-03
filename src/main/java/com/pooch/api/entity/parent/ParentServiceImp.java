@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserRecord;
 import com.pooch.api.dto.AddressCreateUpdateDTO;
@@ -29,14 +27,11 @@ import com.pooch.api.dto.PhoneNumberVerificationUpdateDTO;
 import com.pooch.api.dto.PoochDTO;
 import com.pooch.api.dto.S3FileDTO;
 import com.pooch.api.entity.address.Address;
-import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.notification.NotificationService;
 import com.pooch.api.entity.phonenumber.PhoneNumberService;
 import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
-import com.pooch.api.entity.pooch.Pooch;
-import com.pooch.api.entity.pooch.PoochDAO;
 import com.pooch.api.entity.pooch.PoochService;
-import com.pooch.api.entity.role.Authority;
+import com.pooch.api.entity.role.UserType;
 import com.pooch.api.entity.role.Role;
 import com.pooch.api.entity.s3file.FileType;
 import com.pooch.api.entity.s3file.S3File;
@@ -131,7 +126,7 @@ public class ParentServiceImp implements ParentService {
 
       petParent = new Parent();
       petParent.setUuid(userRecord.getUid());
-      petParent.addRole(new Role(Authority.parent));
+      petParent.addRole(new Role(UserType.parent));
       petParent.setAddress(new Address());
       petParent.setStatus(ParentStatus.ACTIVE);
 

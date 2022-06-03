@@ -1,22 +1,13 @@
 package com.pooch.api.entity.notification.email;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import com.pooch.api.entity.UserType;
-import com.pooch.api.library.aws.secretsmanager.SMTPSecrets;
+import com.pooch.api.entity.role.UserType;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
@@ -24,7 +15,6 @@ import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Personalization;
-import com.sun.mail.smtp.SMTPAddressFailedException;
 import com.sun.mail.smtp.SMTPSendFailedException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -95,7 +85,7 @@ public class EmailSenderServiceImp implements EmailSenderService {
       return new DeliveryStatus(false, e.getLocalizedMessage());
     }
 
-    if (userType != null && userType.equals(UserType.Groomer)) {
+    if (userType != null && userType.equals(UserType.groomer)) {
       personal = this.poochfolioPersonal;
       sender = this.poochfolioSender;
     } else {

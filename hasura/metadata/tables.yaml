@@ -114,6 +114,13 @@
           table:
             schema: public
             name: booking_pooches
+    - name: notes
+      using:
+        foreign_key_constraint_on:
+          column: booking_id
+          table:
+            schema: public
+            name: note
     - name: transactions
       using:
         foreign_key_constraint_on:
@@ -515,6 +522,16 @@
         filter: {}
 - table:
     schema: public
+    name: booking_statistics
+  object_relationships:
+    - name: groomer
+      using:
+        foreign_key_constraint_on: groomer_id
+    - name: parent
+      using:
+        foreign_key_constraint_on: parent_id
+- table:
+    schema: public
     name: care_service
   object_relationships:
     - name: groomer
@@ -747,6 +764,13 @@
           table:
             schema: public
             name: address
+    - name: booking_statistics
+      using:
+        foreign_key_constraint_on:
+          column: groomer_id
+          table:
+            schema: public
+            name: booking_statistics
     - name: bookings
       using:
         foreign_key_constraint_on:
@@ -775,6 +799,13 @@
           table:
             schema: public
             name: groomer_roles
+    - name: notes
+      using:
+        foreign_key_constraint_on:
+          column: groomer_id
+          table:
+            schema: public
+            name: note
     - name: phone_number_verifications
       using:
         foreign_key_constraint_on:
@@ -948,6 +979,19 @@
         foreign_key_constraint_on: role_id
 - table:
     schema: public
+    name: note
+  object_relationships:
+    - name: booking
+      using:
+        foreign_key_constraint_on: booking_id
+    - name: groomer
+      using:
+        foreign_key_constraint_on: groomer_id
+    - name: parent
+      using:
+        foreign_key_constraint_on: parent_id
+- table:
+    schema: public
     name: notification
   array_relationships:
     - name: email_templates
@@ -972,6 +1016,13 @@
           table:
             schema: public
             name: address
+    - name: booking_statistics
+      using:
+        foreign_key_constraint_on:
+          column: parent_id
+          table:
+            schema: public
+            name: booking_statistics
     - name: bookings
       using:
         foreign_key_constraint_on:
@@ -986,6 +1037,13 @@
           table:
             schema: public
             name: chat
+    - name: notes
+      using:
+        foreign_key_constraint_on:
+          column: parent_id
+          table:
+            schema: public
+            name: note
     - name: parent_roles
       using:
         foreign_key_constraint_on:

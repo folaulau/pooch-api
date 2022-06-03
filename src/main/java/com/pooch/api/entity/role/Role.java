@@ -43,7 +43,7 @@ public class Role implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "authority")
-    private Authority         authority;
+    private UserType userType;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -53,13 +53,13 @@ public class Role implements Serializable {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime     updatedAt;
 
-    public Role(Authority authority) {
-        this(null, authority);
+    public Role(UserType userType) {
+        this(null, userType);
     }
 
-    public Role(Long id, Authority authority) {
+    public Role(Long id, UserType userType) {
         this.id = id;
-        this.authority = authority;
+        this.userType = userType;
     }
 
     @PrePersist

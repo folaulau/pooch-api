@@ -1,13 +1,8 @@
 package com.pooch.api.security.jwt;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Component;
@@ -18,8 +13,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
-import com.pooch.api.entity.role.Authority;
-import com.pooch.api.entity.role.Role;
+import com.pooch.api.entity.role.UserType;
 import com.pooch.api.utils.RandomGeneratorUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,8 +43,8 @@ public class JwtTokenService {
 
       Map<String, Object> hasura = new HashMap<String, Object>();
 
-      hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
-      hasura.put("x-hasura-default-role", Authority.parent.name());
+      hasura.put("x-hasura-allowed-roles", UserType.getAllAuths());
+      hasura.put("x-hasura-default-role", UserType.parent.name());
       hasura.put("x-Hasura-parent-id", petParent.getId() + "");
       hasura.put("x-Hasura-parent-uuid", petParent.getUuid());
 
@@ -58,7 +52,7 @@ public class JwtTokenService {
           .withSubject(petParent.getId() + "")
           .withExpiresAt(DateUtils.addDays(new Date(), LIFE_TIME_IN_DAYS)).withIssuedAt(new Date())
           .withAudience(audience).withIssuer(ISSUER).withClaim("uuid", petParent.getUuid())
-          .withClaim("name", petParent.getFullName()).withClaim("role", Authority.parent.name())
+          .withClaim("name", petParent.getFullName()).withClaim("role", UserType.parent.name())
           .withClaim("hasura", hasura).sign(ALGORITHM);
       return token;
     } catch (JWTCreationException e) {
@@ -75,8 +69,8 @@ public class JwtTokenService {
     try {
       Map<String, Object> hasura = new HashMap<String, Object>();
 
-      hasura.put("x-hasura-allowed-roles", Authority.getAllAuths());
-      hasura.put("x-hasura-default-role", Authority.groomer.name());
+      hasura.put("x-hasura-allowed-roles", UserType.getAllAuths());
+      hasura.put("x-hasura-default-role", UserType.groomer.name());
       hasura.put("x-Hasura-groomer-id", groomer.getId() + "");
       hasura.put("x-Hasura-groomer-uuid", groomer.getUuid());
 
@@ -84,7 +78,7 @@ public class JwtTokenService {
           .withSubject(groomer.getId() + "")
           .withExpiresAt(DateUtils.addDays(new Date(), LIFE_TIME_IN_DAYS)).withIssuedAt(new Date())
           .withAudience(audience).withIssuer(ISSUER).withClaim("uuid", groomer.getUuid())
-          .withClaim("name", groomer.getFullName()).withClaim("role", Authority.groomer.name())
+          .withClaim("name", groomer.getFullName()).withClaim("role", UserType.groomer.name())
           .withClaim("hasura", hasura).sign(ALGORITHM);
       log.info("test12");
       return token;

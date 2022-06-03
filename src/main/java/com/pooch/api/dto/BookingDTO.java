@@ -4,14 +4,11 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.pooch.api.entity.UserType;
 import com.pooch.api.entity.booking.BookingStatus;
-import com.pooch.api.entity.booking.careservice.BookingCareService;
+import com.pooch.api.entity.role.UserType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

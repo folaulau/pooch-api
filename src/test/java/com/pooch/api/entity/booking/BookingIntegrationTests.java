@@ -1,7 +1,7 @@
 package com.pooch.api.entity.booking;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,32 +30,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.ParentCreateUpdateDTO;
-import com.pooch.api.dto.ParentDTO;
 import com.pooch.api.dto.PoochBookingCreateDTO;
 import com.pooch.api.dto.BookingCareServiceCreateDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.BookingDTO;
-import com.pooch.api.dto.PoochCreateUpdateDTO;
-import com.pooch.api.dto.VaccineCreateDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentDAO;
-import com.pooch.api.entity.pooch.FoodSchedule;
-import com.pooch.api.entity.pooch.Gender;
 import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.pooch.PoochSize;
-import com.pooch.api.entity.pooch.Training;
-import com.pooch.api.entity.role.Authority;
-import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
+import com.pooch.api.entity.role.UserType;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.MathUtils;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
-import com.stripe.model.PaymentIntent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -103,14 +95,14 @@ public class BookingIntegrationTests extends IntegrationTestConfiguration {
 
     JwtPayload petParentJwtPayload = new JwtPayload();
     petParentJwtPayload.setUuid(TEST_PETPARENT_UUID);
-    petParentJwtPayload.setRole(Authority.parent.name());
+    petParentJwtPayload.setRole(UserType.parent.name());
 
     Mockito.when(jwtTokenService.getPayloadByToken(TEST_PETPARENT_TOKEN))
         .thenReturn(petParentJwtPayload);
 
     JwtPayload petSitterJwtPayload = new JwtPayload();
     petSitterJwtPayload.setUuid(TEST_PETSITTER_UUID);
-    petSitterJwtPayload.setRole(Authority.parent.name());
+    petSitterJwtPayload.setRole(UserType.parent.name());
 
     Mockito.when(jwtTokenService.getPayloadByToken(TEST_PETSITTER_TOKEN))
         .thenReturn(petSitterJwtPayload);

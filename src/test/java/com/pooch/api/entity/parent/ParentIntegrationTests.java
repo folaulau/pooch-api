@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -57,7 +56,7 @@ import com.pooch.api.entity.phonenumber.PhoneNumberVerificationRepository;
 import com.pooch.api.entity.pooch.FoodSchedule;
 import com.pooch.api.entity.pooch.Gender;
 import com.pooch.api.entity.pooch.Training;
-import com.pooch.api.entity.role.Authority;
+import com.pooch.api.entity.role.UserType;
 import com.pooch.api.library.stripe.setupintent.StripeSetupIntentService;
 import com.pooch.api.library.twilio.sms.SmsService;
 import com.pooch.api.security.jwt.JwtPayload;
@@ -121,7 +120,7 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
 
     JwtPayload groomerJwtPayload = new JwtPayload();
     groomerJwtPayload.setUuid(PARENT_UUID);
-    groomerJwtPayload.setRole(Authority.parent.name());
+    groomerJwtPayload.setRole(UserType.parent.name());
 
     Mockito.when(jwtTokenService.getPayloadByToken(PARENT_TOKEN)).thenReturn(groomerJwtPayload);
   }

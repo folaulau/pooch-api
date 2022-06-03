@@ -44,6 +44,6 @@ public class TransactionServiceImp implements TransactionService {
     transaction.setNonRefundedAmount(nonRefundedAmount);
     transaction.setBooking(booking);
 
-    return transaction;
+    return transactionDAO.save(transaction);
   }
 }

@@ -1,14 +1,12 @@
 package com.pooch.api.entity.groomer;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.*;
-import com.pooch.api.elastic.groomer.GroomerESDAO;
 import com.pooch.api.elastic.repo.GroomerES;
 import com.pooch.api.elastic.repo.GroomerESRepository;
 import com.pooch.api.entity.address.Address;
-import com.pooch.api.entity.role.Authority;
+import com.pooch.api.entity.role.UserType;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.MathUtils;
@@ -19,7 +17,6 @@ import com.pooch.api.utils.TestEntityGeneratorService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -27,13 +24,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -44,8 +35,6 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -94,7 +83,7 @@ public class GroomerSearchIntegrationTests extends IntegrationTestConfiguration 
 
     JwtPayload groomerJwtPayload = new JwtPayload();
     groomerJwtPayload.setUuid(GROOMER_UUID);
-    groomerJwtPayload.setRole(Authority.groomer.name());
+    groomerJwtPayload.setRole(UserType.groomer.name());
 
     Mockito.when(jwtTokenService.getPayloadByToken(GROOMER_TOKEN)).thenReturn(groomerJwtPayload);
 

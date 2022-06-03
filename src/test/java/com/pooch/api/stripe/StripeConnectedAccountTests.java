@@ -2,8 +2,6 @@ package com.pooch.api.stripe;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,28 +22,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pooch.api.IntegrationTestConfiguration;
-import com.pooch.api.dto.PaymentIntentDTO;
-import com.pooch.api.dto.PaymentIntentQuestCreateDTO;
 import com.pooch.api.entity.groomer.Groomer;
-import com.pooch.api.entity.role.Authority;
+import com.pooch.api.entity.role.UserType;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
 import com.pooch.api.library.aws.secretsmanager.XApiKey;
 import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
-import com.pooch.api.utils.MathUtils;
-import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
 import com.stripe.Stripe;
@@ -101,7 +88,7 @@ class StripeConnectedAccountTests extends IntegrationTestConfiguration {
 
         JwtPayload groomerJwtPayload = new JwtPayload();
         groomerJwtPayload.setUuid(PARENT_UUID);
-        groomerJwtPayload.setRole(Authority.parent.name());
+        groomerJwtPayload.setRole(UserType.parent.name());
 
         Mockito.when(jwtTokenService.getPayloadByToken(PARENT_TOKEN)).thenReturn(groomerJwtPayload);
     }

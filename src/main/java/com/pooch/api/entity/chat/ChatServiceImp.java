@@ -15,10 +15,9 @@ import com.pooch.api.dto.ChatDTO;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.GroomerChatMessageCreateDTO;
 import com.pooch.api.dto.ParentChatMessageCreateDTO;
-import com.pooch.api.entity.UserType;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
-import com.pooch.api.entity.parent.ParentDAO;
+import com.pooch.api.entity.role.UserType;
 import com.pooch.api.exception.ApiError;
 import com.pooch.api.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
@@ -96,7 +95,7 @@ public class ChatServiceImp implements ChatService {
 
 
     ChatMessage message = ChatMessage.builder().delete(false).type(ChatMessageType.TEXT.name())
-        .senderUserType(UserType.Parent.name()).receiverUserType(UserType.Groomer.name())
+        .senderUserType(UserType.parent.name()).receiverUserType(UserType.groomer.name())
         .parentViewedAt(LocalDateTime.now().toString()).createdAt(LocalDateTime.now().toString())
         .updateedAt(LocalDateTime.now().toString()).message(parentChatMessageDTO.getMessage())
         .build();
@@ -124,7 +123,7 @@ public class ChatServiceImp implements ChatService {
 
 
     ChatMessage message = ChatMessage.builder().delete(false).type(ChatMessageType.TEXT.name())
-        .senderUserType(UserType.Groomer.name()).receiverUserType(UserType.Parent.name())
+        .senderUserType(UserType.groomer.name()).receiverUserType(UserType.parent.name())
         .groomerViewedAt(LocalDateTime.now().toString()).createdAt(LocalDateTime.now().toString())
         .updateedAt(LocalDateTime.now().toString()).message(groomerChatMessageDTO.getMessage())
         .build();

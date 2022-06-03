@@ -4,9 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.Filter;
@@ -37,23 +34,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.PaymentIntentDTO;
 import com.pooch.api.dto.PaymentIntentParentCreateDTO;
-import com.pooch.api.dto.PaymentIntentQuestCreateDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.paymentmethod.PaymentMethod;
-import com.pooch.api.entity.role.Authority;
+import com.pooch.api.entity.role.UserType;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
-import com.pooch.api.library.aws.secretsmanager.XApiKey;
 import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
-import com.pooch.api.utils.MathUtils;
 import com.pooch.api.utils.ObjectUtils;
-import com.pooch.api.utils.RandomGeneratorUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
-import com.stripe.Stripe;
-import com.stripe.exception.StripeException;
-import com.stripe.model.Account;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -101,7 +91,7 @@ class StripePaymentIntentTests extends IntegrationTestConfiguration {
 
     JwtPayload groomerJwtPayload = new JwtPayload();
     groomerJwtPayload.setUuid(PARENT_UUID);
-    groomerJwtPayload.setRole(Authority.parent.name());
+    groomerJwtPayload.setRole(UserType.parent.name());
 
     Mockito.when(jwtTokenService.getPayloadByToken(PARENT_TOKEN)).thenReturn(groomerJwtPayload);
   }

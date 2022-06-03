@@ -28,20 +28,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.AddressCreateUpdateDTO;
-import com.pooch.api.dto.AuthenticationResponseDTO;
-import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.CareServiceUpdateDTO;
-import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.GroomerCreateProfileDTO;
 import com.pooch.api.dto.GroomerDTO;
-import com.pooch.api.entity.parent.ParentIntegrationTests;
-import com.pooch.api.entity.role.Authority;
-import com.pooch.api.library.firebase.FirebaseAuthResponse;
-import com.pooch.api.library.firebase.FirebaseRestClient;
+import com.pooch.api.entity.role.UserType;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.ObjectUtils;
-import com.pooch.api.utils.RandomGeneratorUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -80,7 +73,7 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
 
         JwtPayload groomerJwtPayload = new JwtPayload();
         groomerJwtPayload.setUuid(GROOMER_UUID);
-        groomerJwtPayload.setRole(Authority.groomer.name());
+        groomerJwtPayload.setRole(UserType.groomer.name());
 
         Mockito.when(jwtTokenService.getPayloadByToken(GROOMER_TOKEN)).thenReturn(groomerJwtPayload);
     }
