@@ -39,8 +39,10 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.model.PaymentIntentCollection;
 import com.stripe.model.Refund;
 import com.stripe.model.Transfer;
+import com.stripe.net.RequestOptions;
 import com.stripe.param.ChargeUpdateParams;
 import com.stripe.param.CustomerCreateParams;
+import com.stripe.param.EphemeralKeyCreateParams;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.PaymentIntentUpdateParams;
 import com.stripe.param.RefundCreateParams;
@@ -203,6 +205,17 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
     PaymentIntentDTO paymentIntentDTO =
         entityDTOMapper.mapBookingCostDetailsToPaymentIntentDTO(costDetails);
+
+    try {
+      com.stripe.model.EphemeralKey key = com.stripe.model.EphemeralKey.create(
+          EphemeralKeyCreateParams.builder().setCustomer(parent.getStripeCustomerId()).build(),
+          RequestOptions.builder().build());
+      paymentIntentDTO.setEphemeralKey(key.getSecret());
+
+    } catch (StripeException e) {
+      log.warn("StripeException - createParentPaymentIntent EphemeralKey, msg={}", e.getMessage());
+    }
+
     paymentIntentDTO.setId(paymentIntent.getId());
     paymentIntentDTO.setTotalChargeAtBooking(stripeChargeAmount);
     paymentIntentDTO.setClientSecret(paymentIntent.getClientSecret());
@@ -436,7 +449,7 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
 
         log.info("refund a non group transfer");
-        
+
         RefundCreateParams params =
             RefundCreateParams.builder().setReason(RefundCreateParams.Reason.REQUESTED_BY_CUSTOMER)
                 .setPaymentIntent(paymentIntent.getId()).build();

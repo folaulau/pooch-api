@@ -52,4 +52,9 @@ public class PaymentIntentDTO implements Serializable {
 
   private String status;
 
+  /**
+   * customer to see all paymentMethods
+   */
+  private String ephemeralKey;
+
 }
