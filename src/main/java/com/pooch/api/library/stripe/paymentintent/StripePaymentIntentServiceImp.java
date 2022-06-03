@@ -208,8 +208,12 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
 
     try {
       com.stripe.model.EphemeralKey key = com.stripe.model.EphemeralKey.create(
-          EphemeralKeyCreateParams.builder().setCustomer(parent.getStripeCustomerId()).build(),
-          RequestOptions.builder().build());
+          EphemeralKeyCreateParams.builder().setCustomer(parent.getStripeCustomerId())
+          .build(),
+          RequestOptions.builder()
+          .setReadTimeout(60 * 1000)
+          .setStripeVersionOverride(Stripe.API_VERSION)
+          .build());
       paymentIntentDTO.setEphemeralKey(key.getSecret());
 
     } catch (StripeException e) {
