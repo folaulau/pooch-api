@@ -5,6 +5,7 @@ import org.springframework.data.util.Pair;
 import com.pooch.api.dto.PaymentIntentDTO;
 import com.pooch.api.dto.PaymentIntentParentCreateDTO;
 import com.pooch.api.dto.PaymentIntentQuestCreateDTO;
+import com.pooch.api.entity.booking.Booking;
 import com.pooch.api.entity.groomer.Groomer;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.PaymentIntentCollection;
@@ -39,6 +40,6 @@ public interface StripePaymentIntentService {
 
   PaymentIntent capture(String paymentIntentId);
 
-  Pair<Double, Double> cancelBooking(PaymentIntent paymentIntent, Double amount);
+  Pair<Double, Double> cancelBooking(Booking booking);
 
 }
