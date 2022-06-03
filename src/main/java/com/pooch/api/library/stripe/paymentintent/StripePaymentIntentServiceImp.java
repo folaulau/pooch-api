@@ -159,7 +159,6 @@ public class StripePaymentIntentServiceImp implements StripePaymentIntentService
         com.stripe.param.PaymentIntentCreateParams.Builder builder = PaymentIntentCreateParams.builder()
                 .addPaymentMethodType("card")
                 .setAmount(totalChargeAsCents)
-                .setConfirmationMethod(PaymentIntentCreateParams.ConfirmationMethod.MANUAL)
                 .setCaptureMethod(PaymentIntentCreateParams.CaptureMethod.MANUAL)
                 .setCurrency("usd")
                 .putMetadata(StripeMetadataService.env, env)
