@@ -1,6 +1,8 @@
 package com.pooch.api.entity.booking;
 
 import com.pooch.api.dto.BookingCancelDTO;
+import com.pooch.api.dto.BookingCheckInDTO;
+import com.pooch.api.dto.BookingCheckOutDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.BookingDTO;
 
@@ -10,7 +12,7 @@ public interface BookingService {
 
     BookingDTO cancel(BookingCancelDTO bookingCancelDTO);
 
-    BookingDTO checkIn(String uuid);
+    BookingDTO checkIn(BookingCheckInDTO bookingCheckInDTO);
 
-    BookingDTO checkOut(String uuid);
+    BookingDTO checkOut(BookingCheckOutDTO bookingCheckOutDTO);
 }

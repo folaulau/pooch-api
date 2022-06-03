@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.BookingCancelDTO;
 import com.pooch.api.dto.BookingCareServiceCreateDTO;
+import com.pooch.api.dto.BookingCheckInDTO;
+import com.pooch.api.dto.BookingCheckOutDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.PoochCreateUpdateDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
@@ -195,6 +197,33 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
         () -> new ApiException("Booking not found", "booking not found for uuid=" + uuid));
 
 
+    return booking;
+  }
+
+  @Override
+  public Booking validateCheckIn(BookingCheckInDTO bookingCheckInDTO) {
+    String uuid = bookingCheckInDTO.getUuid();
+
+    Booking booking = bookingDAO.getByUuid(uuid).orElseThrow(
+        () -> new ApiException("Booking not found", "booking not found for uuid=" + uuid));
+
+//    if (!bookingCheckInDTO.getGroomerUuid().equals(booking.getGroomer().getUuid())) {
+//      throw new ApiException("Sorry you are not the Groomer who owns this booking.");
+//    }
+    
+    return booking;
+  }
+
+  @Override
+  public Booking validateCheckOut(BookingCheckOutDTO bookingCheckOutDTO) {
+    String uuid = bookingCheckOutDTO.getUuid();
+
+    Booking booking = bookingDAO.getByUuid(uuid).orElseThrow(
+        () -> new ApiException("Booking not found", "booking not found for uuid=" + uuid));
+
+//    if (!bookingCheckOutDTO.getGroomerUuid().equals(booking.getGroomer().getUuid())) {
+//      throw new ApiException("Sorry you are not the Groomer who owns this booking.");
+//    }
     return booking;
   }
 

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-
+import javax.persistence.Column;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.booking.BookingStatus;
@@ -77,6 +77,14 @@ public class BookingDTO implements Serializable {
   private Double cancellationNonRefundedAmount;
 
   private LocalDateTime cancelledAt;
+
+  private LocalDateTime checkedInAt;
+
+  private LocalDateTime checkedOutAt;
+
+  private Boolean checkedIn;
+
+  private Boolean checkedOut;
 
   public void addTransaction(TransactionDTO transaction) {
     if (this.transactions == null) {

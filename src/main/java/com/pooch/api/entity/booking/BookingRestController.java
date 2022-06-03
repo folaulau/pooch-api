@@ -1,7 +1,7 @@
 package com.pooch.api.entity.booking;
 
 import static org.springframework.http.HttpStatus.OK;
-
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.BookingCancelDTO;
+import com.pooch.api.dto.BookingCheckInDTO;
+import com.pooch.api.dto.BookingCheckOutDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.BookingDTO;
 import com.pooch.api.entity.parent.ParentRestController;
@@ -54,21 +56,21 @@ public class BookingRestController {
     }
     
     @Operation(summary = "Check In Booking", description = "check in a booking")
-    @PutMapping(value = "/{uuid}/checkin")
-    public ResponseEntity<BookingDTO> checkIn(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid) {
+    @PutMapping(value = "/checkin")
+    public ResponseEntity<BookingDTO> checkIn(@RequestHeader(name = "token", required = true) String token, @Valid @RequestBody BookingCheckInDTO checkInDTO) {
         log.info("checkIn");
 
-        BookingDTO bookingDTO = bookingService.checkIn(uuid);
+        BookingDTO bookingDTO = bookingService.checkIn(checkInDTO);
 
         return new ResponseEntity<>(bookingDTO, OK);
     }
     
     @Operation(summary = "Check Out Booking", description = "check out a booking")
-    @PutMapping(value = "/{uuid}/checkout")
-    public ResponseEntity<BookingDTO> checkOut(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid) {
+    @PutMapping(value = "/checkout")
+    public ResponseEntity<BookingDTO> checkOut(@RequestHeader(name = "token", required = true) String token, @Valid @RequestBody BookingCheckOutDTO checkOutDTO) {
         log.info("checkOut");
 
-        BookingDTO bookingDTO = bookingService.checkOut(uuid);
+        BookingDTO bookingDTO = bookingService.checkOut(checkOutDTO);
 
         return new ResponseEntity<>(bookingDTO, OK);
     }

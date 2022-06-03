@@ -15,6 +15,8 @@ import com.pooch.api.dto.ParentCreateUpdateDTO;
 import com.pooch.api.dto.PoochBookingCreateDTO;
 import com.pooch.api.dto.BookingCancelDTO;
 import com.pooch.api.dto.BookingCareServiceCreateDTO;
+import com.pooch.api.dto.BookingCheckInDTO;
+import com.pooch.api.dto.BookingCheckOutDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.BookingDTO;
 import com.pooch.api.dto.PoochCreateUpdateDTO;
@@ -30,6 +32,8 @@ import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
+import com.pooch.api.entity.note.Note;
+import com.pooch.api.entity.note.NoteDAO;
 import com.pooch.api.entity.notification.NotificationService;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentDAO;
@@ -62,6 +66,9 @@ public class BookingServiceImp implements BookingService {
 
   @Autowired
   private EntityDTOMapper entityDTOMapper;
+
+  @Autowired
+  private NoteDAO noteDAO;
 
   @Autowired
   private BookingCareServiceRepository bookingCareServiceRepository;
@@ -305,12 +312,14 @@ public class BookingServiceImp implements BookingService {
 
     notificationService.sendBookingCancellation(booking, booking.getParent(), booking.getGroomer());
 
-    return entityDTOMapper.mapBookingToBookingDTO(booking);
+    BookingDTO bookingDTO = entityDTOMapper.mapBookingToBookingDTO(booking);
+    bookingDTO.addTransaction(this.entityDTOMapper.mapTransactionToTransactionDTO(transaction));
+    return bookingDTO;
   }
 
   @Override
-  public BookingDTO checkIn(String uuid) {
-    Booking booking = findByUuid(uuid);
+  public BookingDTO checkIn(BookingCheckInDTO bookingCheckInDTO) {
+    Booking booking = bookingValidatorService.validateCheckIn(bookingCheckInDTO);
     booking.setCheckedIn(true);
     booking.setCheckedInAt(LocalDateTime.now());
     booking.setStatus(BookingStatus.Checked_In);
@@ -321,8 +330,8 @@ public class BookingServiceImp implements BookingService {
   }
 
   @Override
-  public BookingDTO checkOut(String uuid) {
-    Booking booking = findByUuid(uuid);
+  public BookingDTO checkOut(BookingCheckOutDTO bookingCheckOutDTO) {
+    Booking booking = bookingValidatorService.validateCheckOut(bookingCheckOutDTO);
     booking.setCheckedOut(true);
     booking.setCheckedOutAt(LocalDateTime.now());
     booking.setStatus(BookingStatus.Checked_Out);
