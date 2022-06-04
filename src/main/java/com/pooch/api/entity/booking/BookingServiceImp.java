@@ -1,7 +1,6 @@
 package com.pooch.api.entity.booking;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,7 +10,6 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import com.pooch.api.dto.EntityDTOMapper;
-import com.pooch.api.dto.ParentCreateUpdateDTO;
 import com.pooch.api.dto.PoochBookingCreateDTO;
 import com.pooch.api.dto.BookingCancelDTO;
 import com.pooch.api.dto.BookingCareServiceCreateDTO;
@@ -19,8 +17,6 @@ import com.pooch.api.dto.BookingCheckInDTO;
 import com.pooch.api.dto.BookingCheckOutDTO;
 import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.dto.BookingDTO;
-import com.pooch.api.dto.PoochCreateUpdateDTO;
-import com.pooch.api.dto.PoochDTO;
 import com.pooch.api.dto.TransactionDTO;
 import com.pooch.api.entity.booking.careservice.BookingCareService;
 import com.pooch.api.entity.booking.careservice.BookingCareServiceRepository;
@@ -32,12 +28,10 @@ import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
-import com.pooch.api.entity.note.Note;
 import com.pooch.api.entity.note.NoteDAO;
 import com.pooch.api.entity.notification.NotificationService;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentDAO;
-import com.pooch.api.entity.parent.ParentService;
 import com.pooch.api.entity.parent.paymentmethod.PaymentMethod;
 import com.pooch.api.entity.parent.paymentmethod.PaymentMethodDAO;
 import com.pooch.api.entity.parent.paymentmethod.PaymentMethodService;
@@ -51,10 +45,7 @@ import com.pooch.api.library.stripe.paymentintent.StripePaymentIntentService;
 import com.pooch.api.library.stripe.paymentmethod.StripePaymentMethodService;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.utils.ApiSessionUtils;
-import com.pooch.api.utils.ObjectUtils;
-import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
-import com.stripe.param.PaymentIntentUpdateParams;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -137,16 +128,16 @@ public class BookingServiceImp implements BookingService {
           .transferFundsToGroomerOnBookingInitialPayment(paymentIntent, groomer);
 
       if (transfer != null && transfer.getId() != null && groomer.getInstantBooking()) {
-        booking.setStatus(BookingStatus.Booked);
+        booking.setStatus(BookingStatus.BOOKED);
         booking.setStripePaymentIntentTransferId(transfer.getId());
 
       } else {
-        booking.setStatus(BookingStatus.Pending_Groomer_Approval);
+        booking.setStatus(BookingStatus.PENDING_GROOMER_APPROVAL);
       }
 
     } else {
 
-      booking.setStatus(BookingStatus.Pending_Groomer_Approval);
+      booking.setStatus(BookingStatus.PENDING_GROOMER_APPROVAL);
     }
 
     booking.setStripePaymentIntentId(paymentIntent.getId());
@@ -295,7 +286,7 @@ public class BookingServiceImp implements BookingService {
     booking.setCancellationRefundedAmount(amountRefunded);
     booking.setCancellationNonRefundedAmount(amountNonRefunded);
     booking.setCancelledAt(LocalDateTime.now());
-    booking.setStatus(BookingStatus.Cancelled);
+    booking.setStatus(BookingStatus.CANCELLED);
 
     try {
       JwtPayload jwtPayload = ApiSessionUtils.getJwtPayload();
@@ -322,7 +313,7 @@ public class BookingServiceImp implements BookingService {
     Booking booking = bookingValidatorService.validateCheckIn(bookingCheckInDTO);
     booking.setCheckedIn(true);
     booking.setCheckedInAt(LocalDateTime.now());
-    booking.setStatus(BookingStatus.Checked_In);
+    booking.setStatus(BookingStatus.CHECKED_IN);
 
     booking = bookingDAO.save(booking);
 
@@ -334,7 +325,7 @@ public class BookingServiceImp implements BookingService {
     Booking booking = bookingValidatorService.validateCheckOut(bookingCheckOutDTO);
     booking.setCheckedOut(true);
     booking.setCheckedOutAt(LocalDateTime.now());
-    booking.setStatus(BookingStatus.Checked_Out);
+    booking.setStatus(BookingStatus.CHECKED_OUT);
 
     booking = bookingDAO.save(booking);
 

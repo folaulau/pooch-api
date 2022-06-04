@@ -10,16 +10,13 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.booking.Booking;
 import com.pooch.api.entity.booking.BookingRepository;
 import com.pooch.api.entity.booking.BookingStatus;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
-import com.pooch.api.entity.parent.ParentRepository;
 import com.pooch.api.entity.pooch.Pooch;
 import com.pooch.api.entity.pooch.PoochRepository;
-import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
 
@@ -86,7 +83,7 @@ public class BookingDataLoader implements ApplicationRunner {
                 booking.setEndDateTime(LocalDateTime.now().minusDays(RandomGeneratorUtils.getLongWithin(2, 4)));
                 booking.setPickUpDateTime(booking.getEndDateTime().minusHours(1));
                 
-                booking.setStatus(BookingStatus.Booked);
+                booking.setStatus(BookingStatus.BOOKED);
 
                 booking = bookingRepository.saveAndFlush(booking);
 

@@ -2,10 +2,11 @@ package com.pooch.api.entity.booking;
 
 public enum BookingStatus {
 
-    Pending_Groomer_Approval,
-    Booked,
-    Checked_In,
-    Checked_Out,
-    Completed,
-    Cancelled;
+    PENDING_GROOMER_APPROVAL,
+    BOOKED,
+    CHECKED_IN,
+    CHECKED_OUT,
+    
+    COMPLETED,
+    CANCELLED;
 }
