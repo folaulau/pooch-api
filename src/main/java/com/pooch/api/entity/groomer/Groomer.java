@@ -189,6 +189,30 @@ public class Groomer implements Serializable {
   @Column(name = "close_time")
   private LocalTime closeTime;
 
+  /**
+   * Operational Days
+   */
+  @Column(name = "operate_monday")
+  private Boolean operateMonday;
+
+  @Column(name = "operate_tuesday")
+  private Boolean operateTuesday;
+
+  @Column(name = "operate_wednesday")
+  private Boolean operateWednesday;
+
+  @Column(name = "operate_thursday")
+  private Boolean operateThursday;
+
+  @Column(name = "operate_friday")
+  private Boolean operateFriday;
+
+  @Column(name = "operate_saturday")
+  private Boolean operateSaturday;
+
+  @Column(name = "operate_sunday")
+  private Boolean operateSunday;
+
   @JsonIgnoreProperties(value = {"groomers"})
   @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JoinTable(name = "groomer_roles", joinColumns = {@JoinColumn(name = "groomer_id")},
