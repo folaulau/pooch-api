@@ -135,13 +135,13 @@ public class Groomer implements Serializable {
   @Column(name = "description")
   private String description;
 
-  @Column(name = "instant_booking", nullable = false)
+  @Column(name = "instant_booking", nullable = false, columnDefinition = "boolean default false")
   private Boolean instantBooking;
 
   /**
    * switch for market place listing(show up in search)
    */
-  @Column(name = "listing")
+  @Column(name = "listing", columnDefinition = "boolean default false")
   private Boolean listing;
 
   /**
@@ -158,7 +158,7 @@ public class Groomer implements Serializable {
   @Column(name = "stripe_accept_card_payments")
   private String stripeAcceptCardPayments;
 
-  @Column(name = "stripe_details_submitted")
+  @Column(name = "stripe_details_submitted", columnDefinition = "boolean default false")
   private Boolean stripeDetailsSubmitted;
 
   /**
@@ -168,13 +168,13 @@ public class Groomer implements Serializable {
   /**
    * Stripe account.charges_enabled
    */
-  @Column(name = "stripe_charges_enabled")
+  @Column(name = "stripe_charges_enabled", columnDefinition = "boolean default false")
   private Boolean stripeChargesEnabled;
 
   /**
    * Stripe.account.payouts_enabled
    */
-  @Column(name = "stripe_payouts_enabled")
+  @Column(name = "stripe_payouts_enabled", columnDefinition = "boolean default false")
   private Boolean stripePayoutsEnabled;
 
   /**
@@ -192,25 +192,25 @@ public class Groomer implements Serializable {
   /**
    * Operational Days
    */
-  @Column(name = "operate_monday")
+  @Column(name = "operate_monday", columnDefinition = "boolean default false")
   private Boolean operateMonday;
 
-  @Column(name = "operate_tuesday")
+  @Column(name = "operate_tuesday", columnDefinition = "boolean default false")
   private Boolean operateTuesday;
 
-  @Column(name = "operate_wednesday")
+  @Column(name = "operate_wednesday", columnDefinition = "boolean default false")
   private Boolean operateWednesday;
 
-  @Column(name = "operate_thursday")
+  @Column(name = "operate_thursday", columnDefinition = "boolean default false")
   private Boolean operateThursday;
 
-  @Column(name = "operate_friday")
+  @Column(name = "operate_friday", columnDefinition = "boolean default false")
   private Boolean operateFriday;
 
-  @Column(name = "operate_saturday")
+  @Column(name = "operate_saturday", columnDefinition = "boolean default false")
   private Boolean operateSaturday;
 
-  @Column(name = "operate_sunday")
+  @Column(name = "operate_sunday", columnDefinition = "boolean default false")
   private Boolean operateSunday;
 
   @JsonIgnoreProperties(value = {"groomers"})
@@ -291,21 +291,6 @@ public class Groomer implements Serializable {
       this.instantBooking = false;
     }
 
-    if (this.listing == null) {
-      this.listing = false;
-    }
-
-    if (this.stripeDetailsSubmitted == null) {
-      this.stripeDetailsSubmitted = false;
-    }
-
-    if (this.stripeChargesEnabled == null) {
-      this.stripeChargesEnabled = false;
-    }
-
-    if (this.stripePayoutsEnabled == null) {
-      this.stripePayoutsEnabled = false;
-    }
 
   }
 
