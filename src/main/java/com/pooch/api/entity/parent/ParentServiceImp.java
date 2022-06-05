@@ -62,6 +62,7 @@ public class ParentServiceImp implements ParentService {
   @Autowired
   private ParentDAO parentDAO;
 
+
   @Autowired
   private AuthenticationService authenticationService;
 
@@ -154,9 +155,9 @@ public class ParentServiceImp implements ParentService {
           petParent.setEmailTemp(true);
         }
       }
-      
+
       petParent.setFullName(userRecord.getDisplayName());
-      
+
       petParent.setEmail(email);
 
       Long phoneNumber = null;
@@ -216,7 +217,7 @@ public class ParentServiceImp implements ParentService {
 
       S3File s3File =
           new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
-      s3File.setFileType(FileType.Profile_Image);
+      s3File.setFileType(FileType.PROFILE_IMAGE);
       s3File.setParent(parent);
 
       s3Files.add(s3File);
@@ -297,6 +298,7 @@ public class ParentServiceImp implements ParentService {
       parent.setPhoneNumber(phoneNumberVerification.getPhoneNumber());
       parent.setPhoneNumberVerified(true);
       parent.setPhoneNumberVerification(phoneNumberVerification);
+
       this.parentDAO.save(parent);
 
     }
@@ -305,6 +307,45 @@ public class ParentServiceImp implements ParentService {
 
     return entityDTOMapper
         .mapPhoneNumberVerificationToPhoneNumberVerificationDTO(phoneNumberVerification);
+  }
+
+
+  @Override
+  public S3FileDTO uploadProfileImage(String uuid, MultipartFile image) {
+    Parent parent = parentValidatorService.validateUploadProfileImage(uuid, image);
+
+    String fileName = image.getOriginalFilename();
+    String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
+    String objectKey = "profile_images/parent/" + parent.getId() + "/"
+        + UUID.randomUUID().toString() + "_" + santizedFileName;
+
+    log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName,
+        objectKey);
+    ObjectMetadata metadata = new ObjectMetadata();
+    metadata.setContentType(image.getContentType());
+
+    AwsUploadResponse awsUploadResponse = null;
+    try {
+      awsUploadResponse = awsS3Service.uploadPublicObj(objectKey, metadata, image.getInputStream());
+    } catch (IOException e) {
+      log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
+      e.printStackTrace();
+
+      throw new ApiException("Unable to upload image", "issue with aws");
+    }
+
+    S3File s3File =
+        new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
+    s3File.setFileType(FileType.PROFILE_IMAGE);
+    s3File.setParent(parent);
+
+    /**
+     * set first profile image as main profile image
+     */
+
+    s3File = s3FileDAO.save(s3File);
+
+    return entityDTOMapper.mapS3FileToS3FileDTO(s3File);
   }
 
 }

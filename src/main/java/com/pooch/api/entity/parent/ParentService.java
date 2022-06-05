@@ -30,4 +30,6 @@ public interface ParentService {
 
     PhoneNumberVerificationDTO verifyNumberWithCode(String uuid,
         PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO);
+
+    S3FileDTO uploadProfileImage(String uuid, MultipartFile image);
 }

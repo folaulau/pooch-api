@@ -66,16 +66,16 @@ public class ParentRestController {
     return new ResponseEntity<>(authenticationResponseDTO, OK);
   }
 
-  @Operation(summary = "Upload Profile Images", description = "upload profile images")
-  @PostMapping(value = "/{uuid}/profile/images", consumes = {"multipart/form-data"})
-  public ResponseEntity<List<S3FileDTO>> uploadProfileImages(
+  @Operation(summary = "Upload Profile Image", description = "upload profile image")
+  @PostMapping(value = "/{uuid}/profile/image", consumes = {"multipart/form-data"})
+  public ResponseEntity<S3FileDTO> uploadProfileImage(
       @RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
-      @RequestParam(name = "images") List<MultipartFile> images) {
+      @RequestParam(name = "image") MultipartFile image) {
     log.info("uploadProfileImages, uuid={}", uuid);
 
-    List<S3FileDTO> s3FileDTOs = parentService.uploadProfileImages(uuid, images);
+    S3FileDTO s3FileDTO = parentService.uploadProfileImage(uuid, image);
 
-    return new ResponseEntity<>(s3FileDTOs, OK);
+    return new ResponseEntity<>(s3FileDTO, OK);
   }
 
 

@@ -64,7 +64,7 @@ public class S3FileDAOImp implements S3FileDAO {
   @Override
   public Optional<S3File> getGroomerProfileImage(Long groomerId) {
     return s3FileRepository
-        .findByGroomerIdAndFileTypeAndMainProfileImage(groomerId, FileType.Profile_Image, true)
+        .findByGroomerIdAndFileTypeAndMainProfileImage(groomerId, FileType.PROFILE_IMAGE, true)
         .stream().findFirst();
   }
 
@@ -77,7 +77,7 @@ public class S3FileDAOImp implements S3FileDAO {
     query.append("SET main_profile_image = false ");
     query.append("WHERE groomer_id = ? AND deleted = false ");
     query.append("AND file_type = ");
-    query.append("'" + FileType.Profile_Image.name() + "'");
+    query.append("'" + FileType.PROFILE_IMAGE.name() + "'");
 
     log.info("query={}", query.toString());
 
@@ -102,7 +102,7 @@ public class S3FileDAOImp implements S3FileDAO {
     query.append("SET main_profile_image = false ");
     query.append("WHERE parent_id = ? AND deleted = false ");
     query.append("AND file_type = ");
-    query.append("'" + FileType.Profile_Image.name() + "'");
+    query.append("'" + FileType.PROFILE_IMAGE.name() + "'");
 
     log.info("query={}", query.toString());
 

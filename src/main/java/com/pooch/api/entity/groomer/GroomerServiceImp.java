@@ -432,7 +432,7 @@ public class GroomerServiceImp implements GroomerService {
   public List<S3FileDTO> uploadProfileImages(String uuid, List<MultipartFile> images) {
     Groomer groomer = groomerValidatorService.validateUploadProfileImages(uuid, images);
 
-    long count = s3FileDAO.getGroomerFileCount(FileType.Profile_Image, groomer.getId());
+    long count = s3FileDAO.getGroomerFileCount(FileType.PROFILE_IMAGE, groomer.getId());
 
     List<S3File> s3Files = new ArrayList<>();
     int fileCount = 0;
@@ -460,7 +460,7 @@ public class GroomerServiceImp implements GroomerService {
 
       S3File s3File =
           new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
-      s3File.setFileType(FileType.Profile_Image);
+      s3File.setFileType(FileType.PROFILE_IMAGE);
       s3File.setGroomer(groomer);
 
       /**
@@ -514,7 +514,7 @@ public class GroomerServiceImp implements GroomerService {
 
       S3File s3File =
           new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
-      s3File.setFileType(FileType.Contract_Attachment);
+      s3File.setFileType(FileType.PROFILE_IMAGE);
       s3File.setIsPublic(false);
       s3File.setGroomer(groomer);
 

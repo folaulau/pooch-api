@@ -149,7 +149,7 @@ public class GroomerDataLoader implements ApplicationRunner {
         contract.setFileName("groomer-test-contract.pdf");
         contract.setUrl(
             "https://pooch-api-local.s3.us-west-2.amazonaws.com/public/contracts/groomer/30/eaa0b77c-6bf2-4f1d-87e5-1f4a4a79de62_groomer-test-contract.pdf");
-        contract.setFileType(FileType.Contract_Attachment);
+        contract.setFileType(FileType.CONTRACT_ATTACHMENT);
         contract.setS3key(
             "public/contracts/groomer/30/eaa0b77c-6bf2-4f1d-87e5-1f4a4a79de62_groomer-test-contract");
         contract.setIsPublic(true);
@@ -177,7 +177,7 @@ public class GroomerDataLoader implements ApplicationRunner {
         femaleProfileImage.setFileName("female-dog-groomer.jpeg");
         femaleProfileImage.setUrl(
             "https://pooch-api-local.s3.us-west-2.amazonaws.com/public/profile_images/groomer/30/a9d942b0-90f5-4684-8052-3fef6e51082d_female-dog-groomer.jpeg");
-        femaleProfileImage.setFileType(FileType.Profile_Image);
+        femaleProfileImage.setFileType(FileType.PROFILE_IMAGE);
         femaleProfileImage.setIsPublic(true);
         femaleProfileImage.setS3key(
             "public/profile_images/groomer/30/a9d942b0-90f5-4684-8052-3fef6e51082d_female-dog-groomer");
@@ -187,7 +187,7 @@ public class GroomerDataLoader implements ApplicationRunner {
         maleProfileImage.setFileName("male-dog-groomer.jpeg");
         maleProfileImage.setUrl(
             "https://pooch-api-local.s3.us-west-2.amazonaws.com/public/profile_images/groomer/30/2093eaef-df0e-4d99-96f9-b2720db207b0_male-dog-groomer.jpeg");
-        maleProfileImage.setFileType(FileType.Profile_Image);
+        maleProfileImage.setFileType(FileType.PROFILE_IMAGE);
         maleProfileImage.setIsPublic(true);
         maleProfileImage.setS3key(
             "public/profile_images/groomer/30/2093eaef-df0e-4d99-96f9-b2720db207b0_male-dog-groomer");

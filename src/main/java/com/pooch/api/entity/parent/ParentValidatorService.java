@@ -11,4 +11,6 @@ public interface ParentValidatorService {
     Parent validateUploadProfileImages(String uuid, List<MultipartFile> images);
 
     Parent validateUpdateProfile(ParentUpdateDTO parentUpdateDTO);
+
+    Parent validateUploadProfileImage(String uuid, MultipartFile image);
 }
