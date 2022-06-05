@@ -75,12 +75,12 @@ public class CareServiceTypeDataLoader implements ApplicationRunner {
       long count = 1;
 
       for(String category: groomerCatogories) {
-          groomerServiceCategoryRepository.saveAndFlush(new GroomerServiceCategory(count, category, CareServiceType.Groomer));
+          groomerServiceCategoryRepository.saveAndFlush(new GroomerServiceCategory(count, category, CareServiceType.GROOMER));
           count++;
       }
       
       for(String category: kennelCatogories) {
-          groomerServiceCategoryRepository.saveAndFlush(new GroomerServiceCategory(count, category, CareServiceType.Kennel));
+          groomerServiceCategoryRepository.saveAndFlush(new GroomerServiceCategory(count, category, CareServiceType.KENNEL));
           count++;
       }
 

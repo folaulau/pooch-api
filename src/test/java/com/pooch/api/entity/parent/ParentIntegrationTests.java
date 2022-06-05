@@ -127,20 +127,22 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
 
   @Transactional
   @Test
-  void itShouldUploadProfileImages_valid() throws Exception {
+  void itShouldUploadProfileImage_valid() throws Exception {
     // Given
     Parent parent = testEntityGeneratorService.getDBParent();
 
     // @formatter:on
     // When
-    MockMultipartFile firstFile = new MockMultipartFile("images", "note1.png",
+    MockMultipartFile firstFile = new MockMultipartFile("image", "note1.png",
         MediaType.TEXT_PLAIN_VALUE, "Hello, World!1".getBytes());
-    MockMultipartFile secondFile = new MockMultipartFile("images", "note2.png",
-        MediaType.TEXT_PLAIN_VALUE, "Hello, World!2".getBytes());
+//    MockMultipartFile secondFile = new MockMultipartFile("images", "note2.png",
+//        MediaType.TEXT_PLAIN_VALUE, "Hello, World!2".getBytes());
 
     RequestBuilder requestBuilder =
-        MockMvcRequestBuilders.multipart("/parents/" + parent.getUuid() + "/profile/images")
-            .file(firstFile).file(secondFile).contentType(MediaType.MULTIPART_FORM_DATA)
+        MockMvcRequestBuilders.multipart("/parents/" + parent.getUuid() + "/profile/image")
+            .file(firstFile)
+//            .file(secondFile)
+            .contentType(MediaType.MULTIPART_FORM_DATA)
             .characterEncoding("utf-8").header("token", PARENT_TOKEN);
 
     MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
@@ -148,11 +150,11 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
 
     String contentAsString = result.getResponse().getContentAsString();
 
-    List<S3FileDTO> S3FileDTOs =
-        objectMapper.readValue(contentAsString, new TypeReference<List<S3FileDTO>>() {});
+    S3FileDTO S3FileDTO =
+        objectMapper.readValue(contentAsString, new TypeReference<S3FileDTO>() {});
 
-    assertThat(S3FileDTOs).isNotNull();
-    assertThat(S3FileDTOs.size()).isNotNull().isGreaterThan(0);
+    assertThat(S3FileDTO).isNotNull();
+    assertThat(S3FileDTO.getId()).isNotNull().isGreaterThan(0);
 
   }
 
