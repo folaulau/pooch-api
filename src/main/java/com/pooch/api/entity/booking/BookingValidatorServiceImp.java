@@ -3,6 +3,7 @@ package com.pooch.api.entity.booking;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Triple;
@@ -109,7 +110,7 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
 
     BookingCostDetails calculatedCostDetails =
         bookingCalculatorService.calculateBookingDetailCosts(BookingCalculatorSender.CREATE_BOOKING,
-            groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, petCreateDTOs);
+            groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, new ArrayList<>(petCreateDTOs));
 
     String paymentIntentId = bookingCreateDTO.getPaymentIntentId();
 

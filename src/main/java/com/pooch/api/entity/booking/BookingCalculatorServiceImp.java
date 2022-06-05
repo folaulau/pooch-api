@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +49,7 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
   @Override
   public BookingCostDetails calculateBookingDetailCosts(BookingCalculatorSender sender,
       Groomer groomer, Parent parent, Double pickUpCost, Double dropOffCost,
-      LocalDateTime startDateTime, LocalDateTime endDateTime, Set<PoochBookingCreateDTO> pooches) {
-
+      LocalDateTime startDateTime, LocalDateTime endDateTime,List<PoochBookingCreateDTO> pooches) {
 
     if (dropOffCost != null && dropOffCost < 0) {
       throw new ApiException(ApiError.DEFAULT_MSG, "dropOffCost must greater than or equal to 0");
@@ -86,7 +86,7 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
    * careServicesCost
    */
   private Double calculateCareServicesCost(BookingCalculatorSender sender, Groomer groomer,
-      Parent parent, int numberOfDays, Set<PoochBookingCreateDTO> petCreateDTOs) {
+      Parent parent, int numberOfDays, List<PoochBookingCreateDTO> petCreateDTOs) {
 
     log.info("calculateBookingCareServicesCost(..)");
 
@@ -156,8 +156,8 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
          */
         Double careServicePrice = careServicePricePerDay * numberOfDays;
 
-        log.info("careService.name={}, careServicePricePerDay={}, careServicePrice={}",
-            careService.getName(), careServicePricePerDay, careServicePrice);
+        log.info("careService.name={}, numberOfDays={}, careServicePricePerDay={}, careServicePrice={}",
+            careService.getName(), numberOfDays, careServicePricePerDay, careServicePrice);
 
         careServicesBookingCost = careServicesBookingCost.add(BigDecimal.valueOf(careServicePrice));
 

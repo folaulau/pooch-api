@@ -3,7 +3,9 @@ package com.pooch.api.entity.booking;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -65,7 +67,7 @@ class BookingCalculatorServiceTests {
     LocalDateTime startDateTime = LocalDateTime.of(2022, 6, 10, 8, 0);
     LocalDateTime endDateTime = startDateTime.plusDays(numOfDays);
 
-    Set<PoochBookingCreateDTO> pooches = new HashSet<>();
+    List<PoochBookingCreateDTO> pooches = new ArrayList<>();
 
     int numOfPooches = 1;
 
@@ -118,7 +120,7 @@ class BookingCalculatorServiceTests {
     LocalDateTime startDateTime = LocalDateTime.of(2022, 6, 10, 8, 0);
     LocalDateTime endDateTime = startDateTime.plusDays(numOfDays);
 
-    Set<PoochBookingCreateDTO> pooches = new HashSet<>();
+    List<PoochBookingCreateDTO> pooches = new ArrayList<>();
 
     int numOfPooches = 1;
 
@@ -182,7 +184,7 @@ class BookingCalculatorServiceTests {
     LocalDateTime startDateTime = LocalDateTime.of(2022, 6, 10, 8, 0);
     LocalDateTime endDateTime = startDateTime.plusDays(numOfDays);
 
-    Set<PoochBookingCreateDTO> pooches = new HashSet<>();
+    List<PoochBookingCreateDTO> pooches = new ArrayList<>();
 
     int numOfPooches = 1;
 

@@ -1,6 +1,7 @@
 package com.pooch.api.entity.booking;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import org.springframework.data.util.Pair;
 import com.pooch.api.dto.PoochBookingCreateDTO;
@@ -19,5 +20,5 @@ public interface BookingCalculatorService {
 
   public BookingCostDetails calculateBookingDetailCosts(BookingCalculatorSender sender,
       Groomer groomer, Parent parent, Double pickUpCost, Double dropOffCost,
-      LocalDateTime startDateTime, LocalDateTime endDateTime, Set<PoochBookingCreateDTO> pooches);
+      LocalDateTime startDateTime, LocalDateTime endDateTime, List<PoochBookingCreateDTO> pooches);
 }
