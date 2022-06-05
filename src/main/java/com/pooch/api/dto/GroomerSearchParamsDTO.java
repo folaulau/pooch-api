@@ -25,7 +25,6 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 @Builder
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class GroomerSearchParamsDTO implements Serializable {
 
