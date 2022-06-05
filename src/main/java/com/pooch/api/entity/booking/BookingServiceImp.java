@@ -121,9 +121,10 @@ public class BookingServiceImp implements BookingService {
     paymentIntent = stripePaymentIntentService.capture(paymentIntent);
 
     Booking booking = entityDTOMapper.mapBookingCreateDTOToBooking(bookingCreateDTO);
-    
+
     booking.setStartDateTime(booking.getStartDateTime().withSecond(0).withNano(0));
-    booking.setEndDateTime(booking.getEndDateTime().withSecond(0).withNano(0));  
+    booking.setEndDateTime(booking.getEndDateTime().withSecond(0).withNano(0));
+    booking.setBookedAt(LocalDateTime.now());
 
     if (groomer.isStripeReady()) {
 

@@ -161,6 +161,12 @@ public class Booking implements Serializable {
   private LocalDateTime checkedOutAt;
 
   /**
+   * date when booking was made
+   */
+  @Column(name = "booked_at", nullable = true)
+  private LocalDateTime bookedAt;
+
+  /**
    * ======== Cancellation ========
    */
   @Column(name = "cancelled_at", nullable = true)
