@@ -19,7 +19,7 @@ public interface S3FileDAO {
 
   S3File setMainProfileImage(Groomer groomer, S3File s3File);
 
-  S3File setMainProfileImage(Parent groomer, S3File s3File);
+  S3File setMainProfileImage(Parent parent, S3File s3File);
 
   List<S3File> getByParentId(Long parentId);
 

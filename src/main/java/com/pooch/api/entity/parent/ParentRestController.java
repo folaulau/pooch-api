@@ -66,7 +66,8 @@ public class ParentRestController {
     return new ResponseEntity<>(authenticationResponseDTO, OK);
   }
 
-  @Operation(summary = "Upload Profile Image", description = "upload profile image")
+  @Operation(summary = "Upload Profile Image",
+      description = "Upload profile image. All other profile images will have mainProfileImage as false")
   @PostMapping(value = "/{uuid}/profile/image", consumes = {"multipart/form-data"})
   public ResponseEntity<S3FileDTO> uploadProfileImage(
       @RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,

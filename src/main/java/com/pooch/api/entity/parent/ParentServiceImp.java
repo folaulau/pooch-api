@@ -338,12 +338,12 @@ public class ParentServiceImp implements ParentService {
         new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
     s3File.setFileType(FileType.PROFILE_IMAGE);
     s3File.setParent(parent);
-
+    s3File.setMainProfileImage(true);
     /**
      * set first profile image as main profile image
      */
 
-    s3File = s3FileDAO.save(s3File);
+    s3File = s3FileDAO.setMainProfileImage(parent, s3File);
 
     return entityDTOMapper.mapS3FileToS3FileDTO(s3File);
   }
