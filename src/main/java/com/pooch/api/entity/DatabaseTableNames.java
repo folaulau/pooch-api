@@ -25,4 +25,6 @@ public interface DatabaseTableNames {
   String PushNotification = "push_notification";
   String PushNotificationToken = "push_notification_token";
   String Note = "note";
+  String Calendar = "calendar";
+  String CalendarDay = "calendar_day";
 }

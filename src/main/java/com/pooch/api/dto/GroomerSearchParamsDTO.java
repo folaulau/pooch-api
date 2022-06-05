@@ -9,7 +9,8 @@ import java.util.Set;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.pooch.PoochSize;
 
 import lombok.AllArgsConstructor;
@@ -20,6 +21,8 @@ import lombok.NoArgsConstructor;
 /*
  * Groomer search filters and sorts
  */
+@NoArgsConstructor
+@JsonInclude(value = Include.NON_NULL)
 @Builder
 @Data
 @NoArgsConstructor
