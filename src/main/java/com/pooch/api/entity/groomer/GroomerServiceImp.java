@@ -67,7 +67,6 @@ public class GroomerServiceImp implements GroomerService {
   @Autowired
   private GroomerDAO groomerDAO;
 
-
   @Autowired
   private NotificationService notificationService;
 
@@ -612,5 +611,18 @@ public class GroomerServiceImp implements GroomerService {
     groomer.setStripePayoutsEnabled(account.getPayoutsEnabled());
     groomer.setStripeAcceptCardPayments(account.getCapabilities().getCardPayments());
     return groomer;
+  }
+
+  @Override
+  public GroomerDTO toggleListing(GroomerListingUpdateDTO listingUpdateDTO) {
+    Groomer groomer = this.findByUuid(listingUpdateDTO.getUuid());
+    groomer.setListing(listingUpdateDTO.isOn());
+    
+    groomer = this.groomerDAO.save(groomer);
+
+    applicationEventPublisher
+    .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+
+    return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
   }
 }

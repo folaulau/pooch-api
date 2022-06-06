@@ -27,4 +27,6 @@ public interface GroomerService {
     GroomerDTO createUpdateProfile(GroomerCreateProfileDTO groomerCreateProfileDTO);
 
     GroomerDTO createUpdateListing(GroomerCreateListingDTO groomerCreateListingDTO);
+
+    GroomerDTO toggleListing(GroomerListingUpdateDTO listingUpdateDTO);
 }
