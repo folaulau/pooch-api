@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentRepository;
+import com.pooch.api.library.firebase.FirebaseAuthService;
 import com.pooch.api.library.firebase.FirebaseRestClient;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
@@ -30,6 +31,9 @@ public class ParentDataLoader implements ApplicationRunner {
 
   @Autowired
   private FirebaseRestClient firebaseRestClient;
+
+//  @Autowired
+//  private FirebaseAuthService firebaseAuthService;
 
   @Override
   public void run(ApplicationArguments args) throws Exception {
@@ -59,7 +63,7 @@ public class ParentDataLoader implements ApplicationRunner {
 
         parent = parentRepository.saveAndFlush(parent);
 
-        firebaseRestClient.signUpAsync(parent.getEmail(), "Test1234!");
+//        firebaseAuthService.createUser(parent.getEmail(), "Test1234!", parent.getFullName());
 
         log.info("done with parent#", (i + 1));
 

@@ -50,8 +50,8 @@ public class GroomerDataLoader implements ApplicationRunner {
   @Autowired
   private S3FileDAO s3FileDAO;
 
-  @Autowired
-  private FirebaseRestClient firebaseRestClient;
+//  @Autowired
+//  private FirebaseAuthService firebaseAuthService;
 
   @Override
   public void run(ApplicationArguments args) throws Exception {
@@ -114,7 +114,8 @@ public class GroomerDataLoader implements ApplicationRunner {
 
         Groomer savedGroomer = groomerDAO.save(groomer);
 
-        firebaseRestClient.signUpAsync(savedGroomer.getEmail(), "Test1234!");
+//        firebaseAuthService.createUser(savedGroomer.getEmail(), "Test1234!", groomer.getFullName());
+        // firebaseRestClient.signUpAsync(savedGroomer.getEmail(), "Test1234!");
 
         List<String> services =
             Arrays.asList("Dog Daycare", "Grooming", "Overnight", "Nail Clipping");
