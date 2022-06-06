@@ -130,7 +130,7 @@ public class TestEntityGeneratorService {
     groomer.setPhoneNumber(RandomGeneratorUtils.getLongWithin(3101000000L, 3109999999L));
     groomer.setPhoneNumberVerified(false);
 
-    groomer.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
+    groomer.setRating(MathUtils.getTwoDecimalPlaces(RandomGeneratorUtils.getDoubleWithin(1, 5)));
     groomer.addRole(new Role(UserType.groomer));
 
     LocalTime openTime = LocalTime.of(RandomGeneratorUtils.getIntegerWithin(7, 9), 0);
