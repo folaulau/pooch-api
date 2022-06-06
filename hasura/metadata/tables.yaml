@@ -532,6 +532,80 @@
         foreign_key_constraint_on: parent_id
 - table:
     schema: public
+    name: calendar
+  object_relationships:
+    - name: groomer
+      using:
+        foreign_key_constraint_on: groomer_id
+- table:
+    schema: public
+    name: calendar_day
+  object_relationships:
+    - name: groomer
+      using:
+        foreign_key_constraint_on: groomer_id
+  select_permissions:
+    - role: groomer
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - deleted
+          - filled
+          - operational
+          - uuid
+          - date
+          - number_of_bookings
+          - created_at
+          - updated_at
+        filter:
+          groomer_id:
+            _eq: x-Hasura-groomer-id
+    - role: parent
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - deleted
+          - filled
+          - operational
+          - uuid
+          - date
+          - number_of_bookings
+          - created_at
+          - updated_at
+        filter: {}
+        limit: 60
+    - role: sales
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - deleted
+          - filled
+          - operational
+          - uuid
+          - date
+          - number_of_bookings
+          - created_at
+          - updated_at
+        filter: {}
+    - role: support
+      permission:
+        columns:
+          - groomer_id
+          - id
+          - deleted
+          - filled
+          - operational
+          - uuid
+          - date
+          - number_of_bookings
+          - created_at
+          - updated_at
+        filter: {}
+- table:
+    schema: public
     name: care_service
   object_relationships:
     - name: groomer
@@ -778,6 +852,20 @@
           table:
             schema: public
             name: booking
+    - name: calendar_days
+      using:
+        foreign_key_constraint_on:
+          column: groomer_id
+          table:
+            schema: public
+            name: calendar_day
+    - name: calendars
+      using:
+        foreign_key_constraint_on:
+          column: groomer_id
+          table:
+            schema: public
+            name: calendar
     - name: care_services
       using:
         foreign_key_constraint_on:
