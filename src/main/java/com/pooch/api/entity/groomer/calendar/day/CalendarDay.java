@@ -3,6 +3,8 @@ package com.pooch.api.entity.groomer.calendar.day;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,8 +16,10 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
@@ -35,13 +39,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
+@DynamicInsert
 @DynamicUpdate
 @Entity
 @SQLDelete(sql = "UPDATE " + DatabaseTableNames.CalendarDay + " SET deleted = 'T' WHERE id = ?",
     check = ResultCheckStyle.NONE)
 @Where(clause = "deleted = 'F'")
-@Table(name = DatabaseTableNames.CalendarDay,
-    indexes = {@Index(columnList = "uuid"), @Index(columnList = "deleted")})
+@Table(name = DatabaseTableNames.CalendarDay, indexes = {@Index(columnList = "uuid"),
+    @Index(columnList = "deleted"), @Index(columnList = "date")})
 public class CalendarDay implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -67,7 +72,6 @@ public class CalendarDay implements Serializable {
   private Integer numberOfBookings;
 
   // add list of bookings
-
   @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
   @JoinColumn(name = "groomer_id", nullable = true)
   private Groomer groomer;
@@ -86,5 +90,29 @@ public class CalendarDay implements Serializable {
   @UpdateTimestamp
   @Column(name = "updated_at", nullable = false)
   private LocalDateTime updatedAt;
+
+
+  @PrePersist
+  private void preCreate() {
+    if (this.uuid == null || this.uuid.isEmpty()) {
+      this.uuid = "calendarday-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
+    }
+    
+  }
+
+  public void generateFill(Long numberOfOccupancy) {
+    if (numberOfBookings == null) {
+      this.filled = false;
+    } else {
+      this.filled = (numberOfBookings >= numberOfOccupancy.intValue());
+    }
+  }
+
+  public void addBookingCount() {
+    if (numberOfBookings == null) {
+      numberOfBookings = 0;
+    }
+    numberOfBookings++;
+  }
 
 }

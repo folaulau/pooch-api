@@ -97,6 +97,14 @@ public class GroomerDataLoader implements ApplicationRunner {
         address.setGroomer(groomer);
         groomer.setAddress(address);
 
+        int sdf = RandomGeneratorUtils.getIntegerWithin(1, 10);
+
+        if (sdf >= 5) {
+          groomer.setOperationsForEveryDay();
+        } else {
+          groomer.setOperationsForWeekDaysOnly();
+        }
+
         log.info("groomer#={}, {}", (i + 1), ObjectUtils.toJson(groomer));
 
         Groomer savedGroomer = groomerDAO.save(groomer);

@@ -26,6 +26,7 @@ import com.pooch.api.entity.booking.transaction.Transaction;
 import com.pooch.api.entity.booking.transaction.TransactionService;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
+import com.pooch.api.entity.groomer.calendar.day.CalendarDayService;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
 import com.pooch.api.entity.note.NoteDAO;
@@ -103,6 +104,9 @@ public class BookingServiceImp implements BookingService {
 
   @Autowired
   private NotificationService notificationService;
+
+  @Autowired
+  private CalendarDayService calendarDayService;
 
   private Booking findByUuid(String uuid) {
     return bookingDAO.getByUuid(uuid).orElseThrow(
@@ -199,6 +203,8 @@ public class BookingServiceImp implements BookingService {
     booking = bookingDAO.save(booking);
 
     // log.info("booking={}", ObjectUtils.toJson(booking));
+    
+    calendarDayService.addBookingToCalendar(booking);
 
     Transaction transaction = transactionService.addBookingInitialPayment(booking, costDetails);
 

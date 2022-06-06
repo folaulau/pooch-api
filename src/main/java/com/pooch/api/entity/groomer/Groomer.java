@@ -1,6 +1,8 @@
 package com.pooch.api.entity.groomer;
 
 import java.io.Serializable;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
@@ -268,14 +270,34 @@ public class Groomer implements Serializable {
     return str.toString();
   }
 
+  public void setOperationsForWeekDaysOnly() {
+    operateMonday = true;
+    operateTuesday = true;
+    operateWednesday = true;
+    operateThursday = true;
+    operateFriday = true;
+    operateSaturday = false;
+    operateSunday = false;
+  }
+
+  public void setOperationsForEveryDay() {
+    operateMonday = true;
+    operateTuesday = true;
+    operateWednesday = true;
+    operateThursday = true;
+    operateFriday = true;
+    operateSaturday = true;
+    operateSunday = true;
+  }
+
   public boolean isActive() {
     return status.equals(GroomerStatus.ACTIVE);
   }
 
   public boolean isStripeReady() {
-    return (this.stripeDetailsSubmitted!=null && this.stripeDetailsSubmitted) 
-        && (this.stripeChargesEnabled!=null && this.stripeChargesEnabled) 
-        && (this.stripePayoutsEnabled!=null && this.stripePayoutsEnabled);
+    return (this.stripeDetailsSubmitted != null && this.stripeDetailsSubmitted)
+        && (this.stripeChargesEnabled != null && this.stripeChargesEnabled)
+        && (this.stripePayoutsEnabled != null && this.stripePayoutsEnabled);
   }
 
   @PrePersist
@@ -291,10 +313,60 @@ public class Groomer implements Serializable {
       this.instantBooking = false;
     }
 
+    if (operateMonday == null) {
+      operateMonday = false;
+    }
+
+    if (operateTuesday == null) {
+      operateTuesday = false;
+    }
+
+    if (operateWednesday == null) {
+      operateWednesday = false;
+    }
+
+    if (operateThursday == null) {
+      operateThursday = false;
+    }
+
+    if (operateFriday == null) {
+      operateFriday = false;
+    }
+
+    if (operateSaturday == null) {
+      operateSaturday = false;
+    }
+
+    if (operateSunday == null) {
+      operateSunday = false;
+    }
 
   }
 
   @PreUpdate
   private void preUpdate() {}
+
+  public boolean checkOperationByDay(LocalDate date) {
+    DayOfWeek dayOfWeek = date.getDayOfWeek();
+
+    if (DayOfWeek.MONDAY.equals(dayOfWeek) && operateMonday != null && operateMonday) {
+      return true;
+    } else if (DayOfWeek.TUESDAY.equals(dayOfWeek) && operateTuesday != null && operateTuesday) {
+      return true;
+    } else if (DayOfWeek.WEDNESDAY.equals(dayOfWeek) && operateWednesday != null
+        && operateWednesday) {
+      return true;
+    } else if (DayOfWeek.THURSDAY.equals(dayOfWeek) && operateThursday != null && operateThursday) {
+      return true;
+    } else if (DayOfWeek.FRIDAY.equals(dayOfWeek) && operateFriday != null && operateFriday) {
+      return true;
+    } else if (DayOfWeek.SATURDAY.equals(dayOfWeek) && operateSaturday != null && operateSaturday) {
+      return true;
+    } else if (DayOfWeek.SUNDAY.equals(dayOfWeek) && operateSunday != null && operateSunday) {
+      return true;
+    }
+
+    return false;
+  }
 
 }
