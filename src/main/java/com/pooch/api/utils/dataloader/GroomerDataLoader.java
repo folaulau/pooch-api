@@ -22,6 +22,8 @@ import com.pooch.api.entity.groomer.careservice.CareServiceRepository;
 import com.pooch.api.entity.s3file.FileType;
 import com.pooch.api.entity.s3file.S3File;
 import com.pooch.api.entity.s3file.S3FileDAO;
+import com.pooch.api.library.firebase.FirebaseAuthService;
+import com.pooch.api.library.firebase.FirebaseRestClient;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.RandomGeneratorUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
@@ -47,6 +49,9 @@ public class GroomerDataLoader implements ApplicationRunner {
 
   @Autowired
   private S3FileDAO s3FileDAO;
+
+  @Autowired
+  private FirebaseRestClient firebaseRestClient;
 
   @Override
   public void run(ApplicationArguments args) throws Exception {
@@ -108,6 +113,8 @@ public class GroomerDataLoader implements ApplicationRunner {
         log.info("groomer#={}, {}", (i + 1), ObjectUtils.toJson(groomer));
 
         Groomer savedGroomer = groomerDAO.save(groomer);
+
+        firebaseRestClient.signUpAsync(savedGroomer.getEmail(), "Test1234!");
 
         List<String> services =
             Arrays.asList("Dog Daycare", "Grooming", "Overnight", "Nail Clipping");

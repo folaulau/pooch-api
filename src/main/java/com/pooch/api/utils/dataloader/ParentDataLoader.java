@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.ParentRepository;
+import com.pooch.api.library.firebase.FirebaseRestClient;
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
 
@@ -21,47 +22,52 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ParentDataLoader implements ApplicationRunner {
 
-    @Autowired
-    private TestEntityGeneratorService generatorService;
+  @Autowired
+  private TestEntityGeneratorService generatorService;
 
-    @Autowired
-    private ParentRepository           parentRepository;
+  @Autowired
+  private ParentRepository parentRepository;
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
+  @Autowired
+  private FirebaseRestClient firebaseRestClient;
 
-        long lastParentId = 20;
+  @Override
+  public void run(ApplicationArguments args) throws Exception {
 
-        Optional<Parent> optParent = parentRepository.findById(lastParentId);
+    long lastParentId = 20;
 
-        if (optParent.isPresent()) {
-            log.info("Parent seed data has been loaded already!");
-            return;
-        }
+    Optional<Parent> optParent = parentRepository.findById(lastParentId);
 
-        try {
-
-            Parent parent = null;
-            Address address = null;
-
-            for (int i = 0; i < lastParentId; i++) {
-                parent = generatorService.getParent();
-                parent.setId((long) (i + 1));
-
-                address = generatorService.getAddress();
-
-                parent.setAddress(address);
-                log.info("parent#={}, {}", (i + 1), ObjectUtils.toJson(parent));
-
-                parent = parentRepository.saveAndFlush(parent);
-
-                log.info("done with parent#", (i + 1));
-
-            }
-        } catch (Exception e) {
-            log.warn("Exception, msg={}", e.getLocalizedMessage());
-        }
-
+    if (optParent.isPresent()) {
+      log.info("Parent seed data has been loaded already!");
+      return;
     }
+
+    try {
+
+      Parent parent = null;
+      Address address = null;
+
+      for (int i = 0; i < lastParentId; i++) {
+        parent = generatorService.getParent();
+        parent.setId((long) (i + 1));
+
+        address = generatorService.getAddress();
+
+        parent.setAddress(address);
+        log.info("parent#={}, {}", (i + 1), ObjectUtils.toJson(parent));
+
+        parent = parentRepository.saveAndFlush(parent);
+
+        firebaseRestClient.signUpAsync(parent.getEmail(), "Test1234!");
+
+        log.info("done with parent#", (i + 1));
+
+      }
+    } catch (Exception e) {
+      log.warn("Exception, msg={}", e.getLocalizedMessage());
+    }
+
+  }
 
 }
