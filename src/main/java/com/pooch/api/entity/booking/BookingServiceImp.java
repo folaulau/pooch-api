@@ -352,7 +352,6 @@ public class BookingServiceImp implements BookingService {
         if (bookingApprovalDTO.getApproved()) {
 
             booking.setStatus(BookingStatus.BOOKED);
-            booking = bookingDAO.save(booking);
 
             transaction =
                     transactionService.addBookingAccepted(booking);
@@ -362,9 +361,13 @@ public class BookingServiceImp implements BookingService {
 
             booking = pair.getFirst();
 
+            booking.setStatus(BookingStatus.GROOMER_REJECTED);
+
             transaction =
                     transactionService.addBookingRejected(booking);
         }
+
+        booking = bookingDAO.save(booking);
 
         BookingDTO bookingDTO = entityDTOMapper.mapBookingToBookingDTO(booking);
         bookingDTO.addTransaction(this.entityDTOMapper.mapTransactionToTransactionDTO(transaction));
