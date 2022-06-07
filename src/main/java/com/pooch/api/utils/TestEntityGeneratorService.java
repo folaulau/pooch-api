@@ -133,9 +133,12 @@ public class TestEntityGeneratorService {
     groomer.setRating(MathUtils.getTwoDecimalPlaces(RandomGeneratorUtils.getDoubleWithin(1, 5)));
     groomer.addRole(new Role(UserType.groomer));
 
-    LocalTime openTime = LocalTime.of(RandomGeneratorUtils.getIntegerWithin(7, 9), 0);
+    // +6 for UTC
+    int openHour = RandomGeneratorUtils.getIntegerWithin(7, 9) + 6;
+    LocalTime openTime =
+        LocalTime.of(openHour, 0).withNano(0).withSecond(0);
     groomer.setOpenTime(openTime);
-
+    
     groomer.setCloseTime(openTime.plusHours(8));
 
     groomer.setAddress(getAddress());

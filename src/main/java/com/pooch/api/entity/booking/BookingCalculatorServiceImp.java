@@ -199,7 +199,7 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
 
     if(!((startDateTime.toLocalTime().equals(openTime) || startDateTime.toLocalTime().isAfter(openTime))
             && (startDateTime.toLocalTime().equals(closeTime) || startDateTime.toLocalTime().isBefore(closeTime)))){
-      throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime must be within open and close time","openTime: "+openTime,"closeTime: "+closeTime);
+      throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime must be within open and close time","openTime: "+openTime,"closeTime: "+closeTime, "starTime: "+startDateTime.toLocalTime());
     }
 
     // if(!openTime.equals(startDateTime.toLocalTime())) {
