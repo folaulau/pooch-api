@@ -162,10 +162,13 @@
           - total_amount
           - total_charge_at_booking
           - total_charge_at_drop_off
+          - approved_at
+          - booked_at
           - cancelled_at
           - checked_in_at
           - checked_out_at
           - created_at
+          - disapproved_at
           - drop_off_date_time
           - end_date_time
           - pick_up_date_time
@@ -208,10 +211,13 @@
           - total_amount
           - total_charge_at_booking
           - total_charge_at_drop_off
+          - approved_at
+          - booked_at
           - cancelled_at
           - checked_in_at
           - checked_out_at
           - created_at
+          - disapproved_at
           - drop_off_date_time
           - end_date_time
           - pick_up_date_time
@@ -254,10 +260,13 @@
           - total_amount
           - total_charge_at_booking
           - total_charge_at_drop_off
+          - approved_at
+          - booked_at
           - cancelled_at
           - checked_in_at
           - checked_out_at
           - created_at
+          - disapproved_at
           - drop_off_date_time
           - end_date_time
           - pick_up_date_time
@@ -298,10 +307,13 @@
           - total_amount
           - total_charge_at_booking
           - total_charge_at_drop_off
+          - approved_at
+          - booked_at
           - cancelled_at
           - checked_in_at
           - checked_out_at
           - created_at
+          - disapproved_at
           - drop_off_date_time
           - end_date_time
           - pick_up_date_time
@@ -1188,8 +1200,8 @@
           - updated_at
         filter:
           bookings:
-            parent_id:
-              _eq: x-Hasura-parent-id
+            groomer_id:
+              _eq: x-Hasura-groomer-id
     - role: parent
       permission:
         columns:
