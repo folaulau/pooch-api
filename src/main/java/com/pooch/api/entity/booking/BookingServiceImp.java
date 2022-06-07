@@ -351,6 +351,7 @@ public class BookingServiceImp implements BookingService {
 
         if (bookingApprovalDTO.getApproved()) {
 
+            booking.setStatus(BookingStatus.BOOKED);
             booking = bookingDAO.save(booking);
 
             transaction =
