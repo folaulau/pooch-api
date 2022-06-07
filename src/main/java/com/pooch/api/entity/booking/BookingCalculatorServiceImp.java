@@ -182,6 +182,11 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
     LocalTime closeTime = groomer.getCloseTime();
 
     // closeTime = closeTime.withSecond(0).withNano(0);
+    
+    // log.info("openTime: {}, closeTime: {}, startDateTime.toLocalTime: {}", openTime, closeTime,
+    // startDateTime.toLocalTime());
+    //
+    // log.info("startDateTime: {}, endDateTime: {}", startDateTime, endDateTime);
 
     if (startDateTime == null) {
       throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime is required");
@@ -192,6 +197,11 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
     }
 
     startDateTime = startDateTime.withSecond(0).withNano(0);
+
+    if(!((startDateTime.toLocalTime().equals(openTime) || startDateTime.toLocalTime().isAfter(openTime))
+            && (startDateTime.toLocalTime().equals(closeTime) || startDateTime.toLocalTime().isBefore(closeTime)))){
+      throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime must be within open and close time","openTime: "+openTime,"closeTime: "+closeTime);
+    }
 
     // if(!openTime.equals(startDateTime.toLocalTime())) {
     // throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime is required");

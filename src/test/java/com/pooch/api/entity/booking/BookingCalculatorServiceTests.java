@@ -27,6 +27,7 @@ import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
 import com.pooch.api.entity.parent.Parent;
+import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.utils.TestEntityGeneratorService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +42,7 @@ class BookingCalculatorServiceTests {
 
   @Mock
   private CareServiceDAO careServiceDAO;
-  
+
   private double bookingFee = 10.0;
 
   @BeforeEach
@@ -55,6 +56,9 @@ class BookingCalculatorServiceTests {
   void itShouldGeneratePaymentIntentDetails_with_1_care_service_and_stripe_not_setup() {
 
     Groomer groomer = testEntityGeneratorService.getActiveGroomer();
+
+    log.info("groomer={}", ObjectUtils.toJson(groomer));
+
     groomer.setId(1L);
 
     Parent parent = testEntityGeneratorService.getParent();
@@ -63,8 +67,10 @@ class BookingCalculatorServiceTests {
     double pickUpCost = 20;
     double dropOffCost = 20;
 
+
     int numOfDays = 1;
-    LocalDateTime startDateTime = LocalDateTime.of(2022, 6, 10, 8, 0);
+    LocalDateTime startDateTime =
+        LocalDateTime.of(2022, 6, 10, 0, 0).withHour(groomer.getOpenTime().getHour());
     LocalDateTime endDateTime = startDateTime.plusDays(numOfDays);
 
     List<PoochBookingCreateDTO> pooches = new ArrayList<>();
@@ -85,9 +91,9 @@ class BookingCalculatorServiceTests {
     }
 
 
-    BookingCostDetails bookingCostDetails = calculatorService.calculateBookingDetailCosts(
-        BookingCalculatorSender.CREATE_PAYMENTINTENT,
-        groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, pooches);
+    BookingCostDetails bookingCostDetails =
+        calculatorService.calculateBookingDetailCosts(BookingCalculatorSender.CREATE_PAYMENTINTENT,
+            groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, pooches);
 
     assertThat(bookingCostDetails).isNotNull();
     assertThat(bookingCostDetails.getGroomerStripeReady()).isFalse();
@@ -117,7 +123,8 @@ class BookingCalculatorServiceTests {
     double dropOffCost = 15;
 
     int numOfDays = 2;
-    LocalDateTime startDateTime = LocalDateTime.of(2022, 6, 10, 8, 0);
+    LocalDateTime startDateTime =
+        LocalDateTime.of(2022, 6, 10, 0, 0).withHour(groomer.getOpenTime().getHour());
     LocalDateTime endDateTime = startDateTime.plusDays(numOfDays);
 
     List<PoochBookingCreateDTO> pooches = new ArrayList<>();
@@ -145,9 +152,9 @@ class BookingCalculatorServiceTests {
     }
 
 
-    BookingCostDetails bookingCostDetails = calculatorService.calculateBookingDetailCosts(
-        BookingCalculatorSender.CREATE_PAYMENTINTENT,
-        groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, pooches);
+    BookingCostDetails bookingCostDetails =
+        calculatorService.calculateBookingDetailCosts(BookingCalculatorSender.CREATE_PAYMENTINTENT,
+            groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, pooches);
 
     assertThat(bookingCostDetails).isNotNull();
     assertThat(bookingCostDetails.getGroomerStripeReady()).isFalse();
@@ -181,7 +188,8 @@ class BookingCalculatorServiceTests {
     double dropOffCost = 15;
 
     int numOfDays = 2;
-    LocalDateTime startDateTime = LocalDateTime.of(2022, 6, 10, 8, 0);
+    LocalDateTime startDateTime =
+        LocalDateTime.of(2022, 6, 10, 0, 0).withHour(groomer.getOpenTime().getHour());
     LocalDateTime endDateTime = startDateTime.plusDays(numOfDays);
 
     List<PoochBookingCreateDTO> pooches = new ArrayList<>();
@@ -209,9 +217,9 @@ class BookingCalculatorServiceTests {
     }
 
 
-    BookingCostDetails bookingCostDetails = calculatorService.calculateBookingDetailCosts(
-        BookingCalculatorSender.CREATE_PAYMENTINTENT,
-        groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, pooches);
+    BookingCostDetails bookingCostDetails =
+        calculatorService.calculateBookingDetailCosts(BookingCalculatorSender.CREATE_PAYMENTINTENT,
+            groomer, parent, pickUpCost, dropOffCost, startDateTime, endDateTime, pooches);
 
     assertThat(bookingCostDetails).isNotNull();
     assertThat(bookingCostDetails.getGroomerStripeReady()).isTrue();

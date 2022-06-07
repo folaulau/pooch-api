@@ -153,7 +153,7 @@ public class TestEntityGeneratorService {
     groomer.setEmail(RandomGeneratorUtils.getRandomEmail());
     groomer.setEmailVerified(false);
     groomer.setBusinessName((firstName + " " + lastName).toLowerCase());
-    groomer.setNumberOfOccupancy(RandomGeneratorUtils.getLongWithin(2L, 100L));
+    groomer.setNumberOfOccupancy(RandomGeneratorUtils.getLongWithin(2L, 20L));
     groomer.setChargePerMile(RandomGeneratorUtils.getDoubleWithin(1D, 3D));
     groomer.setOfferedDropOff(true);
     groomer.setOfferedPickUp(true);
@@ -167,9 +167,11 @@ public class TestEntityGeneratorService {
     groomer.setRating(RandomGeneratorUtils.getDoubleWithin(1, 5));
     groomer.addRole(new Role(UserType.groomer));
 
+    // +6 for UTC
+    int openHour = RandomGeneratorUtils.getIntegerWithin(7, 9) + 6;
     LocalTime openTime =
-        LocalTime.of(RandomGeneratorUtils.getIntegerWithin(7, 9), 0).withNano(0).withSecond(0);
-    LocalTime closeTimme = openTime.plusHours(9);
+        LocalTime.of(openHour, 0).withNano(0).withSecond(0);
+    LocalTime closeTimme = openTime.plusHours(8);
 
     groomer.setOpenTime(openTime);
     groomer.setCloseTime(closeTimme);
