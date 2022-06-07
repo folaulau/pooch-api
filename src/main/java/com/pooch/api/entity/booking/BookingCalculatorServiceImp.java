@@ -183,10 +183,9 @@ public class BookingCalculatorServiceImp implements BookingCalculatorService {
 
     // closeTime = closeTime.withSecond(0).withNano(0);
     
-    // log.info("openTime: {}, closeTime: {}, startDateTime.toLocalTime: {}", openTime, closeTime,
-    // startDateTime.toLocalTime());
-    //
-    // log.info("startDateTime: {}, endDateTime: {}", startDateTime, endDateTime);
+   log.info("openTime: {}, closeTime: {}, startDateTime.toLocalTime: {}", openTime, closeTime, startDateTime.toLocalTime());
+
+    log.info("startDateTime: {}, endDateTime: {}", startDateTime, endDateTime);
 
     if (startDateTime == null) {
       throw new ApiException(ApiError.DEFAULT_MSG, "startDateTime is required");

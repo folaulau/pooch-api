@@ -6,23 +6,14 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
+
+import com.pooch.api.dto.*;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.Days;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
-import com.pooch.api.dto.ApiDefaultResponseDTO;
-import com.pooch.api.dto.BookingCancelDTO;
-import com.pooch.api.dto.BookingCareServiceCreateDTO;
-import com.pooch.api.dto.BookingCheckInDTO;
-import com.pooch.api.dto.BookingCheckOutDTO;
-import com.pooch.api.dto.BookingCreateDTO;
-import com.pooch.api.dto.PoochCreateUpdateDTO;
-import com.pooch.api.dto.ParentUpdateDTO;
-import com.pooch.api.dto.PoochBookingCreateDTO;
-import com.pooch.api.dto.GroomerUuidDTO;
-import com.pooch.api.dto.ParentCreateUpdateDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.GroomerDAO;
 import com.pooch.api.entity.groomer.careservice.CareService;
@@ -225,6 +216,20 @@ public class BookingValidatorServiceImp implements BookingValidatorService {
 //    if (!bookingCheckOutDTO.getGroomerUuid().equals(booking.getGroomer().getUuid())) {
 //      throw new ApiException("Sorry you are not the Groomer who owns this booking.");
 //    }
+    return booking;
+  }
+
+  @Override
+  public Booking validateApproval(BookingApprovalDTO bookingApprovalDTO) {
+    String uuid = bookingApprovalDTO.getUuid();
+
+    Booking booking = bookingDAO.getByUuid(uuid).orElseThrow(
+            () -> new ApiException("Booking not found", "booking not found for uuid=" + uuid));
+
+    if(!booking.getStatus().equals(BookingStatus.PENDING_GROOMER_APPROVAL)){
+      throw new ApiException(ApiError.DEFAULT_MSG,"status should be "+BookingStatus.PENDING_GROOMER_APPROVAL.name()+" for approval", "status="+booking.getStatus().name());
+    }
+
     return booking;
   }
 

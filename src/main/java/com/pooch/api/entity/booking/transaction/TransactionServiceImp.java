@@ -46,4 +46,32 @@ public class TransactionServiceImp implements TransactionService {
 
     return transactionDAO.save(transaction);
   }
+
+  @Override
+  public Transaction addBookingAccepted(Booking booking) {
+    /**
+     * - amount, description
+     */
+    Transaction transaction = new Transaction();
+    transaction.setType(TransactionType.BOOKING_ACCEPTED);
+    transaction.setDescription("Groomer has accepted booking request");
+
+    transaction.setBooking(booking);
+
+    return transactionDAO.save(transaction);
+  }
+
+  @Override
+  public Transaction addBookingRejected(Booking booking) {
+    /**
+     * - amount, description
+     */
+    Transaction transaction = new Transaction();
+    transaction.setType(TransactionType.BOOKING_REJECTED);
+    transaction.setDescription("Groomer has reject booking request");
+
+    transaction.setBooking(booking);
+
+    return transactionDAO.save(transaction);
+  }
 }

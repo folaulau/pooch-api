@@ -9,4 +9,7 @@ public interface TransactionService {
 
     Transaction addBookingCancellation(Booking booking, Double refundedAmount,
         Double nonRefundedAmount);
+    Transaction addBookingAccepted(Booking booking);
+
+    Transaction addBookingRejected(Booking booking);
 }

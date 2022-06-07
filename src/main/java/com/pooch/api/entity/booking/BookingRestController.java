@@ -1,3 +1,4 @@
+
 package com.pooch.api.entity.booking;
 
 import static org.springframework.http.HttpStatus.OK;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
+import com.pooch.api.dto.BookingApprovalDTO;
 import com.pooch.api.dto.BookingCancelDTO;
 import com.pooch.api.dto.BookingCheckInDTO;
 import com.pooch.api.dto.BookingCheckOutDTO;
@@ -71,6 +73,16 @@ public class BookingRestController {
         log.info("checkOut");
 
         BookingDTO bookingDTO = bookingService.checkOut(checkOutDTO);
+
+        return new ResponseEntity<>(bookingDTO, OK);
+    }
+    
+    @Operation(summary = "Groomer Approval", description = "Groomer approves booking after a parent has made a booking that requires approval")
+    @PutMapping(value = "/groomer/approval")
+    public ResponseEntity<BookingDTO> approve(@RequestHeader(name = "token", required = true) String token, @Valid @RequestBody BookingApprovalDTO bookingApprovalDTO) {
+        log.info("approve");
+
+        BookingDTO bookingDTO = bookingService.approve(bookingApprovalDTO);
 
         return new ResponseEntity<>(bookingDTO, OK);
     }

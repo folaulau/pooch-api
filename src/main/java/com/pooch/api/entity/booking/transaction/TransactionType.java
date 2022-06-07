@@ -37,6 +37,8 @@ public enum TransactionType {
      */
     BOOKING_ACCEPTED,
 
+    BOOKING_REJECTED,
+
     /**
      * Description<br>
      * - Groomer accepts booking<br>
@@ -44,6 +46,7 @@ public enum TransactionType {
      * - cancelUserType, cancelUserId, refundedAmount, nonRefundedAmount, description
      */
     BOOKING_CANCELLATION,
+
 
     /**
      * Description<br>

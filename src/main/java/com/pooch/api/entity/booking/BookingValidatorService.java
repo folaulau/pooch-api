@@ -1,10 +1,7 @@
 package com.pooch.api.entity.booking;
 
+import com.pooch.api.dto.*;
 import org.apache.commons.lang3.tuple.Triple;
-import com.pooch.api.dto.BookingCancelDTO;
-import com.pooch.api.dto.BookingCheckInDTO;
-import com.pooch.api.dto.BookingCheckOutDTO;
-import com.pooch.api.dto.BookingCreateDTO;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
 import com.stripe.model.PaymentIntent;
@@ -19,4 +16,5 @@ public interface BookingValidatorService {
 
     Booking validateCheckOut(BookingCheckOutDTO bookingCheckOutDTO);
 
+    Booking validateApproval(BookingApprovalDTO bookingApprovalDTO);
 }

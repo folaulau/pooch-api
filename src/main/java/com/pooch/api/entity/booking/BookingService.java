@@ -1,5 +1,7 @@
 package com.pooch.api.entity.booking;
 
+import javax.validation.Valid;
+import com.pooch.api.dto.BookingApprovalDTO;
 import com.pooch.api.dto.BookingCancelDTO;
 import com.pooch.api.dto.BookingCheckInDTO;
 import com.pooch.api.dto.BookingCheckOutDTO;
@@ -15,4 +17,6 @@ public interface BookingService {
     BookingDTO checkIn(BookingCheckInDTO bookingCheckInDTO);
 
     BookingDTO checkOut(BookingCheckOutDTO bookingCheckOutDTO);
+
+    BookingDTO approve(@Valid BookingApprovalDTO bookingApprovalDTO);
 }
