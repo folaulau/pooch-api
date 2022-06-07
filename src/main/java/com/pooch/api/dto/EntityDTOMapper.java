@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.pooch.api.elastic.repo.AddressES;
+import com.pooch.api.elastic.repo.CalendarDayES;
 import com.pooch.api.elastic.repo.CareServiceES;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.type.GroomerServiceCategory;
@@ -27,6 +28,7 @@ import com.pooch.api.entity.booking.pooch.BookingPooch;
 import com.pooch.api.entity.booking.transaction.Transaction;
 import com.pooch.api.entity.chat.Chat;
 import com.pooch.api.entity.groomer.Groomer;
+import com.pooch.api.entity.groomer.calendar.day.CalendarDay;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.parent.paymentmethod.PaymentMethod;
 import com.pooch.api.entity.phonenumber.PhoneNumberVerification;
@@ -148,5 +150,7 @@ public interface EntityDTOMapper {
   BookingCareService mapCareServiceToBookingCareService(CareService careService);
 
   TransactionDTO mapTransactionToTransactionDTO(Transaction transaction);
+
+  List<CalendarDayES> mapCalendarDaysToEsCalendar(List<CalendarDay> calendarDays);
 
 }

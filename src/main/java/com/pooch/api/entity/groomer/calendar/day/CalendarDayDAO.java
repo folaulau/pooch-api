@@ -11,4 +11,6 @@ public interface CalendarDayDAO {
   CalendarDay save(CalendarDay day);
 
   Optional<CalendarDay> getByGroomerIdAndDate(long groomerId, LocalDate date);
+
+  List<CalendarDay> getByGroomerIdAndDates(Long id, LocalDate start, LocalDate end);
 }

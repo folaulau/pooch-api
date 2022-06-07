@@ -130,7 +130,7 @@ public class GroomerES implements Serializable {
   private List<CareServiceES> careServices;
 
   @Field(type = FieldType.Nested)
-  private List<CalendarES> calendar;
+  private List<CalendarDayES> calendar;
 
   @Field
   private boolean deleted;

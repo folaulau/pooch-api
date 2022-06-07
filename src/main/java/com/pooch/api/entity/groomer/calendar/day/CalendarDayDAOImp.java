@@ -40,5 +40,11 @@ public class CalendarDayDAOImp implements CalendarDayDAO {
   }
 
 
+  @Override
+  public List<CalendarDay> getByGroomerIdAndDates(Long id, LocalDate start, LocalDate end) {
+    return calendarDayRepository.findByGroomerIdAndDateBetween(id, start, end);
+  }
+
+
 
 }
