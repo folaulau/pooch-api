@@ -30,7 +30,7 @@ public class CalendarDayES implements Serializable {
 
   private String uuid;
 
-  @Field(type = FieldType.Date, format = {DateFormat.basic_date, DateFormat.basic_time})
+  @Field(type = FieldType.Date, format = {DateFormat.date_hour_minute_second})
   private Date date;
 
   private Boolean operational;
