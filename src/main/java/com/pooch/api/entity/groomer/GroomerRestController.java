@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @Tag(name = "Groomers", description = "Groomer Operations")
 @Slf4j
@@ -68,7 +69,7 @@ public class GroomerRestController {
   @Operation(summary = "Create Profile", description = "create profile")
   @PutMapping(value = "/create-profile")
   public ResponseEntity<GroomerDTO> createProfile(
-      @RequestHeader(name = "token", required = true) String token,
+      @RequestHeader(name = "token", required = true) String token,@Valid
       @RequestBody GroomerCreateProfileDTO groomerCreateProfileDTO) {
     log.info("createProfile={}", ObjectUtils.toJson(groomerCreateProfileDTO));
 
@@ -80,7 +81,7 @@ public class GroomerRestController {
   @Operation(summary = "Create Listing", description = "create listing")
   @PutMapping(value = "/create-listing")
   public ResponseEntity<GroomerDTO> createUpdateListing(
-      @RequestHeader(name = "token", required = true) String token,
+      @RequestHeader(name = "token", required = true) String token,@Valid
       @RequestBody GroomerCreateListingDTO groomerCreateListingDTO) {
     log.info("createUpdateListing={}", ObjectUtils.toJson(groomerCreateListingDTO));
 

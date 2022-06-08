@@ -360,9 +360,9 @@ public class GroomerServiceImp implements GroomerService {
 
     final Set<CareService> careServices =
         careServiceDAO.findByGroomerId(groomer.getId()).orElse(new HashSet<>());
-    final Set<Long> careServicesToRemove = (careServices.size() > 0
-        ? careServices.stream().map(careService -> careService.getId()).collect(Collectors.toSet())
-        : new HashSet<>());
+//    final Set<Long> careServicesToRemove = (careServices.size() > 0
+//        ? careServices.stream().map(careService -> careService.getId()).collect(Collectors.toSet())
+//        : new HashSet<>());
 
     Set<CareServiceUpdateDTO> careServicesDTOs = groomerCreateListingDTO.getCareServices();
 
@@ -375,7 +375,7 @@ public class GroomerServiceImp implements GroomerService {
 
         if (careServiceUuid != null && !careServiceUuid.trim().isEmpty()) {
           careService = careServiceDAO.getByUuid(careServicesDTO.getUuid()).get();
-          careServicesToRemove.remove(careService.getId());
+//          careServicesToRemove.remove(careService.getId());
           entityDTOMapper.patchCareServiceWithCareServiceUpdateDTO(careServicesDTO, careService);
         } else {
           careService = entityDTOMapper.mapCareServiceUpdateDTOToCareService(careServicesDTO);
@@ -401,19 +401,19 @@ public class GroomerServiceImp implements GroomerService {
     /**
      * delete careServices that are not passed
      */
-    if (careServicesToRemove.size() > 0) {
-      careServiceDAO.deleteByIds(careServicesToRemove);
-    }
+//    if (careServicesToRemove.size() > 0) {
+//      careServiceDAO.deleteByIds(careServicesToRemove);
+//    }
+//
+//    Set<CareService> savedSareServices = careServices.stream().filter(careService -> {
+//      if (careServicesToRemove.contains(careService.getId())) {
+//        return true;
+//      } else {
+//        return false;
+//      }
+//    }).collect(Collectors.toSet());
 
-    Set<CareService> savedSareServices = careServices.stream().filter(careService -> {
-      if (careServicesToRemove.contains(careService.getId())) {
-        return true;
-      } else {
-        return false;
-      }
-    }).collect(Collectors.toSet());
-
-    groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(savedSareServices));
+    groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(careServices));
 
     /**
      * notify groomer of profile update only if status==ACTIVE

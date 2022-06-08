@@ -3,7 +3,7 @@ package com.pooch.api.dto;
 import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
+import com.pooch.api.validators.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,6 +25,7 @@ public class CareServiceUpdateDTO implements Serializable {
     /**
      * 1-20LB
      */
+    @NotNull(message = "smallPrice is required")
     private Double            smallPrice;
 
     private boolean           serviceSmall;
@@ -32,6 +33,7 @@ public class CareServiceUpdateDTO implements Serializable {
     /**
      * 21-40LB
      */
+    @NotNull(message = "mediumPrice is required")
     private Double            mediumPrice;
 
     private boolean           serviceMedium;
@@ -39,6 +41,7 @@ public class CareServiceUpdateDTO implements Serializable {
     /**
      * 41LB +
      */
+    @NotNull(message = "largePrice is required")
     private Double            largePrice;
 
     private boolean           serviceLarge;
