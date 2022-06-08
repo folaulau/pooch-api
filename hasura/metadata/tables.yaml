@@ -328,6 +328,15 @@
     - name: booking
       using:
         foreign_key_constraint_on: booking_id
+    - name: toCareService
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: care_service
+          insertion_order: null
+          column_mapping:
+            id: id
   select_permissions:
     - role: groomer
       permission:
