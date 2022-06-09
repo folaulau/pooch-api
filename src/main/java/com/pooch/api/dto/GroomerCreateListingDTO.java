@@ -1,8 +1,11 @@
 package com.pooch.api.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -37,12 +40,11 @@ public class GroomerCreateListingDTO implements Serializable {
 
     private Boolean                   instantBooking;
 
-    @NotEmpty(message = "careServices is required")
-    private Set<CareServiceUpdateDTO> careServices;
+    private List<@javax.validation.constraints.NotNull @Valid CareServiceUpdateDTO> careServices;
 
     public void addCareService(CareServiceUpdateDTO careService) {
         if (this.careServices == null || this.careServices.size() == 0) {
-            this.careServices = new HashSet<>();
+            this.careServices = new ArrayList<>();
         }
         this.careServices.add(careService);
     }

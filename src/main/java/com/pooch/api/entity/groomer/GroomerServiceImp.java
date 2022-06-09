@@ -364,7 +364,7 @@ public class GroomerServiceImp implements GroomerService {
     // ? careServices.stream().map(careService -> careService.getId()).collect(Collectors.toSet())
     // : new HashSet<>());
 
-    Set<CareServiceUpdateDTO> careServicesDTOs = groomerCreateListingDTO.getCareServices();
+    Set<CareServiceUpdateDTO> careServicesDTOs = new HashSet<>(groomerCreateListingDTO.getCareServices());
 
     if (null != careServicesDTOs) {
       careServicesDTOs.stream().forEach(careServicesDTO -> {

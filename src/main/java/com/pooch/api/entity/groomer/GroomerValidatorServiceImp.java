@@ -135,7 +135,7 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
 
     ApiError error = new ApiError();
 
-    Set<CareServiceUpdateDTO> careServices = groomerCreateListingDTO.getCareServices();
+    Set<CareServiceUpdateDTO> careServices = new HashSet<>(groomerCreateListingDTO.getCareServices());
 
     if (careServices == null || careServices.size() <= 0) {
       error.addSubError("careServices is required");
@@ -165,7 +165,7 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
 
       if (careService.getSmallPrice() == null || (careService.getSmallPrice() < 0
           || careService.getSmallPrice() > 10000)) {
-        error.addSubError("smallPrice is invalid");
+        error.addSubError("smallPrice is iinvalid");
       }
 
 //      if (careService.isServiceMedium() && careService.getMediumPrice() == null) {
@@ -176,7 +176,7 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
 
       if (careService.getMediumPrice() == null || ( careService.getMediumPrice() < 0
           || careService.getMediumPrice() > 10000)) {
-        error.addSubError("mediumPrice is invalid");
+        error.addSubError("mediumPrice is iinvalid");
       }
 
 //      if (careService.isServiceLarge() && careService.getLargePrice() == null) {
@@ -187,7 +187,7 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
 
       if (careService.getLargePrice() == null || (careService.getLargePrice() < 0
           || careService.getLargePrice() > 10000)) {
-        error.addSubError("largePrice is invalid");
+        error.addSubError("largePrice is iinvalid");
       }
     }
 
