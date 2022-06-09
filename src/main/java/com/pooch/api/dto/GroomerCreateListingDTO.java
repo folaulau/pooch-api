@@ -40,11 +40,11 @@ public class GroomerCreateListingDTO implements Serializable {
 
     private Boolean                   instantBooking;
 
-    private List<@javax.validation.constraints.NotNull @Valid CareServiceUpdateDTO> careServices;
+    private Set<@javax.validation.constraints.NotNull @Valid CareServiceUpdateDTO> careServices;
 
     public void addCareService(CareServiceUpdateDTO careService) {
         if (this.careServices == null || this.careServices.size() == 0) {
-            this.careServices = new ArrayList<>();
+            this.careServices = new HashSet<>();
         }
         this.careServices.add(careService);
     }

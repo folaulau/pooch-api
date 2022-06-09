@@ -135,7 +135,7 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
 
     ApiError error = new ApiError();
 
-    Set<CareServiceUpdateDTO> careServices = new HashSet<>(groomerCreateListingDTO.getCareServices());
+    Set<CareServiceUpdateDTO> careServices = groomerCreateListingDTO.getCareServices();
 
     if (careServices == null || careServices.size() <= 0) {
       error.addSubError("careServices is required");
