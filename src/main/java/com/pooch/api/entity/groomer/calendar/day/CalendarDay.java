@@ -68,8 +68,11 @@ public class CalendarDay implements Serializable {
   @Column(name = "filled", columnDefinition = "boolean default false")
   private Boolean filled;
 
-  @Column(name = "number_of_bookings", columnDefinition = "integer default 0")
+  @Column(name = "number_of_bookings", columnDefinition = "integer default 0", nullable = true)
   private Integer numberOfBookings;
+
+  @Column(name = "number_of_openings", columnDefinition = "integer default 0", nullable = true)
+  private Integer numberOfOpenings;
 
   // add list of bookings
   @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
@@ -97,7 +100,7 @@ public class CalendarDay implements Serializable {
     if (this.uuid == null || this.uuid.isEmpty()) {
       this.uuid = "calendarday-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
     }
-    
+
   }
 
   public void generateFill(Long numberOfOccupancy) {
@@ -108,11 +111,17 @@ public class CalendarDay implements Serializable {
     }
   }
 
-  public void addBookingCount() {
+  public void addBookingCount(Long numberOfOccupancy) {
     if (numberOfBookings == null) {
       numberOfBookings = 0;
     }
     numberOfBookings++;
+
+    if (numberOfOccupancy != null) {
+      numberOfOpenings = numberOfOccupancy.intValue() - numberOfBookings;
+    }
+
+
   }
 
 }

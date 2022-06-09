@@ -50,7 +50,7 @@ public class CalendarDayServiceImp implements CalendarDayService {
       calendarDay.setDate(date);
       calendarDay.generateFill(groomer.getNumberOfOccupancy());
       calendarDay.setOperational(groomer.checkOperationByDay(date));
-      calendarDay.addBookingCount();
+      calendarDay.addBookingCount(groomer.getNumberOfOccupancy());
 
       days.add(calendarDay);
 
