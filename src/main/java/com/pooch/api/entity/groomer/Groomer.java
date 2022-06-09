@@ -305,6 +305,23 @@ public class Groomer implements Serializable {
     if (this.uuid == null || this.uuid.isEmpty()) {
       this.uuid = "groomer-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
     }
+
+    if (this.offeredDropOff == null) {
+      this.offeredDropOff = false;
+    }
+
+    if (this.offeredPickUp == null) {
+      this.offeredPickUp = false;
+    }
+
+    if (this.instantBooking == null) {
+      this.instantBooking = false;
+    }
+
+    if (this.listing == null) {
+      this.listing = false;
+    }
+
     /**
      * by default set to true
      */
