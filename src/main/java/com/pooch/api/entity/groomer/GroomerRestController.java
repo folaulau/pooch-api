@@ -69,8 +69,8 @@ public class GroomerRestController {
   @Operation(summary = "Create Profile", description = "create profile")
   @PutMapping(value = "/create-profile")
   public ResponseEntity<GroomerDTO> createProfile(
-      @RequestHeader(name = "token", required = true) String token,@Valid
-      @RequestBody GroomerCreateProfileDTO groomerCreateProfileDTO) {
+      @RequestHeader(name = "token", required = true) String token,
+      @Valid @RequestBody GroomerCreateProfileDTO groomerCreateProfileDTO) {
     log.info("createProfile={}", ObjectUtils.toJson(groomerCreateProfileDTO));
 
     GroomerDTO groomerDTO = groomerService.createUpdateProfile(groomerCreateProfileDTO);
@@ -81,8 +81,8 @@ public class GroomerRestController {
   @Operation(summary = "Create Listing", description = "create listing")
   @PutMapping(value = "/create-listing")
   public ResponseEntity<GroomerDTO> createUpdateListing(
-      @RequestHeader(name = "token", required = true) String token,@Valid
-      @RequestBody GroomerCreateListingDTO groomerCreateListingDTO) {
+      @RequestHeader(name = "token", required = true) String token,
+      @Valid @RequestBody GroomerCreateListingDTO groomerCreateListingDTO) {
     log.info("createUpdateListing={}", ObjectUtils.toJson(groomerCreateListingDTO));
 
     GroomerDTO groomerDTO = groomerService.createUpdateListing(groomerCreateListingDTO);
@@ -187,5 +187,17 @@ public class GroomerRestController {
     // xApiKeyService.validate(xApiKey);
 
     return new ResponseEntity<>(groomerServiceTypeService.getAllGroomerServiceTypes(), OK);
+  }
+
+  @Operation(summary = "Update Settings", description = "Update settings")
+  @PutMapping(value = "/settings")
+  public ResponseEntity<GroomerDTO> updateSettings(
+      @RequestHeader(name = "token", required = true) String token,
+      @Valid @RequestBody SettingsUpdateDTO settingsUpdateDTO) {
+    log.info("updateSettings");
+
+    GroomerDTO groomerDTO = groomerService.updateSettings(settingsUpdateDTO);
+
+    return new ResponseEntity<>(groomerDTO, OK);
   }
 }

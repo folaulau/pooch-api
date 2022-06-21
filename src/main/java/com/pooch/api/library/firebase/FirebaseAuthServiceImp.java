@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
+import com.google.firebase.auth.UserRecord.UpdateRequest;
 import com.pooch.api.exception.ApiException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +61,21 @@ public class FirebaseAuthServiceImp implements FirebaseAuthService {
     createRequest.setPassword(password);
     createRequest.setDisplayName(displayName);
     try {
-       firebaseAuth.createUser(createRequest);
+      firebaseAuth.createUser(createRequest);
+    } catch (FirebaseAuthException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+  @Override
+  public void updateEmailAndPassword(String uuid, String password, String email) {
+    UpdateRequest updateRequest = new UpdateRequest(uuid);
+    updateRequest.setPassword(password);
+    updateRequest.setEmail(email);
+
+    try {
+      firebaseAuth.updateUser(updateRequest);
     } catch (FirebaseAuthException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

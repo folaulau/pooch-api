@@ -18,6 +18,7 @@ import com.pooch.api.dto.CustomSort;
 import com.pooch.api.dto.GroomerCreateListingDTO;
 import com.pooch.api.dto.GroomerCreateProfileDTO;
 import com.pooch.api.dto.GroomerSearchParamsDTO;
+import com.pooch.api.dto.SettingsUpdateDTO;
 import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.address.AddressDAO;
 import com.pooch.api.entity.groomer.careservice.CareServiceDAO;
@@ -152,41 +153,41 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
       if (name == null || name.isEmpty()) {
         error.addSubError("service name is emtpy");
       }
-      
+
       /**
        * as of 2022-06-08, make sure all prices are filled
        */
 
-//      if (careService.isServiceSmall() && careService.getSmallPrice() == null) {
-//        error.addSubError("serviceSmall is turned on but smallPrice is not specified");
-//      } else if (!careService.isServiceSmall()) {
-//        careService.setSmallPrice(null);
-//      }
+      // if (careService.isServiceSmall() && careService.getSmallPrice() == null) {
+      // error.addSubError("serviceSmall is turned on but smallPrice is not specified");
+      // } else if (!careService.isServiceSmall()) {
+      // careService.setSmallPrice(null);
+      // }
 
-      if (careService.getSmallPrice() == null || (careService.getSmallPrice() < 0
-          || careService.getSmallPrice() > 10000)) {
+      if (careService.getSmallPrice() == null
+          || (careService.getSmallPrice() < 0 || careService.getSmallPrice() > 10000)) {
         error.addSubError("smallPrice is iinvalid");
       }
 
-//      if (careService.isServiceMedium() && careService.getMediumPrice() == null) {
-//        error.addSubError("serviceMedium is turned on but mediumPrice is not specified");
-//      } else if (!careService.isServiceMedium()) {
-//        careService.setMediumPrice(null);
-//      }
+      // if (careService.isServiceMedium() && careService.getMediumPrice() == null) {
+      // error.addSubError("serviceMedium is turned on but mediumPrice is not specified");
+      // } else if (!careService.isServiceMedium()) {
+      // careService.setMediumPrice(null);
+      // }
 
-      if (careService.getMediumPrice() == null || ( careService.getMediumPrice() < 0
-          || careService.getMediumPrice() > 10000)) {
+      if (careService.getMediumPrice() == null
+          || (careService.getMediumPrice() < 0 || careService.getMediumPrice() > 10000)) {
         error.addSubError("mediumPrice is iinvalid");
       }
 
-//      if (careService.isServiceLarge() && careService.getLargePrice() == null) {
-//        error.addSubError("serviceLarge is turned on but largePrice is not specified");
-//      } else if (!careService.isServiceLarge()) {
-//        careService.setLargePrice(null);
-//      }
+      // if (careService.isServiceLarge() && careService.getLargePrice() == null) {
+      // error.addSubError("serviceLarge is turned on but largePrice is not specified");
+      // } else if (!careService.isServiceLarge()) {
+      // careService.setLargePrice(null);
+      // }
 
-      if (careService.getLargePrice() == null || (careService.getLargePrice() < 0
-          || careService.getLargePrice() > 10000)) {
+      if (careService.getLargePrice() == null
+          || (careService.getLargePrice() < 0 || careService.getLargePrice() > 10000)) {
         error.addSubError("largePrice is iinvalid");
       }
     }
@@ -446,6 +447,16 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
 
     }
 
+  }
+
+  @Override
+  public Groomer validateSettingsUpdate(SettingsUpdateDTO settingsUpdateDTO) {
+    String uuid = settingsUpdateDTO.getUuid();
+
+    Groomer groomer = groomerDAO.getByUuid(uuid).orElseThrow(
+        () -> new ApiException("Groomer not found", "groomer not found for uuid=" + uuid));
+
+    return groomer;
   }
 
 }

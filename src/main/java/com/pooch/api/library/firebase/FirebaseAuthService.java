@@ -15,4 +15,6 @@ public interface FirebaseAuthService {
     
     @Async
     void createUser(String email, String password, String displayName);
+
+    void updateEmailAndPassword(String uuid, String password, String email);
 }

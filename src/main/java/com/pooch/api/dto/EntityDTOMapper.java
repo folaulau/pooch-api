@@ -153,4 +153,7 @@ public interface EntityDTOMapper {
 
   List<CalendarDayES> mapCalendarDaysToEsCalendar(List<CalendarDay> calendarDays);
 
+  @Mappings({@Mapping(target = "uuid", ignore = true)})
+  Groomer patchGroomerWithSettingsUpdateDTO(SettingsUpdateDTO settingsUpdateDTO, @MappingTarget Groomer groomer);
+
 }

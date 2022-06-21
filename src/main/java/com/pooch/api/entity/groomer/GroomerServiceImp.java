@@ -625,4 +625,16 @@ public class GroomerServiceImp implements GroomerService {
 
     return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
   }
+
+  @Override
+  public GroomerDTO updateSettings(SettingsUpdateDTO settingsUpdateDTO) {
+    Groomer groomer = groomerValidatorService.validateSettingsUpdate(settingsUpdateDTO);
+    
+    entityDTOMapper.patchGroomerWithSettingsUpdateDTO(settingsUpdateDTO, groomer);
+
+    firebaseAuthService.updateEmailAndPassword(groomer.getUuid(), settingsUpdateDTO.getPassword(),
+        groomer.getEmail());
+
+    return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
+  }
 }
