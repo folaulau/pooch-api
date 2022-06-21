@@ -70,7 +70,10 @@ class BookingCalculatorServiceTests {
 
     int numOfDays = 1;
     LocalDateTime startDateTime =
-        LocalDateTime.of(2022, 6, 10, 0, 0).withHour(groomer.getOpenTime().getHour());
+        LocalDateTime.now().plusDays(2)        
+        .withHour(groomer.getOpenTime().getHour())
+        .withSecond(0)
+        .withNano(0);
     LocalDateTime endDateTime = startDateTime.plusDays(numOfDays);
 
     List<PoochBookingCreateDTO> pooches = new ArrayList<>();
@@ -124,7 +127,10 @@ class BookingCalculatorServiceTests {
 
     int numOfDays = 2;
     LocalDateTime startDateTime =
-        LocalDateTime.of(2022, 6, 10, 0, 0).withHour(groomer.getOpenTime().getHour());
+        LocalDateTime.now().plusDays(2)        
+        .withHour(groomer.getOpenTime().getHour())
+        .withSecond(0)
+        .withNano(0);
     LocalDateTime endDateTime = startDateTime.plusDays(numOfDays);
 
     List<PoochBookingCreateDTO> pooches = new ArrayList<>();
@@ -189,7 +195,10 @@ class BookingCalculatorServiceTests {
 
     int numOfDays = 2;
     LocalDateTime startDateTime =
-        LocalDateTime.of(2022, 6, 10, 0, 0).withHour(groomer.getOpenTime().getHour());
+        LocalDateTime.now().plusDays(2)        
+        .withHour(groomer.getOpenTime().getHour())
+        .withSecond(0)
+        .withNano(0);
     LocalDateTime endDateTime = startDateTime.plusDays(numOfDays);
 
     List<PoochBookingCreateDTO> pooches = new ArrayList<>();
