@@ -38,6 +38,8 @@ import com.pooch.api.entity.pooch.vaccine.Vaccine;
 import com.pooch.api.entity.role.UserType;
 import com.pooch.api.entity.role.Role;
 import com.pooch.api.library.aws.secretsmanager.StripeSecrets;
+import com.pooch.api.library.firebase.FirebaseAuthResponse;
+import com.pooch.api.library.firebase.FirebaseRestClient;
 import com.pooch.api.library.stripe.StripeMetadataService;
 import com.pooch.api.library.stripe.paymentmethod.StripePaymentMethodService;
 import com.stripe.Stripe;
@@ -87,10 +89,21 @@ public class TestEntityGeneratorService {
 
   @Value("${spring.profiles.active}")
   private String env;
+  
+  @Autowired
+  private FirebaseRestClient     firebaseRestClient;
 
   public Groomer getDBGroomer() {
     Groomer petSitter = getGroomer();
     return petSitterRepository.saveAndFlush(petSitter);
+  }
+  
+  public Groomer getDBFirebaseGroomer() {
+    Groomer groomer = getGroomer();
+    FirebaseAuthResponse firebaseAuthResponse =  firebaseRestClient.signUp(groomer.getEmail(), "Test1234!");
+    groomer.setUuid(firebaseAuthResponse.getLocalId());
+    groomer =  petSitterRepository.saveAndFlush(groomer);
+    return groomer;
   }
 
   public Groomer getActiveDBGroomer() {
