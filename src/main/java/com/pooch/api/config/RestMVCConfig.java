@@ -22,6 +22,30 @@ public class RestMVCConfig {
 
     @Value("${resttemplate.timeout:100000}")
     private int restTemplateTimeout;
+    
+
+    @Bean
+    public RestTemplate getRestTemplate() {
+        final SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(restTemplateTimeout);
+        requestFactory.setReadTimeout(restTemplateTimeout);
+        RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(requestFactory));
+        restTemplate.getInterceptors().add(new HttpRequestInterceptor());
+        restTemplate.setErrorHandler(new HttpResponseErrorHandler());
+        return restTemplate;
+    }
+
+    @Profile("dev")
+    @Bean
+    public OpenAPI openDevAPI() {
+        return new OpenAPI().addServersItem(new Server().url("https://dev-api.poochapp.com/v1"));
+    }
+
+    @Profile("prod")
+    @Bean
+    public OpenAPI openProdAPI() {
+        return new OpenAPI().addServersItem(new Server().url("https://prod-api.poochapp.com/v1"));
+    }
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -45,27 +69,5 @@ public class RestMVCConfig {
         };
     }
 
-    @Bean
-    public RestTemplate getRestTemplate() {
-        final SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(restTemplateTimeout);
-        requestFactory.setReadTimeout(restTemplateTimeout);
-        RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(requestFactory));
-        restTemplate.getInterceptors().add(new HttpRequestInterceptor());
-        restTemplate.setErrorHandler(new HttpResponseErrorHandler());
-        return restTemplate;
-    }
-
-    @Profile("dev")
-    @Bean
-    public OpenAPI openDevAPI() {
-        return new OpenAPI().addServersItem(new Server().url("https://dev-api.poochapp.net/v1"));
-    }
-
-    @Profile("prod")
-    @Bean
-    public OpenAPI openProdAPI() {
-        return new OpenAPI().addServersItem(new Server().url("https://prod-api.poochapp.net/v1"));
-    }
 
 }

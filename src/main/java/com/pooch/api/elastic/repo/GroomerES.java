@@ -134,6 +134,9 @@ public class GroomerES implements Serializable {
 
   @Field
   private boolean deleted;
+  
+  @Field
+  private boolean listing;
 
   public void setAddress(AddressES address) {
     if (address == null) {

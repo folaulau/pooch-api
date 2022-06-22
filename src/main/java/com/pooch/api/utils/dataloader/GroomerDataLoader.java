@@ -77,7 +77,8 @@ public class GroomerDataLoader implements ApplicationRunner {
         groomer.setStatus(GroomerStatus.ACTIVE);
         groomer.setId((long) (i + 1));
         groomer.setAddress(null);
-
+        groomer.setListing(true);       
+        
         address = generatorService.getAddress();
 
         if (i == 3) {

@@ -71,14 +71,4 @@ public class GithubAwsConfig {
 
         // return DefaultAWSCredentialsProviderChain.getInstance();
     }
-
-    @Bean
-    public AWSSecretsManager awsSecretsManager(AWSCredentialsProvider aWSCredentialsProvider) {
-        String endpoint = "secretsmanager." + getTargetRegion().getName() + ".amazonaws.com";
-        AwsClientBuilder.EndpointConfiguration config = new AwsClientBuilder.EndpointConfiguration(endpoint, getTargetRegion().getName());
-        AWSSecretsManagerClientBuilder clientBuilder = AWSSecretsManagerClientBuilder.standard();
-        clientBuilder.setEndpointConfiguration(config);
-        clientBuilder.setCredentials(aWSCredentialsProvider);
-        return clientBuilder.build();
-    }
 }
