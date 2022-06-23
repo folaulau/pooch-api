@@ -14,22 +14,24 @@ import lombok.NoArgsConstructor;
 @JsonInclude(value = Include.NON_NULL)
 public class S3FileDTO implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private Long              id;
+  private Long id;
 
-    private String            uuid;
+  private String uuid;
 
-    private String            fileName;
+  private String fileName;
 
-    private String            url;
+  private String url;
 
-    private Boolean           isPublic;
+  private Boolean isPublic;
 
-    private boolean           deleted;
+  private boolean deleted;
 
-    private LocalDateTime     createdAt;
+  private boolean mainProfileImage;
 
-    private LocalDateTime     updatedAt;
+  private LocalDateTime createdAt;
+
+  private LocalDateTime updatedAt;
 
 }

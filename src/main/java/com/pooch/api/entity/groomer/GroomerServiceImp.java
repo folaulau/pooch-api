@@ -470,7 +470,10 @@ public class GroomerServiceImp implements GroomerService {
       /**
        * set last profile image as main profile image
        */
-      s3FileDAO.setMainProfileImage(groomer, s3Files.get(s3Files.size()-1));   
+      S3File lastS3File = s3Files.get(s3Files.size()-1);
+      S3File mainProfileImage = s3FileDAO.setMainProfileImage(groomer, lastS3File);
+      s3Files.remove(lastS3File);
+      s3Files.add(mainProfileImage);
     }
 
     groomerAuditService.auditAsync(groomer);

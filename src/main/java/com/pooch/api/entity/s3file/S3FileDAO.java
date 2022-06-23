@@ -20,6 +20,10 @@ public interface S3FileDAO {
   S3File setMainProfileImage(Groomer groomer, S3File s3File);
 
   S3File setMainProfileImage(Parent parent, S3File s3File);
+  
+  long countProfileImages(Parent parent);
+
+  long countProfileImages(Groomer groomer);
 
   List<S3File> getByParentId(Long parentId);
 

@@ -1,7 +1,7 @@
 package com.pooch.api.entity.groomer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
+import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.Filter;
 import javax.transaction.Transactional;
@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -31,7 +32,10 @@ import com.pooch.api.dto.AddressCreateUpdateDTO;
 import com.pooch.api.dto.CareServiceUpdateDTO;
 import com.pooch.api.dto.GroomerCreateProfileDTO;
 import com.pooch.api.dto.GroomerDTO;
+import com.pooch.api.dto.S3FileDTO;
+import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.role.UserType;
+import com.pooch.api.entity.s3file.S3FileDAO;
 import com.pooch.api.security.jwt.JwtPayload;
 import com.pooch.api.security.jwt.JwtTokenService;
 import com.pooch.api.utils.ObjectUtils;
@@ -48,6 +52,9 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
 
     @Resource
     private WebApplicationContext      webApplicationContext;
+    
+    @Autowired
+    private S3FileDAO s3FileDAO;
 
     @Autowired
     private ObjectMapper               objectMapper;
@@ -121,6 +128,39 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
         assertThat(groomerDTO.getCareServices()).isNotNull();
         assertThat(groomerDTO.getCareServices().size()).isEqualTo(1);
 
+    }
+    
+    @Transactional
+    @Test
+    void itShouldUploadProfileImages_valid() throws Exception {
+      // Given
+      Groomer groomer = testEntityGeneratorService.getDBGroomer();
+      // @formatter:on
+      // When
+      MockMultipartFile firstFile = new MockMultipartFile("images", "note1.png",
+          MediaType.TEXT_PLAIN_VALUE, "Hello, World!1".getBytes());
+       MockMultipartFile secondFile = new MockMultipartFile("images", "note2.png",
+       MediaType.TEXT_PLAIN_VALUE, "Hello, World!2".getBytes());
+
+      RequestBuilder requestBuilder = MockMvcRequestBuilders
+          .multipart("/groomers/" + groomer.getUuid() + "/profile/images").file(firstFile)
+          .file(secondFile)
+          .contentType(MediaType.MULTIPART_FORM_DATA).characterEncoding("utf-8")
+          .header("token", GROOMER_TOKEN);
+
+      MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+          .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+      String contentAsString = result.getResponse().getContentAsString();
+
+      List<S3FileDTO> S3FileDTOs =
+          objectMapper.readValue(contentAsString, new TypeReference<List<S3FileDTO>>() {});
+
+      assertThat(S3FileDTOs).isNotNull();
+      assertThat(S3FileDTOs.size()).isNotNull().isEqualTo(2);
+      
+      long profileImageCount = s3FileDAO.countProfileImages(groomer);
+      assertThat(profileImageCount).isNotNull().isEqualTo(1);
     }
 
 }

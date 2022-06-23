@@ -141,4 +141,52 @@ public class S3FileDAOImp implements S3FileDAO {
 
     return count;
   }
+
+  @Override
+  public long countProfileImages(Parent parent) {
+    StringBuilder query = new StringBuilder();
+
+    query.append("SELECT COUNT(id) as imageCount ");
+    query.append("FROM s3file ");
+    query.append("WHERE parent_id = ? AND deleted = false ");
+    query.append("AND main_profile_image = true AND file_type = ");
+    query.append("'" + FileType.PROFILE_IMAGE.name() + "'");
+
+    log.info("query={}", query.toString());
+
+    long imageCount = 0;
+
+    try {
+      imageCount = jdbcTemplate.queryForObject(query.toString(), Long.class, new Object[] {parent.getId()});
+   
+    } catch (Exception e) {
+      log.warn("Exception, msg={}", e.getMessage());
+    }
+    
+    return imageCount;
+  }
+
+  @Override
+  public long countProfileImages(Groomer groomer) {
+    StringBuilder query = new StringBuilder();
+
+    query.append("SELECT COUNT(id) as imageCount ");
+    query.append("FROM s3file ");
+    query.append("WHERE groomer_id = ? AND deleted = false ");
+    query.append("AND main_profile_image = true AND file_type = ");
+    query.append("'" + FileType.PROFILE_IMAGE.name() + "'");
+
+    log.info("query={}", query.toString());
+
+    long imageCount = 0;
+
+    try {
+      imageCount = jdbcTemplate.queryForObject(query.toString(), Long.class, new Object[] {groomer.getId()});
+   
+    } catch (Exception e) {
+      log.warn("Exception, msg={}", e.getMessage());
+    }
+    
+    return imageCount;
+  }
 }

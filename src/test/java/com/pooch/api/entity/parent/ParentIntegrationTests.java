@@ -57,6 +57,7 @@ import com.pooch.api.entity.pooch.FoodSchedule;
 import com.pooch.api.entity.pooch.Gender;
 import com.pooch.api.entity.pooch.Training;
 import com.pooch.api.entity.role.UserType;
+import com.pooch.api.entity.s3file.S3FileDAO;
 import com.pooch.api.library.stripe.setupintent.StripeSetupIntentService;
 import com.pooch.api.library.twilio.sms.SmsService;
 import com.pooch.api.security.jwt.JwtPayload;
@@ -79,7 +80,8 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
   @Autowired
   private ObjectMapper objectMapper;
 
-
+  @Autowired
+  private S3FileDAO s3FileDAO;
 
   @Autowired
   private PhoneNumberVerificationRepository phoneNumberVerificationRepository;
@@ -135,15 +137,14 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
     // When
     MockMultipartFile firstFile = new MockMultipartFile("image", "note1.png",
         MediaType.TEXT_PLAIN_VALUE, "Hello, World!1".getBytes());
-//    MockMultipartFile secondFile = new MockMultipartFile("images", "note2.png",
-//        MediaType.TEXT_PLAIN_VALUE, "Hello, World!2".getBytes());
+    // MockMultipartFile secondFile = new MockMultipartFile("images", "note2.png",
+    // MediaType.TEXT_PLAIN_VALUE, "Hello, World!2".getBytes());
 
-    RequestBuilder requestBuilder =
-        MockMvcRequestBuilders.multipart("/parents/" + parent.getUuid() + "/profile/image")
-            .file(firstFile)
-//            .file(secondFile)
-            .contentType(MediaType.MULTIPART_FORM_DATA)
-            .characterEncoding("utf-8").header("token", PARENT_TOKEN);
+    RequestBuilder requestBuilder = MockMvcRequestBuilders
+        .multipart("/parents/" + parent.getUuid() + "/profile/image").file(firstFile)
+        // .file(secondFile)
+        .contentType(MediaType.MULTIPART_FORM_DATA).characterEncoding("utf-8")
+        .header("token", PARENT_TOKEN);
 
     MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
         .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -156,6 +157,8 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
     assertThat(S3FileDTO).isNotNull();
     assertThat(S3FileDTO.getId()).isNotNull().isGreaterThan(0);
 
+    long profileImageCount = s3FileDAO.countProfileImages(parent);
+    assertThat(profileImageCount).isNotNull().isEqualTo(1);
   }
 
   @Transactional
