@@ -32,11 +32,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pooch.api.IntegrationTestConfiguration;
 import com.pooch.api.dto.AddressCreateUpdateDTO;
 import com.pooch.api.dto.CareServiceUpdateDTO;
+import com.pooch.api.dto.CustomPage;
 import com.pooch.api.dto.EntityDTOMapper;
 import com.pooch.api.dto.GroomerCreateListingDTO;
 import com.pooch.api.dto.GroomerCreateProfileDTO;
 import com.pooch.api.dto.GroomerDTO;
+import com.pooch.api.dto.GroomerSearchParamsDTO;
 import com.pooch.api.dto.S3FileDTO;
+import com.pooch.api.elastic.repo.GroomerES;
+import com.pooch.api.elastic.repo.GroomerESRepository;
+import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.role.UserType;
 import com.pooch.api.entity.s3file.S3FileDAO;
@@ -67,12 +72,18 @@ public class GroomerSignUpIntegrationTests extends IntegrationTestConfiguration 
   @Autowired
   private Filter springSecurityFilterChain;
 
+  @Autowired
+  private GroomerESRepository groomerESRepository;
+
   @MockBean
   private JwtTokenService jwtTokenService;
 
   @Captor
   private ArgumentCaptor<String> tokenCaptor;
-  
+
+  @Autowired
+  private GroomerService groomerService;
+
   @Autowired
   private EntityDTOMapper entityDTOMapper;
 
@@ -96,7 +107,7 @@ public class GroomerSignUpIntegrationTests extends IntegrationTestConfiguration 
 
   @Transactional
   @Test
-  void itShouldRunSignUpFlow_valid() throws Exception {
+  void itShouldRunSignUpFlow_to_market_place_valid_as_6_23_22() throws Exception {
     System.out.println("itShouldRunSignUpFlow_valid");
     // Given
     Groomer groomer = testEntityGeneratorService.getDBGroomer();
@@ -142,41 +153,37 @@ public class GroomerSignUpIntegrationTests extends IntegrationTestConfiguration 
     assertThat(groomerDTO.getCareServices().size()).isEqualTo(3);
     assertThat(groomerDTO.isListing()).isNotNull().isFalse();
     assertThat(groomerDTO.getStatus()).isNotNull().isEqualTo(GroomerStatus.SIGNING_UP);
-    
-    GroomerCreateListingDTO groomerCreateListingDTO = GroomerCreateListingDTO.builder()
-        .description("Test description")
-        .chargePerMile(5.50)
-        .instantBooking(true)
-        .numberOfOccupancy(20L)
-        .offeredDropOff(true)
-        .offeredPickUp(true)
-        .uuid(groomer.getUuid())
-        .build();
-    
-    Set<CareServiceUpdateDTO> careServices = entityDTOMapper.mapCareServiceDTOsToCareServiceUpdateDTOs(groomerDTO.getCareServices());
-    
+
+    GroomerCreateListingDTO groomerCreateListingDTO =
+        GroomerCreateListingDTO.builder().description("Test description").chargePerMile(5.50)
+            .instantBooking(true).numberOfOccupancy(20L).offeredDropOff(true).offeredPickUp(true)
+            .uuid(groomer.getUuid()).build();
+
+    Set<CareServiceUpdateDTO> careServices =
+        entityDTOMapper.mapCareServiceDTOsToCareServiceUpdateDTOs(groomerDTO.getCareServices());
+
     careServices = careServices.stream().map(cs -> {
       cs.setServiceSmall(true);
       cs.setSmallPrice(RandomGeneratorUtils.getDoubleWithin(10, 20));
-      
-      
+
+
       cs.setServiceMedium(true);
       cs.setMediumPrice(RandomGeneratorUtils.getDoubleWithin(21, 40));
-      
-      
+
+
       cs.setServiceLarge(true);
       cs.setLargePrice(RandomGeneratorUtils.getDoubleWithin(41, 80));
-      
+
       return cs;
     }).collect(Collectors.toSet());
-    
-    
+
+
     groomerCreateListingDTO.setCareServices(careServices);
 
-    requestBuilder =
-        MockMvcRequestBuilders.put("/groomers/create-listing").header("token", GROOMER_TOKEN)
-            .accept(MediaType.APPLICATION_JSON).characterEncoding("utf-8")
-            .contentType(MediaType.APPLICATION_JSON).content(ObjectUtils.toJson(groomerCreateListingDTO));
+    requestBuilder = MockMvcRequestBuilders.put("/groomers/create-listing")
+        .header("token", GROOMER_TOKEN).accept(MediaType.APPLICATION_JSON)
+        .characterEncoding("utf-8").contentType(MediaType.APPLICATION_JSON)
+        .content(ObjectUtils.toJson(groomerCreateListingDTO));
 
     result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
         .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -184,7 +191,7 @@ public class GroomerSignUpIntegrationTests extends IntegrationTestConfiguration 
     contentAsString = result.getResponse().getContentAsString();
 
     groomerDTO = objectMapper.readValue(contentAsString, new TypeReference<GroomerDTO>() {});
-    
+
     assertThat(groomerDTO).isNotNull();
     assertThat(groomerDTO.getId()).isNotNull().isGreaterThan(0);
     assertThat(groomerDTO.getUuid()).isNotNull();
@@ -196,6 +203,40 @@ public class GroomerSignUpIntegrationTests extends IntegrationTestConfiguration 
     assertThat(groomerDTO.getCareServices().size()).isEqualTo(3);
     assertThat(groomerDTO.isListing()).isNotNull().isTrue();
     assertThat(groomerDTO.getStatus()).isNotNull().isEqualTo(GroomerStatus.PENDING_STRIPE);
+
+
+
+    /**
+     * check if groomer is in market place
+     */
+    GroomerES groomerES = entityDTOMapper.mapGroomerDTOToGroomerES(groomerDTO);
+    groomerES = groomerESRepository.save(groomerES);
+
+
+    GroomerSearchParamsDTO filters = new GroomerSearchParamsDTO();
+    filters.setLatitude(address.getLatitude());
+    filters.setLongitude(address.getLongitude());
+    filters.setDistance(1);
+
+    CustomPage<GroomerES> searchResult = groomerService.search(filters);
+
+    System.out.println("search result");
+    System.out.println(searchResult.toString());
+
+    assertThat(searchResult).isNotNull();
+    // groomer 1 and 2
+    assertThat(searchResult.getTotalElements()).isGreaterThanOrEqualTo(1);
+
+    assertThat(searchResult.getContent()).isNotNull();
+
+    boolean groomerInList = searchResult.getContent().stream().filter(gm -> {
+      if (gm.getId().equals(groomer.getId())) {
+        return true;
+      }
+      return false;
+    }).findFirst().isPresent();
+
+    assertThat(groomerInList).isNotNull().isTrue();
 
   }
 

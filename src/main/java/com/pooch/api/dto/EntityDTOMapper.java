@@ -168,4 +168,6 @@ public interface EntityDTOMapper {
 
   GroomerUpdateListingDTO mapGroomerDTOToGroomerUpdateListingDTO(GroomerDTO groomerDTO);
 
+  GroomerES mapGroomerDTOToGroomerES(GroomerDTO groomerDTO);
+
 }
