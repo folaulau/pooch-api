@@ -97,7 +97,7 @@ public class GroomerSignUpIntegrationTests extends IntegrationTestConfiguration 
   @Transactional
   @Test
   void itShouldRunSignUpFlow_valid() throws Exception {
-    System.out.println("itShouldUpdateProfile_valid");
+    System.out.println("itShouldRunSignUpFlow_valid");
     // Given
     Groomer groomer = testEntityGeneratorService.getDBGroomer();
     GroomerCreateProfileDTO groomerUpdateDTO = new GroomerCreateProfileDTO();

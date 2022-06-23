@@ -462,8 +462,12 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
 
   @Override
   public Groomer validateUpdateListing(GroomerUpdateListingDTO groomerUpdateListingDTO) {
-    // TODO Auto-generated method stub
-    return null;
+    String uuid = groomerUpdateListingDTO.getUuid();
+
+    Groomer groomer = groomerDAO.getByUuid(uuid).orElseThrow(
+        () -> new ApiException("Groomer not found", "groomer not found for uuid=" + uuid));
+
+    return groomer;
   }
 
 }

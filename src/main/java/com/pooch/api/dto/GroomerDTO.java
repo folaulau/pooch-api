@@ -55,7 +55,7 @@ public class GroomerDTO implements Serializable {
 
   private Double chargePerMile;
 
-  private Long numberOfOcupancy;
+  private Long numberOfOccupancy;
 
   private String description;
 

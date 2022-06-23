@@ -166,4 +166,6 @@ public interface EntityDTOMapper {
   Set<CareServiceUpdateDTO> mapCareServiceDTOsToCareServiceUpdateDTOs(
       Set<CareServiceDTO> careServices);
 
+  GroomerUpdateListingDTO mapGroomerDTOToGroomerUpdateListingDTO(GroomerDTO groomerDTO);
+
 }
