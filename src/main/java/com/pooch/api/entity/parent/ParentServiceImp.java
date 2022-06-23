@@ -225,6 +225,10 @@ public class ParentServiceImp implements ParentService {
 
     if (s3Files.size() > 0) {
       s3Files = s3FileDAO.save(s3Files);
+      /**
+       * set last profile image as main profile image
+       */
+      s3FileDAO.setMainProfileImage(parent, s3Files.get(s3Files.size()-1));
     }
 
     return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
