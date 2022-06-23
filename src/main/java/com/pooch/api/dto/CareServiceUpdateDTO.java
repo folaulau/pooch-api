@@ -30,7 +30,7 @@ public class CareServiceUpdateDTO implements Serializable {
     @PositiveOrZero(message = "smallPrice is invalid")
     private Double            smallPrice;
 
-    private boolean           serviceSmall;
+    private Boolean           serviceSmall;
 
     /**
      * 21-40LB
@@ -39,7 +39,7 @@ public class CareServiceUpdateDTO implements Serializable {
     @PositiveOrZero(message = "mediumPrice is required")
     private Double            mediumPrice;
 
-    private boolean           serviceMedium;
+    private Boolean           serviceMedium;
 
     /**
      * 41LB +
@@ -48,5 +48,5 @@ public class CareServiceUpdateDTO implements Serializable {
     @PositiveOrZero(message = "largePrice is required")
     private Double            largePrice;
 
-    private boolean           serviceLarge;
+    private Boolean           serviceLarge;
 }
