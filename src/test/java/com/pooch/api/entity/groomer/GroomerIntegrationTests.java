@@ -47,120 +47,141 @@ import lombok.extern.slf4j.Slf4j;
 @AutoConfigureMockMvc
 public class GroomerIntegrationTests extends IntegrationTestConfiguration {
 
-    @Autowired
-    private MockMvc                    mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @Resource
-    private WebApplicationContext      webApplicationContext;
-    
-    @Autowired
-    private S3FileDAO s3FileDAO;
+  @Resource
+  private WebApplicationContext webApplicationContext;
 
-    @Autowired
-    private ObjectMapper               objectMapper;
+  @Autowired
+  private S3FileDAO s3FileDAO;
 
-    @Autowired
-    private Filter                     springSecurityFilterChain;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    @MockBean
-    private JwtTokenService            jwtTokenService;
+  @Autowired
+  private Filter springSecurityFilterChain;
 
-    @Captor
-    private ArgumentCaptor<String>     tokenCaptor;
+  @MockBean
+  private JwtTokenService jwtTokenService;
 
-    private String                     GROOMER_TOKEN = "GROOMER_TOKEN";
-    private String                     GROOMER_UUID  = "GROOMER_UUID";
+  @Captor
+  private ArgumentCaptor<String> tokenCaptor;
 
-    @Autowired
-    private TestEntityGeneratorService testEntityGeneratorService;
+  private String GROOMER_TOKEN = "GROOMER_TOKEN";
+  private String GROOMER_UUID = "GROOMER_UUID";
 
-    @BeforeEach
-    public void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).addFilters(springSecurityFilterChain).build();
+  @Autowired
+  private TestEntityGeneratorService testEntityGeneratorService;
 
-        JwtPayload groomerJwtPayload = new JwtPayload();
-        groomerJwtPayload.setUuid(GROOMER_UUID);
-        groomerJwtPayload.setRole(UserType.groomer.name());
+  @BeforeEach
+  public void setUp() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+        .addFilters(springSecurityFilterChain).build();
 
-        Mockito.when(jwtTokenService.getPayloadByToken(GROOMER_TOKEN)).thenReturn(groomerJwtPayload);
-    }
+    JwtPayload groomerJwtPayload = new JwtPayload();
+    groomerJwtPayload.setUuid(GROOMER_UUID);
+    groomerJwtPayload.setRole(UserType.groomer.name());
 
-    @Transactional
-    @Test
-    void itShouldUpdateProfile_valid() throws Exception {
-        System.out.println("itShouldUpdateProfile_valid");
-        // Given
-        Groomer groomer = testEntityGeneratorService.getDBGroomer();
-        GroomerCreateProfileDTO groomerUpdateDTO = new GroomerCreateProfileDTO();
-        groomerUpdateDTO.setUuid(groomer.getUuid());
-        groomerUpdateDTO.setFirstName("Folau");
-        groomerUpdateDTO.setLastName("Kaveinga");
-        groomerUpdateDTO.setBusinessName("Folau Dev");
-        groomerUpdateDTO.setPhoneNumber(3109934731L);
+    Mockito.when(jwtTokenService.getPayloadByToken(GROOMER_TOKEN)).thenReturn(groomerJwtPayload);
+  }
 
-        AddressCreateUpdateDTO address = AddressCreateUpdateDTO.builder().state("CA").street("222 Alta Ave").city("Santa Monica").zipcode("90402").latitude(34.025070).longitude(-118.507700).build();
-        groomerUpdateDTO.setAddress(address);
+  @Transactional
+  @Test
+  void itShouldUpdateProfile_valid() throws Exception {
+    System.out.println("itShouldUpdateProfile_valid");
+    // Given
+    Groomer groomer = testEntityGeneratorService.getDBGroomer();
+    GroomerCreateProfileDTO groomerUpdateDTO = new GroomerCreateProfileDTO();
+    groomerUpdateDTO.setUuid(groomer.getUuid());
+    groomerUpdateDTO.setFirstName("Folau");
+    groomerUpdateDTO.setLastName("Kaveinga");
+    groomerUpdateDTO.setBusinessName("Folau Dev");
+    groomerUpdateDTO.setPhoneNumber(3109934731L);
 
-        groomerUpdateDTO.addCareService(CareServiceUpdateDTO.builder().name("Overnight").build());
+    AddressCreateUpdateDTO address =
+        AddressCreateUpdateDTO.builder().state("CA").street("222 Alta Ave").city("Santa Monica")
+            .zipcode("90402").latitude(34.025070).longitude(-118.507700).build();
+    groomerUpdateDTO.setAddress(address);
 
-        // @formatter:on
-        // When
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.put("/groomers/create-profile")
-                .header("token", GROOMER_TOKEN)
-                .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(ObjectUtils.toJson(groomerUpdateDTO));
+    groomerUpdateDTO.addCareService(CareServiceUpdateDTO.builder().name("Overnight").build());
 
-        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+    // @formatter:on
+    // When
+    RequestBuilder requestBuilder =
+        MockMvcRequestBuilders.put("/groomers/create-profile").header("token", GROOMER_TOKEN)
+            .accept(MediaType.APPLICATION_JSON).characterEncoding("utf-8")
+            .contentType(MediaType.APPLICATION_JSON).content(ObjectUtils.toJson(groomerUpdateDTO));
 
-        String contentAsString = result.getResponse().getContentAsString();
+    MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
-        GroomerDTO groomerDTO = objectMapper.readValue(contentAsString, new TypeReference<GroomerDTO>() {});
+    String contentAsString = result.getResponse().getContentAsString();
 
-        assertThat(groomerDTO).isNotNull();
-        assertThat(groomerDTO.getId()).isNotNull().isGreaterThan(0);
-        assertThat(groomerDTO.getUuid()).isNotNull();
-        assertThat(groomerDTO.getFirstName()).isNotNull().isEqualTo("Folau");
-        assertThat(groomerDTO.getLastName()).isNotNull().isEqualTo("Kaveinga");
-        assertThat(groomerDTO.getDescription()).isNotNull().isEqualTo("Test description");
-        assertThat(groomerDTO.getAddress()).isNotNull();
-        assertThat(groomerDTO.getCareServices()).isNotNull();
-        assertThat(groomerDTO.getCareServices().size()).isEqualTo(1);
+    GroomerDTO groomerDTO =
+        objectMapper.readValue(contentAsString, new TypeReference<GroomerDTO>() {});
 
-    }
-    
-    @Transactional
-    @Test
-    void itShouldUploadProfileImages_valid() throws Exception {
-      // Given
-      Groomer groomer = testEntityGeneratorService.getDBGroomer();
-      // @formatter:on
-      // When
-      MockMultipartFile firstFile = new MockMultipartFile("images", "note1.png",
-          MediaType.TEXT_PLAIN_VALUE, "Hello, World!1".getBytes());
-       MockMultipartFile secondFile = new MockMultipartFile("images", "note2.png",
-       MediaType.TEXT_PLAIN_VALUE, "Hello, World!2".getBytes());
+    assertThat(groomerDTO).isNotNull();
+    assertThat(groomerDTO.getId()).isNotNull().isGreaterThan(0);
+    assertThat(groomerDTO.getUuid()).isNotNull();
+    assertThat(groomerDTO.getFirstName()).isNotNull().isEqualTo("Folau");
+    assertThat(groomerDTO.getLastName()).isNotNull().isEqualTo("Kaveinga");
+    assertThat(groomerDTO.getDescription()).isNotNull().isEqualTo("Test description");
+    assertThat(groomerDTO.getAddress()).isNotNull();
+    assertThat(groomerDTO.getCareServices()).isNotNull();
+    assertThat(groomerDTO.getCareServices().size()).isEqualTo(1);
 
-      RequestBuilder requestBuilder = MockMvcRequestBuilders
-          .multipart("/groomers/" + groomer.getUuid() + "/profile/images").file(firstFile)
-          .file(secondFile)
-          .contentType(MediaType.MULTIPART_FORM_DATA).characterEncoding("utf-8")
-          .header("token", GROOMER_TOKEN);
+  }
 
-      MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
-          .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+  @Transactional
+  @Test
+  void itShouldUploadProfileImages_valid() throws Exception {
+    // Given
+    Groomer groomer = testEntityGeneratorService.getDBGroomer();
+    // @formatter:on
+    // When
+    MockMultipartFile firstFile = new MockMultipartFile("images", "note1.png",
+        MediaType.TEXT_PLAIN_VALUE, "Hello, World!1".getBytes());
+    MockMultipartFile secondFile = new MockMultipartFile("images", "note2.png",
+        MediaType.TEXT_PLAIN_VALUE, "Hello, World!2".getBytes());
 
-      String contentAsString = result.getResponse().getContentAsString();
+    RequestBuilder requestBuilder =
+        MockMvcRequestBuilders.multipart("/groomers/" + groomer.getUuid() + "/profile/images")
+            .file(firstFile).file(secondFile).contentType(MediaType.MULTIPART_FORM_DATA)
+            .characterEncoding("utf-8").header("token", GROOMER_TOKEN);
 
-      List<S3FileDTO> S3FileDTOs =
-          objectMapper.readValue(contentAsString, new TypeReference<List<S3FileDTO>>() {});
+    MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
-      assertThat(S3FileDTOs).isNotNull();
-      assertThat(S3FileDTOs.size()).isNotNull().isEqualTo(2);
-      
-      long profileImageCount = s3FileDAO.countProfileImages(groomer);
-      assertThat(profileImageCount).isNotNull().isEqualTo(1);
-    }
+    String contentAsString = result.getResponse().getContentAsString();
+
+    List<S3FileDTO> S3FileDTOs =
+        objectMapper.readValue(contentAsString, new TypeReference<List<S3FileDTO>>() {});
+
+    assertThat(S3FileDTOs).isNotNull();
+    assertThat(S3FileDTOs.size()).isNotNull().isEqualTo(2);
+
+    long profileImageCount = s3FileDAO.countProfileImages(groomer);
+    assertThat(profileImageCount).isNotNull().isEqualTo(1);
+
+
+    requestBuilder =
+        MockMvcRequestBuilders.multipart("/groomers/" + groomer.getUuid() + "/profile/images")
+            .file(firstFile).file(secondFile).contentType(MediaType.MULTIPART_FORM_DATA)
+            .characterEncoding("utf-8").header("token", GROOMER_TOKEN);
+
+    result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+    contentAsString = result.getResponse().getContentAsString();
+
+    S3FileDTOs = objectMapper.readValue(contentAsString, new TypeReference<List<S3FileDTO>>() {});
+
+    assertThat(S3FileDTOs).isNotNull();
+    assertThat(S3FileDTOs.size()).isNotNull().isEqualTo(2);
+
+    profileImageCount = s3FileDAO.countProfileImages(groomer);
+    assertThat(profileImageCount).isNotNull().isEqualTo(1);
+  }
 
 }
