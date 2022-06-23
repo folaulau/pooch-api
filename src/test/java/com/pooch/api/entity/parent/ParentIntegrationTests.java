@@ -159,6 +159,26 @@ public class ParentIntegrationTests extends IntegrationTestConfiguration {
 
     long profileImageCount = s3FileDAO.countProfileImages(parent);
     assertThat(profileImageCount).isNotNull().isEqualTo(1);
+    
+    requestBuilder = MockMvcRequestBuilders
+        .multipart("/parents/" + parent.getUuid() + "/profile/image").file(firstFile)
+        // .file(secondFile)
+        .contentType(MediaType.MULTIPART_FORM_DATA).characterEncoding("utf-8")
+        .header("token", PARENT_TOKEN);
+
+     result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+     contentAsString = result.getResponse().getContentAsString();
+
+     S3FileDTO =
+        objectMapper.readValue(contentAsString, new TypeReference<S3FileDTO>() {});
+
+    assertThat(S3FileDTO).isNotNull();
+    assertThat(S3FileDTO.getId()).isNotNull().isGreaterThan(0);
+
+     profileImageCount = s3FileDAO.countProfileImages(parent);
+    assertThat(profileImageCount).isNotNull().isEqualTo(1);
   }
 
   @Transactional
