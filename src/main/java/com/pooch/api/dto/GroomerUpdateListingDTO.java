@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
-public class GroomerCreateListingDTO implements Serializable {
+public class GroomerUpdateListingDTO implements Serializable {
 
     private static final long         serialVersionUID = 1L;
 

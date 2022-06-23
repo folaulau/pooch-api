@@ -156,4 +156,14 @@ public interface EntityDTOMapper {
   @Mappings({@Mapping(target = "uuid", ignore = true)})
   Groomer patchGroomerWithSettingsUpdateDTO(SettingsUpdateDTO settingsUpdateDTO, @MappingTarget Groomer groomer);
 
+  @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
+  Groomer patchGroomerWithGroomerUpdateListingDTO(GroomerUpdateListingDTO groomerUpdateListingDTO,
+      @MappingTarget Groomer groomer);
+
+  CareServiceUpdateDTO mapCareServiceDTOToCareServiceUpdateDTO(
+      CareServiceDTO careService);
+  
+  Set<CareServiceUpdateDTO> mapCareServiceDTOsToCareServiceUpdateDTOs(
+      Set<CareServiceDTO> careServices);
+
 }

@@ -80,13 +80,25 @@ public class GroomerRestController {
 
   @Operation(summary = "Create Listing", description = "create listing")
   @PutMapping(value = "/create-listing")
-  public ResponseEntity<GroomerDTO> createUpdateListing(
+  public ResponseEntity<GroomerDTO> createListing(
       @RequestHeader(name = "token", required = true) String token,
       @Valid @RequestBody GroomerCreateListingDTO groomerCreateListingDTO) {
-    log.info("createUpdateListing={}", ObjectUtils.toJson(groomerCreateListingDTO));
+    log.info("createListing={}", ObjectUtils.toJson(groomerCreateListingDTO));
 
-    GroomerDTO groomerDTO = groomerService.createUpdateListing(groomerCreateListingDTO);
+    GroomerDTO groomerDTO = groomerService.createListing(groomerCreateListingDTO);
 
+    return new ResponseEntity<>(groomerDTO, OK);
+  }
+  
+  @Operation(summary = "Update Listing", description = "update listing")
+  @PutMapping(value = "/update-listing")
+  public ResponseEntity<GroomerDTO> updateListing(
+      @RequestHeader(name = "token", required = true) String token,
+      @Valid @RequestBody GroomerUpdateListingDTO groomerUpdateListingDTO) {
+    log.info("updateListing={}", ObjectUtils.toJson(groomerUpdateListingDTO));
+
+    GroomerDTO groomerDTO = groomerService.updateListing(groomerUpdateListingDTO);
+    
     return new ResponseEntity<>(groomerDTO, OK);
   }
 

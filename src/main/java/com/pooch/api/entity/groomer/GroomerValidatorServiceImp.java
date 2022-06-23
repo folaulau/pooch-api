@@ -18,6 +18,7 @@ import com.pooch.api.dto.CustomSort;
 import com.pooch.api.dto.GroomerCreateListingDTO;
 import com.pooch.api.dto.GroomerCreateProfileDTO;
 import com.pooch.api.dto.GroomerSearchParamsDTO;
+import com.pooch.api.dto.GroomerUpdateListingDTO;
 import com.pooch.api.dto.SettingsUpdateDTO;
 import com.pooch.api.entity.address.Address;
 import com.pooch.api.entity.address.AddressDAO;
@@ -117,7 +118,7 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
   }
 
   @Override
-  public Groomer validateCreateUpdateListing(GroomerCreateListingDTO groomerCreateListingDTO) {
+  public Groomer validateCreateListing(GroomerCreateListingDTO groomerCreateListingDTO) {
     log.info("validateCreateUpdateListing={}", ObjectUtils.toJson(groomerCreateListingDTO));
 
     String uuid = groomerCreateListingDTO.getUuid();
@@ -457,6 +458,12 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
         () -> new ApiException("Groomer not found", "groomer not found for uuid=" + uuid));
 
     return groomer;
+  }
+
+  @Override
+  public Groomer validateUpdateListing(GroomerUpdateListingDTO groomerUpdateListingDTO) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }
