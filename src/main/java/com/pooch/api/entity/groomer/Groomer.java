@@ -331,23 +331,23 @@ public class Groomer implements Serializable {
     }
 
     if (operateMonday == null) {
-      operateMonday = false;
+      operateMonday = true;
     }
 
     if (operateTuesday == null) {
-      operateTuesday = false;
+      operateTuesday = true;
     }
 
     if (operateWednesday == null) {
-      operateWednesday = false;
+      operateWednesday = true;
     }
 
     if (operateThursday == null) {
-      operateThursday = false;
+      operateThursday = true;
     }
 
     if (operateFriday == null) {
-      operateFriday = false;
+      operateFriday = true;
     }
 
     if (operateSaturday == null) {
@@ -356,6 +356,20 @@ public class Groomer implements Serializable {
 
     if (operateSunday == null) {
       operateSunday = false;
+    }
+    
+    /**
+     * UTC 8am
+     */
+    if(openTime==null) {
+      openTime = LocalTime.of(14, 0);
+    }
+    
+    /**
+     * UTC 5pm
+     */
+    if(closeTime==null) {
+      closeTime = LocalTime.of(22, 0);
     }
 
   }
