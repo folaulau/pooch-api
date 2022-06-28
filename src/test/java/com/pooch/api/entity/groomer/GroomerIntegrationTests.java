@@ -1,6 +1,8 @@
 package com.pooch.api.entity.groomer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -8,6 +10,7 @@ import javax.annotation.Resource;
 import javax.servlet.Filter;
 import javax.transaction.Transactional;
 
+import com.pooch.api.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -30,14 +33,6 @@ import org.springframework.web.context.WebApplicationContext;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pooch.api.IntegrationTestConfiguration;
-import com.pooch.api.dto.AddressCreateUpdateDTO;
-import com.pooch.api.dto.CareServiceUpdateDTO;
-import com.pooch.api.dto.EntityDTOMapper;
-import com.pooch.api.dto.GroomerCreateListingDTO;
-import com.pooch.api.dto.GroomerCreateProfileDTO;
-import com.pooch.api.dto.GroomerDTO;
-import com.pooch.api.dto.GroomerUpdateListingDTO;
-import com.pooch.api.dto.S3FileDTO;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.role.UserType;
 import com.pooch.api.entity.s3file.S3FileDAO;
@@ -273,4 +268,57 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
     assertThat(profileImageCount).isNotNull().isEqualTo(1);
   }
 
+
+  @Transactional
+  @Test
+  void itShouldUpdateAvailability_valid() throws Exception {
+    System.out.println("itShouldUpdateAvailability_valid");
+    // Given
+    Groomer groomer = testEntityGeneratorService.getDBGroomer();
+
+    GroomerAvailabilityCreateUpdateDTO availabilityCreateUpdateDTO = GroomerAvailabilityCreateUpdateDTO.builder()
+            .uuid(groomer.getUuid())
+            .operateMonday(true)
+            .operateTuesday(true)
+            .operateWednesday(true)
+            .operateThursday(true)
+            .operateFriday(true)
+            .operateSaturday(true)
+            .operateSunday(false)
+            .openTime(LocalTime.of(15,0))
+            .closeTime(LocalTime.of(23,0))
+            .build();
+
+    // @formatter:on
+    // When
+    RequestBuilder requestBuilder =
+            MockMvcRequestBuilders.put("/groomers/update-availability")
+                    .header("token", GROOMER_TOKEN)
+                    .accept(MediaType.APPLICATION_JSON).characterEncoding("utf-8")
+                    .contentType(MediaType.APPLICATION_JSON).content(ObjectUtils.toJson(availabilityCreateUpdateDTO));
+
+    MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+    String contentAsString = result.getResponse().getContentAsString();
+
+    GroomerDTO groomerDTO =
+            objectMapper.readValue(contentAsString, new TypeReference<GroomerDTO>() {});
+
+    assertThat(groomerDTO).isNotNull();
+    assertThat(groomerDTO.getId()).isNotNull().isGreaterThan(0);
+    assertThat(groomerDTO.getUuid()).isNotNull();
+    assertThat(groomerDTO.getOperateMonday()).isNotNull().isTrue();
+    assertThat(groomerDTO.getOperateTuesday()).isNotNull().isTrue();
+    assertThat(groomerDTO.getOperateWednesday()).isNotNull().isTrue();
+    assertThat(groomerDTO.getOperateThursday()).isNotNull().isTrue();
+    assertThat(groomerDTO.getOperateFriday()).isNotNull().isTrue();
+    assertThat(groomerDTO.getOperateSaturday()).isNotNull().isTrue();
+    assertThat(groomerDTO.getOperateSunday()).isNotNull().isFalse();
+
+    assertThat(groomerDTO.getOpenTime()).isNotNull().isEqualTo(LocalTime.of(15,0));
+    assertThat(groomerDTO.getCloseTime()).isNotNull().isEqualTo(LocalTime.of(23,0));
+
+
+  }
 }

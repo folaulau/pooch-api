@@ -170,4 +170,6 @@ public interface EntityDTOMapper {
 
   GroomerES mapGroomerDTOToGroomerES(GroomerDTO groomerDTO);
 
+  @Mappings({@Mapping(target = "uuid", ignore = true)})
+  Groomer patchGroomerWithGroomerAvailabilityCreateUpdateDTO(GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO,@MappingTarget Groomer groomer);
 }

@@ -33,4 +33,6 @@ public interface GroomerService {
     GroomerDTO toggleListing(GroomerListingUpdateDTO listingUpdateDTO);
 
     GroomerDTO updateSettings(SettingsUpdateDTO settingsUpdateDTO);
+
+    GroomerDTO createUpdateAvailability(GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO);
 }

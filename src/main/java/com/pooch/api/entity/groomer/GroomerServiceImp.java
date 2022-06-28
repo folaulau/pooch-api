@@ -736,4 +736,19 @@ public class GroomerServiceImp implements GroomerService {
 
     return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
   }
+
+  @Override
+  public GroomerDTO createUpdateAvailability(GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO) {
+
+    Groomer groomer =  findByUuid(groomerAvailabilityCreateUpdateDTO.getUuid());
+
+    groomer = entityDTOMapper.patchGroomerWithGroomerAvailabilityCreateUpdateDTO(groomerAvailabilityCreateUpdateDTO,groomer);
+
+    groomer = this.groomerDAO.save(groomer);
+
+    applicationEventPublisher
+            .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+
+    return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
+  }
 }

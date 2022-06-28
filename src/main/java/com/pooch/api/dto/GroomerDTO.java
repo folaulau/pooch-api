@@ -2,6 +2,7 @@ package com.pooch.api.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -74,6 +75,24 @@ public class GroomerDTO implements Serializable {
   private AddressDTO address;
 
   private boolean listing;
+
+  private LocalTime openTime;
+
+  private LocalTime closeTime;
+
+  private Boolean operateMonday;
+
+  private Boolean operateTuesday;
+
+  private Boolean operateWednesday;
+
+  private Boolean operateThursday;
+
+  private Boolean operateFriday;
+
+  private Boolean operateSaturday;
+
+  private Boolean operateSunday;
 
   public void addCareService(CareServiceDTO careServiceDTO) {
     if (this.careServices == null) {

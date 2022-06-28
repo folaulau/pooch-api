@@ -89,6 +89,18 @@ public class GroomerRestController {
 
     return new ResponseEntity<>(groomerDTO, OK);
   }
+
+  @Operation(summary = "Create/Update Availability", description = "create or update availability")
+  @PutMapping(value = "/update-availability")
+  public ResponseEntity<GroomerDTO> createUpdateAvailability(
+          @RequestHeader(name = "token", required = true) String token,
+          @Valid @RequestBody GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO) {
+    log.info("createUpdateAvailability={}", ObjectUtils.toJson(groomerAvailabilityCreateUpdateDTO));
+
+    GroomerDTO groomerDTO = groomerService.createUpdateAvailability(groomerAvailabilityCreateUpdateDTO);
+
+    return new ResponseEntity<>(groomerDTO, OK);
+  }
   
   @Operation(summary = "Update Listing", description = "update listing")
   @PutMapping(value = "/update-listing")
