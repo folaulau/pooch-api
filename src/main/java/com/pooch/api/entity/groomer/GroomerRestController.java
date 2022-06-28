@@ -91,7 +91,7 @@ public class GroomerRestController {
   }
 
   @Operation(summary = "Create/Update Availability", description = "create or update availability")
-  @PutMapping(value = "/update-availability")
+  @PutMapping(value = "/availability")
   public ResponseEntity<GroomerDTO> createUpdateAvailability(
           @RequestHeader(name = "token", required = true) String token,
           @Valid @RequestBody GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO) {

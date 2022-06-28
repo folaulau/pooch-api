@@ -292,7 +292,7 @@ public class GroomerIntegrationTests extends IntegrationTestConfiguration {
     // @formatter:on
     // When
     RequestBuilder requestBuilder =
-            MockMvcRequestBuilders.put("/groomers/update-availability")
+            MockMvcRequestBuilders.put("/groomers/availability")
                     .header("token", GROOMER_TOKEN)
                     .accept(MediaType.APPLICATION_JSON).characterEncoding("utf-8")
                     .contentType(MediaType.APPLICATION_JSON).content(ObjectUtils.toJson(availabilityCreateUpdateDTO));
