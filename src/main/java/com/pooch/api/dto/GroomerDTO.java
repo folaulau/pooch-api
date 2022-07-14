@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.entity.groomer.GroomerSignUpStatus;
 import com.pooch.api.entity.groomer.GroomerStatus;
-
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -76,8 +76,10 @@ public class GroomerDTO implements Serializable {
 
   private boolean listing;
 
+  @Schema(type="string" , format = "time", example = "00:00:00")
   private LocalTime openTime;
 
+  @Schema(type="string" , format = "time", example = "00:00:00")
   private LocalTime closeTime;
 
   private Boolean operateMonday;
