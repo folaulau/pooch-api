@@ -10,6 +10,7 @@ import com.pooch.api.entity.groomer.careservice.type.GroomerServiceCategory;
 import com.pooch.api.entity.groomer.careservice.type.GroomerServiceTypeService;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -94,7 +95,7 @@ public class GroomerRestController {
   @PutMapping(value = "/availability")
   public ResponseEntity<GroomerDTO> createUpdateAvailability(
           @RequestHeader(name = "token", required = true) String token,
-          @Valid @RequestBody GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO) {
+        @Valid @RequestBody GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO) {
     log.info("createUpdateAvailability={}", ObjectUtils.toJson(groomerAvailabilityCreateUpdateDTO));
 
     GroomerDTO groomerDTO = groomerService.createUpdateAvailability(groomerAvailabilityCreateUpdateDTO);

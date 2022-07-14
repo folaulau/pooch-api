@@ -1,8 +1,10 @@
 package com.pooch.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pooch.api.validators.NotNull;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -48,9 +50,11 @@ public class GroomerAvailabilityCreateUpdateDTO implements Serializable {
     @NotNull(message = "operateSunday is required")
     private Boolean operateSunday;
 
+    @Schema(type="string" , format = "time", example = "00:00:00")
     @NotNull(message = "openTime is required")
     private LocalTime openTime;
 
+    @Schema(type="string" , format = "time", example = "00:00:00")
     @NotNull(message = "closeTime is required")
     private LocalTime closeTime;
 }

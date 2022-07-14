@@ -105,7 +105,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
             if (null != traceArray && 0 < traceArray.length) {
                 for (StackTraceElement stackTraceElement : traceArray) {
                     errorString.append(stackTraceElement.toString());
-                    if (StringUtils.contains(stackTraceElement.getClassName(), "sidecarhealth")) {
+                    if (StringUtils.contains(stackTraceElement.getClassName(), "company")) {
                         break;
                     } else {
                         errorString.append(",");
