@@ -8,7 +8,7 @@ public class TwilioSMSDemo {
 
     public static void main(String[] args) {
 
-        Twilio.init("ACe7a124618def3fc7a3b286e58f327136", "7db658dc368c8511be0059dc072c6b55");
+        Twilio.init("", "");
         Message message = Message.creator(
                 new com.twilio.type.PhoneNumber("+13109934731"),
                 new com.twilio.type.PhoneNumber("+19704788694"),
