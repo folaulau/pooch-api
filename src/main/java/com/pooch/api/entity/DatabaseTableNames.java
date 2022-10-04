@@ -27,4 +27,5 @@ public interface DatabaseTableNames {
   String Note = "note";
   String Calendar = "calendar";
   String CalendarDay = "calendar_day";
+  String Employee = "employee";
 }

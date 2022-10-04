@@ -11,6 +11,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.pooch.api.entity.employee.Employee;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.parent.Parent;
 import com.pooch.api.entity.role.UserType;
@@ -81,6 +82,32 @@ public class JwtTokenService {
           .withClaim("name", groomer.getFullName()).withClaim("role", UserType.groomer.name())
           .withClaim("hasura", hasura).sign(ALGORITHM);
       log.info("test12");
+      return token;
+    } catch (JWTCreationException e) {
+      log.warn("JWTCreationException, msg: {}", e.getLocalizedMessage());
+      return null;
+    } catch (Exception e) {
+      log.warn("generateToken exception, msg: {}", e.getLocalizedMessage());
+      return null;
+    }
+  }
+
+  public String generateEmployeeToken(Employee employee) {
+    try {
+      Map<String, Object> hasura = new HashMap<String, Object>();
+
+      hasura.put("x-hasura-allowed-roles", UserType.getAllAuths());
+      hasura.put("x-hasura-default-role", UserType.admin.name());
+      hasura.put("x-Hasura-employee-id", employee.getId() + "");
+      hasura.put("x-Hasura-employee-uuid", employee.getUuid());
+
+      String token =
+          JWT.create().withJWTId(RandomGeneratorUtils.getJWTId()).withSubject(employee.getId() + "")
+              .withExpiresAt(DateUtils.addDays(new Date(), LIFE_TIME_IN_DAYS))
+              .withIssuedAt(new Date()).withAudience(audience).withIssuer(ISSUER)
+              .withClaim("uuid", employee.getUuid()).withClaim("name", employee.getFullName())
+              .withClaim("role", UserType.admin.name()).withClaim("hasura", hasura).sign(ALGORITHM);
+
       return token;
     } catch (JWTCreationException e) {
       log.warn("JWTCreationException, msg: {}", e.getLocalizedMessage());

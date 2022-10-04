@@ -27,6 +27,7 @@ import com.pooch.api.entity.booking.careservice.BookingCareService;
 import com.pooch.api.entity.booking.pooch.BookingPooch;
 import com.pooch.api.entity.booking.transaction.Transaction;
 import com.pooch.api.entity.chat.Chat;
+import com.pooch.api.entity.employee.Employee;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.calendar.day.CalendarDay;
 import com.pooch.api.entity.parent.Parent;
@@ -154,15 +155,15 @@ public interface EntityDTOMapper {
   List<CalendarDayES> mapCalendarDaysToEsCalendar(List<CalendarDay> calendarDays);
 
   @Mappings({@Mapping(target = "uuid", ignore = true)})
-  Groomer patchGroomerWithSettingsUpdateDTO(SettingsUpdateDTO settingsUpdateDTO, @MappingTarget Groomer groomer);
+  Groomer patchGroomerWithSettingsUpdateDTO(SettingsUpdateDTO settingsUpdateDTO,
+      @MappingTarget Groomer groomer);
 
   @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
   Groomer patchGroomerWithGroomerUpdateListingDTO(GroomerUpdateListingDTO groomerUpdateListingDTO,
       @MappingTarget Groomer groomer);
 
-  CareServiceUpdateDTO mapCareServiceDTOToCareServiceUpdateDTO(
-      CareServiceDTO careService);
-  
+  CareServiceUpdateDTO mapCareServiceDTOToCareServiceUpdateDTO(CareServiceDTO careService);
+
   Set<CareServiceUpdateDTO> mapCareServiceDTOsToCareServiceUpdateDTOs(
       Set<CareServiceDTO> careServices);
 
@@ -171,5 +172,9 @@ public interface EntityDTOMapper {
   GroomerES mapGroomerDTOToGroomerES(GroomerDTO groomerDTO);
 
   @Mappings({@Mapping(target = "uuid", ignore = true)})
-  Groomer patchGroomerWithGroomerAvailabilityCreateUpdateDTO(GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO,@MappingTarget Groomer groomer);
+  Groomer patchGroomerWithGroomerAvailabilityCreateUpdateDTO(
+      GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO,
+      @MappingTarget Groomer groomer);
+
+  AuthenticationResponseDTO mapEmployeeToAuthenticationResponse(Employee employee);
 }
