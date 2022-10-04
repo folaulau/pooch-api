@@ -14,7 +14,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
-
+import javax.validation.Valid;
 import com.pooch.api.dto.*;
 import com.pooch.api.elastic.groomer.GroomerESDAO;
 import com.pooch.api.elastic.repo.GroomerES;
@@ -208,7 +208,8 @@ public class GroomerServiceImp implements GroomerService {
   public GroomerDTO createUpdateProfile(GroomerCreateProfileDTO groomerCreateProfileDTO) {
     Groomer groomer = groomerValidatorService.validateCreateUpdateProfile(groomerCreateProfileDTO);
 
-    groomer = entityDTOMapper.patchGroomerWithGroomerCreateProfileDTO(groomerCreateProfileDTO, groomer);
+    groomer =
+        entityDTOMapper.patchGroomerWithGroomerCreateProfileDTO(groomerCreateProfileDTO, groomer);
 
     AddressCreateUpdateDTO addressDTO = groomerCreateProfileDTO.getAddress();
 
@@ -324,7 +325,7 @@ public class GroomerServiceImp implements GroomerService {
     Groomer auditedGroomer = groomerAuditService.audit(savedGroomer);
 
     groomerDTO.setStatus(auditedGroomer.getStatus());
-    groomerDTO.setListing(auditedGroomer.getListing()); 
+    groomerDTO.setListing(auditedGroomer.getListing());
 
     return groomerDTO;
   }
@@ -428,8 +429,8 @@ public class GroomerServiceImp implements GroomerService {
     Groomer auditedGroomer = groomerAuditService.audit(savedGroomer);
 
     groomerDTO.setStatus(auditedGroomer.getStatus());
-    groomerDTO.setListing(auditedGroomer.getListing());  
-    
+    groomerDTO.setListing(auditedGroomer.getListing());
+
     return groomerDTO;
   }
 
@@ -516,7 +517,7 @@ public class GroomerServiceImp implements GroomerService {
     Groomer auditedGroomer = groomerAuditService.audit(savedGroomer);
 
     groomerDTO.setStatus(auditedGroomer.getStatus());
-    groomerDTO.setListing(auditedGroomer.getListing()); 
+    groomerDTO.setListing(auditedGroomer.getListing());
 
     return groomerDTO;
   }
@@ -571,7 +572,7 @@ public class GroomerServiceImp implements GroomerService {
     }
 
     applicationEventPublisher
-    .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 
     return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
   }
@@ -650,9 +651,9 @@ public class GroomerServiceImp implements GroomerService {
     groomer = this.groomerDAO.save(groomer);
 
     groomerAuditService.auditAsync(groomer);
-    
+
     applicationEventPublisher
-    .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 
     return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
   }
@@ -730,24 +731,45 @@ public class GroomerServiceImp implements GroomerService {
 
     firebaseAuthService.updateEmailAndPassword(groomer.getUuid(), settingsUpdateDTO.getPassword(),
         groomer.getEmail());
-    
+
     applicationEventPublisher
-    .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 
     return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
   }
 
   @Override
-  public GroomerDTO createUpdateAvailability(GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO) {
+  public GroomerDTO createUpdateAvailability(
+      GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO) {
 
-    Groomer groomer =  findByUuid(groomerAvailabilityCreateUpdateDTO.getUuid());
+    Groomer groomer = findByUuid(groomerAvailabilityCreateUpdateDTO.getUuid());
 
-    groomer = entityDTOMapper.patchGroomerWithGroomerAvailabilityCreateUpdateDTO(groomerAvailabilityCreateUpdateDTO,groomer);
+    groomer = entityDTOMapper.patchGroomerWithGroomerAvailabilityCreateUpdateDTO(
+        groomerAvailabilityCreateUpdateDTO, groomer);
 
     groomer = this.groomerDAO.save(groomer);
 
     applicationEventPublisher
-            .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+
+    return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
+  }
+
+  @Override
+  public GroomerDTO updateBanListing(@Valid BanListingDTO banListingDTO) {
+
+    Groomer groomer = groomerValidatorService.validateBanListing(banListingDTO);
+
+    if (banListingDTO.isBanListing()) {
+      groomer.setStatus(GroomerStatus.SUSPENDED);
+    } else {
+      groomer.setStatus(GroomerStatus.ACTIVE);
+    }
+
+    groomer = this.groomerDAO.save(groomer);
+
+    applicationEventPublisher
+        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 
     return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
   }

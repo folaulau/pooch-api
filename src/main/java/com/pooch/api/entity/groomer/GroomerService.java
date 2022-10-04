@@ -35,4 +35,6 @@ public interface GroomerService {
     GroomerDTO updateSettings(SettingsUpdateDTO settingsUpdateDTO);
 
     GroomerDTO createUpdateAvailability(GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO);
+
+    GroomerDTO updateBanListing(@Valid BanListingDTO banListingDTO);
 }

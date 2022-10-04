@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
-
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pooch.api.dto.AddressCreateUpdateDTO;
+import com.pooch.api.dto.BanListingDTO;
 import com.pooch.api.dto.CareServiceUpdateDTO;
 import com.pooch.api.dto.CustomSort;
 import com.pooch.api.dto.GroomerCreateListingDTO;
@@ -463,6 +464,16 @@ public class GroomerValidatorServiceImp implements GroomerValidatorService {
   @Override
   public Groomer validateUpdateListing(GroomerUpdateListingDTO groomerUpdateListingDTO) {
     String uuid = groomerUpdateListingDTO.getUuid();
+
+    Groomer groomer = groomerDAO.getByUuid(uuid).orElseThrow(
+        () -> new ApiException("Groomer not found", "groomer not found for uuid=" + uuid));
+
+    return groomer;
+  }
+
+  @Override
+  public Groomer validateBanListing(@Valid BanListingDTO banListingDTO) {
+    String uuid = banListingDTO.getUuid();
 
     Groomer groomer = groomerDAO.getByUuid(uuid).orElseThrow(
         () -> new ApiException("Groomer not found", "groomer not found for uuid=" + uuid));
