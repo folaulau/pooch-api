@@ -13,17 +13,15 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pooch.api.utils.ObjectUtils;
 import com.pooch.api.xapikey.XApiKeyService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @Tag(name = "AdminGroomers", description = "Admin Groomer Operations")
@@ -36,6 +34,7 @@ public class GroomerAdminRestController {
   private GroomerService groomerService;
 
 
+  @Secured({"ROLE_ADMIN"})
   @Operation(summary = "Ban Listing", description = "Ban Listing")
   @PutMapping(value = "/listing/ban")
   public ResponseEntity<GroomerDTO> updateBanListing(
