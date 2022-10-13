@@ -585,16 +585,17 @@
     - role: parent
       permission:
         columns:
-          - groomer_id
-          - id
+          - created_at
+          - date
           - deleted
           - filled
-          - operational
-          - uuid
-          - date
+          - groomer_id
+          - id
           - number_of_bookings
-          - created_at
+          - number_of_openings
+          - operational
           - updated_at
+          - uuid
         filter: {}
         limit: 60
     - role: sales
@@ -981,6 +982,13 @@
           - listing
           - offered_drop_off
           - offered_pick_up
+          - operate_friday
+          - operate_monday
+          - operate_saturday
+          - operate_sunday
+          - operate_thursday
+          - operate_tuesday
+          - operate_wednesday
           - phone_number_verified
           - stripe_charges_enabled
           - stripe_details_submitted
