@@ -61,716 +61,697 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GroomerServiceImp implements GroomerService {
 
-  @Autowired
-  private FirebaseAuthService firebaseAuthService;
+	@Autowired
+	private FirebaseAuthService firebaseAuthService;
 
-  @Autowired
-  private GroomerDAO groomerDAO;
+	@Autowired
+	private GroomerDAO groomerDAO;
 
-  @Autowired
-  private NotificationService notificationService;
+	@Autowired
+	private NotificationService notificationService;
 
-  @Autowired
-  private AuthenticationService authenticationService;
+	@Autowired
+	private AuthenticationService authenticationService;
 
-  @Autowired
-  private GroomerValidatorService groomerValidatorService;
+	@Autowired
+	private GroomerValidatorService groomerValidatorService;
 
-  @Autowired
-  private EntityDTOMapper entityDTOMapper;
+	@Autowired
+	private EntityDTOMapper entityDTOMapper;
 
-  @Autowired
-  private S3FileDAO s3FileDAO;
+	@Autowired
+	private S3FileDAO s3FileDAO;
 
-  @Autowired
-  private AwsS3Service awsS3Service;
+	@Autowired
+	private AwsS3Service awsS3Service;
 
-  @Autowired
-  private GroomerESDAO groomerESDAO;
+	@Autowired
+	private GroomerESDAO groomerESDAO;
 
-  @Autowired
-  private CareServiceDAO careServiceDAO;
+	@Autowired
+	private CareServiceDAO careServiceDAO;
 
-  @Autowired
-  private AddressDAO addressDAO;
+	@Autowired
+	private AddressDAO addressDAO;
 
-  @Autowired
-  private GroomerServiceTypeService groomerServiceTypeService;
+	@Autowired
+	private GroomerServiceTypeService groomerServiceTypeService;
 
-  @Autowired
-  @Qualifier(value = "stripeSecrets")
-  private StripeSecrets stripeSecrets;
+	@Autowired
+	@Qualifier(value = "stripeSecrets")
+	private StripeSecrets stripeSecrets;
 
-  @Autowired
-  private ApplicationEventPublisher applicationEventPublisher;
+	@Autowired
+	private ApplicationEventPublisher applicationEventPublisher;
 
-  @Value("${spring.profiles.active}")
-  private String env;
+	@Value("${spring.profiles.active}")
+	private String env;
 
-  @Autowired
-  private StripeAccountService stripeAccountService;
+	@Autowired
+	private StripeAccountService stripeAccountService;
 
-  @Autowired
-  private GroomerAuditService groomerAuditService;
+	@Autowired
+	private GroomerAuditService groomerAuditService;
 
-  @Override
-  public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
+	@Override
+	public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
 
-    UserRecord userRecord = firebaseAuthService.verifyAndGetUser(authenticatorDTO.getToken());
+		UserRecord userRecord = firebaseAuthService.verifyAndGetUser(authenticatorDTO.getToken());
 
-    log.info("userRecord={}", ObjectUtils.toJson(userRecord));
+		log.info("userRecord={}", ObjectUtils.toJson(userRecord));
 
-    String uuid = userRecord.getUid();
+		String uuid = userRecord.getUid();
 
-    Optional<Groomer> optGroomer = groomerDAO.getByUuid(uuid);
+		Optional<Groomer> optGroomer = groomerDAO.getByUuid(uuid);
 
-    Groomer groomer = null;
+		Groomer groomer = null;
 
-    if (optGroomer.isPresent()) {
-      /** sign in */
-      groomer = optGroomer.get();
+		if (optGroomer.isPresent()) {
+			/** sign in */
+			groomer = optGroomer.get();
 
-      if (!groomer.isAllowedToLogin()) {
-        log.info("{} can't sign in because for this reason=", groomer.getFullName(),
-            groomer.getStatus().getDisAllowedToLoginReason());
-        throw new ApiException(groomer.getStatus().getDisAllowedToLoginReason());
-      }
-    } else {
-      /** sign up */
-      groomer = new Groomer();
+			if (!groomer.isAllowedToLogin()) {
+				log.info("{} can't sign in because for this reason=", groomer.getFullName(),
+						groomer.getStatus().getDisAllowedToLoginReason());
+				throw new ApiException(groomer.getStatus().getDisAllowedToLoginReason());
+			}
+		} else {
+			/** sign up */
+			groomer = new Groomer();
 
-      groomer.setUuid(uuid);
-      groomer.addRole(new Role(UserType.groomer));
-      groomer.setAddress(new Address());
+			groomer.setUuid(uuid);
+			groomer.addRole(new Role(UserType.groomer));
+			groomer.setAddress(new Address());
 
-      String email = userRecord.getEmail();
+			String email = userRecord.getEmail();
 
-      if (email == null || email.isEmpty()) {
-        UserInfo[] userInfos = userRecord.getProviderData();
+			if (email == null || email.isEmpty()) {
+				UserInfo[] userInfos = userRecord.getProviderData();
 
-        Optional<String> optEmail = Arrays.asList(userInfos).stream()
-            .filter(userInfo -> (userInfo.getEmail() != null && !userInfo.getEmail().isEmpty()))
-            .map(userInfo -> userInfo.getEmail()).findFirst();
+				Optional<String> optEmail = Arrays.asList(userInfos).stream()
+						.filter(userInfo -> (userInfo.getEmail() != null && !userInfo.getEmail().isEmpty()))
+						.map(userInfo -> userInfo.getEmail()).findFirst();
 
-        if (optEmail.isPresent()) {
-          email = optEmail.get();
+				if (optEmail.isPresent()) {
+					email = optEmail.get();
 
-          Optional<Groomer> optEmailGroomer = groomerDAO.getByEmail(email);
-          if (optEmailGroomer.isPresent()) {
-            throw new ApiException("Email taken", "an account has this email already",
-                "Please use one email per account");
-          }
-        } else {
-          // temp email as placeholder
-          email = "tempParent" + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE)
-              + "@poochapp.com";
-          groomer.setEmailTemp(true);
-        }
-      }
+					Optional<Groomer> optEmailGroomer = groomerDAO.getByEmail(email);
+					if (optEmailGroomer.isPresent()) {
+						throw new ApiException("Email taken", "an account has this email already",
+								"You are signing up with an email that is taken",
+								"Please use one email per account");
+					}
+				} else {
+					// temp email as placeholder
+					email = "tempParent" + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE)
+							+ "@poochapp.com";
+					groomer.setEmailTemp(true);
+				}
+			} else {
+				Optional<Groomer> optEmailGroomer = groomerDAO.getByEmail(email);
+				if (optEmailGroomer.isPresent()) {
+					throw new ApiException("Email taken", "an account has this email already",
+							"You are signing up with an email that is taken",
+							"Please use one email per account");
+				}
+			}
 
-      groomer.setEmail(email);
-      groomer.setStatus(GroomerStatus.SIGNING_UP);
-      groomer.setSignUpStatus(GroomerSignUpStatus.SIGNED_UP);
+			groomer.setEmail(email);
+			groomer.setStatus(GroomerStatus.SIGNING_UP);
+			groomer.setSignUpStatus(GroomerSignUpStatus.SIGNED_UP);
 
-      Long phoneNumber = null;
+			Long phoneNumber = null;
 
-      try {
-        phoneNumber = Long.parseLong(userRecord.getPhoneNumber());
-      } catch (Exception e) {
-        log.warn("phoneNumber Exception, msg={}", e.getLocalizedMessage());
-      }
+			try {
+				phoneNumber = Long.parseLong(userRecord.getPhoneNumber());
+			} catch (Exception e) {
+				log.warn("phoneNumber Exception, msg={}", e.getLocalizedMessage());
+			}
 
-      groomer.setPhoneNumber(phoneNumber);
+			groomer.setPhoneNumber(phoneNumber);
 
-      log.info("groomer={}", ObjectUtils.toJson(groomer));
+			log.info("groomer={}", ObjectUtils.toJson(groomer));
 
-      groomer = groomerDAO.save(groomer);
+			groomer = groomerDAO.save(groomer);
 
-      notificationService.sendWelcomeNotificationToGroomer(groomer);
-    }
+			notificationService.sendWelcomeNotificationToGroomer(groomer);
+		}
 
-    AuthenticationResponseDTO authenticationResponseDTO =
-        authenticationService.authenticate(groomer);
+		AuthenticationResponseDTO authenticationResponseDTO = authenticationService.authenticate(groomer);
 
-    log.info("authenticationResponseDTO={}", ObjectUtils.toJson(authenticationResponseDTO));
+		log.info("authenticationResponseDTO={}", ObjectUtils.toJson(authenticationResponseDTO));
 
-    return authenticationResponseDTO;
-  }
+		return authenticationResponseDTO;
+	}
 
-  @Override
-  public Groomer findByUuid(String uuid) {
-    return this.groomerDAO.getByUuid(uuid).orElseThrow(
-        () -> new ApiException("Groomer not found", "groomer not found for uuid=" + uuid));
-  }
+	@Override
+	public Groomer findByUuid(String uuid) {
+		return this.groomerDAO.getByUuid(uuid)
+				.orElseThrow(() -> new ApiException("Groomer not found", "groomer not found for uuid=" + uuid));
+	}
 
-  @Transactional
-  @Override
-  public GroomerDTO createUpdateProfile(GroomerCreateProfileDTO groomerCreateProfileDTO) {
-    Groomer groomer = groomerValidatorService.validateCreateUpdateProfile(groomerCreateProfileDTO);
+	@Transactional
+	@Override
+	public GroomerDTO createUpdateProfile(GroomerCreateProfileDTO groomerCreateProfileDTO) {
+		Groomer groomer = groomerValidatorService.validateCreateUpdateProfile(groomerCreateProfileDTO);
 
-    groomer =
-        entityDTOMapper.patchGroomerWithGroomerCreateProfileDTO(groomerCreateProfileDTO, groomer);
+		groomer = entityDTOMapper.patchGroomerWithGroomerCreateProfileDTO(groomerCreateProfileDTO, groomer);
 
-    AddressCreateUpdateDTO addressDTO = groomerCreateProfileDTO.getAddress();
+		AddressCreateUpdateDTO addressDTO = groomerCreateProfileDTO.getAddress();
 
-    if (addressDTO != null) {
-      String addressUuid = addressDTO.getUuid();
+		if (addressDTO != null) {
+			String addressUuid = addressDTO.getUuid();
 
-      Address address = groomer.getAddress();
+			Address address = groomer.getAddress();
 
-      if (address == null) {
-        address = new Address();
-      }
+			if (address == null) {
+				address = new Address();
+			}
 
-      if (addressUuid != null && !addressUuid.trim().isEmpty()) {
-        entityDTOMapper.patchAddressWithAddressCreateUpdateDTO(addressDTO, address);
-      } else {
-        address = entityDTOMapper.mapAddressCreateUpdateDTOToAddress(addressDTO);
-      }
+			if (addressUuid != null && !addressUuid.trim().isEmpty()) {
+				entityDTOMapper.patchAddressWithAddressCreateUpdateDTO(addressDTO, address);
+			} else {
+				address = entityDTOMapper.mapAddressCreateUpdateDTOToAddress(addressDTO);
+			}
 
-      address.setGroomer(groomer);
-      groomer.setAddress(address);
-    }
+			address.setGroomer(groomer);
+			groomer.setAddress(address);
+		}
 
-    groomer.setSignUpStatus(GroomerSignUpStatus.PROFILE_CREATED);
+		groomer.setSignUpStatus(GroomerSignUpStatus.PROFILE_CREATED);
 
-    Groomer savedGroomer = groomerDAO.save(groomer);
+		Groomer savedGroomer = groomerDAO.save(groomer);
 
-    GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(savedGroomer);
+		GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(savedGroomer);
 
-    /**
-     * Update careServices
-     */
+		/**
+		 * Update careServices
+		 */
 
-    final Set<CareService> careServices =
-        careServiceDAO.findByGroomerId(groomer.getId()).orElse(new HashSet<>());
-    final Set<Long> careServicesToRemove = (careServices.size() > 0
-        ? careServices.stream().map(careService -> careService.getId()).collect(Collectors.toSet())
-        : new HashSet<>());
-    Set<CareService> dbCareServices = careServices;
+		final Set<CareService> careServices = careServiceDAO.findByGroomerId(groomer.getId()).orElse(new HashSet<>());
+		final Set<Long> careServicesToRemove = (careServices.size() > 0
+				? careServices.stream().map(careService -> careService.getId()).collect(Collectors.toSet())
+				: new HashSet<>());
+		Set<CareService> dbCareServices = careServices;
 
-    Set<CareServiceUpdateDTO> careServicesDTOs = groomerCreateProfileDTO.getCareServices();
+		Set<CareServiceUpdateDTO> careServicesDTOs = groomerCreateProfileDTO.getCareServices();
 
-    if (null != careServicesDTOs) {
-      careServicesDTOs.stream().forEach(careServicesDTO -> {
+		if (null != careServicesDTOs) {
+			careServicesDTOs.stream().forEach(careServicesDTO -> {
 
-        String careServiceUuid = careServicesDTO.getUuid();
+				String careServiceUuid = careServicesDTO.getUuid();
 
-        CareService careService = null;
+				CareService careService = null;
 
-        if (careServiceUuid != null && !careServiceUuid.trim().isEmpty()) {
-          careService = careServiceDAO.getByUuid(careServicesDTO.getUuid()).get();
-          careServicesToRemove.remove(careService.getId());
-          entityDTOMapper.patchCareServiceWithCareServiceUpdateDTO(careServicesDTO, careService);
-        } else {
-          careService = entityDTOMapper.mapCareServiceUpdateDTOToCareService(careServicesDTO);
-        }
+				if (careServiceUuid != null && !careServiceUuid.trim().isEmpty()) {
+					careService = careServiceDAO.getByUuid(careServicesDTO.getUuid()).get();
+					careServicesToRemove.remove(careService.getId());
+					entityDTOMapper.patchCareServiceWithCareServiceUpdateDTO(careServicesDTO, careService);
+				} else {
+					careService = entityDTOMapper.mapCareServiceUpdateDTOToCareService(careServicesDTO);
+				}
 
-        careService.setGroomer(savedGroomer);
+				careService.setGroomer(savedGroomer);
 
-        CareService savedCareService = careServiceDAO.save(careService);
+				CareService savedCareService = careServiceDAO.save(careService);
 
-        /**
-         * remove stale CareService
-         */
-        careServices.stream().filter(cs -> cs.getId().equals(savedCareService.getId())).findFirst()
-            .ifPresent(cs -> {
-              log.info("remove state cs");
-              careServices.remove(cs);
-            });
+				/**
+				 * remove stale CareService
+				 */
+				careServices.stream().filter(cs -> cs.getId().equals(savedCareService.getId())).findFirst()
+						.ifPresent(cs -> {
+							log.info("remove state cs");
+							careServices.remove(cs);
+						});
 
-        careServices.add(savedCareService);
-      });
-    }
+				careServices.add(savedCareService);
+			});
+		}
 
-    log.info("careServicesToRemove={}", ObjectUtils.toJson(careServicesToRemove));
+		log.info("careServicesToRemove={}", ObjectUtils.toJson(careServicesToRemove));
 
-    List<GroomerServiceCategory> careServiceTypes =
-        groomerServiceTypeService.getTopServiceTypes(4L);
+		List<GroomerServiceCategory> careServiceTypes = groomerServiceTypeService.getTopServiceTypes(4L);
 
-    log.info("careServiceTypes={}", ObjectUtils.toJson(careServiceTypes));
+		log.info("careServiceTypes={}", ObjectUtils.toJson(careServiceTypes));
 
-    Set<Long> careServiceIdsToRemove = dbCareServices.stream().filter(cs -> {
-      if (careServicesToRemove.contains(cs.getId())
-          && canRemoveTopCareService(careServiceTypes, cs)) {
-        return true;
-      } else {
-        return false;
-      }
-    }).map(cs -> cs.getId()).collect(Collectors.toSet());
+		Set<Long> careServiceIdsToRemove = dbCareServices.stream().filter(cs -> {
+			if (careServicesToRemove.contains(cs.getId()) && canRemoveTopCareService(careServiceTypes, cs)) {
+				return true;
+			} else {
+				return false;
+			}
+		}).map(cs -> cs.getId()).collect(Collectors.toSet());
 
-    log.info("careServiceIdsToRemove={}", ObjectUtils.toJson(careServiceIdsToRemove));
-    /**
-     * delete careServices that are not passed
-     */
-    if (careServicesToRemove.size() > 0) {
-      careServiceDAO.deleteByIds(careServiceIdsToRemove);
-    }
+		log.info("careServiceIdsToRemove={}", ObjectUtils.toJson(careServiceIdsToRemove));
+		/**
+		 * delete careServices that are not passed
+		 */
+		if (careServicesToRemove.size() > 0) {
+			careServiceDAO.deleteByIds(careServiceIdsToRemove);
+		}
 
-    Set<CareService> savedSareServices = careServices.stream().filter(careService -> {
-      if (careServicesToRemove.contains(careService.getId())) {
-        return false;
-      } else {
-        return true;
-      }
-    }).collect(Collectors.toSet());
-
-    log.info("savedSareServices={}", ObjectUtils.toJson(savedSareServices));
-
-    groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(savedSareServices));
-
-    applicationEventPublisher
-        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+		Set<CareService> savedSareServices = careServices.stream().filter(careService -> {
+			if (careServicesToRemove.contains(careService.getId())) {
+				return false;
+			} else {
+				return true;
+			}
+		}).collect(Collectors.toSet());
+
+		log.info("savedSareServices={}", ObjectUtils.toJson(savedSareServices));
+
+		groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(savedSareServices));
 
-    Groomer auditedGroomer = groomerAuditService.audit(savedGroomer);
+		applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+
+		Groomer auditedGroomer = groomerAuditService.audit(savedGroomer);
 
-    groomerDTO.setStatus(auditedGroomer.getStatus());
-    groomerDTO.setListing(auditedGroomer.getListing());
+		groomerDTO.setStatus(auditedGroomer.getStatus());
+		groomerDTO.setListing(auditedGroomer.getListing());
 
-    return groomerDTO;
-  }
+		return groomerDTO;
+	}
 
-  private boolean canRemoveTopCareService(List<GroomerServiceCategory> careServiceTypes,
-      CareService careService) {
-    return careServiceTypes.stream().filter(cst -> {
-      if (cst.getName().equalsIgnoreCase(careService.getName())) {
-        return true;
-      } else {
-        return false;
-      }
-    }).findFirst().isPresent();
-  }
+	private boolean canRemoveTopCareService(List<GroomerServiceCategory> careServiceTypes, CareService careService) {
+		return careServiceTypes.stream().filter(cst -> {
+			if (cst.getName().equalsIgnoreCase(careService.getName())) {
+				return true;
+			} else {
+				return false;
+			}
+		}).findFirst().isPresent();
+	}
 
-  /**
-   * Only save ones passed<br>
-   * Delete any not pass
-   */
-  @Transactional
-  @Override
-  public GroomerDTO createListing(GroomerCreateListingDTO groomerCreateListingDTO) {
-    Groomer groomer = groomerValidatorService.validateCreateListing(groomerCreateListingDTO);
+	/**
+	 * Only save ones passed<br>
+	 * Delete any not pass
+	 */
+	@Transactional
+	@Override
+	public GroomerDTO createListing(GroomerCreateListingDTO groomerCreateListingDTO) {
+		Groomer groomer = groomerValidatorService.validateCreateListing(groomerCreateListingDTO);
 
-    entityDTOMapper.patchGroomerWithGroomerCreateListingDTO(groomerCreateListingDTO, groomer);
+		entityDTOMapper.patchGroomerWithGroomerCreateListingDTO(groomerCreateListingDTO, groomer);
 
-    groomer.setSignUpStatus(GroomerSignUpStatus.LISTING_CREATED);
+		groomer.setSignUpStatus(GroomerSignUpStatus.LISTING_CREATED);
 
-    Groomer savedGroomer = groomerDAO.save(groomer);
+		Groomer savedGroomer = groomerDAO.save(groomer);
 
-    GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(savedGroomer);
+		GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(savedGroomer);
 
-    /**
-     * Update careServices
-     */
+		/**
+		 * Update careServices
+		 */
 
-    final Set<CareService> careServices =
-        careServiceDAO.findByGroomerId(groomer.getId()).orElse(new HashSet<>());
-    // final Set<Long> careServicesToRemove = (careServices.size() > 0
-    // ? careServices.stream().map(careService -> careService.getId()).collect(Collectors.toSet())
-    // : new HashSet<>());
+		final Set<CareService> careServices = careServiceDAO.findByGroomerId(groomer.getId()).orElse(new HashSet<>());
+		// final Set<Long> careServicesToRemove = (careServices.size() > 0
+		// ? careServices.stream().map(careService ->
+		// careService.getId()).collect(Collectors.toSet())
+		// : new HashSet<>());
 
-    Set<CareServiceUpdateDTO> careServicesDTOs = groomerCreateListingDTO.getCareServices();
+		Set<CareServiceUpdateDTO> careServicesDTOs = groomerCreateListingDTO.getCareServices();
 
-    if (null != careServicesDTOs) {
-      careServicesDTOs.stream().forEach(careServicesDTO -> {
+		if (null != careServicesDTOs) {
+			careServicesDTOs.stream().forEach(careServicesDTO -> {
 
-        String careServiceUuid = careServicesDTO.getUuid();
+				String careServiceUuid = careServicesDTO.getUuid();
 
-        CareService careService = null;
+				CareService careService = null;
 
-        if (careServiceUuid != null && !careServiceUuid.trim().isEmpty()) {
-          careService = careServiceDAO.getByUuid(careServicesDTO.getUuid()).get();
-          // careServicesToRemove.remove(careService.getId());
-          entityDTOMapper.patchCareServiceWithCareServiceUpdateDTO(careServicesDTO, careService);
-        } else {
-          careService = entityDTOMapper.mapCareServiceUpdateDTOToCareService(careServicesDTO);
-        }
+				if (careServiceUuid != null && !careServiceUuid.trim().isEmpty()) {
+					careService = careServiceDAO.getByUuid(careServicesDTO.getUuid()).get();
+					// careServicesToRemove.remove(careService.getId());
+					entityDTOMapper.patchCareServiceWithCareServiceUpdateDTO(careServicesDTO, careService);
+				} else {
+					careService = entityDTOMapper.mapCareServiceUpdateDTOToCareService(careServicesDTO);
+				}
 
-        careService.setGroomer(savedGroomer);
+				careService.setGroomer(savedGroomer);
 
-        CareService savedCareService = careServiceDAO.save(careService);
+				CareService savedCareService = careServiceDAO.save(careService);
 
-        /**
-         * remove stale CareService
-         */
-        careServices.stream().filter(cs -> cs.getId().equals(savedCareService.getId())).findFirst()
-            .ifPresent(cs -> {
-              log.info("remove state cs");
-              careServices.remove(cs);
-            });
+				/**
+				 * remove stale CareService
+				 */
+				careServices.stream().filter(cs -> cs.getId().equals(savedCareService.getId())).findFirst()
+						.ifPresent(cs -> {
+							log.info("remove state cs");
+							careServices.remove(cs);
+						});
 
-        careServices.add(savedCareService);
-      });
-    }
+				careServices.add(savedCareService);
+			});
+		}
+
+		/**
+		 * delete careServices that are not passed
+		 */
+		// if (careServicesToRemove.size() > 0) {
+		// careServiceDAO.deleteByIds(careServicesToRemove);
+		// }
+		//
+		// Set<CareService> savedSareServices = careServices.stream().filter(careService
+		// -> {
+		// if (careServicesToRemove.contains(careService.getId())) {
+		// return true;
+		// } else {
+		// return false;
+		// }
+		// }).collect(Collectors.toSet());
 
-    /**
-     * delete careServices that are not passed
-     */
-    // if (careServicesToRemove.size() > 0) {
-    // careServiceDAO.deleteByIds(careServicesToRemove);
-    // }
-    //
-    // Set<CareService> savedSareServices = careServices.stream().filter(careService -> {
-    // if (careServicesToRemove.contains(careService.getId())) {
-    // return true;
-    // } else {
-    // return false;
-    // }
-    // }).collect(Collectors.toSet());
+		groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(careServices));
 
-    groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(careServices));
+		/**
+		 * notify groomer of profile update only if status==ACTIVE
+		 */
 
-    /**
-     * notify groomer of profile update only if status==ACTIVE
-     */
+		applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 
-    applicationEventPublisher
-        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+		Groomer auditedGroomer = groomerAuditService.audit(savedGroomer);
 
-    Groomer auditedGroomer = groomerAuditService.audit(savedGroomer);
+		groomerDTO.setStatus(auditedGroomer.getStatus());
+		groomerDTO.setListing(auditedGroomer.getListing());
 
-    groomerDTO.setStatus(auditedGroomer.getStatus());
-    groomerDTO.setListing(auditedGroomer.getListing());
+		return groomerDTO;
+	}
 
-    return groomerDTO;
-  }
+	@Transactional
+	@Override
+	public GroomerDTO updateListing(GroomerUpdateListingDTO groomerUpdateListingDTO) {
+		Groomer groomer = groomerValidatorService.validateUpdateListing(groomerUpdateListingDTO);
 
-  @Transactional
-  @Override
-  public GroomerDTO updateListing(GroomerUpdateListingDTO groomerUpdateListingDTO) {
-    Groomer groomer = groomerValidatorService.validateUpdateListing(groomerUpdateListingDTO);
+		groomer = entityDTOMapper.patchGroomerWithGroomerUpdateListingDTO(groomerUpdateListingDTO, groomer);
 
-    groomer =
-        entityDTOMapper.patchGroomerWithGroomerUpdateListingDTO(groomerUpdateListingDTO, groomer);
+		Groomer savedGroomer = groomerDAO.save(groomer);
 
-    Groomer savedGroomer = groomerDAO.save(groomer);
+		GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(savedGroomer);
 
-    GroomerDTO groomerDTO = entityDTOMapper.mapGroomerToGroomerDTO(savedGroomer);
+		/**
+		 * Update careServices
+		 */
 
-    /**
-     * Update careServices
-     */
+		final Set<CareService> careServices = careServiceDAO.findByGroomerId(groomer.getId()).orElse(new HashSet<>());
+		// final Set<Long> careServicesToRemove = (careServices.size() > 0
+		// ? careServices.stream().map(careService ->
+		// careService.getId()).collect(Collectors.toSet())
+		// : new HashSet<>());
 
-    final Set<CareService> careServices =
-        careServiceDAO.findByGroomerId(groomer.getId()).orElse(new HashSet<>());
-    // final Set<Long> careServicesToRemove = (careServices.size() > 0
-    // ? careServices.stream().map(careService -> careService.getId()).collect(Collectors.toSet())
-    // : new HashSet<>());
+		Set<CareServiceUpdateDTO> careServicesDTOs = groomerUpdateListingDTO.getCareServices();
 
-    Set<CareServiceUpdateDTO> careServicesDTOs = groomerUpdateListingDTO.getCareServices();
+		if (null != careServicesDTOs) {
+			careServicesDTOs.stream().forEach(careServicesDTO -> {
 
-    if (null != careServicesDTOs) {
-      careServicesDTOs.stream().forEach(careServicesDTO -> {
+				String careServiceUuid = careServicesDTO.getUuid();
 
-        String careServiceUuid = careServicesDTO.getUuid();
+				CareService careService = null;
 
-        CareService careService = null;
+				if (careServiceUuid != null && !careServiceUuid.trim().isEmpty()) {
+					careService = careServiceDAO.getByUuid(careServicesDTO.getUuid()).get();
+					// careServicesToRemove.remove(careService.getId());
+					entityDTOMapper.patchCareServiceWithCareServiceUpdateDTO(careServicesDTO, careService);
+				} else {
+					careService = entityDTOMapper.mapCareServiceUpdateDTOToCareService(careServicesDTO);
+				}
 
-        if (careServiceUuid != null && !careServiceUuid.trim().isEmpty()) {
-          careService = careServiceDAO.getByUuid(careServicesDTO.getUuid()).get();
-          // careServicesToRemove.remove(careService.getId());
-          entityDTOMapper.patchCareServiceWithCareServiceUpdateDTO(careServicesDTO, careService);
-        } else {
-          careService = entityDTOMapper.mapCareServiceUpdateDTOToCareService(careServicesDTO);
-        }
+				careService.setGroomer(savedGroomer);
 
-        careService.setGroomer(savedGroomer);
+				CareService savedCareService = careServiceDAO.save(careService);
 
-        CareService savedCareService = careServiceDAO.save(careService);
+				/**
+				 * remove stale CareService
+				 */
+				careServices.stream().filter(cs -> cs.getId().equals(savedCareService.getId())).findFirst()
+						.ifPresent(cs -> {
+							log.info("remove state cs");
+							careServices.remove(cs);
+						});
 
-        /**
-         * remove stale CareService
-         */
-        careServices.stream().filter(cs -> cs.getId().equals(savedCareService.getId())).findFirst()
-            .ifPresent(cs -> {
-              log.info("remove state cs");
-              careServices.remove(cs);
-            });
+				careServices.add(savedCareService);
+			});
+		}
 
-        careServices.add(savedCareService);
-      });
-    }
+		/**
+		 * delete careServices that are not passed
+		 */
+		// if (careServicesToRemove.size() > 0) {
+		// careServiceDAO.deleteByIds(careServicesToRemove);
+		// }
+		//
+		// Set<CareService> savedSareServices = careServices.stream().filter(careService
+		// -> {
+		// if (careServicesToRemove.contains(careService.getId())) {
+		// return true;
+		// } else {
+		// return false;
+		// }
+		// }).collect(Collectors.toSet());
 
-    /**
-     * delete careServices that are not passed
-     */
-    // if (careServicesToRemove.size() > 0) {
-    // careServiceDAO.deleteByIds(careServicesToRemove);
-    // }
-    //
-    // Set<CareService> savedSareServices = careServices.stream().filter(careService -> {
-    // if (careServicesToRemove.contains(careService.getId())) {
-    // return true;
-    // } else {
-    // return false;
-    // }
-    // }).collect(Collectors.toSet());
-
-    groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(careServices));
-
-    /**
-     * notify groomer of profile update only if status==ACTIVE
-     */
-
-    applicationEventPublisher
-        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
-
-    Groomer auditedGroomer = groomerAuditService.audit(savedGroomer);
-
-    groomerDTO.setStatus(auditedGroomer.getStatus());
-    groomerDTO.setListing(auditedGroomer.getListing());
-
-    return groomerDTO;
-  }
+		groomerDTO.setCareServices(entityDTOMapper.mapCareServicesToCareServiceDTOs(careServices));
 
-  @Override
-  public List<S3FileDTO> uploadProfileImages(String uuid, List<MultipartFile> images) {
-    Groomer groomer = groomerValidatorService.validateUploadProfileImages(uuid, images);
+		/**
+		 * notify groomer of profile update only if status==ACTIVE
+		 */
 
-    List<S3File> s3Files = new ArrayList<>();
-
-    for (MultipartFile image : images) {
-      String fileName = image.getOriginalFilename();
-      String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
-      String objectKey = "profile_images/groomer/" + groomer.getId() + "/"
-          + UUID.randomUUID().toString() + "_" + santizedFileName;
-
-      log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName,
-          objectKey);
-      ObjectMetadata metadata = new ObjectMetadata();
-      metadata.setContentType(image.getContentType());
-
-      AwsUploadResponse awsUploadResponse = null;
-      try {
-        awsUploadResponse =
-            awsS3Service.uploadPublicObj(objectKey, metadata, image.getInputStream());
-      } catch (IOException e) {
-        log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
-        e.printStackTrace();
-
-        throw new ApiException("Unable to upload image", "issue with aws");
-      }
+		applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 
-      S3File s3File =
-          new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
-      s3File.setFileType(FileType.PROFILE_IMAGE);
-      s3File.setGroomer(groomer);
+		Groomer auditedGroomer = groomerAuditService.audit(savedGroomer);
 
+		groomerDTO.setStatus(auditedGroomer.getStatus());
+		groomerDTO.setListing(auditedGroomer.getListing());
 
-      s3Files.add(s3File);
-    }
+		return groomerDTO;
+	}
 
-    if (s3Files.size() > 0) {
-      s3Files = s3FileDAO.save(s3Files);
+	@Override
+	public List<S3FileDTO> uploadProfileImages(String uuid, List<MultipartFile> images) {
+		Groomer groomer = groomerValidatorService.validateUploadProfileImages(uuid, images);
 
-      /**
-       * set last profile image as main profile image
-       */
-      S3File lastS3File = s3Files.get(s3Files.size() - 1);
-      S3File mainProfileImage = s3FileDAO.setMainProfileImage(groomer, lastS3File);
-      s3Files.remove(lastS3File);
-      s3Files.add(mainProfileImage);
-    }
+		List<S3File> s3Files = new ArrayList<>();
 
-    applicationEventPublisher
-        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+		for (MultipartFile image : images) {
+			String fileName = image.getOriginalFilename();
+			String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
+			String objectKey = "profile_images/groomer/" + groomer.getId() + "/" + UUID.randomUUID().toString() + "_"
+					+ santizedFileName;
 
-    return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
-  }
+			log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName, objectKey);
+			ObjectMetadata metadata = new ObjectMetadata();
+			metadata.setContentType(image.getContentType());
 
-  @Override
-  public List<S3FileDTO> uploadContractDocuments(String uuid, List<MultipartFile> images) {
-    Groomer groomer = groomerValidatorService.validateUploadContracts(uuid, images);
+			AwsUploadResponse awsUploadResponse = null;
+			try {
+				awsUploadResponse = awsS3Service.uploadPublicObj(objectKey, metadata, image.getInputStream());
+			} catch (IOException e) {
+				log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
+				e.printStackTrace();
 
-    List<S3File> s3Files = new ArrayList<>();
+				throw new ApiException("Unable to upload image", "issue with aws");
+			}
 
-    for (MultipartFile image : images) {
-      String fileName = image.getOriginalFilename();
-      String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
-      String objectKey = "contracts/groomer/" + groomer.getId() + "/" + UUID.randomUUID().toString()
-          + "_" + santizedFileName;
+			S3File s3File = new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
+			s3File.setFileType(FileType.PROFILE_IMAGE);
+			s3File.setGroomer(groomer);
 
-      log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName,
-          objectKey);
-      ObjectMetadata metadata = new ObjectMetadata();
-      metadata.setContentType(image.getContentType());
+			s3Files.add(s3File);
+		}
 
-      AwsUploadResponse awsUploadResponse = null;
-      try {
-        awsUploadResponse =
-            awsS3Service.uploadPublicObj(objectKey, metadata, image.getInputStream());
-      } catch (IOException e) {
-        log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
-        e.printStackTrace();
+		if (s3Files.size() > 0) {
+			s3Files = s3FileDAO.save(s3Files);
 
-        throw new ApiException("Unable to upload file", "issue with aws");
-      }
+			/**
+			 * set last profile image as main profile image
+			 */
+			S3File lastS3File = s3Files.get(s3Files.size() - 1);
+			S3File mainProfileImage = s3FileDAO.setMainProfileImage(groomer, lastS3File);
+			s3Files.remove(lastS3File);
+			s3Files.add(mainProfileImage);
+		}
 
-      S3File s3File =
-          new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
-      s3File.setFileType(FileType.PROFILE_IMAGE);
-      s3File.setIsPublic(false);
-      s3File.setGroomer(groomer);
+		applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 
-      s3Files.add(s3File);
-    }
+		return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
+	}
 
-    if (s3Files.size() > 0) {
-      s3Files = s3FileDAO.save(s3Files);
-    }
+	@Override
+	public List<S3FileDTO> uploadContractDocuments(String uuid, List<MultipartFile> images) {
+		Groomer groomer = groomerValidatorService.validateUploadContracts(uuid, images);
 
-    groomerAuditService.auditAsync(groomer);
+		List<S3File> s3Files = new ArrayList<>();
 
-    return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
-  }
+		for (MultipartFile image : images) {
+			String fileName = image.getOriginalFilename();
+			String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
+			String objectKey = "contracts/groomer/" + groomer.getId() + "/" + UUID.randomUUID().toString() + "_"
+					+ santizedFileName;
 
-  @Override
-  public CustomPage<GroomerES> search(GroomerSearchParamsDTO filters) {
-    groomerValidatorService.validateSearch(filters);
-    return groomerESDAO.search(filters);
-  }
+			log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName, objectKey);
+			ObjectMetadata metadata = new ObjectMetadata();
+			metadata.setContentType(image.getContentType());
 
-  @Override
-  public ApiDefaultResponseDTO signOut(String token) {
-    // TODO Auto-generated method stub
-    return null;
-  }
+			AwsUploadResponse awsUploadResponse = null;
+			try {
+				awsUploadResponse = awsS3Service.uploadPublicObj(objectKey, metadata, image.getInputStream());
+			} catch (IOException e) {
+				log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
+				e.printStackTrace();
 
-  @Override
-  public GroomerDTO syncStripeInfo(String uuid) {
+				throw new ApiException("Unable to upload file", "issue with aws");
+			}
 
-    Groomer groomer = findByUuid(uuid);
-    /**
-     * get stripe account and update groomer
-     */
+			S3File s3File = new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
+			s3File.setFileType(FileType.PROFILE_IMAGE);
+			s3File.setIsPublic(false);
+			s3File.setGroomer(groomer);
 
-    com.stripe.model.Account account =
-        stripeAccountService.getById(groomer.getStripeConnectedAccountId());
+			s3Files.add(s3File);
+		}
 
-    groomer = syncStripeAccountWithGroomer(groomer, account);
+		if (s3Files.size() > 0) {
+			s3Files = s3FileDAO.save(s3Files);
+		}
 
-    groomer = this.groomerDAO.save(groomer);
+		groomerAuditService.auditAsync(groomer);
 
-    groomerAuditService.auditAsync(groomer);
+		return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
+	}
 
-    applicationEventPublisher
-        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+	@Override
+	public CustomPage<GroomerES> search(GroomerSearchParamsDTO filters) {
+		groomerValidatorService.validateSearch(filters);
+		return groomerESDAO.search(filters);
+	}
 
-    return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
-  }
+	@Override
+	public ApiDefaultResponseDTO signOut(String token) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-  @Override
-  public StripeAccountLinkDTO getStripeAccountLink(String uuid, String host) {
+	@Override
+	public GroomerDTO syncStripeInfo(String uuid) {
 
-    Stripe.apiKey = stripeSecrets.getSecretKey();
+		Groomer groomer = findByUuid(uuid);
+		/**
+		 * get stripe account and update groomer
+		 */
 
-    Groomer groomer = this.findByUuid(uuid);
+		com.stripe.model.Account account = stripeAccountService.getById(groomer.getStripeConnectedAccountId());
 
-    if (!groomer.getSignUpStatus().equals(GroomerSignUpStatus.COMPLETED)) {
-      throw new ApiException("You have not finished signing up.",
-          "signUpStatus=" + groomer.getSignUpStatus());
-    }
+		groomer = syncStripeAccountWithGroomer(groomer, account);
 
-    com.stripe.model.Account account = null;
+		groomer = this.groomerDAO.save(groomer);
 
-    if (groomer.getStripeConnectedAccountId() == null) {
-      account = stripeAccountService.create(groomer);
-      groomer.setStripeConnectedAccountId(account.getId());
+		groomerAuditService.auditAsync(groomer);
 
-      try {
-        Thread.sleep(1000);
-      } catch (Exception e) {
-      }
+		applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 
-    } else {
-      account = stripeAccountService.getById(groomer.getStripeConnectedAccountId());
+		return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
+	}
 
-    }
+	@Override
+	public StripeAccountLinkDTO getStripeAccountLink(String uuid, String host) {
 
-    groomer = syncStripeAccountWithGroomer(groomer, account);
+		Stripe.apiKey = stripeSecrets.getSecretKey();
 
-    groomer = this.groomerDAO.save(groomer);
+		Groomer groomer = this.findByUuid(uuid);
 
-    // only take account_onboarding for now
-    AccountLink accountLink =
-        stripeAccountService.getByAccountId(groomer.getStripeConnectedAccountId(),
-            AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING, host);
+		if (!groomer.getSignUpStatus().equals(GroomerSignUpStatus.COMPLETED)) {
+			throw new ApiException("You have not finished signing up.", "signUpStatus=" + groomer.getSignUpStatus());
+		}
 
-    return new StripeAccountLinkDTO(
-        LocalDateTime.ofInstant(Instant.ofEpochSecond(accountLink.getExpiresAt()),
-            TimeZone.getDefault().toZoneId()),
-        accountLink.getUrl());
+		com.stripe.model.Account account = null;
 
-  }
+		if (groomer.getStripeConnectedAccountId() == null) {
+			account = stripeAccountService.create(groomer);
+			groomer.setStripeConnectedAccountId(account.getId());
 
-  private Groomer syncStripeAccountWithGroomer(Groomer groomer, com.stripe.model.Account account) {
-    groomer.setStripeChargesEnabled(account.getChargesEnabled());
-    groomer.setStripeDetailsSubmitted(account.getDetailsSubmitted());
-    groomer.setStripePayoutsEnabled(account.getPayoutsEnabled());
-    groomer.setStripeAcceptCardPayments(account.getCapabilities().getCardPayments());
-    return groomer;
-  }
+			try {
+				Thread.sleep(1000);
+			} catch (Exception e) {
+			}
 
-  @Override
-  public GroomerDTO toggleListing(GroomerListingUpdateDTO listingUpdateDTO) {
-    Groomer groomer = this.findByUuid(listingUpdateDTO.getUuid());
-    groomer.setListing(listingUpdateDTO.isOn());
+		} else {
+			account = stripeAccountService.getById(groomer.getStripeConnectedAccountId());
 
-    groomer = this.groomerDAO.save(groomer);
+		}
 
-    applicationEventPublisher
-        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+		groomer = syncStripeAccountWithGroomer(groomer, account);
 
-    return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
-  }
+		groomer = this.groomerDAO.save(groomer);
 
-  @Override
-  public GroomerDTO updateSettings(SettingsUpdateDTO settingsUpdateDTO) {
-    Groomer groomer = groomerValidatorService.validateSettingsUpdate(settingsUpdateDTO);
+		// only take account_onboarding for now
+		AccountLink accountLink = stripeAccountService.getByAccountId(groomer.getStripeConnectedAccountId(),
+				AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING, host);
 
-    entityDTOMapper.patchGroomerWithSettingsUpdateDTO(settingsUpdateDTO, groomer);
+		return new StripeAccountLinkDTO(LocalDateTime.ofInstant(Instant.ofEpochSecond(accountLink.getExpiresAt()),
+				TimeZone.getDefault().toZoneId()), accountLink.getUrl());
 
-    firebaseAuthService.updateEmailAndPassword(groomer.getUuid(), settingsUpdateDTO.getPassword(),
-        groomer.getEmail());
+	}
 
-    applicationEventPublisher
-        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+	private Groomer syncStripeAccountWithGroomer(Groomer groomer, com.stripe.model.Account account) {
+		groomer.setStripeChargesEnabled(account.getChargesEnabled());
+		groomer.setStripeDetailsSubmitted(account.getDetailsSubmitted());
+		groomer.setStripePayoutsEnabled(account.getPayoutsEnabled());
+		groomer.setStripeAcceptCardPayments(account.getCapabilities().getCardPayments());
+		return groomer;
+	}
 
-    return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
-  }
+	@Override
+	public GroomerDTO toggleListing(GroomerListingUpdateDTO listingUpdateDTO) {
+		Groomer groomer = this.findByUuid(listingUpdateDTO.getUuid());
+		groomer.setListing(listingUpdateDTO.isOn());
 
-  @Override
-  public GroomerDTO createUpdateAvailability(
-      GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO) {
+		groomer = this.groomerDAO.save(groomer);
 
-    Groomer groomer = findByUuid(groomerAvailabilityCreateUpdateDTO.getUuid());
+		applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 
-    groomer = entityDTOMapper.patchGroomerWithGroomerAvailabilityCreateUpdateDTO(
-        groomerAvailabilityCreateUpdateDTO, groomer);
+		return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
+	}
 
-    groomer = this.groomerDAO.save(groomer);
+	@Override
+	public GroomerDTO updateSettings(SettingsUpdateDTO settingsUpdateDTO) {
+		Groomer groomer = groomerValidatorService.validateSettingsUpdate(settingsUpdateDTO);
 
-    applicationEventPublisher
-        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+		entityDTOMapper.patchGroomerWithSettingsUpdateDTO(settingsUpdateDTO, groomer);
 
-    return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
-  }
+		firebaseAuthService.updateEmailAndPassword(groomer.getUuid(), settingsUpdateDTO.getPassword(),
+				groomer.getEmail());
 
-  @Override
-  public GroomerDTO updateBanListing(@Valid BanListingDTO banListingDTO) {
+		applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
 
-    Groomer groomer = groomerValidatorService.validateBanListing(banListingDTO);
+		return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
+	}
 
-    if (banListingDTO.isBanListing()) {
-      groomer.setStatus(GroomerStatus.SUSPENDED);
-    } else {
-      groomer.setStatus(GroomerStatus.ACTIVE);
-    }
+	@Override
+	public GroomerDTO createUpdateAvailability(GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO) {
 
-    groomer = this.groomerDAO.save(groomer);
+		Groomer groomer = findByUuid(groomerAvailabilityCreateUpdateDTO.getUuid());
 
-    applicationEventPublisher
-        .publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+		groomer = entityDTOMapper.patchGroomerWithGroomerAvailabilityCreateUpdateDTO(groomerAvailabilityCreateUpdateDTO,
+				groomer);
 
-    return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
-  }
+		groomer = this.groomerDAO.save(groomer);
+
+		applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+
+		return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
+	}
+
+	@Override
+	public GroomerDTO updateBanListing(@Valid BanListingDTO banListingDTO) {
+
+		Groomer groomer = groomerValidatorService.validateBanListing(banListingDTO);
+
+		if (banListingDTO.isBanListing()) {
+			groomer.setStatus(GroomerStatus.SUSPENDED);
+		} else {
+			groomer.setStatus(GroomerStatus.ACTIVE);
+		}
+
+		groomer = this.groomerDAO.save(groomer);
+
+		applicationEventPublisher.publishEvent(new GroomerUpdateEvent(new GroomerEvent(groomer.getId())));
+
+		return this.entityDTOMapper.mapGroomerToGroomerDTO(groomer);
+	}
 }

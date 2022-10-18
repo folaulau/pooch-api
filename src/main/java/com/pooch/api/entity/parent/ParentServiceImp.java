@@ -132,12 +132,6 @@ public class ParentServiceImp implements ParentService {
 
 			String email = userRecord.getEmail();
 
-			optPetParent = parentDAO.getByEmail(email);
-
-			if (optPetParent.isPresent()) {
-				throw new ApiException("Email taken", "You are signing up with an email that is taken");
-			}
-
 			if (email == null || email.isEmpty()) {
 				UserInfo[] userInfos = userRecord.getProviderData();
 
@@ -149,15 +143,25 @@ public class ParentServiceImp implements ParentService {
 					email = optEmail.get();
 
 					Optional<Parent> optEmailGroomer = parentDAO.getByEmail(email);
+
 					if (optEmailGroomer.isPresent()) {
-						throw new ApiException("Email taken", "an account has this email already",
-								"Please use one email per account");
+						throw new ApiException("Email taken", "You are signing up with an email that is taken",
+								"an account has this email already", "Please use one email per account");
 					}
 				} else {
 					// temp email as placeholder
 					email = "tempParent" + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE)
 							+ "@poochapp.com";
 					petParent.setEmailTemp(true);
+				}
+
+			} else {
+
+				Optional<Parent> optEmailGroomer = parentDAO.getByEmail(email);
+
+				if (optEmailGroomer.isPresent()) {
+					throw new ApiException("Email taken", "an account has this email already",
+							"You are signing up with an email that is taken", "Please use one email per account");
 				}
 			}
 
