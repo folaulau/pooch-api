@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -173,8 +174,20 @@ public class ParentServiceImp implements ParentService {
 
 			try {
 				petParent = parentDAO.save(petParent);
+			} catch (ConstraintViolationException e) {
+				throw new ApiException("issue saving ConstraintName=" + e.getConstraintName(),
+
+						"SQLState=" + e.getSQLState(), "ErrorCode=" + e.getErrorCode(), "SQLS=" + e.getSQL(),
+						"SQLMessage=" + e.getMessage(), "SQLS=" + e.getSQL(),
+						
+
+						"petParent=" + ObjectUtils.toJson(petParent), "userRecord=" + userRecord.toString());// TODO:
+
 			} catch (Exception e) {
-				throw new ApiException("issue saving petParent, error={}, parent={}, userRecord={}", e.getLocalizedMessage(), ObjectUtils.toJson(petParent), userRecord.toString());// TODO: handle exception
+				throw new ApiException("issue saving error=" + e.getLocalizedMessage(),
+						"petParent=" + ObjectUtils.toJson(petParent), "userRecord=" + userRecord.toString());// TODO:
+																												// handle
+																												// exception
 			}
 
 			notificationService.sendWelcomeNotificationToParent(petParent);
