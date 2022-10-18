@@ -119,6 +119,7 @@ public class ParentServiceImp implements ParentService {
 			}
 
 		} else {
+
 			/**
 			 * sign up
 			 */
@@ -130,6 +131,12 @@ public class ParentServiceImp implements ParentService {
 			petParent.setStatus(ParentStatus.ACTIVE);
 
 			String email = userRecord.getEmail();
+
+			optPetParent = parentDAO.getByEmail(email);
+
+			if (optPetParent.isPresent()) {
+				throw new ApiException("Email taken", "You are signing up with an email that is taken");
+			}
 
 			if (email == null || email.isEmpty()) {
 				UserInfo[] userInfos = userRecord.getProviderData();
@@ -179,15 +186,12 @@ public class ParentServiceImp implements ParentService {
 
 						"SQLState=" + e.getSQLState(), "ErrorCode=" + e.getErrorCode(), "SQLS=" + e.getSQL(),
 						"SQLMessage=" + e.getMessage(), "SQLS=" + e.getSQL(),
-						
 
 						"petParent=" + ObjectUtils.toJson(petParent), "userRecord=" + userRecord.toString());// TODO:
 
 			} catch (Exception e) {
 				throw new ApiException("issue saving error=" + e.getLocalizedMessage(),
-						"petParent=" + ObjectUtils.toJson(petParent), "userRecord=" + userRecord.toString());// TODO:
-																												// handle
-																												// exception
+						"petParent=" + ObjectUtils.toJson(petParent), "userRecord=" + userRecord.toString()); // exception
 			}
 
 			notificationService.sendWelcomeNotificationToParent(petParent);
