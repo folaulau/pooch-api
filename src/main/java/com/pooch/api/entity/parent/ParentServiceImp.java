@@ -174,7 +174,7 @@ public class ParentServiceImp implements ParentService {
 			try {
 				petParent = parentDAO.save(petParent);
 			} catch (Exception e) {
-				throw new ApiException("issue saving petParent, error={}, parent={}", e.getLocalizedMessage(), ObjectUtils.toJson(petParent));// TODO: handle exception
+				throw new ApiException("issue saving petParent, error={}, parent={}, userRecord={}", e.getLocalizedMessage(), ObjectUtils.toJson(petParent), userRecord.toString());// TODO: handle exception
 			}
 
 			notificationService.sendWelcomeNotificationToParent(petParent);
