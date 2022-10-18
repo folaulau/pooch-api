@@ -141,28 +141,22 @@ public class ParentServiceImp implements ParentService {
 
 				if (optEmail.isPresent()) {
 					email = optEmail.get();
-
-					Optional<Parent> optEmailGroomer = parentDAO.getByEmail(email);
-
-					if (optEmailGroomer.isPresent()) {
-						throw new ApiException("Email taken", "You are signing up with an email that is taken",
-								"an account has this email already", "Please use one email per account");
-					}
-				} else {
-					// temp email as placeholder
-					email = "tempParent" + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE)
-							+ "@poochapp.com";
-					petParent.setEmailTemp(true);
 				}
 
-			} else {
+			}
 
+			if (email != null && !email.isEmpty()) {
 				Optional<Parent> optEmailGroomer = parentDAO.getByEmail(email);
 
 				if (optEmailGroomer.isPresent()) {
 					throw new ApiException("Email taken", "an account has this email already",
 							"You are signing up with an email that is taken", "Please use one email per account");
 				}
+			} else {
+				// temp email as placeholder
+				email = "tempParent" + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE)
+						+ "@poochapp.com";
+				petParent.setEmailTemp(true);
 			}
 
 			petParent.setFullName(userRecord.getDisplayName());

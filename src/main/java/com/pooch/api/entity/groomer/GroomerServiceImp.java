@@ -155,25 +155,20 @@ public class GroomerServiceImp implements GroomerService {
 				if (optEmail.isPresent()) {
 					email = optEmail.get();
 
-					Optional<Groomer> optEmailGroomer = groomerDAO.getByEmail(email);
-					if (optEmailGroomer.isPresent()) {
-						throw new ApiException("Email taken", "an account has this email already",
-								"You are signing up with an email that is taken",
-								"Please use one email per account");
-					}
-				} else {
-					// temp email as placeholder
-					email = "tempParent" + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE)
-							+ "@poochapp.com";
-					groomer.setEmailTemp(true);
 				}
-			} else {
+			}
+
+			if (email != null && !email.isEmpty()) {
 				Optional<Groomer> optEmailGroomer = groomerDAO.getByEmail(email);
 				if (optEmailGroomer.isPresent()) {
 					throw new ApiException("Email taken", "an account has this email already",
-							"You are signing up with an email that is taken",
-							"Please use one email per account");
+							"You are signing up with an email that is taken", "Please use one email per account");
 				}
+			} else {
+				// temp email as placeholder
+				email = "tempParent" + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE)
+						+ "@poochapp.com";
+				groomer.setEmailTemp(true);
 			}
 
 			groomer.setEmail(email);
