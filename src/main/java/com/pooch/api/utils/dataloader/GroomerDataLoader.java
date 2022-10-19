@@ -31,7 +31,7 @@ import com.pooch.api.utils.TestEntityGeneratorService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Profile(value = {"local", "dev", "qa"})
+@Profile(value = {"local"})
 @Component
 public class GroomerDataLoader implements ApplicationRunner {
 

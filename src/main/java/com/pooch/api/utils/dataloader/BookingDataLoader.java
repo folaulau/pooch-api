@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @DependsOn(value = {"groomerDataLoader", "parentDataLoader"})
 @Slf4j
-@Profile(value = {"local", "dev", "qa"})
+@Profile(value = {"local"})
 @Component
 public class BookingDataLoader implements ApplicationRunner {
 
