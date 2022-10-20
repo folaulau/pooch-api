@@ -29,7 +29,7 @@ import com.pooch.api.utils.TestEntityGeneratorService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Profile(value = {"local"})
+@Profile(value = {"local","dev","prod"})
 @Component
 public class EmloyeeDataLoader implements ApplicationRunner {
 
