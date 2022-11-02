@@ -660,6 +660,9 @@ public class GroomerServiceImp implements GroomerService {
 			account = stripeAccountService.create(groomer);
 			groomer.setStripeConnectedAccountId(account.getId());
 
+			/**
+			 * give frontend cushion time to make account is active
+			 */
 			try {
 				Thread.sleep(1000);
 			} catch (Exception e) {
