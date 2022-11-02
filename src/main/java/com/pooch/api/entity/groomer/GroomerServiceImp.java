@@ -650,9 +650,9 @@ public class GroomerServiceImp implements GroomerService {
 
 		Groomer groomer = this.findByUuid(uuid);
 
-		if (!groomer.getSignUpStatus().equals(GroomerSignUpStatus.COMPLETED)) {
-			throw new ApiException("You have not finished signing up.", "signUpStatus=" + groomer.getSignUpStatus());
-		}
+//		if (!groomer.getSignUpStatus().equals(GroomerSignUpStatus.COMPLETED)) {
+//			throw new ApiException("You have not finished signing up.", "signUpStatus=" + groomer.getSignUpStatus());
+//		}
 
 		com.stripe.model.Account account = null;
 
