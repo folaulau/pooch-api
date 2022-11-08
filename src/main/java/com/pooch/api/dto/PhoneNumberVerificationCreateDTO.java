@@ -18,5 +18,7 @@ public class PhoneNumberVerificationCreateDTO implements Serializable {
 
     private Integer           countryCode;
     private Long              phoneNumber;
+    private String            hash;
+
 
 }

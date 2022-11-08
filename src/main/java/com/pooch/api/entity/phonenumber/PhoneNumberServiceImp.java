@@ -50,7 +50,12 @@ public class PhoneNumberServiceImp implements PhoneNumberService {
         phoneNumberVerification.setPhoneVerified(false);
         phoneNumberVerification.setParent(parent);
 
-        String sentStatus = smsServive.sendSMS(phoneNumberRequestVerificationDTO.getCountryCode(), phoneNumberRequestVerificationDTO.getPhoneNumber(), "Your PoochApp verification code is: " + code);
+        StringBuilder message = new StringBuilder();
+        message.append("Your PoochApp verification code is: " + code);
+        message.append("\n\n");
+        message.append(phoneNumberRequestVerificationDTO.getHash());
+
+        String sentStatus = smsServive.sendSMS(phoneNumberRequestVerificationDTO.getCountryCode(), phoneNumberRequestVerificationDTO.getPhoneNumber(), message.toString());
 
         phoneNumberVerification.setSentStatus(sentStatus);
         phoneNumberVerification = phoneNumberVerificationDAO.save(phoneNumberVerification);
