@@ -112,6 +112,8 @@ public class ParentAuthIntegrationTests extends IntegrationTestConfiguration {
 
         AuthenticationResponseDTO dtoResponse = objectMapper.readValue(contentAsString, new TypeReference<AuthenticationResponseDTO>() {});
 
+        System.out.println("dtoResponse: "+dtoResponse.toString());
+        
         assertThat(dtoResponse).isNotNull();
         assertThat(dtoResponse.getToken()).isNotNull();
         assertThat(dtoResponse.getUuid()).isNotNull();

@@ -15,5 +15,9 @@ public interface AwsSecretsManagerService {
   public XApiKey getXApiKeys();
 
   public SMTPSecrets getSMTPSecrets();
+  
+  public MailChimpSecrets getMailChimpSecrets();
+  
+  public SendGridSecrets getSendGridSecrets();
 
 }

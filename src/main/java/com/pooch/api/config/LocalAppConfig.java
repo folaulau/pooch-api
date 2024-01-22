@@ -93,11 +93,8 @@ public class LocalAppConfig {
   @Value("${elasticsearch.port}")
   private int clusterHttpPort;
 
-  @Value("${spring.mail.username}")
-  private String smtpUsername;
-
-  @Value("${spring.mail.password}")
-  private String smtpPassword;
+  @Value("${sendgrid.api.key}")
+  private String sendgridApiKey;
 
   @Bean(name = "stripeSecrets")
   public StripeSecrets stripeSecrets(@Value("${stripe.publishable.key}") String publishableKey,
@@ -178,37 +175,37 @@ public class LocalAppConfig {
 
   @Bean
   public SendGrid sendGrid() {
-    SendGrid sendGrid = new SendGrid(smtpPassword);
+    SendGrid sendGrid = new SendGrid(sendgridApiKey);
     return sendGrid;
   }
 
-  @Bean
-  public JavaMailSender javaMailSender() {
-    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-    mailSender.setHost("smtp.sendgrid.net");
-    mailSender.setPort(465);
-    mailSender.setUsername(smtpUsername);
-    mailSender.setPassword(smtpPassword);
-
-    /**
-     * spring.mail.host=email-smtp.us-east-1.amazonaws.com
-     * spring.mail.properties.mail.transport.protocol=smtp spring.mail.properties.mail.smtp.port=587
-     * spring.mail.properties.mail.smtp.auth=true
-     * spring.mail.properties.mail.smtp.starttls.enable=true
-     * spring.mail.properties.mail.smtp.starttls.required=true
-     * spring.mail.properties.mail.sender=no-reply@
-     */
-    Properties props = mailSender.getJavaMailProperties();
-    props.put("mail.transport.protocol", "smtp");
-    props.put("mail.smtp.port", "465");
-    props.put("mail.smtp.auth", "true");
-    props.put("mail.smtp.ssl.trust", "smtp.sendgrid.net");
-    props.put("mail.smtp.starttls.enable", "true");
-    props.put("mail.smtp.starttls.required", "true");
-    props.put("mail.debug", "true");
-
-    return mailSender;
-  }
+//  @Bean
+//  public JavaMailSender javaMailSender() {
+//    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+//    mailSender.setHost("smtp.sendgrid.net");
+//    mailSender.setPort(465);
+//    mailSender.setUsername(smtpUsername);
+//    mailSender.setPassword(sendgridApiKey);
+//
+//    /**
+//     * spring.mail.host=email-smtp.us-east-1.amazonaws.com
+//     * spring.mail.properties.mail.transport.protocol=smtp spring.mail.properties.mail.smtp.port=587
+//     * spring.mail.properties.mail.smtp.auth=true
+//     * spring.mail.properties.mail.smtp.starttls.enable=true
+//     * spring.mail.properties.mail.smtp.starttls.required=true
+//     * spring.mail.properties.mail.sender=no-reply@
+//     */
+//    Properties props = mailSender.getJavaMailProperties();
+//    props.put("mail.transport.protocol", "smtp");
+//    props.put("mail.smtp.port", "465");
+//    props.put("mail.smtp.auth", "true");
+//    props.put("mail.smtp.ssl.trust", "smtp.sendgrid.net");
+//    props.put("mail.smtp.starttls.enable", "true");
+//    props.put("mail.smtp.starttls.required", "true");
+//    props.put("mail.debug", "true");
+//
+//    return mailSender;
+//  }
 
   @Bean
   public RestHighLevelClient restHighLevelClient() {

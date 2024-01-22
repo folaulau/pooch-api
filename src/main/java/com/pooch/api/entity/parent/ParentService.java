@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
+import com.pooch.api.dto.ParentCancellationRequestDTO;
 import com.pooch.api.dto.ParentDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.dto.PhoneNumberVerificationCreateDTO;
@@ -20,16 +21,16 @@ public interface ParentService {
     List<S3FileDTO> uploadProfileImages(String uuid, List<MultipartFile> images);
 
     void signOut(String token);
-    
+
     Parent findByUuid(String uuid);
 
     ParentDTO updateProfile(ParentUpdateDTO parentUpdateDTO);
 
-    ApiDefaultResponseDTO requestPhoneNumberVerification(String uuid,
-        PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO);
+    ApiDefaultResponseDTO requestPhoneNumberVerification(String uuid, PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO);
 
-    PhoneNumberVerificationDTO verifyNumberWithCode(String uuid,
-        PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO);
+    PhoneNumberVerificationDTO verifyNumberWithCode(String uuid, PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO);
 
     S3FileDTO uploadProfileImage(String uuid, MultipartFile image);
+
+    boolean cancelAccount(ParentCancellationRequestDTO cancellation);
 }

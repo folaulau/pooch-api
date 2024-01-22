@@ -55,249 +55,209 @@ import lombok.extern.slf4j.Slf4j;
 @AutoConfigureMockMvc
 public class BookingIntegrationTests extends IntegrationTestConfiguration {
 
-  @Autowired
-  private MockMvc mockMvc;
+    @Autowired
+    private MockMvc                    mockMvc;
 
-  @Resource
-  private WebApplicationContext webApplicationContext;
+    @Resource
+    private WebApplicationContext      webApplicationContext;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper               objectMapper;
 
-  @Autowired
-  private Filter springSecurityFilterChain;
+    @Autowired
+    private Filter                     springSecurityFilterChain;
 
-  @MockBean
-  private JwtTokenService jwtTokenService;
+    @MockBean
+    private JwtTokenService            jwtTokenService;
 
-  @Autowired
-  private GroomerDAO petSitterDAO;
+    @Autowired
+    private GroomerDAO                 petSitterDAO;
 
-  @Autowired
-  private ParentDAO petParentDAO;
+    @Autowired
+    private ParentDAO                  petParentDAO;
 
-  @Autowired
-  private EntityDTOMapper entityDTOMapper;
+    @Autowired
+    private EntityDTOMapper            entityDTOMapper;
 
-  @Autowired
-  private TestEntityGeneratorService testEntityGeneratorService;
+    @Autowired
+    private TestEntityGeneratorService testEntityGeneratorService;
 
-  private String TEST_PETPARENT_TOKEN = "TEST_PETPARENT_TOKEN";
-  private String TEST_PETSITTER_TOKEN = "TEST_PETSITTER_TOKEN";
+    private String                     TEST_PETPARENT_TOKEN = "TEST_PETPARENT_TOKEN";
+    private String                     TEST_PETSITTER_TOKEN = "TEST_PETSITTER_TOKEN";
 
-  private String TEST_PETPARENT_UUID = "TEST_PETPARENT_UUID";
-  private String TEST_PETSITTER_UUID = "TEST_PETSITTER_UUID";
+    private String                     TEST_PETPARENT_UUID  = "TEST_PETPARENT_UUID";
+    private String                     TEST_PETSITTER_UUID  = "TEST_PETSITTER_UUID";
 
-  @BeforeEach
-  public void setUp() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-        .addFilters(springSecurityFilterChain).build();
+    @BeforeEach
+    public void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).addFilters(springSecurityFilterChain).build();
 
-    JwtPayload petParentJwtPayload = new JwtPayload();
-    petParentJwtPayload.setUuid(TEST_PETPARENT_UUID);
-    petParentJwtPayload.setRole(UserType.parent.name());
+        JwtPayload petParentJwtPayload = new JwtPayload();
+        petParentJwtPayload.setUuid(TEST_PETPARENT_UUID);
+        petParentJwtPayload.setRole(UserType.parent.name());
 
-    Mockito.when(jwtTokenService.getPayloadByToken(TEST_PETPARENT_TOKEN))
-        .thenReturn(petParentJwtPayload);
+        Mockito.when(jwtTokenService.getPayloadByToken(TEST_PETPARENT_TOKEN)).thenReturn(petParentJwtPayload);
 
-    JwtPayload petSitterJwtPayload = new JwtPayload();
-    petSitterJwtPayload.setUuid(TEST_PETSITTER_UUID);
-    petSitterJwtPayload.setRole(UserType.parent.name());
+        JwtPayload petSitterJwtPayload = new JwtPayload();
+        petSitterJwtPayload.setUuid(TEST_PETSITTER_UUID);
+        petSitterJwtPayload.setRole(UserType.parent.name());
 
-    Mockito.when(jwtTokenService.getPayloadByToken(TEST_PETSITTER_TOKEN))
-        .thenReturn(petSitterJwtPayload);
-  }
-
-  /**
-   * First time parent makes a booking
-   */
-  @Disabled
-  @Transactional
-  @Test
-  void itShouldMakeBooking_first_time_valid() throws Exception {
-    // Given
-    BookingCreateDTO bookingCreateDTO = new BookingCreateDTO();
-
-    bookingCreateDTO.setStartDateTime(LocalDateTime.now().plusDays(1));
-    bookingCreateDTO.setEndDateTime(LocalDateTime.now().plusDays(3));
-
-    /**
-     * Pet Parent
-     */
-    Parent petParent = testEntityGeneratorService.getDBParent();
-    Pooch pooch1 = testEntityGeneratorService.getDBPooch(petParent);
-
-
-    Double bookingCost =
-        MathUtils.getTwoDecimalPlaces(RandomGeneratorUtils.getDoubleWithin(20, 300));
-
-    String paymentMethodId = testEntityGeneratorService.getPaymentMethod(petParent.getFullName());
-
-    com.stripe.model.PaymentIntent paymentIntent =
-        testEntityGeneratorService.createAndAddPaymentMethod(bookingCost, paymentMethodId);
-    log.info("paymentIntent={}",paymentIntent.toJson());
-    if(true) {
-      return;
+        Mockito.when(jwtTokenService.getPayloadByToken(TEST_PETSITTER_TOKEN)).thenReturn(petSitterJwtPayload);
     }
 
-
-    ParentCreateUpdateDTO petParentDTO =
-        entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
-
-    bookingCreateDTO.setParentUuid(petParentDTO.getUuid());   
-    bookingCreateDTO.setAgreedToContracts(true);
-
-    bookingCreateDTO.setPaymentIntentId(paymentIntent.getId());
-
     /**
-     * Pet Sitter
+     * First time parent makes a booking
      */
-    Groomer groomer = testEntityGeneratorService.getDBGroomer();
+    @Transactional
+    @Test
+    void itShouldMakeBooking_first_time_valid() throws Exception {
+        // Given
+        BookingCreateDTO bookingCreateDTO = new BookingCreateDTO();
 
-    bookingCreateDTO.setGroomerUuid(groomer.getUuid());
+        bookingCreateDTO.setStartDateTime(LocalDateTime.now().plusDays(1));
+        bookingCreateDTO.setEndDateTime(LocalDateTime.now().plusDays(3));
 
-    // @formatter:off
+        /**
+         * Pet Parent
+         */
+        Parent petParent = testEntityGeneratorService.getDBParent();
+        Pooch pooch1 = testEntityGeneratorService.getDBPooch(petParent);
 
-        CareService careService= testEntityGeneratorService.getDBCareService(groomer);
-        
-//        bookingCreateDTO.addService(BookingCareServiceDTO.builder()
-//                .size(PoochSize.medium)
-//                .uuid(careService.getUuid())
-//                .build());
-        
-        // @formatter:on
+        Double bookingCost = MathUtils.getTwoDecimalPlaces(RandomGeneratorUtils.getDoubleWithin(20, 300));
 
-    // com.stripe.model.PaymentIntent paymentIntent = new com.stripe.model.PaymentIntent();
-    // paymentIntent.setStatus("succeeded");
-    // Mockito.when(stripePaymentIntentService.getById(Mockito.anyString())).thenReturn(paymentIntent);
+        String paymentMethodId = testEntityGeneratorService.getPaymentMethod(petParent.getFullName());
 
-    /**
-     * Pets
-     */
-    Set<PoochBookingCreateDTO> petCreateDTOs = new HashSet<>();
-    for (int i = 0; i < 1; i++) {
-      PoochBookingCreateDTO petCreateDTO = new PoochBookingCreateDTO();
-      petCreateDTO.setUuid(pooch1.getUuid());
-      petCreateDTO.addService(BookingCareServiceCreateDTO.builder().size(PoochSize.medium)
-          .uuid(careService.getUuid()).build());
+        com.stripe.model.PaymentIntent paymentIntent = testEntityGeneratorService.createAndAddPaymentMethod(bookingCost, paymentMethodId);
+        log.info("paymentIntent={}", paymentIntent.toJson());
+        if (true) {
+            return;
+        }
 
-      petCreateDTOs.add(petCreateDTO);
+        ParentCreateUpdateDTO petParentDTO = entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
+
+        bookingCreateDTO.setParentUuid(petParentDTO.getUuid());
+        bookingCreateDTO.setAgreedToContracts(true);
+
+        bookingCreateDTO.setPaymentIntentId(paymentIntent.getId());
+
+        /**
+         * Pet Sitter
+         */
+        Groomer groomer = testEntityGeneratorService.getDBGroomer();
+
+        bookingCreateDTO.setGroomerUuid(groomer.getUuid());
+
+        CareService careService = testEntityGeneratorService.getDBCareService(groomer);
+
+        /**
+         * Pets
+         */
+        Set<PoochBookingCreateDTO> petCreateDTOs = new HashSet<>();
+        for (int i = 0; i < 1; i++) {
+            PoochBookingCreateDTO petCreateDTO = new PoochBookingCreateDTO();
+            petCreateDTO.setUuid(pooch1.getUuid());
+            petCreateDTO.addService(BookingCareServiceCreateDTO.builder().size(PoochSize.medium).uuid(careService.getUuid()).build());
+
+            petCreateDTOs.add(petCreateDTO);
+        }
+
+        bookingCreateDTO.setPooches(petCreateDTOs);
+        // When
+
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/bookings/book")
+                .header("token", TEST_PETPARENT_TOKEN)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectUtils.toJson(bookingCreateDTO));
+
+        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        String contentAsString = result.getResponse().getContentAsString();
+
+        BookingDTO bookingDTO = objectMapper.readValue(contentAsString, new TypeReference<BookingDTO>() {});
+
+        assertThat(bookingDTO).isNotNull();
+        assertThat(bookingDTO.getId()).isNotNull().isGreaterThan(0);
+        assertThat(bookingDTO.getUuid()).isNotNull();
+        assertThat(bookingDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
     }
 
-    bookingCreateDTO.setPooches(petCreateDTOs);
-    // When
-
-    RequestBuilder requestBuilder =
-        MockMvcRequestBuilders.post("/bookings/book").header("token", TEST_PETPARENT_TOKEN)
-            .accept(MediaType.APPLICATION_JSON).characterEncoding("utf-8")
-            .contentType(MediaType.APPLICATION_JSON).content(ObjectUtils.toJson(bookingCreateDTO));
-
-    MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
-        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-
-    String contentAsString = result.getResponse().getContentAsString();
-
-    BookingDTO bookingDTO =
-        objectMapper.readValue(contentAsString, new TypeReference<BookingDTO>() {});
-
-    assertThat(bookingDTO).isNotNull();
-    assertThat(bookingDTO.getId()).isNotNull().isGreaterThan(0);
-    assertThat(bookingDTO.getUuid()).isNotNull();
-    assertThat(bookingDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-  }
-
-  /**
-   * 
-   * @throws Exception
-   */
-  @Disabled
-  @Transactional
-  @Test
-  void itShouldMakeBooking_second_time_valid() throws Exception {
-    // Given
-    BookingCreateDTO bookingCreateDTO = new BookingCreateDTO();
-
-    bookingCreateDTO.setStartDateTime(LocalDateTime.now().plusDays(1));
-    bookingCreateDTO.setEndDateTime(LocalDateTime.now().plusDays(3));
-
     /**
-     * Pet Parent
+     * 
+     * @throws Exception
      */
-    Parent petParent = testEntityGeneratorService.getDBParent();
-    Pooch pooch1 = testEntityGeneratorService.getDBPooch(petParent);
+    @Transactional
+    @Test
+    void itShouldMakeBookingWithoutPoochInfo() throws Exception {
+        // Given
+        BookingCreateDTO bookingCreateDTO = new BookingCreateDTO();
 
-    Double bookingCost =
-        MathUtils.getTwoDecimalPlaces(RandomGeneratorUtils.getDoubleWithin(20, 300));
+        bookingCreateDTO.setStartDateTime(LocalDateTime.now().plusDays(1));
+        bookingCreateDTO.setEndDateTime(LocalDateTime.now().plusDays(3));
 
-    com.stripe.model.Customer customer = testEntityGeneratorService.createCustomer(petParent);
+        /**
+         * Pet Parent
+         */
+        Parent petParent = testEntityGeneratorService.getDBParent();
 
-    String paymentMethodId = testEntityGeneratorService.addPaymentMethodToCustomer(customer);
+        Double bookingCost = MathUtils.getTwoDecimalPlaces(RandomGeneratorUtils.getDoubleWithin(20, 300));
 
-    com.stripe.model.PaymentIntent paymentIntent = testEntityGeneratorService
-        .createAndAddPaymentMethod(bookingCost, paymentMethodId, customer.getId());
+        String paymentMethodId = testEntityGeneratorService.getPaymentMethod(petParent.getFullName());
 
-    ParentCreateUpdateDTO petParentDTO =
-        entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
+        com.stripe.model.PaymentIntent paymentIntent = testEntityGeneratorService.createAndAddPaymentMethod(bookingCost, paymentMethodId);
+        log.info("paymentIntent={}", paymentIntent.toJson());
+        if (true) {
+            return;
+        }
 
-    bookingCreateDTO.setParentUuid(petParentDTO.getUuid());  
+        ParentCreateUpdateDTO petParentDTO = entityDTOMapper.mapParentToParentCreateUpdateDTO(petParent);
 
-    bookingCreateDTO.setAgreedToContracts(true);
+        bookingCreateDTO.setParentUuid(petParentDTO.getUuid());
+        bookingCreateDTO.setAgreedToContracts(true);
 
-    bookingCreateDTO.setPaymentIntentId(paymentIntent.getId());
+        bookingCreateDTO.setPaymentIntentId(paymentIntent.getId());
 
-    /**
-     * Pet Sitter
-     */
-    Groomer groomer = testEntityGeneratorService.getDBGroomer();
+        /**
+         * Pet Sitter
+         */
+        Groomer groomer = testEntityGeneratorService.getDBGroomer();
 
-    bookingCreateDTO.setGroomerUuid(groomer.getUuid());
+        bookingCreateDTO.setGroomerUuid(groomer.getUuid());
 
-    // @formatter:off
+        CareService careService = testEntityGeneratorService.getDBCareService(groomer);
 
-        CareService careService= testEntityGeneratorService.getDBCareService(groomer);
-      
-        
-        // @formatter:on
+        /**
+         * Pets
+         */
+        Set<PoochBookingCreateDTO> petCreateDTOs = new HashSet<>();
+        for (int i = 0; i < 1; i++) {
+            PoochBookingCreateDTO petCreateDTO = new PoochBookingCreateDTO();
+            petCreateDTO.addService(BookingCareServiceCreateDTO.builder().size(PoochSize.medium).uuid(careService.getUuid()).build());
+            petCreateDTOs.add(petCreateDTO);
+        }
 
-    // com.stripe.model.PaymentIntent paymentIntent = new com.stripe.model.PaymentIntent();
-    // paymentIntent.setStatus("succeeded");
-    // Mockito.when(stripePaymentIntentService.getById(Mockito.anyString())).thenReturn(paymentIntent);
+        bookingCreateDTO.setPooches(petCreateDTOs);
+        // When
 
-    /**
-     * Pets
-     */
-    Set<PoochBookingCreateDTO> petCreateDTOs = new HashSet<>();
-    for (int i = 0; i < 1; i++) {
-      PoochBookingCreateDTO petCreateDTO = new PoochBookingCreateDTO();
-      petCreateDTO.setUuid(pooch1.getUuid());
-      petCreateDTO.addService(BookingCareServiceCreateDTO.builder().size(PoochSize.medium)
-          .uuid(careService.getUuid()).build());
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/bookings/book")
+                .header("token", TEST_PETPARENT_TOKEN)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectUtils.toJson(bookingCreateDTO));
 
-      petCreateDTOs.add(petCreateDTO);
+        MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        String contentAsString = result.getResponse().getContentAsString();
+
+        BookingDTO bookingDTO = objectMapper.readValue(contentAsString, new TypeReference<BookingDTO>() {});
+
+        assertThat(bookingDTO).isNotNull();
+        assertThat(bookingDTO.getId()).isNotNull().isGreaterThan(0);
+        assertThat(bookingDTO.getUuid()).isNotNull();
+        assertThat(bookingDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
+
     }
-
-    bookingCreateDTO.setPooches(petCreateDTOs);
-    // When
-
-    RequestBuilder requestBuilder =
-        MockMvcRequestBuilders.post("/bookings/book").header("token", TEST_PETPARENT_TOKEN)
-            .accept(MediaType.APPLICATION_JSON).characterEncoding("utf-8")
-            .contentType(MediaType.APPLICATION_JSON).content(ObjectUtils.toJson(bookingCreateDTO));
-
-    MvcResult result = this.mockMvc.perform(requestBuilder).andDo(MockMvcResultHandlers.print())
-        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-
-    String contentAsString = result.getResponse().getContentAsString();
-
-    BookingDTO bookingDTO =
-        objectMapper.readValue(contentAsString, new TypeReference<BookingDTO>() {});
-
-    assertThat(bookingDTO).isNotNull();
-    assertThat(bookingDTO.getId()).isNotNull().isGreaterThan(0);
-    assertThat(bookingDTO.getUuid()).isNotNull();
-    assertThat(bookingDTO.getBookingCost()).isNotNull().isEqualTo(bookingCost);
-
-  }
-
 
 }

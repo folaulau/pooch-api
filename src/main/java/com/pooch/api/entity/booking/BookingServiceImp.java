@@ -47,69 +47,66 @@ import lombok.extern.slf4j.Slf4j;
 public class BookingServiceImp implements BookingService {
 
     @Autowired
-    private BookingDAO bookingDAO;
+    private BookingDAO                   bookingDAO;
 
     @Autowired
-    private EntityDTOMapper entityDTOMapper;
+    private EntityDTOMapper              entityDTOMapper;
 
     @Autowired
-    private NoteDAO noteDAO;
+    private NoteDAO                      noteDAO;
 
     @Autowired
     private BookingCareServiceRepository bookingCareServiceRepository;
 
     @Autowired
-    private GroomerDAO groomerDAO;
+    private GroomerDAO                   groomerDAO;
 
     @Autowired
-    private ParentDAO parentDAO;
-
-
-    @Autowired
-    private CareServiceDAO careServiceDAO;
+    private ParentDAO                    parentDAO;
 
     @Autowired
-    private PoochDAO poochDAO;
+    private CareServiceDAO               careServiceDAO;
 
     @Autowired
-    private BookingValidatorService bookingValidatorService;
+    private PoochDAO                     poochDAO;
 
     @Autowired
-    private StripePaymentIntentService stripePaymentIntentService;
+    private BookingValidatorService      bookingValidatorService;
 
     @Autowired
-    private PaymentMethodService paymentMethodService;
+    private StripePaymentIntentService   stripePaymentIntentService;
 
     @Autowired
-    private PaymentMethodDAO paymentMethodDAO;
+    private PaymentMethodService         paymentMethodService;
 
     @Autowired
-    private BookingPoochRepository bookingPoochRepository;
+    private PaymentMethodDAO             paymentMethodDAO;
 
     @Autowired
-    private StripeCustomerService stripeCustomerService;
+    private BookingPoochRepository       bookingPoochRepository;
 
     @Autowired
-    private StripePaymentMethodService stripePaymentMethodService;
+    private StripeCustomerService        stripeCustomerService;
 
     @Autowired
-    private TransactionService transactionService;
+    private StripePaymentMethodService   stripePaymentMethodService;
 
     @Autowired
-    private NotificationService notificationService;
+    private TransactionService           transactionService;
 
     @Autowired
-    private CalendarDayService calendarDayService;
+    private NotificationService          notificationService;
+
+    @Autowired
+    private CalendarDayService           calendarDayService;
 
     private Booking findByUuid(String uuid) {
-        return bookingDAO.getByUuid(uuid).orElseThrow(
-                () -> new ApiException(ApiError.DEFAULT_MSG, "Booking not found for uuid=" + uuid));
+        return bookingDAO.getByUuid(uuid).orElseThrow(() -> new ApiException(ApiError.DEFAULT_MSG, "Booking not found for uuid=" + uuid));
     }
 
     @Override
     public BookingDTO book(BookingCreateDTO bookingCreateDTO) {
-        Triple<Groomer, Parent, PaymentIntent> triple =
-                bookingValidatorService.validateBook(bookingCreateDTO);
+        Triple<Groomer, Parent, PaymentIntent> triple = bookingValidatorService.validateBook(bookingCreateDTO);
 
         Groomer groomer = triple.getLeft();
         Parent parent = triple.getMiddle();
@@ -125,8 +122,7 @@ public class BookingServiceImp implements BookingService {
 
         if (groomer.isStripeReady()) {
 
-            com.stripe.model.Transfer transfer = stripePaymentIntentService
-                    .transferFundsToGroomerOnBookingInitialPayment(paymentIntent, groomer);
+            com.stripe.model.Transfer transfer = stripePaymentIntentService.transferFundsToGroomerOnBookingInitialPayment(paymentIntent, groomer);
 
             if (transfer != null && transfer.getId() != null && groomer.getInstantBooking()) {
                 booking.setStatus(BookingStatus.BOOKED);
@@ -145,8 +141,7 @@ public class BookingServiceImp implements BookingService {
 
         // log.info("paymentIntent={}", paymentIntent.toJson());
 
-        Optional<PaymentMethod> optPaymentMethod =
-                paymentMethodDAO.getByParentIdAndStripeId(parent.getId(), paymentIntent.getPaymentMethod());
+        Optional<PaymentMethod> optPaymentMethod = paymentMethodDAO.getByParentIdAndStripeId(parent.getId(), paymentIntent.getPaymentMethod());
 
         PaymentMethod paymentMethod = null;
 
@@ -156,15 +151,12 @@ public class BookingServiceImp implements BookingService {
             paymentMethod = optPaymentMethod.get();
         } else {
 
-            com.stripe.model.PaymentMethod stripePaymentMethod =
-                    stripePaymentMethodService.getById(paymentIntent.getPaymentMethod());
+            com.stripe.model.PaymentMethod stripePaymentMethod = stripePaymentMethodService.getById(paymentIntent.getPaymentMethod());
 
-            if (paymentIntent.getSetupFutureUsage() != null
-                    && paymentIntent.getSetupFutureUsage().equalsIgnoreCase("off_session")) {
+            if (paymentIntent.getSetupFutureUsage() != null && paymentIntent.getSetupFutureUsage().equalsIgnoreCase("off_session")) {
                 paymentMethod = paymentMethodService.add(parent, stripePaymentMethod);
             } else {
-                paymentMethod =
-                        paymentMethodService.mapStripePaymentMethodToPaymentMethod(stripePaymentMethod);
+                paymentMethod = paymentMethodService.mapStripePaymentMethodToPaymentMethod(stripePaymentMethod);
             }
         }
 
@@ -178,9 +170,7 @@ public class BookingServiceImp implements BookingService {
 
         booking.setGroomer(groomer);
 
-
-        BookingCostDetails costDetails = BookingCostDetails.fromJson(
-                paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
+        BookingCostDetails costDetails = BookingCostDetails.fromJson(paymentIntent.getMetadata().get(StripeMetadataService.PAYMENTINTENT_BOOKING_DETAILS));
 
         booking.populateBookingCostDetails(costDetails);
 
@@ -202,8 +192,7 @@ public class BookingServiceImp implements BookingService {
 
         TransactionDTO transactionDTO = entityDTOMapper.mapTransactionToTransactionDTO(transaction);
 
-        notificationService.sendBookingDetailsUponBooking(booking, booking.getParent(),
-                booking.getGroomer());
+        notificationService.sendBookingDetailsUponBooking(booking, booking.getParent(), booking.getGroomer());
 
         // 1. handle calendar
         // 2. send notification
@@ -215,44 +204,24 @@ public class BookingServiceImp implements BookingService {
     }
 
     private Booking addPoochesToBooking(Booking booking, Set<PoochBookingCreateDTO> poochCreateDTOs) {
-        if (poochCreateDTOs != null) {
-            int count = 0;
-            for (PoochBookingCreateDTO petCreateDTO : poochCreateDTOs) {
-                String uuid = petCreateDTO.getUuid();
 
-                Pooch pooch = null;
-                if (uuid == null) {
-                    pooch = entityDTOMapper.mapPoochBookingCreateDTOToPooch(petCreateDTO);
-                    pooch.setParent(booking.getParent());
-                    pooch = poochDAO.save(pooch);
-                } else {
-                    pooch = poochDAO.getByUuid(uuid).get();
-                }
+        if (poochCreateDTOs == null || poochCreateDTOs.size() <= 0) {
+            return booking;
+        }
 
-                Set<BookingCareServiceCreateDTO> requestedCareServices =
-                        petCreateDTO.getRequestedCareServices();
+        int count = 0;
+        for (PoochBookingCreateDTO petCreateDTO : poochCreateDTOs) {
+            String uuid = petCreateDTO.getUuid();
 
-                if (count == 0) {
-                    for (BookingCareServiceCreateDTO bookingCareServiceDTO : requestedCareServices) {
-
-                        CareService careService =
-                                careServiceDAO.getByUuid(bookingCareServiceDTO.getUuid()).get();
-
-                        BookingCareService bookingCareService =
-                                entityDTOMapper.mapCareServiceToBookingCareService(careService);
-
-                        bookingCareService.setBooking(booking);
-                        bookingCareService
-                                .setPrice(careService.getByPoochSize(bookingCareServiceDTO.getSize()));
-                        bookingCareService.setSize(bookingCareServiceDTO.getSize());
-
-                        bookingCareService = bookingCareServiceRepository.saveAndFlush(bookingCareService);
-
-                        booking.addCareService(bookingCareService);
-                    }
-                }
-
-
+            Pooch pooch = null;
+            if (uuid == null) {
+                pooch = entityDTOMapper.mapPoochBookingCreateDTOToPooch(petCreateDTO);
+                pooch.setParent(booking.getParent());
+                pooch = poochDAO.save(pooch);
+            
+            } else {
+                
+                pooch = poochDAO.getByUuid(uuid).get();
                 BookingPooch bookingPooch = entityDTOMapper.mapPoochToBookingPooch(pooch);
                 bookingPooch.setBooking(booking);
 
@@ -261,15 +230,32 @@ public class BookingServiceImp implements BookingService {
                     return vaccine;
                 }).collect(Collectors.toSet()));
 
-                // log.info("bookingPooch={}", ObjectUtils.toJson(bookingPooch));
-
                 bookingPooch = bookingPoochRepository.saveAndFlush(bookingPooch);
 
                 booking.addPooch(bookingPooch);
-
-                count++;
+                
             }
 
+            Set<BookingCareServiceCreateDTO> requestedCareServices = petCreateDTO.getRequestedCareServices();
+
+            if (count == 0) {
+                for (BookingCareServiceCreateDTO bookingCareServiceDTO : requestedCareServices) {
+
+                    CareService careService = careServiceDAO.getByUuid(bookingCareServiceDTO.getUuid()).get();
+
+                    BookingCareService bookingCareService = entityDTOMapper.mapCareServiceToBookingCareService(careService);
+
+                    bookingCareService.setBooking(booking);
+                    bookingCareService.setPrice(careService.getByPoochSize(bookingCareServiceDTO.getSize()));
+                    bookingCareService.setSize(bookingCareServiceDTO.getSize());
+
+                    bookingCareService = bookingCareServiceRepository.saveAndFlush(bookingCareService);
+
+                    booking.addCareService(bookingCareService);
+                }
+            }
+
+            count++;
         }
 
         return booking;
@@ -311,12 +297,11 @@ public class BookingServiceImp implements BookingService {
 
         booking = bookingDAO.save(booking);
 
-        Transaction transaction =
-                transactionService.addBookingCancellation(booking, booking.getCancellationRefundedAmount(), booking.getCancellationNonRefundedAmount());
+        Transaction transaction = transactionService.addBookingCancellation(booking, booking.getCancellationRefundedAmount(), booking.getCancellationNonRefundedAmount());
 
         notificationService.sendBookingCancellation(booking, booking.getParent(), booking.getGroomer());
 
-        return Pair.of(booking,transaction);
+        return Pair.of(booking, transaction);
     }
 
     @Override
@@ -353,8 +338,7 @@ public class BookingServiceImp implements BookingService {
 
             booking.setStatus(BookingStatus.BOOKED);
 
-            transaction =
-                    transactionService.addBookingAccepted(booking);
+            transaction = transactionService.addBookingAccepted(booking);
 
         } else {
             Pair<Booking, Transaction> pair = cancel(booking);
@@ -363,15 +347,13 @@ public class BookingServiceImp implements BookingService {
 
             booking.setStatus(BookingStatus.GROOMER_REJECTED);
 
-            transaction =
-                    transactionService.addBookingRejected(booking);
+            transaction = transactionService.addBookingRejected(booking);
         }
 
         booking = bookingDAO.save(booking);
 
         BookingDTO bookingDTO = entityDTOMapper.mapBookingToBookingDTO(booking);
         bookingDTO.addTransaction(this.entityDTOMapper.mapTransactionToTransactionDTO(transaction));
-
 
         return entityDTOMapper.mapBookingToBookingDTO(booking);
     }

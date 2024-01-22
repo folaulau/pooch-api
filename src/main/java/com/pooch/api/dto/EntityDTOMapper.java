@@ -9,6 +9,8 @@ import com.pooch.api.elastic.repo.CareServiceES;
 import com.pooch.api.entity.groomer.careservice.CareService;
 import com.pooch.api.entity.groomer.careservice.type.GroomerServiceCategory;
 import com.pooch.api.entity.groomer.review.Review;
+import com.pooch.api.entity.groomer.subscriber.Subscriber;
+import com.pooch.api.entity.notification.email.dynamicdata.DemoInfo;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -27,6 +29,7 @@ import com.pooch.api.entity.booking.careservice.BookingCareService;
 import com.pooch.api.entity.booking.pooch.BookingPooch;
 import com.pooch.api.entity.booking.transaction.Transaction;
 import com.pooch.api.entity.chat.Chat;
+import com.pooch.api.entity.demo.Demo;
 import com.pooch.api.entity.employee.Employee;
 import com.pooch.api.entity.groomer.Groomer;
 import com.pooch.api.entity.groomer.calendar.day.CalendarDay;
@@ -44,137 +47,131 @@ nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 //@formatter:on
 public interface EntityDTOMapper {
 
-  Pooch mapPoochCreateDTOToPooch(PoochCreateUpdateDTO poochCreateDTO);
+    Pooch mapPoochCreateDTOToPooch(PoochCreateUpdateDTO poochCreateDTO);
 
-  PoochDTO mapPoochToPoochDTO(Pooch pooch);
+    PoochDTO mapPoochToPoochDTO(Pooch pooch);
 
-  @Mappings({@Mapping(target = "uuid", ignore = true)})
-  Pooch patchPet(PoochCreateUpdateDTO petCreateDTO, @MappingTarget Pooch pet);
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    Pooch patchPet(PoochCreateUpdateDTO petCreateDTO, @MappingTarget Pooch pet);
 
-  PhoneNumberVerificationDTO mapPhoneNumberVerificationToPhoneNumberVerificationDTO(
-      PhoneNumberVerification phoneNumberVerification);
+    PhoneNumberVerificationDTO mapPhoneNumberVerificationToPhoneNumberVerificationDTO(PhoneNumberVerification phoneNumberVerification);
 
-  ParentCreateUpdateDTO mapParentToParentCreateUpdateDTO(Parent petParent);
+    ParentCreateUpdateDTO mapParentToParentCreateUpdateDTO(Parent petParent);
 
-  GroomerUuidDTO mapGroomerToGroomerUuidDTO(Groomer groomer);
+    GroomerUuidDTO mapGroomerToGroomerUuidDTO(Groomer groomer);
 
-  @Mappings({@Mapping(target = "uuid", ignore = true)})
-  Parent mapNewUpdateDTOToParent(ParentCreateUpdateDTO petParentUpdateDTO);
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    Parent mapNewUpdateDTOToParent(ParentCreateUpdateDTO petParentUpdateDTO);
 
-  @Mappings({@Mapping(target = "uuid", ignore = true)})
-  Parent patchParentWithNewParentUpdateDTO(ParentCreateUpdateDTO parentCreateUpdateDTO,
-      @MappingTarget Parent petParent);
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    Parent patchParentWithNewParentUpdateDTO(ParentCreateUpdateDTO parentCreateUpdateDTO, @MappingTarget Parent petParent);
 
-  ParentDTO mapPetParentToPetParentDTO(Parent petParent);
+    ParentDTO mapPetParentToPetParentDTO(Parent petParent);
 
-  GroomerDTO mapGroomerToGroomerDTO(Groomer groomer);
+    GroomerDTO mapGroomerToGroomerDTO(Groomer groomer);
 
-  // @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore =
-  // true)})
-  // void patchGroomerWithGroomerUpdateDTO(GroomerUpdateDTO groomerUpdateDTO, @MappingTarget Groomer
-  // groomer);
+    // @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore =
+    // true)})
+    // void patchGroomerWithGroomerUpdateDTO(GroomerUpdateDTO groomerUpdateDTO, @MappingTarget Groomer
+    // groomer);
 
-  AuthenticationResponseDTO mapGroomerToAuthenticationResponse(Groomer groomer);
+    AuthenticationResponseDTO mapGroomerToAuthenticationResponse(Groomer groomer);
 
-  AuthenticationResponseDTO mapParentToAuthenticationResponse(Parent parent);
+    AuthenticationResponseDTO mapParentToAuthenticationResponse(Parent parent);
 
-  S3FileDTO mapS3FileToS3FileDTO(S3File s3File);
+    S3FileDTO mapS3FileToS3FileDTO(S3File s3File);
 
-  List<S3FileDTO> mapS3FilesToS3FileDTOs(List<S3File> s3Files);
+    List<S3FileDTO> mapS3FilesToS3FileDTOs(List<S3File> s3Files);
 
-  GroomerES mapGroomerEntityToGroomerES(Groomer groomer);
+    GroomerES mapGroomerEntityToGroomerES(Groomer groomer);
 
-  List<CareServiceES> mapCareServicesToCareServiceESs(Set<CareService> careServices);
+    List<CareServiceES> mapCareServicesToCareServiceESs(Set<CareService> careServices);
 
-  AddressES mapAddressToAddressEs(Address address);
+    AddressES mapAddressToAddressEs(Address address);
 
-  @Mappings({@Mapping(target = "uuid", ignore = true)})
-  CareService patchCareServiceWithCareServiceUpdateDTO(CareServiceUpdateDTO careServicesDTO,
-      @MappingTarget CareService careService);
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    CareService patchCareServiceWithCareServiceUpdateDTO(CareServiceUpdateDTO careServicesDTO, @MappingTarget CareService careService);
 
-  CareServiceDTO mapCareServiceToCareServiceDTO(CareService careService);
+    CareServiceDTO mapCareServiceToCareServiceDTO(CareService careService);
 
-  CareService mapCareServiceUpdateDTOToCareService(CareServiceUpdateDTO careServicesDTO);
+    CareService mapCareServiceUpdateDTOToCareService(CareServiceUpdateDTO careServicesDTO);
 
-  Set<CareServiceDTO> mapCareServicesToCareServiceDTOs(Set<CareService> careServiceSet);
+    Set<CareServiceDTO> mapCareServicesToCareServiceDTOs(Set<CareService> careServiceSet);
 
-  Set<CareServiceDTO> mapCareServicesToCareServiceDTOs(List<CareService> savedCareServices);
+    Set<CareServiceDTO> mapCareServicesToCareServiceDTOs(List<CareService> savedCareServices);
 
-  List<CareServiceDTO> mapCareServicesToCareServiceDTOsAsList(Set<CareService> careServices);
+    List<CareServiceDTO> mapCareServicesToCareServiceDTOsAsList(Set<CareService> careServices);
 
-  @Mappings({@Mapping(target = "uuid", ignore = true)})
-  Address patchAddressWithAddressCreateUpdateDTO(AddressCreateUpdateDTO addressCreateUpdateDTO,
-      @MappingTarget Address address);
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    Address patchAddressWithAddressCreateUpdateDTO(AddressCreateUpdateDTO addressCreateUpdateDTO, @MappingTarget Address address);
 
-  @Mappings({@Mapping(target = "uuid", ignore = true)})
-  Address mapAddressCreateUpdateDTOToAddress(AddressCreateUpdateDTO addressCreateUpdateDTO);
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    Address mapAddressCreateUpdateDTOToAddress(AddressCreateUpdateDTO addressCreateUpdateDTO);
 
-  List<GroomerServiceCategoryDTO> mapGroomerServiceCategorysToGroomerServiceCategoryDTOs(
-      List<GroomerServiceCategory> categories);
+    List<GroomerServiceCategoryDTO> mapGroomerServiceCategorysToGroomerServiceCategoryDTOs(List<GroomerServiceCategory> categories);
 
-  Review mapReviewCreateDTOToReview(ReviewCreateDTO review);
+    Review mapReviewCreateDTOToReview(ReviewCreateDTO review);
 
-  ReviewDTO mapReviewToReviewDTO(Review review);
+    ReviewDTO mapReviewToReviewDTO(Review review);
 
-  @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
-  Groomer patchGroomerWithGroomerCreateProfileDTO(GroomerCreateProfileDTO groomerCreateProfileDTO,
-      @MappingTarget Groomer groomer);
+    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
+    Groomer patchGroomerWithGroomerCreateProfileDTO(GroomerCreateProfileDTO groomerCreateProfileDTO, @MappingTarget Groomer groomer);
 
-  @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
-  Groomer patchGroomerWithGroomerCreateListingDTO(GroomerCreateListingDTO groomerCreateListingDTO,
-      @MappingTarget Groomer groomer);
+    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
+    Groomer patchGroomerWithGroomerCreateListingDTO(GroomerCreateListingDTO groomerCreateListingDTO, @MappingTarget Groomer groomer);
 
-  @Mappings({@Mapping(target = "pooches", ignore = true),
-      @Mapping(target = "parent", ignore = true)})
-  Booking mapBookingCreateDTOToBooking(BookingCreateDTO bookingCreateDTO);
+    @Mappings({@Mapping(target = "pooches", ignore = true), @Mapping(target = "parent", ignore = true)})
+    Booking mapBookingCreateDTOToBooking(BookingCreateDTO bookingCreateDTO);
 
+    @Mappings({@Mapping(target = "stripePaymentMethodId", source = "stripeId")})
+    BookingPaymentMethod mapPaymentMethodToBookingPaymentMethod(PaymentMethod paymentMethod);
 
-  @Mappings({@Mapping(target = "stripePaymentMethodId", source = "stripeId")})
-  BookingPaymentMethod mapPaymentMethodToBookingPaymentMethod(PaymentMethod paymentMethod);
+    PaymentIntentDTO mapBookingCostDetailsToPaymentIntentDTO(BookingCostDetails costDetails);
 
-  PaymentIntentDTO mapBookingCostDetailsToPaymentIntentDTO(BookingCostDetails costDetails);
+    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
+    Parent patchParentWithParentUpdateDTO(ParentUpdateDTO parentUpdateDTO, @MappingTarget Parent parent);
 
-  @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
-  Parent patchParentWithParentUpdateDTO(ParentUpdateDTO parentUpdateDTO,
-      @MappingTarget Parent parent);
+    PaymentMethodDTO mapPaymentMethodToPaymentMethod(PaymentMethod paymentMethod);
 
-  PaymentMethodDTO mapPaymentMethodToPaymentMethod(PaymentMethod paymentMethod);
+    Pooch mapPoochBookingCreateDTOToPooch(PoochBookingCreateDTO petCreateDTO);
 
-  Pooch mapPoochBookingCreateDTOToPooch(PoochBookingCreateDTO petCreateDTO);
+    ChatDTO mapChatToChatDTO(Chat chat);
 
-  ChatDTO mapChatToChatDTO(Chat chat);
+    BookingPooch mapPoochToBookingPooch(Pooch pooch);
 
-  BookingPooch mapPoochToBookingPooch(Pooch pooch);
+    BookingDTO mapBookingToBookingDTO(Booking booking);
 
-  BookingDTO mapBookingToBookingDTO(Booking booking);
+    BookingCareService mapCareServiceToBookingCareService(CareService careService);
 
-  BookingCareService mapCareServiceToBookingCareService(CareService careService);
+    TransactionDTO mapTransactionToTransactionDTO(Transaction transaction);
 
-  TransactionDTO mapTransactionToTransactionDTO(Transaction transaction);
+    List<CalendarDayES> mapCalendarDaysToEsCalendar(List<CalendarDay> calendarDays);
 
-  List<CalendarDayES> mapCalendarDaysToEsCalendar(List<CalendarDay> calendarDays);
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    Groomer patchGroomerWithSettingsUpdateDTO(SettingsUpdateDTO settingsUpdateDTO, @MappingTarget Groomer groomer);
 
-  @Mappings({@Mapping(target = "uuid", ignore = true)})
-  Groomer patchGroomerWithSettingsUpdateDTO(SettingsUpdateDTO settingsUpdateDTO,
-      @MappingTarget Groomer groomer);
+    @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
+    Groomer patchGroomerWithGroomerUpdateListingDTO(GroomerUpdateListingDTO groomerUpdateListingDTO, @MappingTarget Groomer groomer);
 
-  @Mappings({@Mapping(target = "uuid", ignore = true), @Mapping(target = "address", ignore = true)})
-  Groomer patchGroomerWithGroomerUpdateListingDTO(GroomerUpdateListingDTO groomerUpdateListingDTO,
-      @MappingTarget Groomer groomer);
+    CareServiceUpdateDTO mapCareServiceDTOToCareServiceUpdateDTO(CareServiceDTO careService);
 
-  CareServiceUpdateDTO mapCareServiceDTOToCareServiceUpdateDTO(CareServiceDTO careService);
+    Set<CareServiceUpdateDTO> mapCareServiceDTOsToCareServiceUpdateDTOs(Set<CareServiceDTO> careServices);
 
-  Set<CareServiceUpdateDTO> mapCareServiceDTOsToCareServiceUpdateDTOs(
-      Set<CareServiceDTO> careServices);
+    GroomerUpdateListingDTO mapGroomerDTOToGroomerUpdateListingDTO(GroomerDTO groomerDTO);
 
-  GroomerUpdateListingDTO mapGroomerDTOToGroomerUpdateListingDTO(GroomerDTO groomerDTO);
+    GroomerES mapGroomerDTOToGroomerES(GroomerDTO groomerDTO);
 
-  GroomerES mapGroomerDTOToGroomerES(GroomerDTO groomerDTO);
+    @Mappings({@Mapping(target = "uuid", ignore = true)})
+    Groomer patchGroomerWithGroomerAvailabilityCreateUpdateDTO(GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO, @MappingTarget Groomer groomer);
 
-  @Mappings({@Mapping(target = "uuid", ignore = true)})
-  Groomer patchGroomerWithGroomerAvailabilityCreateUpdateDTO(
-      GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO,
-      @MappingTarget Groomer groomer);
+    AuthenticationResponseDTO mapEmployeeToAuthenticationResponse(Employee employee);
 
-  AuthenticationResponseDTO mapEmployeeToAuthenticationResponse(Employee employee);
+    Demo mapDemoCreateDTOToDemo(DemoCreateDTO demoCreateDTO);
+
+    DemoDTO mapDemoToDemoDTO(Demo demo);
+
+    Subscriber mapSubscriberCreateDTOToSubscriber(SubscriberCreateDTO subscribeCreateDTO);
+
+    @Mappings({@Mapping(target = "services", ignore = true),@Mapping(target = "marketingCommunicationConsent", ignore = true)})
+    DemoInfo mapDemoToDemoInfo(Demo demo);
 }

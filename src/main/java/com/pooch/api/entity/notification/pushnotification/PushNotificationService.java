@@ -9,5 +9,5 @@ public interface PushNotificationService {
 
   PushNotification send(PushNotification pushNotification, Set<PushNotificationToken> tokens);
 
-  void push(Notification ntc, Map<String, String> data);
+  void push(Notification ntc, Map<String, Object> data);
 }

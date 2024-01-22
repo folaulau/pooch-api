@@ -28,84 +28,82 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AuthenticationServiceImp implements AuthenticationService {
 
-  @Autowired
-  private HttpServletRequest request;
+    @Autowired
+    private HttpServletRequest  request;
 
-  @Autowired
-  private HttpServletResponse response;
+    @Autowired
+    private HttpServletResponse response;
 
-  @Autowired
-  private EntityDTOMapper entityMapper;
+    @Autowired
+    private EntityDTOMapper     entityMapper;
 
-  @Autowired
-  private JwtTokenService jwtTokenService;
+    @Autowired
+    private JwtTokenService     jwtTokenService;
 
-  @Override
-  public AuthenticationResponseDTO authenticate(Parent parent) {
-    String jwt = jwtTokenService.generatePetParentToken(parent);
+    @Override
+    public AuthenticationResponseDTO authenticate(Parent parent) {
+        String jwt = jwtTokenService.generatePetParentToken(parent);
 
-    AuthenticationResponseDTO auth = entityMapper.mapParentToAuthenticationResponse(parent);
-    auth.setToken(jwt);
-    auth.setRole(parent.getRoleAsString());
-
-    return auth;
-  }
-
-  @Override
-  public AuthenticationResponseDTO authenticate(Groomer groomer) {
-    log.info("groomer={}", groomer.toString());
-    String jwt = jwtTokenService.generateGroomerToken(groomer);
-    log.info("jwt={}", jwt);
-    AuthenticationResponseDTO auth = entityMapper.mapGroomerToAuthenticationResponse(groomer);
-    auth.setToken(jwt);
-    auth.setRole(groomer.getRoleAsString());
-
-    return auth;
-  }
-
-  @Override
-  public boolean authorizeRequest(String token, JwtPayload jwtPayload) {
-
-    log.debug("jwtPayload={}", ObjectUtils.toJson(jwtPayload));
-
-    if (jwtPayload == null) {
-      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-      response.setStatus(UNAUTHORIZED.value());
-
-      String message = "Invalid token in header";
-      log.debug("Error message: {}, context path: {}, url: {}", message, request.getContextPath(),
-          request.getRequestURI());
-
-      try {
-        ObjectUtils.getObjectMapper().writeValue(response.getWriter(),
-            new ApiError(UNAUTHORIZED, "Access Denied", message, "Unable to verify token"));
-      } catch (IOException e) {
-        log.warn("IOException, msg={}", e.getLocalizedMessage());
-      }
-
-      return false;
+        AuthenticationResponseDTO auth = entityMapper.mapParentToAuthenticationResponse(parent);
+        auth.setToken(jwt);
+        auth.setRole(parent.getRoleAsString());
+        auth.setName(parent.getFullName());
+        return auth;
     }
 
-    ApiSessionUtils.setSessionToken(new WebAuthenticationDetails(request), jwtPayload);
+    @Override
+    public AuthenticationResponseDTO authenticate(Groomer groomer) {
+        log.info("groomer={}", groomer.toString());
+        String jwt = jwtTokenService.generateGroomerToken(groomer);
+        log.info("jwt={}", jwt);
+        AuthenticationResponseDTO auth = entityMapper.mapGroomerToAuthenticationResponse(groomer);
+        auth.setToken(jwt);
+        auth.setRole(groomer.getRoleAsString());
+        auth.setName(groomer.getFullName());
+        return auth;
+    }
 
-    return true;
-  }
+    @Override
+    public boolean authorizeRequest(String token, JwtPayload jwtPayload) {
 
-  @Override
-  public boolean logOutUser(String token) {
-    // TODO Auto-generated method stub
-    return false;
-  }
+        log.debug("jwtPayload={}", ObjectUtils.toJson(jwtPayload));
 
-  @Override
-  public AuthenticationResponseDTO authenticate(Employee employee) {
-    log.info("employee={}", employee.toString());
-    String jwt = jwtTokenService.generateEmployeeToken(employee);
-    log.info("jwt={}", jwt);
-    AuthenticationResponseDTO auth = entityMapper.mapEmployeeToAuthenticationResponse(employee);
-    auth.setToken(jwt);
-    auth.setRole(employee.getRoleAsString());
-    return auth;
-  }
+        if (jwtPayload == null) {
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setStatus(UNAUTHORIZED.value());
+
+            String message = "Invalid token in header";
+            log.debug("Error message: {}, context path: {}, url: {}", message, request.getContextPath(), request.getRequestURI());
+
+            try {
+                ObjectUtils.getObjectMapper().writeValue(response.getWriter(), new ApiError(UNAUTHORIZED, "Access Denied", message, "Unable to verify token"));
+            } catch (IOException e) {
+                log.warn("IOException, msg={}", e.getLocalizedMessage());
+            }
+
+            return false;
+        }
+
+        ApiSessionUtils.setSessionToken(new WebAuthenticationDetails(request), jwtPayload);
+
+        return true;
+    }
+
+    @Override
+    public boolean logOutUser(String token) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public AuthenticationResponseDTO authenticate(Employee employee) {
+        log.info("employee={}", employee.toString());
+        String jwt = jwtTokenService.generateEmployeeToken(employee);
+        log.info("jwt={}", jwt);
+        AuthenticationResponseDTO auth = entityMapper.mapEmployeeToAuthenticationResponse(employee);
+        auth.setToken(jwt);
+        auth.setRole(employee.getRoleAsString());
+        return auth;
+    }
 
 }

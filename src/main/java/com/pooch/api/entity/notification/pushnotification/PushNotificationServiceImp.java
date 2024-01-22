@@ -166,7 +166,7 @@ public class PushNotificationServiceImp implements PushNotificationService {
   // // }
 
   @Override
-  public void push(Notification ntc, Map<String, String> data) {
+  public void push(Notification ntc, Map<String, Object> data) {
     // TODO Auto-generated method stub
 
   }

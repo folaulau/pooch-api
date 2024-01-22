@@ -11,7 +11,7 @@ import com.github.mustachejava.MustacheFactory;
 
 public interface EmailUtils {
 
-  static String subValues(Map<String, String> params, String templateContent) {
+  static String subValues(Map<String, Object> params, String templateContent) {
 
     if (params == null) {
       return templateContent;

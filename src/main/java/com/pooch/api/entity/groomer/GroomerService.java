@@ -37,4 +37,6 @@ public interface GroomerService {
     GroomerDTO createUpdateAvailability(GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO);
 
     GroomerDTO updateBanListing(@Valid BanListingDTO banListingDTO);
+
+    SubscribedDTO subscribe(SubscriberCreateDTO subscribeCreateDTO);
 }

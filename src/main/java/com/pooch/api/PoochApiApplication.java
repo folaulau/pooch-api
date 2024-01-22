@@ -141,7 +141,7 @@ public class PoochApiApplication implements CommandLineRunner {
     System.out.println("**********************************************************************");
 
     if (env.equalsIgnoreCase("dev")) {
-      dataLoadService.loadGroomers();
+//      dataLoadService.loadGroomers();
     }
   }
 

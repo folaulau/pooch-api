@@ -5,7 +5,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
@@ -44,7 +46,6 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
-
 @Builder
 @Slf4j
 @Getter
@@ -57,103 +58,119 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = DatabaseTableNames.Email)
 public class Email implements Serializable {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+    /**
+     * 
+     */
+    private static final long   serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long                id;
 
-  @Column(name = "uuid", unique = true, nullable = false, updatable = false)
-  private String uuid;
+    @Column(name = "uuid", unique = true, nullable = false, updatable = false)
+    private String              uuid;
 
-  @Lob
-  @Type(type = "org.hibernate.type.TextType")
-  @Column(name = "content")
-  private String content;
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
+    @Column(name = "content")
+    private String              content;
 
-  @Column(name = "subject")
-  private String subject;
+    @Column(name = "subject")
+    private String              subject;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "status")
-  private EmailStatus status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private EmailStatus         status;
 
-  @Column(name = "sender")
-  private String sender;
+    @Column(name = "sender")
+    private String              sender;
 
-  @Column(name = "send_to", length = 100)
-  private String sendTo;
+    @Column(name = "send_to", length = 100)
+    private String              sendTo;
 
-  @Column(name = "error", length = 15000)
-  private String error;
+    @Column(name = "error", length = 15000)
+    private String              error;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "template_uuid", nullable = false)
-  private EmailTemplateUuid templateUuid;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "template_uuid", nullable = false)
+    private EmailTemplateUuid   templateUuid;
 
-  @Fetch(FetchMode.SELECT)
-  @ElementCollection(fetch = FetchType.EAGER)
-  @Column(name = "cc")
-  @CollectionTable(name = "email_carbon_copies", joinColumns = {@JoinColumn(name = "email_id")})
-  private List<String> carbonCopies;
+    @Fetch(FetchMode.SELECT)
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "cc")
+    @CollectionTable(name = "email_carbon_copies", joinColumns = {@JoinColumn(name = "email_id")})
+    private List<String>        carbonCopies;
 
-  @Fetch(FetchMode.SELECT)
-  @ElementCollection(fetch = FetchType.EAGER)
-  @Column(name = "bcc")
-  @CollectionTable(name = "email_blind_carbon_copies",
-      joinColumns = {@JoinColumn(name = "email_id")})
-  private List<String> blindCarbonCopies;
+    @Fetch(FetchMode.SELECT)
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "bcc")
+    @CollectionTable(name = "email_blind_carbon_copies", joinColumns = {@JoinColumn(name = "email_id")})
+    private List<String>        blindCarbonCopies;
 
-  @CreationTimestamp
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt;
+    // sendgrid template id
+    @Column(name = "email_template_id", nullable = true)
+    private String              emailTemplateId;
 
-  @UpdateTimestamp
-  @Column(name = "updated_at", nullable = false)
-  private LocalDateTime updatedAt;
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime       createdAt;
 
-  @Transient
-  private List<File> attachments;
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime       updatedAt;
 
-  public void addCC(String cc) {
-    if (this.carbonCopies == null) {
-      this.carbonCopies = new ArrayList<>();
-    }
-    this.carbonCopies.add(cc);
-  }
+    @Transient
+    private List<File>          attachments;
 
-  public void addBCC(String bcc) {
-    if (this.blindCarbonCopies == null) {
-      this.blindCarbonCopies = new ArrayList<>();
-    }
-    this.blindCarbonCopies.add(bcc);
-  }
+    @Transient
+    private Map<String, Object> dynamicData;
 
-  public void addAttachment(File attachment) {
-    if (this.attachments == null) {
-      this.attachments = new ArrayList<>();
-    }
-    this.attachments.add(attachment);
-  }
-
-  @PrePersist
-  private void preCreate() {
-    if (this.uuid == null || this.uuid.isEmpty()) {
-      this.uuid = "email-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
+    public void addCC(String cc) {
+        if (this.carbonCopies == null) {
+            this.carbonCopies = new ArrayList<>();
+        }
+        this.carbonCopies.add(cc);
     }
 
-  }
-
-  public String toJson() {
-    try {
-      return ObjectUtils.toJson(this);
-    } catch (Exception e) {
-      log.warn("toJson error={}", e.getLocalizedMessage());
-      return null;
+    public void addBCC(String bcc) {
+        if (this.blindCarbonCopies == null) {
+            this.blindCarbonCopies = new ArrayList<>();
+        }
+        this.blindCarbonCopies.add(bcc);
     }
-  }
+
+    public void addAttachment(File attachment) {
+        if (this.attachments == null) {
+            this.attachments = new ArrayList<>();
+        }
+        this.attachments.add(attachment);
+    }
+
+    public void addDynamicData(String key, Object value) {
+        if (key == null || value == null) {
+            return;
+        }
+        if (this.dynamicData == null) {
+            this.dynamicData = new HashMap<>();
+        }
+        this.dynamicData.put(key, value.toString());
+    }
+
+    @PrePersist
+    private void preCreate() {
+        if (this.uuid == null || this.uuid.isEmpty()) {
+            this.uuid = "email-" + new Date().getTime() + "-" + UUID.randomUUID().toString();
+        }
+
+    }
+
+    public String toJson() {
+        try {
+            return ObjectUtils.toJson(this);
+        } catch (Exception e) {
+            log.warn("toJson error={}", e.getLocalizedMessage());
+            return null;
+        }
+    }
 
 }

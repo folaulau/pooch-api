@@ -809,6 +809,24 @@
         filter: {}
 - table:
     schema: public
+    name: demo
+  array_relationships:
+    - name: demo_service_offers
+      using:
+        foreign_key_constraint_on:
+          column: demo_id
+          table:
+            schema: public
+            name: demo_service_offer
+- table:
+    schema: public
+    name: demo_service_offer
+  object_relationships:
+    - name: demo
+      using:
+        foreign_key_constraint_on: demo_id
+- table:
+    schema: public
     name: email
   array_relationships:
     - name: email_blind_carbon_copies
@@ -846,6 +864,27 @@
     - name: notification
       using:
         foreign_key_constraint_on: notification_id
+- table:
+    schema: public
+    name: employee
+  array_relationships:
+    - name: employee_roles
+      using:
+        foreign_key_constraint_on:
+          column: employee_id
+          table:
+            schema: public
+            name: employee_roles
+- table:
+    schema: public
+    name: employee_roles
+  object_relationships:
+    - name: employee
+      using:
+        foreign_key_constraint_on: employee_id
+    - name: role
+      using:
+        foreign_key_constraint_on: role_id
 - table:
     schema: public
     name: flyway_schema_history
@@ -1096,6 +1135,9 @@
         foreign_key_constraint_on: role_id
 - table:
     schema: public
+    name: groomer_subscriber
+- table:
+    schema: public
     name: note
   object_relationships:
     - name: booking
@@ -1200,21 +1242,23 @@
     - role: groomer
       permission:
         columns:
-          - id
-          - phone_number
-          - phone_pumber_verification_id
-          - deleted
-          - email_temp
-          - email_verified
-          - phone_number_verified
-          - email
-          - full_name
-          - status
-          - stripe_customer_id
-          - uuid
+          - cancellation_reason
+          - cancelled_at
           - country_code
           - created_at
+          - deleted
+          - email
+          - email_temp
+          - email_verified
+          - full_name
+          - id
+          - phone_number
+          - phone_number_verified
+          - phone_pumber_verification_id
+          - status
+          - stripe_customer_id
           - updated_at
+          - uuid
         filter:
           bookings:
             groomer_id:
@@ -1222,21 +1266,23 @@
     - role: parent
       permission:
         columns:
-          - id
-          - phone_number
-          - phone_pumber_verification_id
-          - deleted
-          - email_temp
-          - email_verified
-          - phone_number_verified
-          - email
-          - full_name
-          - status
-          - stripe_customer_id
-          - uuid
+          - cancellation_reason
+          - cancelled_at
           - country_code
           - created_at
+          - deleted
+          - email
+          - email_temp
+          - email_verified
+          - full_name
+          - id
+          - phone_number
+          - phone_number_verified
+          - phone_pumber_verification_id
+          - status
+          - stripe_customer_id
           - updated_at
+          - uuid
         filter:
           id:
             _eq: x-Hasura-parent-id
@@ -1244,41 +1290,45 @@
     - role: sales
       permission:
         columns:
-          - id
-          - phone_number
-          - phone_pumber_verification_id
-          - deleted
-          - email_temp
-          - email_verified
-          - phone_number_verified
-          - email
-          - full_name
-          - status
-          - stripe_customer_id
-          - uuid
+          - cancellation_reason
+          - cancelled_at
           - country_code
           - created_at
+          - deleted
+          - email
+          - email_temp
+          - email_verified
+          - full_name
+          - id
+          - phone_number
+          - phone_number_verified
+          - phone_pumber_verification_id
+          - status
+          - stripe_customer_id
           - updated_at
+          - uuid
         filter: {}
         allow_aggregations: true
     - role: support
       permission:
         columns:
-          - id
-          - phone_number
-          - phone_pumber_verification_id
-          - deleted
-          - email_temp
-          - email_verified
-          - phone_number_verified
-          - email
-          - full_name
-          - status
-          - stripe_customer_id
-          - uuid
+          - cancellation_reason
+          - cancelled_at
           - country_code
           - created_at
+          - deleted
+          - email
+          - email_temp
+          - email_verified
+          - full_name
+          - id
+          - phone_number
+          - phone_number_verified
+          - phone_pumber_verification_id
+          - status
+          - stripe_customer_id
           - updated_at
+          - uuid
         filter: {}
         allow_aggregations: true
 - table:
@@ -1616,6 +1666,13 @@
     schema: public
     name: roles
   array_relationships:
+    - name: employee_roles
+      using:
+        foreign_key_constraint_on:
+          column: role_id
+          table:
+            schema: public
+            name: employee_roles
     - name: groomer_roles
       using:
         foreign_key_constraint_on:

@@ -20,6 +20,7 @@ import com.pooch.api.dto.ApiDefaultResponseDTO;
 import com.pooch.api.dto.AuthenticationResponseDTO;
 import com.pooch.api.dto.AuthenticatorDTO;
 import com.pooch.api.dto.EntityDTOMapper;
+import com.pooch.api.dto.ParentCancellationRequestDTO;
 import com.pooch.api.dto.ParentDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.dto.PhoneNumberVerificationCreateDTO;
@@ -53,307 +54,327 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ParentServiceImp implements ParentService {
 
-	@Autowired
-	private FirebaseAuthService firebaseAuthService;
+    @Autowired
+    private FirebaseAuthService    firebaseAuthService;
 
-	@Autowired
-	private PhoneNumberService phoneNumberService;
+    @Autowired
+    private PhoneNumberService     phoneNumberService;
 
-	@Autowired
-	private ParentDAO parentDAO;
+    @Autowired
+    private ParentDAO              parentDAO;
 
-	@Autowired
-	private AuthenticationService authenticationService;
+    @Autowired
+    private AuthenticationService  authenticationService;
 
-	@Autowired
-	private ParentValidatorService parentValidatorService;
+    @Autowired
+    private ParentValidatorService parentValidatorService;
 
-	@Autowired
-	private S3FileDAO s3FileDAO;
+    @Autowired
+    private S3FileDAO              s3FileDAO;
 
-	@Autowired
-	private AwsS3Service awsS3Service;
+    @Autowired
+    private AwsS3Service           awsS3Service;
 
-	@Autowired
-	private EntityDTOMapper entityDTOMapper;
+    @Autowired
+    private EntityDTOMapper        entityDTOMapper;
 
-	@Autowired
-	private PoochService poochService;
+    @Autowired
+    private PoochService           poochService;
 
-	@Autowired
-	private NotificationService notificationService;
+    @Autowired
+    private NotificationService    notificationService;
 
-	@Autowired
-	private StripeCustomerService stripeCustomerService;
+    @Autowired
+    private StripeCustomerService  stripeCustomerService;
 
-	@Override
-	public Parent findByUuid(String uuid) {
-		return this.parentDAO.getByUuid(uuid)
-				.orElseThrow(() -> new ApiException("Parent not found", "parent not found for uuid=" + uuid));
-	}
+    @Override
+    public Parent findByUuid(String uuid) {
+        return this.parentDAO.getByUuid(uuid).orElseThrow(() -> new ApiException("Parent not found", "parent not found for uuid=" + uuid));
+    }
 
-	/**
-	 * Sign up or sign in<br>
-	 * if user already in db sign in, else sign up<br>
-	 */
-	@Override
-	public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
+    /**
+     * Sign up or sign in<br>
+     * if user already in db sign in, else sign up<br>
+     */
+    @Override
+    public AuthenticationResponseDTO authenticate(AuthenticatorDTO authenticatorDTO) {
 
-		UserRecord userRecord = firebaseAuthService.verifyAndGetUser(authenticatorDTO.getToken());
+        UserRecord userRecord = firebaseAuthService.verifyAndGetUser(authenticatorDTO.getToken());
 
-		log.info("userRecord: uuid={}, email={}", userRecord.getUid(), userRecord.getEmail());
+        log.info("userRecord: uuid={}, email={}", userRecord.getUid(), userRecord.getEmail());
 
-		Optional<Parent> optPetParent = parentDAO.getByUuid(userRecord.getUid());
+        Optional<Parent> optPetParent = parentDAO.getByUuid(userRecord.getUid());
 
-		Parent petParent = null;
+        Parent petParent = null;
 
-		if (optPetParent.isPresent()) {
-			/**
-			 * sign in
-			 */
-			petParent = optPetParent.get();
+        if (optPetParent.isPresent()) {
+            /**
+             * sign in
+             */
+            petParent = optPetParent.get();
 
-			if (!petParent.isActive()) {
-				throw new ApiException("Your account is not active. Please contact our support team.",
-						"status=" + petParent.getStatus());
-			}
+            if (!petParent.isActive()) {
+                throw new ApiException("Your account is not active. Please contact our support team.", "status=" + petParent.getStatus());
+            }
 
-		} else {
+        } else {
 
-			/**
-			 * sign up
-			 */
+            /**
+             * sign up
+             */
 
-			petParent = new Parent();
-			petParent.setUuid(userRecord.getUid());
-			petParent.addRole(new Role(UserType.parent));
-			petParent.setAddress(new Address());
-			petParent.setStatus(ParentStatus.ACTIVE);
+            petParent = new Parent();
+            petParent.setUuid(userRecord.getUid());
+            petParent.addRole(new Role(UserType.parent));
+            petParent.setAddress(new Address());
+            petParent.setStatus(ParentStatus.ACTIVE);
 
-			String email = userRecord.getEmail();
+            String email = userRecord.getEmail();
 
-			if (email == null || email.isEmpty()) {
-				UserInfo[] userInfos = userRecord.getProviderData();
+            if (email == null || email.isEmpty()) {
+                UserInfo[] userInfos = userRecord.getProviderData();
 
-				Optional<String> optEmail = Arrays.asList(userInfos).stream()
-						.filter(userInfo -> (userInfo.getEmail() != null && !userInfo.getEmail().isEmpty()))
-						.map(userInfo -> userInfo.getEmail()).findFirst();
+                Optional<String> optEmail = Arrays.asList(userInfos)
+                        .stream()
+                        .filter(userInfo -> (userInfo.getEmail() != null && !userInfo.getEmail().isEmpty()))
+                        .map(userInfo -> userInfo.getEmail())
+                        .findFirst();
 
-				if (optEmail.isPresent()) {
-					email = optEmail.get();
-				}
+                if (optEmail.isPresent()) {
+                    email = optEmail.get();
+                }
 
-			}
+            }
 
-			if (email != null && !email.isEmpty()) {
-				Optional<Parent> optEmailGroomer = parentDAO.getByEmail(email);
+            if (email != null && !email.isEmpty()) {
+                Optional<Parent> optEmailGroomer = parentDAO.getByEmail(email);
 
-				if (optEmailGroomer.isPresent()) {
-					throw new ApiException("Email taken", "an account has this email already",
-							"You are signing up with an email that is taken", "Please use one email per account");
-				}
-			} else {
-				// temp email as placeholder
-				email = "tempParent" + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE)
-						+ "@poochapp.com";
-				petParent.setEmailTemp(true);
-			}
+                if (optEmailGroomer.isPresent()) {
+                    throw new ApiException("Email taken", "an account has this email already", "You are signing up with an email that is taken", "Please use one email per account");
+                }
+            } else {
+                // temp email as placeholder
+                email = "tempParent" + RandomGeneratorUtils.getIntegerWithin(10000, Integer.MAX_VALUE) + "@poochapp.com";
+                petParent.setEmailTemp(true);
+            }
 
-			petParent.setFullName(userRecord.getDisplayName());
+            petParent.setFullName(userRecord.getDisplayName());
 
-			petParent.setEmail(email);
+            petParent.setEmail(email);
 
-			Long phoneNumber = null;
+            Long phoneNumber = null;
 
-			try {
-				phoneNumber = Long.parseLong(userRecord.getPhoneNumber());
-			} catch (Exception e) {
-				log.warn("phoneNumber Exception, msg={}", e.getLocalizedMessage());
-			}
+            try {
+                phoneNumber = Long.parseLong(userRecord.getPhoneNumber());
+            } catch (Exception e) {
+                log.warn("phoneNumber Exception, msg={}", e.getLocalizedMessage());
+            }
 
-			petParent.setPhoneNumber(phoneNumber);
+            petParent.setPhoneNumber(phoneNumber);
 
-			com.stripe.model.Customer customer = stripeCustomerService.createParentDetails(petParent);
+            com.stripe.model.Customer customer = stripeCustomerService.createParentDetails(petParent);
 
-			petParent.setStripeCustomerId(customer.getId());
+            petParent.setStripeCustomerId(customer.getId());
 
-			try {
-				petParent = parentDAO.save(petParent);
-			} catch (ConstraintViolationException e) {
-				throw new ApiException("issue saving ConstraintName=" + e.getConstraintName(),
+            try {
+                petParent = parentDAO.save(petParent);
+            } catch (ConstraintViolationException e) {
+                throw new ApiException("issue saving ConstraintName=" + e.getConstraintName(),
 
-						"SQLState=" + e.getSQLState(), "ErrorCode=" + e.getErrorCode(), "SQLS=" + e.getSQL(),
-						"SQLMessage=" + e.getMessage(), "SQLS=" + e.getSQL(),
+                        "SQLState=" + e.getSQLState(), "ErrorCode=" + e.getErrorCode(), "SQLS=" + e.getSQL(), "SQLMessage=" + e.getMessage(), "SQLS=" + e.getSQL(),
 
-						"petParent=" + ObjectUtils.toJson(petParent), "userRecord=" + userRecord.toString());// TODO:
+                        "petParent=" + ObjectUtils.toJson(petParent), "userRecord=" + userRecord.toString());// TODO:
 
-			} catch (Exception e) {
-				throw new ApiException("issue saving error=" + e.getLocalizedMessage(),
-						"petParent=" + ObjectUtils.toJson(petParent), "userRecord=" + userRecord.toString()); // exception
-			}
+            } catch (Exception e) {
+                throw new ApiException("issue saving error=" + e.getLocalizedMessage(), "petParent=" + ObjectUtils.toJson(petParent), "userRecord=" + userRecord.toString()); // exception
+            }
 
-			notificationService.sendWelcomeNotificationToParent(petParent);
-		}
+            notificationService.sendWelcomeNotificationToParent(petParent);
+        }
 
-		AuthenticationResponseDTO authenticationResponseDTO = authenticationService.authenticate(petParent);
+        AuthenticationResponseDTO authenticationResponseDTO = authenticationService.authenticate(petParent);
 
-		log.info("authenticationResponseDTO={}", ObjectUtils.toJson(authenticationResponseDTO));
+        log.info("authenticationResponseDTO={}", ObjectUtils.toJson(authenticationResponseDTO));
 
-		return authenticationResponseDTO;
-	}
+        return authenticationResponseDTO;
+    }
 
-	@Override
-	public List<S3FileDTO> uploadProfileImages(String uuid, List<MultipartFile> images) {
-		Parent parent = parentValidatorService.validateUploadProfileImages(uuid, images);
+    @Override
+    public List<S3FileDTO> uploadProfileImages(String uuid, List<MultipartFile> images) {
+        Parent parent = parentValidatorService.validateUploadProfileImages(uuid, images);
 
-		List<S3File> s3Files = new ArrayList<>();
+        List<S3File> s3Files = new ArrayList<>();
 
-		for (MultipartFile image : images) {
-			String fileName = image.getOriginalFilename();
-			String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
-			String objectKey = "profile_images/parent/" + parent.getId() + "/" + UUID.randomUUID().toString() + "_"
-					+ santizedFileName;
+        for (MultipartFile image : images) {
+            String fileName = image.getOriginalFilename();
+            String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
+            String objectKey = "profile_images/parent/" + parent.getId() + "/" + UUID.randomUUID().toString() + "_" + santizedFileName;
 
-			log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName, objectKey);
-			ObjectMetadata metadata = new ObjectMetadata();
-			metadata.setContentType(image.getContentType());
+            log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName, objectKey);
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(image.getContentType());
 
-			AwsUploadResponse awsUploadResponse = null;
-			try {
-				awsUploadResponse = awsS3Service.uploadPublicObj(objectKey, metadata, image.getInputStream());
-			} catch (IOException e) {
-				log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
-				e.printStackTrace();
+            AwsUploadResponse awsUploadResponse = null;
+            try {
+                awsUploadResponse = awsS3Service.uploadPublicObj(objectKey, metadata, image.getInputStream());
+            } catch (IOException e) {
+                log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
+                e.printStackTrace();
 
-				throw new ApiException("Unable to upload image", "issue with aws");
-			}
+                throw new ApiException("Unable to upload image", "issue with aws");
+            }
 
-			S3File s3File = new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
-			s3File.setFileType(FileType.PROFILE_IMAGE);
-			s3File.setParent(parent);
+            S3File s3File = new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
+            s3File.setFileType(FileType.PROFILE_IMAGE);
+            s3File.setParent(parent);
 
-			s3Files.add(s3File);
-		}
+            s3Files.add(s3File);
+        }
 
-		if (s3Files.size() > 0) {
-			s3Files = s3FileDAO.save(s3Files);
-			/**
-			 * set last profile image as main profile image
-			 */
-			s3FileDAO.setMainProfileImage(parent, s3Files.get(s3Files.size() - 1));
-		}
+        if (s3Files.size() > 0) {
+            s3Files = s3FileDAO.save(s3Files);
+            /**
+             * set last profile image as main profile image
+             */
+            s3FileDAO.setMainProfileImage(parent, s3Files.get(s3Files.size() - 1));
+        }
 
-		return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
-	}
+        return entityDTOMapper.mapS3FilesToS3FileDTOs(s3Files);
+    }
 
-	@Override
-	public void signOut(String token) {
-		// TODO Auto-generated method stub
-	}
+    @Override
+    public void signOut(String token) {
+        // TODO Auto-generated method stub
+    }
 
-	@Override
-	public ParentDTO updateProfile(ParentUpdateDTO parentUpdateDTO) {
+    @Override
+    public ParentDTO updateProfile(ParentUpdateDTO parentUpdateDTO) {
 
-		Parent parent = parentValidatorService.validateUpdateProfile(parentUpdateDTO);
+        Parent parent = parentValidatorService.validateUpdateProfile(parentUpdateDTO);
 
-		log.info("parent={}", ObjectUtils.toJson(parent));
+        log.info("parent={}", ObjectUtils.toJson(parent));
 
-		entityDTOMapper.patchParentWithParentUpdateDTO(parentUpdateDTO, parent);
+        entityDTOMapper.patchParentWithParentUpdateDTO(parentUpdateDTO, parent);
 
-		log.info("parent1={}", ObjectUtils.toJson(parent));
+        log.info("parent1={}", ObjectUtils.toJson(parent));
 
-		AddressCreateUpdateDTO addressCreateUpdateDTO = parentUpdateDTO.getAddress();
+        AddressCreateUpdateDTO addressCreateUpdateDTO = parentUpdateDTO.getAddress();
 
-		if (addressCreateUpdateDTO != null) {
-			Address address = parent.getAddress();
+        if (addressCreateUpdateDTO != null) {
+            Address address = parent.getAddress();
 
-			if (address == null) {
-				address = new Address();
-			}
+            if (address == null) {
+                address = new Address();
+            }
 
-			entityDTOMapper.patchAddressWithAddressCreateUpdateDTO(addressCreateUpdateDTO, address);
+            entityDTOMapper.patchAddressWithAddressCreateUpdateDTO(addressCreateUpdateDTO, address);
 
-			address.setParent(parent);
-			parent.setAddress(address);
-		}
+            address.setParent(parent);
+            parent.setAddress(address);
+        }
 
-		parent = parentDAO.save(parent);
+        parent = parentDAO.save(parent);
 
-		ParentDTO parentDTO = entityDTOMapper.mapPetParentToPetParentDTO(parent);
+        ParentDTO parentDTO = entityDTOMapper.mapPetParentToPetParentDTO(parent);
 
-		List<PoochDTO> pooches = poochService.updatePooches(parent, parentUpdateDTO.getPooches());
+        List<PoochDTO> pooches = poochService.updatePooches(parent, parentUpdateDTO.getPooches());
 
-		log.info("pooches={}", ObjectUtils.toJson(pooches));
+        log.info("pooches={}", ObjectUtils.toJson(pooches));
 
-		parentDTO.setPooches(pooches);
+        parentDTO.setPooches(pooches);
 
-		return parentDTO;
-	}
+        return parentDTO;
+    }
 
-	@Override
-	public ApiDefaultResponseDTO requestPhoneNumberVerification(String uuid,
-			PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO) {
+    @Override
+    public ApiDefaultResponseDTO requestPhoneNumberVerification(String uuid, PhoneNumberVerificationCreateDTO phoneNumberRequestVerificationDTO) {
 
-		Parent parent = findByUuid(uuid);
+        Parent parent = findByUuid(uuid);
 
-		return this.phoneNumberService.requestVerification(parent, phoneNumberRequestVerificationDTO);
-	}
+        return this.phoneNumberService.requestVerification(parent, phoneNumberRequestVerificationDTO);
+    }
 
-	@Override
-	public PhoneNumberVerificationDTO verifyNumberWithCode(String uuid,
-			PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO) {
+    @Override
+    public PhoneNumberVerificationDTO verifyNumberWithCode(String uuid, PhoneNumberVerificationUpdateDTO phoneNumberVerificationDTO) {
 
-		Parent parent = findByUuid(uuid);
+        Parent parent = findByUuid(uuid);
 
-		PhoneNumberVerification phoneNumberVerification = phoneNumberService.verifyNumberWithCode(parent,
-				phoneNumberVerificationDTO);
+        PhoneNumberVerification phoneNumberVerification = phoneNumberService.verifyNumberWithCode(parent, phoneNumberVerificationDTO);
 
-		if (phoneNumberVerification.getPhoneVerified() != null && phoneNumberVerification.getPhoneVerified() == true) {
-			parent.setPhoneNumber(phoneNumberVerification.getPhoneNumber());
-			parent.setPhoneNumberVerified(true);
-			parent.setPhoneNumberVerification(phoneNumberVerification);
+        if (phoneNumberVerification.getPhoneVerified() != null && phoneNumberVerification.getPhoneVerified() == true) {
+            parent.setPhoneNumber(phoneNumberVerification.getPhoneNumber());
+            parent.setPhoneNumberVerified(true);
+            parent.setPhoneNumberVerification(phoneNumberVerification);
 
-			this.parentDAO.save(parent);
+            this.parentDAO.save(parent);
 
-		}
+        }
 
-		return entityDTOMapper.mapPhoneNumberVerificationToPhoneNumberVerificationDTO(phoneNumberVerification);
-	}
+        return entityDTOMapper.mapPhoneNumberVerificationToPhoneNumberVerificationDTO(phoneNumberVerification);
+    }
 
-	@Override
-	public S3FileDTO uploadProfileImage(String uuid, MultipartFile image) {
-		Parent parent = parentValidatorService.validateUploadProfileImage(uuid, image);
+    @Override
+    public S3FileDTO uploadProfileImage(String uuid, MultipartFile image) {
+        Parent parent = parentValidatorService.validateUploadProfileImage(uuid, image);
 
-		String fileName = image.getOriginalFilename();
-		String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
-		String objectKey = "profile_images/parent/" + parent.getId() + "/" + UUID.randomUUID().toString() + "_"
-				+ santizedFileName;
+        String fileName = image.getOriginalFilename();
+        String santizedFileName = FileUtils.replaceInvalidCharacters(fileName);
+        String objectKey = "profile_images/parent/" + parent.getId() + "/" + UUID.randomUUID().toString() + "_" + santizedFileName;
 
-		log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName, objectKey);
-		ObjectMetadata metadata = new ObjectMetadata();
-		metadata.setContentType(image.getContentType());
+        log.info("fileName={}, santizedFileName={}, objectKey={}", fileName, santizedFileName, objectKey);
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(image.getContentType());
 
-		AwsUploadResponse awsUploadResponse = null;
-		try {
-			awsUploadResponse = awsS3Service.uploadPublicObj(objectKey, metadata, image.getInputStream());
-		} catch (IOException e) {
-			log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
-			e.printStackTrace();
+        AwsUploadResponse awsUploadResponse = null;
+        try {
+            awsUploadResponse = awsS3Service.uploadPublicObj(objectKey, metadata, image.getInputStream());
+        } catch (IOException e) {
+            log.warn("Issue uploading image, localMsg={}", e.getLocalizedMessage());
+            e.printStackTrace();
 
-			throw new ApiException("Unable to upload image", "issue with aws");
-		}
+            throw new ApiException("Unable to upload image", "issue with aws");
+        }
 
-		S3File s3File = new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
-		s3File.setFileType(FileType.PROFILE_IMAGE);
-		s3File.setParent(parent);
-		s3File.setMainProfileImage(true);
-		/**
-		 * set first profile image as main profile image
-		 */
+        S3File s3File = new S3File(fileName, awsUploadResponse.getObjectKey(), awsUploadResponse.getObjectUrl());
+        s3File.setFileType(FileType.PROFILE_IMAGE);
+        s3File.setParent(parent);
+        s3File.setMainProfileImage(true);
+        /**
+         * set first profile image as main profile image
+         */
 
-		s3File = s3FileDAO.setMainProfileImage(parent, s3File);
+        s3File = s3FileDAO.setMainProfileImage(parent, s3File);
 
-		return entityDTOMapper.mapS3FileToS3FileDTO(s3File);
-	}
+        return entityDTOMapper.mapS3FileToS3FileDTO(s3File);
+    }
+
+    @Override
+    public boolean cancelAccount(ParentCancellationRequestDTO cancellationRequest) {
+        /**
+         * Cannot be cancelled if:
+         * 
+         * 1. have outstanding balance
+         * 
+         * 2. find out more!
+         * 
+         * 
+         */
+
+        /**
+         * Result of cancellation:
+         * 
+         * 1. Parents cannot login again
+         * 
+         * 2. Parents still show up in Groomers dashboard for historical records not for new appointments.
+         */
+
+        Parent parent = parentValidatorService.validateAccountCancellation(cancellationRequest);
+
+        parent.cancelAccount(cancellationRequest.getReason());
+
+        parent = this.parentDAO.save(parent);
+
+        return true;
+    }
 
 }

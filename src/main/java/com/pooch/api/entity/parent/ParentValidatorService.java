@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.pooch.api.dto.ParentCancellationRequestDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
 
 public interface ParentValidatorService {
@@ -13,4 +14,6 @@ public interface ParentValidatorService {
     Parent validateUpdateProfile(ParentUpdateDTO parentUpdateDTO);
 
     Parent validateUploadProfileImage(String uuid, MultipartFile image);
+
+    Parent validateAccountCancellation(ParentCancellationRequestDTO cancellationRequest);
 }

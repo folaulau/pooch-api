@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.pooch.api.dto.ParentCancellationRequestDTO;
 import com.pooch.api.dto.ParentUpdateDTO;
 import com.pooch.api.dto.PoochCreateUpdateDTO;
 import com.pooch.api.entity.pooch.PoochValidatorService;
@@ -23,60 +24,68 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ParentValidatorServiceImp implements ParentValidatorService {
 
-  @Autowired
-  private ParentDAO parentDAO;
+    @Autowired
+    private ParentDAO             parentDAO;
 
-  @Autowired
-  private PoochValidatorService poochValidatorService;
+    @Autowired
+    private PoochValidatorService poochValidatorService;
 
-  private static Pattern phonePattern = Pattern.compile("^\\d{10}$");
+    private static Pattern        phonePattern = Pattern.compile("^\\d{10}$");
 
-  @Override
-  public Parent validateUploadProfileImages(String uuid, List<MultipartFile> images) {
+    @Override
+    public Parent validateUploadProfileImages(String uuid, List<MultipartFile> images) {
 
-    Parent parent = parentDAO.getByUuid(uuid).orElseThrow(
-        () -> new ApiException("Unable to upload image", "Parent not found for uuid=" + uuid));
+        Parent parent = parentDAO.getByUuid(uuid).orElseThrow(() -> new ApiException("Unable to upload image", "Parent not found for uuid=" + uuid));
 
-    FileValidatorUtils.validateUploadImages(images);
+        FileValidatorUtils.validateUploadImages(images);
 
-    return parent;
-  }
-
-  @Override
-  public Parent validateUpdateProfile(ParentUpdateDTO parentUpdateDTO) {
-
-    String uuid = parentUpdateDTO.getUuid();
-
-    Parent parent = parentDAO.getByUuid(uuid).orElseThrow(
-        () -> new ApiException("Unable to update profile", "Parent not found for uuid=" + uuid));
-
-    Long phoneNumber = parentUpdateDTO.getPhoneNumber();
-
-    if (phoneNumber != null && !phonePattern.matcher("" + phoneNumber).matches()) {
-      throw new ApiException("Invalid Phone Number", "Phone number must a valid 10 digit number");
+        return parent;
     }
 
-    Set<PoochCreateUpdateDTO> poochCreateUpdateDTOs = parentUpdateDTO.getPooches();
+    @Override
+    public Parent validateUpdateProfile(ParentUpdateDTO parentUpdateDTO) {
 
-    if (poochCreateUpdateDTOs != null && poochCreateUpdateDTOs.size() > 0) {
-      for (PoochCreateUpdateDTO pooch : poochCreateUpdateDTOs) {
+        String uuid = parentUpdateDTO.getUuid();
 
-        poochValidatorService.validateCreateUpdatePooch(parent, pooch);
+        Parent parent = parentDAO.getByUuid(uuid).orElseThrow(() -> new ApiException("Unable to update profile", "Parent not found for uuid=" + uuid));
 
-      }
+        Long phoneNumber = parentUpdateDTO.getPhoneNumber();
+
+        if (phoneNumber != null && !phonePattern.matcher("" + phoneNumber).matches()) {
+            throw new ApiException("Invalid Phone Number", "Phone number must a valid 10 digit number");
+        }
+
+        Set<PoochCreateUpdateDTO> poochCreateUpdateDTOs = parentUpdateDTO.getPooches();
+
+        if (poochCreateUpdateDTOs != null && poochCreateUpdateDTOs.size() > 0) {
+            for (PoochCreateUpdateDTO pooch : poochCreateUpdateDTOs) {
+
+                poochValidatorService.validateCreateUpdatePooch(parent, pooch);
+
+            }
+        }
+
+        return parent;
     }
 
-    return parent;
-  }
+    @Override
+    public Parent validateUploadProfileImage(String uuid, MultipartFile image) {
+        Parent parent = parentDAO.getByUuid(uuid).orElseThrow(() -> new ApiException("Unable to upload image", "Parent not found for uuid=" + uuid));
 
-  @Override
-  public Parent validateUploadProfileImage(String uuid, MultipartFile image) {
-    Parent parent = parentDAO.getByUuid(uuid).orElseThrow(
-        () -> new ApiException("Unable to upload image", "Parent not found for uuid=" + uuid));
+        FileValidatorUtils.validateUploadImages(Arrays.asList(image));
 
-    FileValidatorUtils.validateUploadImages(Arrays.asList(image));
+        return parent;
+    }
 
-    return parent;
-  }
+    @Override
+    public Parent validateAccountCancellation(ParentCancellationRequestDTO cancellationRequest) {
+        String uuid = cancellationRequest.getUuid();
+
+        Parent parent = parentDAO.getByUuid(uuid).orElseThrow(() -> new ApiException("Unable to cancel your account", "Parent not found for uuid=" + uuid));
+        
+        
+        
+        return parent;
+    }
 
 }

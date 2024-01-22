@@ -32,197 +32,183 @@ import javax.validation.Valid;
 @RequestMapping("/groomers")
 public class GroomerRestController {
 
-  @Autowired
-  private GroomerService groomerService;
+    @Autowired
+    private GroomerService            groomerService;
 
-  @Autowired
-  private GroomerServiceTypeService groomerServiceTypeService;
+    @Autowired
+    private GroomerServiceTypeService groomerServiceTypeService;
 
-  @Autowired
-  private XApiKeyService xApiKeyService;
+    @Autowired
+    private XApiKeyService            xApiKeyService;
 
-  @Operation(summary = "Authenticate", description = "sign up or sign in")
-  @PostMapping(value = "/authenticate")
-  public ResponseEntity<AuthenticationResponseDTO> authenticate(
-      @RequestHeader(name = "x-api-key", required = true) String xApiKey,
-      @RequestBody AuthenticatorDTO authenticatorDTO) {
-    log.info("authenticate={}", ObjectUtils.toJson(authenticatorDTO));
+    @Operation(summary = "Authenticate", description = "sign up or sign in")
+    @PostMapping(value = "/authenticate")
+    public ResponseEntity<AuthenticationResponseDTO> authenticate(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @RequestBody AuthenticatorDTO authenticatorDTO) {
+        log.info("authenticate={}", ObjectUtils.toJson(authenticatorDTO));
 
-    xApiKeyService.validate(xApiKey);
+        xApiKeyService.validate(xApiKey);
 
-    AuthenticationResponseDTO authenticationResponseDTO =
-        groomerService.authenticate(authenticatorDTO);
+        AuthenticationResponseDTO authenticationResponseDTO = groomerService.authenticate(authenticatorDTO);
 
-    return new ResponseEntity<>(authenticationResponseDTO, OK);
-  }
+        return new ResponseEntity<>(authenticationResponseDTO, OK);
+    }
 
-  // @Operation(summary = "Update Profile", description = "update profile")
-  // @PutMapping(value = "/profile")
-  // public ResponseEntity<GroomerDTO> update(@RequestHeader(name = "token", required = true) String
-  // token, @RequestBody GroomerUpdateDTO groomerUpdateDTO) {
-  // log.info("groomerUpdateDTO={}", ObjectUtils.toJson(groomerUpdateDTO));
-  //
-  // GroomerDTO groomerDTO = groomerService.updateProfile(groomerUpdateDTO);
-  //
-  // return new ResponseEntity<>(groomerDTO, OK);
-  // }
+    // @Operation(summary = "Update Profile", description = "update profile")
+    // @PutMapping(value = "/profile")
+    // public ResponseEntity<GroomerDTO> update(@RequestHeader(name = "token", required = true) String
+    // token, @RequestBody GroomerUpdateDTO groomerUpdateDTO) {
+    // log.info("groomerUpdateDTO={}", ObjectUtils.toJson(groomerUpdateDTO));
+    //
+    // GroomerDTO groomerDTO = groomerService.updateProfile(groomerUpdateDTO);
+    //
+    // return new ResponseEntity<>(groomerDTO, OK);
+    // }
 
-  @Operation(summary = "Create Profile", description = "create profile")
-  @PutMapping(value = "/create-profile")
-  public ResponseEntity<GroomerDTO> createProfile(
-      @RequestHeader(name = "token", required = true) String token,
-      @Valid @RequestBody GroomerCreateProfileDTO groomerCreateProfileDTO) {
-    log.info("createProfile={}", ObjectUtils.toJson(groomerCreateProfileDTO));
+    @Operation(summary = "Create Profile", description = "create profile")
+    @PutMapping(value = "/create-profile")
+    public ResponseEntity<GroomerDTO> createProfile(@RequestHeader(name = "token", required = true) String token, @Valid @RequestBody GroomerCreateProfileDTO groomerCreateProfileDTO) {
+        log.info("createProfile={}", ObjectUtils.toJson(groomerCreateProfileDTO));
 
-    GroomerDTO groomerDTO = groomerService.createUpdateProfile(groomerCreateProfileDTO);
+        GroomerDTO groomerDTO = groomerService.createUpdateProfile(groomerCreateProfileDTO);
 
-    return new ResponseEntity<>(groomerDTO, OK);
-  }
+        return new ResponseEntity<>(groomerDTO, OK);
+    }
 
-  @Operation(summary = "Create Listing", description = "create listing")
-  @PutMapping(value = "/create-listing")
-  public ResponseEntity<GroomerDTO> createListing(
-      @RequestHeader(name = "token", required = true) String token,
-      @Valid @RequestBody GroomerCreateListingDTO groomerCreateListingDTO) {
-    log.info("createListing={}", ObjectUtils.toJson(groomerCreateListingDTO));
+    @Operation(summary = "Create Listing", description = "create listing")
+    @PutMapping(value = "/create-listing")
+    public ResponseEntity<GroomerDTO> createListing(@RequestHeader(name = "token", required = true) String token, @Valid @RequestBody GroomerCreateListingDTO groomerCreateListingDTO) {
+        log.info("createListing={}", ObjectUtils.toJson(groomerCreateListingDTO));
 
-    GroomerDTO groomerDTO = groomerService.createListing(groomerCreateListingDTO);
+        GroomerDTO groomerDTO = groomerService.createListing(groomerCreateListingDTO);
 
-    return new ResponseEntity<>(groomerDTO, OK);
-  }
+        return new ResponseEntity<>(groomerDTO, OK);
+    }
 
-  @Operation(summary = "Create/Update Availability", description = "create or update availability")
-  @PutMapping(value = "/availability")
-  public ResponseEntity<GroomerDTO> createUpdateAvailability(
-          @RequestHeader(name = "token", required = true) String token,
-        @Valid @RequestBody GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO) {
-    log.info("createUpdateAvailability={}", ObjectUtils.toJson(groomerAvailabilityCreateUpdateDTO));
+    @Operation(summary = "Create/Update Availability", description = "create or update availability")
+    @PutMapping(value = "/availability")
+    public ResponseEntity<GroomerDTO> createUpdateAvailability(@RequestHeader(name = "token", required = true) String token,
+            @Valid @RequestBody GroomerAvailabilityCreateUpdateDTO groomerAvailabilityCreateUpdateDTO) {
+        log.info("createUpdateAvailability={}", ObjectUtils.toJson(groomerAvailabilityCreateUpdateDTO));
 
-    GroomerDTO groomerDTO = groomerService.createUpdateAvailability(groomerAvailabilityCreateUpdateDTO);
+        GroomerDTO groomerDTO = groomerService.createUpdateAvailability(groomerAvailabilityCreateUpdateDTO);
 
-    return new ResponseEntity<>(groomerDTO, OK);
-  }
-  
-  @Operation(summary = "Update Listing", description = "update listing")
-  @PutMapping(value = "/update-listing")
-  public ResponseEntity<GroomerDTO> updateListing(
-      @RequestHeader(name = "token", required = true) String token,
-      @Valid @RequestBody GroomerUpdateListingDTO groomerUpdateListingDTO) {
-    log.info("updateListing={}", ObjectUtils.toJson(groomerUpdateListingDTO));
+        return new ResponseEntity<>(groomerDTO, OK);
+    }
 
-    GroomerDTO groomerDTO = groomerService.updateListing(groomerUpdateListingDTO);
-    
-    return new ResponseEntity<>(groomerDTO, OK);
-  }
+    @Operation(summary = "Update Listing", description = "update listing")
+    @PutMapping(value = "/update-listing")
+    public ResponseEntity<GroomerDTO> updateListing(@RequestHeader(name = "token", required = true) String token, @Valid @RequestBody GroomerUpdateListingDTO groomerUpdateListingDTO) {
+        log.info("updateListing={}", ObjectUtils.toJson(groomerUpdateListingDTO));
 
-  @Operation(summary = "Turn Listing On/Off",
-      description = "Toogle listing on or off. On means this groomer will be on Poochapp market place")
-  @PutMapping(value = "/toggle-listing")
-  public ResponseEntity<GroomerDTO> toggleListing(
-      @RequestHeader(name = "token", required = true) String token,
-      @RequestBody GroomerListingUpdateDTO listingUpdateDTO) {
-    log.info("toggleListing={}", ObjectUtils.toJson(listingUpdateDTO));
+        GroomerDTO groomerDTO = groomerService.updateListing(groomerUpdateListingDTO);
 
-    GroomerDTO groomerDTO = groomerService.toggleListing(listingUpdateDTO);
+        return new ResponseEntity<>(groomerDTO, OK);
+    }
 
-    return new ResponseEntity<>(groomerDTO, OK);
-  }
+    @Operation(summary = "Turn Listing On/Off", description = "Toogle listing on or off. On means this groomer will be on Poochapp market place")
+    @PutMapping(value = "/toggle-listing")
+    public ResponseEntity<GroomerDTO> toggleListing(@RequestHeader(name = "token", required = true) String token, @RequestBody GroomerListingUpdateDTO listingUpdateDTO) {
+        log.info("toggleListing={}", ObjectUtils.toJson(listingUpdateDTO));
 
-  @Operation(summary = "Get Stripe Account Link", description = "get stripe account link")
-  @GetMapping(value = "/{uuid}/stripe-account-link")
-  public ResponseEntity<StripeAccountLinkDTO> getStripeAccountLink(
-      @RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
-      @RequestParam(required = false) String host) {
-    log.info("updatePaymentMethod");
+        GroomerDTO groomerDTO = groomerService.toggleListing(listingUpdateDTO);
 
-    StripeAccountLinkDTO stripeAccountLinkDTO = groomerService.getStripeAccountLink(uuid, host);
+        return new ResponseEntity<>(groomerDTO, OK);
+    }
 
-    return new ResponseEntity<>(stripeAccountLinkDTO, OK);
-  }
+    @Operation(summary = "Get Stripe Account Link", description = "get stripe account link")
+    @GetMapping(value = "/{uuid}/stripe-account-link")
+    public ResponseEntity<StripeAccountLinkDTO> getStripeAccountLink(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
+            @RequestParam(required = false) String host) {
+        log.info("updatePaymentMethod");
 
-  @Operation(summary = "Sync Stripe Update Info",
-      description = "Groomer did some updates on his Stripe connected account and this endpoint is a call back to pull latest updates from Stripe and sync with Groomer db info.")
-  @PutMapping(value = "/{uuid}/sync-stripe-info")
-  public ResponseEntity<GroomerDTO> syncStripeInfo(
-      @RequestHeader(name = "token", required = true) String token, @PathVariable String uuid) {
-    log.info("syncStripeInfo");
+        StripeAccountLinkDTO stripeAccountLinkDTO = groomerService.getStripeAccountLink(uuid, host);
 
-    GroomerDTO groomerDTO = groomerService.syncStripeInfo(uuid);
+        return new ResponseEntity<>(stripeAccountLinkDTO, OK);
+    }
 
-    return new ResponseEntity<>(groomerDTO, OK);
-  }
+    @Operation(summary = "Sync Stripe Update Info", description = "Groomer did some updates on his Stripe connected account and this endpoint is a call back to pull latest updates from Stripe and sync with Groomer db info.")
+    @PutMapping(value = "/{uuid}/sync-stripe-info")
+    public ResponseEntity<GroomerDTO> syncStripeInfo(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid) {
+        log.info("syncStripeInfo");
 
-  @Operation(summary = "Upload Profile Images", description = "upload profile images")
-  @PostMapping(value = "/{uuid}/profile/images", consumes = {"multipart/form-data"})
-  public ResponseEntity<List<S3FileDTO>> uploadProfileImages(
-      @RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
-      @RequestParam(name = "images") List<MultipartFile> images) {
-    log.info("uploadProfileImages, uuid={}", uuid);
+        GroomerDTO groomerDTO = groomerService.syncStripeInfo(uuid);
 
-    List<S3FileDTO> s3FileDTOs = groomerService.uploadProfileImages(uuid, images);
+        return new ResponseEntity<>(groomerDTO, OK);
+    }
 
-    return new ResponseEntity<>(s3FileDTOs, OK);
-  }
+    @Operation(summary = "Upload Profile Images", description = "upload profile images")
+    @PostMapping(value = "/{uuid}/profile/images", consumes = {"multipart/form-data"})
+    public ResponseEntity<List<S3FileDTO>> uploadProfileImages(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
+            @RequestParam(name = "images") List<MultipartFile> images) {
+        log.info("uploadProfileImages, uuid={}", uuid);
 
-  @Operation(summary = "Upload Contract Documents", description = "upload contract documents")
-  @PostMapping(value = "/{uuid}/contract/documents", consumes = {"multipart/form-data"})
-  public ResponseEntity<List<S3FileDTO>> uploadContractDocuments(
-      @RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
-      @RequestParam(name = "docs") List<MultipartFile> docs) {
-    log.info("uploadProfileImages, uuid={}", uuid);
+        List<S3FileDTO> s3FileDTOs = groomerService.uploadProfileImages(uuid, images);
 
-    List<S3FileDTO> s3FileDTOs = groomerService.uploadContractDocuments(uuid, docs);
+        return new ResponseEntity<>(s3FileDTOs, OK);
+    }
 
-    return new ResponseEntity<>(s3FileDTOs, OK);
-  }
+    @Operation(summary = "Upload Contract Documents", description = "upload contract documents")
+    @PostMapping(value = "/{uuid}/contract/documents", consumes = {"multipart/form-data"})
+    public ResponseEntity<List<S3FileDTO>> uploadContractDocuments(@RequestHeader(name = "token", required = true) String token, @PathVariable String uuid,
+            @RequestParam(name = "docs") List<MultipartFile> docs) {
+        log.info("uploadProfileImages, uuid={}", uuid);
 
-  @Operation(summary = "Search Groomers",
-      description = "search groomers<br>" + "distance is in mile. default to 5 miles<br>"
-          + "pageNumber starts at 0 as the first page<br>" + "pageSize is 25 by default<br>"
-          + "sorts valid values[distance,rating,searchPhrase]<br>")
-  @PostMapping(value = "/search")
-  public ResponseEntity<CustomPage<GroomerES>> search(
-      @RequestHeader(name = "token", required = true) String token,
-      @RequestBody GroomerSearchParamsDTO params) {
-    log.info("search");
+        List<S3FileDTO> s3FileDTOs = groomerService.uploadContractDocuments(uuid, docs);
 
-    // xApiKeyService.validate(xApiKey);
+        return new ResponseEntity<>(s3FileDTOs, OK);
+    }
 
-    CustomPage<GroomerES> results = groomerService.search(params);
+    @Operation(summary = "Search Groomers", description = "search groomers<br>" + "distance is in mile. default to 5 miles<br>" + "pageNumber starts at 0 as the first page<br>"
+            + "pageSize is 25 by default<br>" + "sorts valid values[distance,rating,searchPhrase]<br>")
+    @PostMapping(value = "/search")
+    public ResponseEntity<CustomPage<GroomerES>> search(@RequestHeader(name = "token", required = true) String token, @RequestBody GroomerSearchParamsDTO params) {
+        log.info("search");
 
-    return new ResponseEntity<>(results, OK);
-  }
+        // xApiKeyService.validate(xApiKey);
 
-  @Operation(summary = "Sign Out", description = "sign out")
-  @DeleteMapping(value = "/signout")
-  public ResponseEntity<ApiDefaultResponseDTO> signOut(
-      @RequestHeader(name = "token", required = true) String token) {
-    log.info("signOut={}", token);
+        CustomPage<GroomerES> results = groomerService.search(params);
 
-    ApiDefaultResponseDTO result = groomerService.signOut(token);
+        return new ResponseEntity<>(results, OK);
+    }
 
-    return new ResponseEntity<>(new ApiDefaultResponseDTO(ApiDefaultResponseDTO.SUCCESS), OK);
-  }
+    @Operation(summary = "Sign Out", description = "sign out")
+    @DeleteMapping(value = "/signout")
+    public ResponseEntity<ApiDefaultResponseDTO> signOut(@RequestHeader(name = "token", required = true) String token) {
+        log.info("signOut={}", token);
 
-  @Operation(summary = "Get Service Types", description = "get service types")
-  @GetMapping("/service/types")
-  public ResponseEntity<List<GroomerServiceCategoryDTO>> getAllServiceTypes(
-      @RequestHeader(name = "token", required = true) String token) {
-    log.info("getAllServiceTypes()");
-    // xApiKeyService.validate(xApiKey);
+        ApiDefaultResponseDTO result = groomerService.signOut(token);
 
-    return new ResponseEntity<>(groomerServiceTypeService.getAllGroomerServiceTypes(), OK);
-  }
+        return new ResponseEntity<>(new ApiDefaultResponseDTO(ApiDefaultResponseDTO.SUCCESS), OK);
+    }
 
-  @Operation(summary = "Update Settings", description = "Update settings")
-  @PutMapping(value = "/settings")
-  public ResponseEntity<GroomerDTO> updateSettings(
-      @RequestHeader(name = "token", required = true) String token,
-      @Valid @RequestBody SettingsUpdateDTO settingsUpdateDTO) {
-    log.info("updateSettings");
+    @Operation(summary = "Get Service Types", description = "get service types")
+    @GetMapping("/service/types")
+    public ResponseEntity<List<GroomerServiceCategoryDTO>> getAllServiceTypes(@RequestHeader(name = "token", required = true) String token) {
+        log.info("getAllServiceTypes()");
+        // xApiKeyService.validate(xApiKey);
 
-    GroomerDTO groomerDTO = groomerService.updateSettings(settingsUpdateDTO);
+        return new ResponseEntity<>(groomerServiceTypeService.getAllGroomerServiceTypes(), OK);
+    }
 
-    return new ResponseEntity<>(groomerDTO, OK);
-  }
+    @Operation(summary = "Update Settings", description = "Update settings")
+    @PutMapping(value = "/settings")
+    public ResponseEntity<GroomerDTO> updateSettings(@RequestHeader(name = "token", required = true) String token, @Valid @RequestBody SettingsUpdateDTO settingsUpdateDTO) {
+        log.info("updateSettings");
+
+        GroomerDTO groomerDTO = groomerService.updateSettings(settingsUpdateDTO);
+
+        return new ResponseEntity<>(groomerDTO, OK);
+    }
+
+    @Operation(summary = "Subscribe", description = "subscribe")
+    @PostMapping(value = "/subscribe")
+    public ResponseEntity<SubscribedDTO> subscribe(@RequestHeader(name = "x-api-key", required = true) String xApiKey, @Valid @RequestBody SubscriberCreateDTO subscribeCreateDTO) {
+        log.info("subscribeCreateDTO={}", ObjectUtils.toJson(subscribeCreateDTO));
+
+        xApiKeyService.validate(xApiKey);
+
+        SubscribedDTO authenticationResponseDTO = groomerService.subscribe(subscribeCreateDTO);
+
+        return new ResponseEntity<>(authenticationResponseDTO, OK);
+    }
 }

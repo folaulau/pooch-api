@@ -28,4 +28,6 @@ public interface DatabaseTableNames {
   String Calendar = "calendar";
   String CalendarDay = "calendar_day";
   String Employee = "employee";
+  String Demo = "demo";
+  String GroomerSubscriber = "groomer_subscriber";
 }

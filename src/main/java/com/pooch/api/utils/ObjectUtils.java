@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.slf4j.Logger;
@@ -136,6 +137,15 @@ public class ObjectUtils {
             throw new IllegalArgumentException("Failed to deserialize object", ex);
         } catch (ClassNotFoundException ex) {
             throw new IllegalStateException("Failed to deserialize object type", ex);
+        }
+    }
+
+    public static Map<String, Object> toMap(Object object) {
+        try {
+            return getObjectMapper().convertValue(object, Map.class);
+        } catch (Exception e) {
+            log.warn("ObjectUtil - printJson - toMap - Msg: " + e.getLocalizedMessage());
+            return null;
         }
     }
 }

@@ -5,5 +5,6 @@ public enum ParentStatus {
     NONE,
     ACTIVE,
     SUSPENDED,
-    INACTIVE;
+    INACTIVE,
+    CANCELLED;
 }
