@@ -154,7 +154,7 @@ jobs:
   
       - name: Apply Hasura Metadata
         run: |
-          hasura metadata clear --endpoint ${{ secrets.DEV_HASURA_ENDPOINT }} --admin-secret ${{ secrets.DEV_HASURA_ADMIN_SECRET }} --project hasura
-          hasura metadata apply --endpoint ${{ secrets.DEV_HASURA_ENDPOINT }} --admin-secret ${{ secrets.DEV_HASURA_ADMIN_SECRET }} --project hasura
+          hasura metadata clear --endpoint https://dev-graphql.poochapp.com --admin-secret ${{ secrets.DEV_HASURA_ADMIN_SECRET }} --project hasura
+          hasura metadata apply --endpoint https://dev-graphql.poochapp.com --admin-secret ${{ secrets.DEV_HASURA_ADMIN_SECRET }} --project hasura
 
      
